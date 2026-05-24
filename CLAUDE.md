@@ -28,7 +28,7 @@ ai-founder-kb/
 ├── sequoia-channel/             # Catalog of all 159 Sequoia YouTube videos
 │
 └── raw-transcripts/             # ← THE BIG STORAGE: all raw podcast/video transcripts
-    ├── youtube/                 # Sequoia channel transcripts (from Memories.ai + youtube-transcript-api)
+    ├── sequoia/                 # Sequoia channel transcripts (from Memories.ai + youtube-transcript-api)
     ├── 20vc-podcast/            # 869 episodes — transcripts + summaries + guests.json + index.json
     ├── lennys-podcast/          # In-progress (Phase 7)
     ├── dwarkesh/                # In-progress (Phase 7)
@@ -49,7 +49,7 @@ The KB has **two layers**:
 
 Cross-reference between them:
 - `by-person/X.md` → references a podcast → `by-source/X.md` → matches a folder under `raw-transcripts/`.
-- File naming convention in `raw-transcripts/youtube/`: `{video_id}_MAI_{slug}.txt` (MAI = Memories.ai source) or `{video_id}_{slug}.txt` (other sources).
+- File naming convention in `raw-transcripts/sequoia/`: `{video_id}_MAI_{slug}.txt` (MAI = Memories.ai source) or `{video_id}_{slug}.txt` (other sources).
 
 ---
 
@@ -73,7 +73,7 @@ For `gh` CLI auth (used for git pushes), the cloud environment should be pre-aut
 ### 3a. Anthropic cloud routine (durable, runs hourly)
 - **ID**: `trig_01QcfAhbTbEo1oPtRYchkJh7`
 - **Cron**: `7 * * * *` (every hour at :07 UTC)
-- **Job**: Polls Memories.ai for videos under `unique_id="sequoia-dogfood"` with `status=PARSE`, fetches their transcripts via `get_audio_transcription`, and pushes new ones to `raw-transcripts/youtube/` via the GitHub Contents API.
+- **Job**: Polls Memories.ai for videos under `unique_id="sequoia-dogfood"` with `status=PARSE`, fetches their transcripts via `get_audio_transcription`, and pushes new ones to `raw-transcripts/sequoia/` via the GitHub Contents API.
 - **Dashboard**: https://claude.ai/code/routines/trig_01QcfAhbTbEo1oPtRYchkJh7
 - **Auto-expires**: 7 days after creation (2026-05-31).
 - **Sources file** (the canonical list of what's expected): `sequoia-channel/README.md`. Target = ~127 videos in this batch.
@@ -94,7 +94,7 @@ When you (cloud Claude) wake up, **first check** `raw-transcripts/{slug}/README.
 ## 4. Conventions
 
 ### File naming
-- `raw-transcripts/youtube/`: `{video_id}_MAI_{slug}.txt` for Memories.ai-fetched, `{video_id}_{slug}.txt` for direct youtube-transcript-api.
+- `raw-transcripts/sequoia/`: `{video_id}_MAI_{slug}.txt` for Memories.ai-fetched, `{video_id}_{slug}.txt` for direct youtube-transcript-api.
 - `raw-transcripts/{podcast}/`: `{episode_slug}.txt` (slug = title slugified, max 60 chars, alphanumeric + underscore).
 - Each transcript starts with a metadata header:
   ```
@@ -138,9 +138,9 @@ When you (cloud Claude) wake up, **first check** `raw-transcripts/{slug}/README.
 In rough priority order. Pick up whichever is best fit for your current run.
 
 ### P0 — Finish what's already submitted but not yet retrieved
-**Memories.ai `unique_id=sequoia-dogfood` should have ~127 video tasks**, of which ~54 are already in `raw-transcripts/youtube/` and the rest are still parsing. The hourly cloud routine handles this. If you find that the routine has stopped (e.g. trigger expired), recreate it (see Section 3a) or do one-shot pull via a Python script that:
+**Memories.ai `unique_id=sequoia-dogfood` should have ~127 video tasks**, of which ~54 are already in `raw-transcripts/sequoia/` and the rest are still parsing. The hourly cloud routine handles this. If you find that the routine has stopped (e.g. trigger expired), recreate it (see Section 3a) or do one-shot pull via a Python script that:
 1. POSTs `/list_videos` to `https://api.memories.ai/serve/api/v1/list_videos` with body `{"unique_id":"sequoia-dogfood","page":1,"page_size":200}`.
-2. For each video with `status=="PARSE"` not already in repo, GET `/get_audio_transcription?video_no=...`, format with `[HH:MM:SS] content` lines, PUT to GitHub Contents API at `raw-transcripts/youtube/{video_id}_MAI_{slug}.txt`.
+2. For each video with `status=="PARSE"` not already in repo, GET `/get_audio_transcription?video_no=...`, format with `[HH:MM:SS] content` lines, PUT to GitHub Contents API at `raw-transcripts/sequoia/{video_id}_MAI_{slug}.txt`.
 
 **Key gotcha on the Memories.ai API**: `status="PARSE"` means PARSED/READY (counterintuitive). `UNPARSE` means queued/downloading. Field names are inconsistent (request `video_urls` snake_case, response `taskId`/`videoNo` camelCase). See `../memories-ai-api-gaps-2026-05-24.md` (lives outside this repo, on the operator's local filesystem).
 
