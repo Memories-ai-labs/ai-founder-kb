@@ -1,0 +1,546 @@
+[00:00:02] And up first, I'm delighted to introduce
+[00:00:04] my friend Jim Fan.
+[00:00:06] Uh Jim leads the embodied autonomous
+[00:00:08] research uh group at Nvidia, otherwise
+[00:00:10] known as Nvidia robotics.
+[00:00:12] Um
+[00:00:13] I think that robot robots are just one
+[00:00:15] of the most thrilling things that's
+[00:00:16] going to happen. Uh a car basically is a
+[00:00:18] big robot, but I'm excited for robots
+[00:00:19] can go beep boop and lift things for us.
+[00:00:22] And so, Jim was Jim was a standout at
+[00:00:24] last year's AI Ascent, and we're
+[00:00:26] delighted to have you back.
+[00:00:28] Thanks, [applause] everyone. Thanks.
+[00:00:30] So, it was a summer day in 2016.
+[00:00:32] Actually, right in this office that
+[00:00:35] we're sitting in.
+[00:00:36] >> [snorts]
+[00:00:37] >> There's a guy in shiny leather jacket,
+[00:00:39] you know, big biceps, hurling this large
+[00:00:42] metal tray.
+[00:00:43] And on this
+[00:00:45] large piece of metal, he wrote, "To Elon
+[00:00:48] and the OpenAI team, to the future of
+[00:00:50] computing and humanity, I present you
+[00:00:52] the world's first DGX-1."
+[00:00:55] So, that was the first time I met
+[00:00:56] Jensen.
+[00:00:57] And as any good intern would do, I
+[00:01:00] rushed to getting line to sign my name
+[00:01:02] on it.
+[00:01:03] So, can you spot it, my name?
+[00:01:05] It's here. And can you spot another?
+[00:01:08] That's Andre, right there.
+[00:01:09] So, Andre, we're going to the Computer
+[00:01:11] History Museum.
+[00:01:13] I feel like a dinosaur.
+[00:01:16] You know, back then, I had no clue what
+[00:01:19] I was signing up for.
+[00:01:21] And then, no one can describe what
+[00:01:23] happened next better than Ilya himself.
+[00:01:26] If you believe in deep learning, deep
+[00:01:28] learning
+[00:01:29] will believe in you.
+[00:01:31] And oh boy, did deep learning believe in
+[00:01:33] all of us big time.
+[00:01:36] Three step functions, six years.
+[00:01:39] That's how all it took to bring us here
+[00:01:41] today.
+[00:01:42] The first tick, GPT-3,
+[00:01:44] pre-training.
+[00:01:46] Next token prediction is really about
+[00:01:48] learning the rules of grammar, the shape
+[00:01:50] of language. It's about simulating how
+[00:01:53] thoughts and code and strings in general
+[00:01:56] should unfold.
+[00:01:57] 2022 Instruct GPT
+[00:02:00] supervised fine-tuning aligned the
+[00:02:02] simulation to do useful work.
+[00:02:05] 01 reasoning
+[00:02:07] using reinforcement learning to surpass
+[00:02:09] imitation learning and finally auto
+[00:02:11] research accelerating the whole loop
+[00:02:14] beyond what's humanly possible.
+[00:02:17] So, as Andre said
+[00:02:18] all the labs are getting to the final
+[00:02:20] boss fight.
+[00:02:22] So, for LLMs
+[00:02:24] they're in the thick of the end game.
+[00:02:27] And honestly, I'm very jealous.
+[00:02:29] Look at how happy Andre was, big smile
+[00:02:31] on his on his face.
+[00:02:33] The LLM folks
+[00:02:35] are having the party of their lifetime.
+[00:02:37] They're speed running AGI on mystical
+[00:02:40] creatures literally called mythos.
+[00:02:43] So, why can't robotics get a piece of
+[00:02:45] fun?
+[00:02:47] So, as any self-respecting scientist
+[00:02:49] would do
+[00:02:50] I copy homework and I give it a new
+[00:02:52] name.
+[00:02:53] I call it the great parallel.
+[00:02:56] So, instead of simulating strings
+[00:02:58] can we simulate next physical world
+[00:03:00] state?
+[00:03:02] And then we can align through action
+[00:03:03] fine-tuning
+[00:03:04] onto a thin slice of that simulation
+[00:03:06] that matters for real robots.
+[00:03:09] And we let reinforcement learning carry
+[00:03:12] the last mile.
+[00:03:14] And that's it.
+[00:03:16] The great parallel copying the LLM
+[00:03:17] success.
+[00:03:18] If you can't beat them, join them.
+[00:03:20] So, please join me in a new episode
+[00:03:23] robotics the end game.
+[00:03:26] I'm sorry, I just couldn't resist. Nano
+[00:03:27] bananas too good. Thanks, Demis.
+[00:03:31] So, how do we play the end game? It
+[00:03:33] boils down to two things, model strategy
+[00:03:35] and data strategy.
+[00:03:37] Let's look at the model first.
+[00:03:39] The last 3 years
+[00:03:41] were dominated by VLAs or visual
+[00:03:44] language action models and models like
+[00:03:46] PaLM and Goot fall in this category.
+[00:03:49] So, we assume that the pre-training is
+[00:03:51] done by a VLA
+[00:03:52] and we simply graph an action head on
+[00:03:54] top of it.
+[00:03:56] But really, if you think about these
+[00:03:57] models, they're LVAs because the most
+[00:04:00] amount of parameters are dedicated to
+[00:04:02] language. So, language is first-class
+[00:04:05] citizen followed by vision and action.
+[00:04:08] And by design, VOAs are great at
+[00:04:10] encoding knowledge and nouns, but not so
+[00:04:13] much at physics and verbs. It's kind of
+[00:04:16] head-heavy in the wrong places.
+[00:04:18] This is my favorite example from the
+[00:04:20] original VOA paper.
+[00:04:22] Move the Coke can to a picture of Taylor
+[00:04:24] Swift. Yes, it has not seen Taylor Swift
+[00:04:26] before. Yes, it's able to generalize.
+[00:04:29] But this is not quite the pre-training
+[00:04:30] ability that we're looking for.
+[00:04:32] So, what's the second pre-training
+[00:04:34] paradigm?
+[00:04:35] And I always thought that it would be
+[00:04:37] something glorious.
+[00:04:39] Unfortunate, it turns out
+[00:04:42] that this is AI video slop that we call.
+[00:04:45] You know, I can watch these cats playing
+[00:04:47] banjo on security cam all day. It's peak
+[00:04:49] internet.
+[00:04:51] But really,
+[00:04:53] look at this. No one can take this
+[00:04:54] seriously
+[00:04:56] >> [laughter]
+[00:04:56] >> until we realize that these video models
+[00:04:59] are learning to simulate next world
+[00:05:01] state internally.
+[00:05:03] So, these are some rollouts from VEO3.
+[00:05:06] You can see that the models, they pick
+[00:05:07] up gravity, buoyancy, lighting,
+[00:05:10] reflection, refraction all by
+[00:05:12] themselves. None of this is coded in.
+[00:05:15] Physics emerge by predicting the next
+[00:05:18] blob of pixels at scale.
+[00:05:21] And even visual planning emerges.
+[00:05:23] Look at how VEO solves these mazes.
+[00:05:27] It solves them by running simulation
+[00:05:29] forward in pixel space.
+[00:05:32] And draw attention to the lower right
+[00:05:34] corner here. This is my favorite
+[00:05:35] example. Let's watch. And you blink if
+[00:05:37] you miss how VEO3 solves this one.
+[00:05:41] >> [laughter]
+[00:05:43] >> It's super smart. You know, VEO3 figures
+[00:05:45] out that if you're not looking, geometry
+[00:05:47] is optional.
+[00:05:49] I call this physics law.
+[00:05:53] So, how do we make these world models
+[00:05:55] useful?
+[00:05:56] Well,
+[00:05:57] we do action fine-tuning.
+[00:05:59] We align the superposition of all
+[00:06:02] possible future states and [snorts]
+[00:06:04] collapse that onto a thin slice that
+[00:06:07] matters for real robots.
+[00:06:09] Introducing Dreamer.
+[00:06:12] It's a new type of policy model
+[00:06:14] that dreams a couple seconds into the
+[00:06:16] future and acts accordingly.
+[00:06:19] And you know that motor actions, they're
+[00:06:21] high-dimensional continuous signals.
+[00:06:24] So, that looks just like pixels.
+[00:06:26] We can render it at the same time as we
+[00:06:28] render the videos. So, Dreamer jointly
+[00:06:32] decodes the next world states and next
+[00:06:34] actions.
+[00:06:35] And as a result, it's able to zero-shot
+[00:06:38] solve tasks
+[00:06:39] and verbs that it has never seen in
+[00:06:41] training.
+[00:06:44] And as a robot executes, we can
+[00:06:45] visualize what it's dreaming about.
+[00:06:47] And the correlation is very tight.
+[00:06:49] If the video prediction works, the
+[00:06:51] action works.
+[00:06:52] If the video hallucinates, the action
+[00:06:54] fails.
+[00:06:55] So, once again, vision and action are
+[00:06:57] now first-class citizens.
+[00:07:00] And we have a lot of fun with Dreamer.
+[00:07:02] So, we just roll the robot around in our
+[00:07:04] lab and then type random things into the
+[00:07:06] prompt box.
+[00:07:08] And of course, Dreamer is not going to
+[00:07:10] get all of these tasks 100% robust, but
+[00:07:13] it's kind of like GPT-2.
+[00:07:15] It's trying to get the shape of the
+[00:07:16] motion correct in every case.
+[00:07:19] So, Dreamer is our first step towards
+[00:07:22] open-ended, open-vocabulary prompting
+[00:07:25] for robotics.
+[00:07:27] And we [snorts] call this new type of
+[00:07:28] model world action models or WAM.
+[00:07:32] So, let's all take a moment of silence
+[00:07:35] for our dear friend VOS.
+[00:07:37] They served us well. Rest in peace.
+[00:07:40] Long live world action models.
+[00:07:43] >> [clears throat]
+[00:07:43] >> And next, data strategy.
+[00:07:46] This is Nvidia's chief scientist, Bill
+[00:07:49] Dally, operating teleoperation inside
+[00:07:51] our lab.
+[00:07:53] And given his salary, I think this is by
+[00:07:55] far the most expensive teleop trajectory
+[00:07:57] ever collected in our data set.
+[00:08:01] The past 3 years have been dominated by
+[00:08:04] teleoperation. It's the golden era.
+[00:08:07] All right, VR headsets,
+[00:08:09] extremely optimized
+[00:08:11] latency for streaming, and these complex
+[00:08:14] rigs that look like medieval torture
+[00:08:15] devices.
+[00:08:17] You know, so much investment in
+[00:08:18] industry, so much pain and suffering.
+[00:08:21] And yet, for teleop, it's upper bounded
+[00:08:24] by 24 hours per robot per day, the
+[00:08:27] fundamental physical limit.
+[00:08:28] And actually, who am I kidding? It's
+[00:08:30] more like 3 hours per robot per day, and
+[00:08:32] only when the robot god is merciful,
+[00:08:34] because they throw tantrums all the
+[00:08:36] time.
+[00:08:37] So, how can we do better?
+[00:08:39] Well, how about this?
+[00:08:41] You just wear the robot hand on your own
+[00:08:44] hand.
+[00:08:45] So, this is called UMI, or universal
+[00:08:47] manipulation interface, and it's a
+[00:08:49] deceptively simple idea.
+[00:08:51] You wear the robot actuator on your hand
+[00:08:54] and directly collect the data as humans,
+[00:08:56] while getting the rest of the robot body
+[00:08:59] out of the loop.
+[00:09:01] Yet, I will say UMI is perhaps one of
+[00:09:03] the greatest papers ever written in
+[00:09:04] robotics data,
+[00:09:06] and it spawned two unicorn startups.
+[00:09:09] On the left hand side is Joles improving
+[00:09:11] this design, so you can wear the gripper
+[00:09:12] here, and on the right hand side, Sunday
+[00:09:15] made these three-finger data gloves.
+[00:09:18] So, last year, we took a one step
+[00:09:20] further.
+[00:09:21] We designed this exoskeleton that has a
+[00:09:23] one-to-one mapping with five-finger
+[00:09:25] dexterous robot hands, and we call it
+[00:09:27] Dex-UMI.
+[00:09:28] Let's look at it in action.
+[00:09:31] On the left,
+[00:09:32] the human directly collecting the data
+[00:09:34] always the fastest.
+[00:09:35] On the right, look at how difficult
+[00:09:37] teleop is.
+[00:09:38] Right? The human operator, here one of
+[00:09:40] our most skilled PhDs, he has to align
+[00:09:43] very carefully, right? And then it's
+[00:09:45] super slow. Also, the success rate is
+[00:09:48] very low as well.
+[00:09:49] And in the middle, you just wear this
+[00:09:51] exoskeleton and you collect data
+[00:09:53] directly.
+[00:09:55] And we train a robot policy on this
+[00:09:57] data.
+[00:09:58] So, here what you see is a fully
+[00:09:59] autonomous
+[00:10:01] rollout of a policy that's trained on
+[00:10:03] zero teleoperation data.
+[00:10:06] So, we're able to break the curse of 24
+[00:10:09] hours per robot per day and see how
+[00:10:11] happy these robots are because they no
+[00:10:13] longer need to be in the loop for data
+[00:10:15] collection.
+[00:10:16] So, is this the answer? Have we solved
+[00:10:18] scaling for robotics?
+[00:10:21] Anyone driving Tesla or Waymo here?
+[00:10:23] Anyone?
+[00:10:24] Right?
+[00:10:26] You know, when you're driving,
+[00:10:27] you're actually contributing to the
+[00:10:30] biggest physical data flywheel.
+[00:10:33] And the beauty is you don't even feel it
+[00:10:35] during FSD because the data upload is an
+[00:10:38] ambient process.
+[00:10:40] Yet, wearing these old me or data
+[00:10:41] wearables, it's still cumbersome, right?
+[00:10:43] It's intrusive. It's not as seamless as
+[00:10:46] just driving to work.
+[00:10:48] So, we need
+[00:10:50] an FSD equivalent.
+[00:10:53] The data collection needs to get out of
+[00:10:55] the way, fade into the background so we
+[00:10:57] can capture the full glory of human
+[00:10:59] dexterity across all walks of lives,
+[00:11:02] across all labors of economic value.
+[00:11:06] So, we're going all in on human
+[00:11:08] egocentric videos that come with these
+[00:11:10] detailed annotations like hand position
+[00:11:13] tracking and dense language annotations.
+[00:11:17] Introducing Ego Scale.
+[00:11:20] Where 99.9%
+[00:11:21] of the training that goes into this is
+[00:11:23] based on human egocentric videos.
+[00:11:26] And the result is an end-to-end policy
+[00:11:29] that maps directly from the camera
+[00:11:30] pixels here to 22 degrees of freedom
+[00:11:33] high dexterity robot hands.
+[00:11:35] What you see here is fully autonomous.
+[00:11:39] We pre-train Ego-Exo on 21K hours of
+[00:11:43] in-the-wild egocentric human data
+[00:11:46] with zero robot data whatsoever.
+[00:11:49] And during pre-training, we predict
+[00:11:50] these hand joints and wrist poses.
+[00:11:54] Then action fine-tuning, we collect only
+[00:11:56] 50 hours of high precision mocap data
+[00:11:59] gloves and 4 hours of teleop.
+[00:12:02] That's 4 hours of teleop.
+[00:12:04] Less than 0.1%
+[00:12:06] of our training mix.
+[00:12:09] And with this, Ego-Exo is able to
+[00:12:11] generalize to these very dexterous tasks
+[00:12:13] like sorting card
+[00:12:15] or manipulating syringe,
+[00:12:17] right? Over transferring the liquid, you
+[00:12:20] know, someday we might have robot nurses
+[00:12:22] at home. Might as well try this.
+[00:12:25] And for these tasks, it takes only one
+[00:12:27] shot demonstration at test time to learn
+[00:12:29] different shirt folding strategies.
+[00:12:33] And perhaps the most fascinating finding
+[00:12:35] from the paper
+[00:12:36] is that we discovered this neural
+[00:12:39] scaling law
+[00:12:40] for dexterity.
+[00:12:42] It's a very clean relationship between
+[00:12:44] the amount of hours we put into
+[00:12:46] pre-training and the optimal validation
+[00:12:48] loss. In fact, it's a clean log-linear
+[00:12:52] mathematical equation.
+[00:12:53] 6 years after the original neural
+[00:12:55] scaling law for language models.
+[00:12:59] So, if we put all of these data
+[00:13:00] strategies on this chart, X axis is
+[00:13:03] alignment to the robot hardware, Y axis
+[00:13:05] is scalability, this is what it looks
+[00:13:07] like. Teleop, the least scalable. Data
+[00:13:10] wearables, you can go up to hundreds of
+[00:13:12] thousands of hours.
+[00:13:14] And egocentric video, if we're able to
+[00:13:16] spin the FSD flywheel, easily 10 million
+[00:13:19] hours in the next year or so.
+[00:13:22] And if we draw a line here, everything
+[00:13:24] to the left of this line is the
+[00:13:26] paradigm, sensorized human data.
+[00:13:29] So, let me make a few predictions.
+[00:13:31] In the next year or two, we'll see
+[00:13:33] Teleop dropping and dropping to almost
+[00:13:35] negligible amount.
+[00:13:37] And then, there will be an ensemble of
+[00:13:40] data wearables custom-designed for
+[00:13:42] different hardware and use cases.
+[00:13:44] And finally, the main diet for robotics
+[00:13:46] will be egocentric videos.
+[00:13:49] So, a moment of silence for our dear
+[00:13:52] friend Teleop. You have served us well.
+[00:13:54] Rest in peace. Long live sensorized
+[00:13:56] human data.
+[00:13:59] Are we done with the data strategy yet?
+[00:14:01] Did you notice I put two rings on data
+[00:14:02] strategy?
+[00:14:04] What's the outer ring here?
+[00:14:06] All the old and frontier labs
+[00:14:09] have spent significant budget now on
+[00:14:11] acquiring millions of coding
+[00:14:13] environments to do reinforcement
+[00:14:14] learning.
+[00:14:15] So, robotics is the same. We're in
+[00:14:17] urgent need to scale up environments.
+[00:14:20] And of course, you can always
+[00:14:23] do reinforcement learning directly on
+[00:14:24] the real robot.
+[00:14:25] So, in our lab, we use RL to push
+[00:14:27] certain tasks to almost 100% success
+[00:14:30] rate, so you can do these continuous
+[00:14:32] execution for hours on end.
+[00:14:35] You know, it's kind of therapeutic to
+[00:14:36] see these robots assembling GPUs just by
+[00:14:38] themselves. Or as a wise man would say,
+[00:14:40] "Good boy, this task has been approved
+[00:14:42] by my boss."
+[00:14:45] Yet, we can't get [snorts] to 1 million
+[00:14:48] environments because that would require
+[00:14:50] 1 million robots if you do it the
+[00:14:51] previous way.
+[00:14:53] So, we need a better way.
+[00:14:55] Here, let's say you take an iPhone
+[00:14:57] picture
+[00:14:58] and you can pass it through this 3D
+[00:15:01] world scan pipeline to extract all the
+[00:15:03] objects and then automatically
+[00:15:06] synthesize them again inside a classical
+[00:15:08] physics simulator. So, all these objects
+[00:15:11] are actually interactive after the scan.
+[00:15:14] And then, you can augment this
+[00:15:15] infinitely in simulation with variations
+[00:15:18] that we call digital cousins.
+[00:15:21] So now, iPhone basically become
+[00:15:24] a pocket world scanner.
+[00:15:26] In this process that we call real to sim
+[00:15:28] to real, and in this way, we have a
+[00:15:31] scalable way to port the physical world
+[00:15:33] into the digital world.
+[00:15:35] But still this method relies on a
+[00:15:37] classical
+[00:15:38] graphics engine. Can we do better?
+[00:15:41] Introducing
+[00:15:42] Dream Dojo.
+[00:15:44] So, it's our spin on video world model
+[00:15:46] and turning them into full-fledged
+[00:15:49] neural simulators.
+[00:15:51] Dream Dojo takes us input these
+[00:15:53] continuous action signals and outputs
+[00:15:56] the next RGB frames as well as sensor
+[00:15:58] states in real time.
+[00:16:00] Not a single pixel you see here is real.
+[00:16:03] And Dream Dojo is able to capture and
+[00:16:05] learn the mechanics of different robots
+[00:16:07] through a purely data-driven approach.
+[00:16:10] There's no physics equation, no graphics
+[00:16:12] engine involved in this process.
+[00:16:16] So, the new post-training paradigm for
+[00:16:18] robotics is a massively parallel RL
+[00:16:21] system
+[00:16:22] that runs on a few real robot stations,
+[00:16:25] a bunch of graphics cores running world
+[00:16:27] scans, and heavy inference compute
+[00:16:29] running world models.
+[00:16:32] Or, as this equation goes, compute now
+[00:16:35] equals environment now equals data. Or,
+[00:16:39] as a wise man would say,
+[00:16:40] the more you buy, the more you save.
+[00:16:43] And this message has been approved by my
+[00:16:44] boss.
+[00:16:47] So, that's it. Putting it together,
+[00:16:49] the great parallel that robotics will
+[00:16:51] follow. And it's happening as we speak.
+[00:16:54] And we're looking at the beginning of
+[00:16:56] the end game.
+[00:16:59] You guys play the video game
+[00:17:01] Civilization?
+[00:17:03] Still my favorite.
+[00:17:05] I like to think of my research as
+[00:17:07] unlocking game achievements on the
+[00:17:09] civilizational technology tree.
+[00:17:12] >> [clears throat]
+[00:17:13] >> And there are three more achievements to
+[00:17:15] unlock for robotics, and then we're
+[00:17:16] done.
+[00:17:17] I can retire, and I can't wait for that.
+[00:17:20] The first
+[00:17:22] is passing the physical Turing test.
+[00:17:25] Across a wide range of activities, you
+[00:17:28] cannot tell the difference between a
+[00:17:31] human doing a task or a robot doing it.
+[00:17:33] Maybe not drunk humans, but
+[00:17:36] you know.
+[00:17:37] Physical Turing test is about unit
+[00:17:39] energy in and unit labor out.
+[00:17:43] And just by judging at the sexy pose of
+[00:17:45] this robot, I think the work is cut out
+[00:17:46] for us.
+[00:17:47] So, maybe it's 2 to 3 years away.
+[00:17:51] And next, physical API.
+[00:17:53] You have a whole fleet of robots,
+[00:17:55] and they can be configured just like any
+[00:17:57] other software using APIs and command
+[00:17:59] lines, orchestrated someday by Opus 9.0.
+[00:18:04] And if we have this physical API, we'll
+[00:18:06] be able to realize lights-out factories.
+[00:18:09] Those are essentially printers of atoms.
+[00:18:11] They take us input design in markdown
+[00:18:14] files, and then output fully assembled
+[00:18:16] products, completely autonomous.
+[00:18:19] Or these wet labs
+[00:18:21] that automate scientific discoveries in
+[00:18:24] chemistry,
+[00:18:25] biology, and medicine.
+[00:18:28] And the final stop, physical auto
+[00:18:30] research. When the robots start to
+[00:18:33] design, improve, and build the next
+[00:18:35] iteration of themselves, far beyond
+[00:18:38] what's humanly possible.
+[00:18:40] So, you might ask, is this too science
+[00:18:42] fiction? Like, are we going to see this
+[00:18:44] in our lifetime?
+[00:18:46] Well,
+[00:18:48] it took the AI community
+[00:18:50] 14 years
+[00:18:51] to go from the first forward pass of
+[00:18:53] AlexNet in 2012,
+[00:18:55] a model that barely recognized cat
+[00:18:57] versus dog,
+[00:18:58] to AI ascent today, 2026, where we talk
+[00:19:01] about agentic auto research.
+[00:19:04] And let's just add another 14 years. How
+[00:19:06] about that?
+[00:19:08] 2026 is right in the middle of 2012 and
+[00:19:12] 2040.
+[00:19:14] And technology does not advance
+[00:19:15] linearly. It advances exponentially.
+[00:19:19] So, [snorts] I can say with 95%
+[00:19:22] certainty that we'll get to the end of
+[00:19:24] the end game,
+[00:19:25] the end of the technology tree,
+[00:19:28] by 2040.
+[00:19:30] And we'll still be all We'll still be
+[00:19:32] young.
+[00:19:34] If you believe in robotics, robotics
+[00:19:36] will believe in you.
+[00:19:38] And to all of us here,
+[00:19:40] sitting here,
+[00:19:41] I think our generation
+[00:19:43] was born too late to explore the Earth
+[00:19:46] and too early to explore the stars, but
+[00:19:48] we are born just in time to solve
+[00:19:51] robotics.
+[00:19:53] Thank you.
+[00:19:54] >> [applause]
+[00:19:58] [applause]

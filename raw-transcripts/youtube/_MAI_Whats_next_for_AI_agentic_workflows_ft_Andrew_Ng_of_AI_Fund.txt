@@ -1,0 +1,210 @@
+# What's next for AI agentic workflows ft. Andrew Ng of AI Fund
+# URL: https://mavi-resource.openinterx.com/sal78ACtGTc/d3c68c90-d795-4634-bd23-bf07e2584fcc.mp4
+# video_no: VI713773650368790528
+# source: Memories.ai
+
+[00:00:03] All of you know Andrew Ng as a famous computer science professor at Stanford, was really early on in the development of neural networks with GPUs, of course, a creator of Coursera and popular courses like deeplearning.ai, also the founder and creator and early lead of Google Brain.
+[00:00:24] But one thing I've always wanted to ask you before I hand it over, Andrew, while you're on stage, is a question I think would be relevant to the whole audience.
+[00:00:32] Because 10 years ago, on problem set number two of CS229, you gave me a B.
+[00:00:41] And I was wondering, I looked it over, I was wondering what you saw that I did incorrectly.
+[00:00:46] So anyway, Andrew.
+[00:00:47] Thank you, Hanxin.
+[00:00:48] I'm looking forward to sharing with all of you what I'm seeing with AI agents, which I think is an exciting trend that I think everyone building in AI should pay attention to.
+[00:00:58] And I'm also excited about all the other What's Next presentations.
+[00:01:02] So AI agents.
+[00:01:03] You know, today, the way most of us use large language models is like this, with a non-agentic workflow, where you type a prompt and generate an answer.
+[00:01:12] And that's a bit like if you ask a person to write an essay on a topic and I say, please sit down to the keyboard and just type the essay from start to finish without ever using backspace.
+[00:01:23] And despite how hard this is, LLMs do it remarkably well.
+[00:01:27] In contrast, with an agentic workflow, this is what it may look like.
+[00:01:32] Have an AI.
+[00:01:33] Have an LLM.
+[00:01:34] Say, write an essay outline.
+[00:01:35] Do you need to do any web research?
+[00:01:37] If so, let's do that.
+[00:01:39] Then write the first draft.
+[00:01:40] And then read your own first draft and think about what parts need revision.
+[00:01:45] And then revise your draft.
+[00:01:46] And you go on and on.
+[00:01:48] And so this workflow is much more iterative, where you may have the LLM do some thinking and then revise this article and then do some more thinking and iterate this through a number of times.
+[00:02:00] And what not many people appreciate.
+[00:02:03] Is this delivers remarkably better results.
+[00:02:07] I've actually really surprised myself working on these agent workflows, how well they work.
+[00:02:12] I'm going to do one case study.
+[00:02:14] My team analyzed some data using a coding benchmark called the human eval benchmark released by OpenAI a few years ago.
+[00:02:21] But this has coding problems like given the non-empty list of integers, return the sum of all the odd elements or uneven positions.
+[00:02:28] And it turns out the answer is code snippet like that.
+[00:02:31] So today, a lot of us.
+[00:02:33] We'll use zero-shot prompting, meaning we tell the AI, write the code and have it run on the first spot.
+[00:02:38] Say, who codes like that?
+[00:02:39] No human codes like that.
+[00:02:40] We just type out the code and run it.
+[00:02:41] Maybe you do.
+[00:02:42] I can't do that.
+[00:02:45] So it turns out that if you use GPT 3.5, zero-shot prompting, it gets it 48% right.
+[00:02:52] GPT-4, way better, 67% right.
+[00:02:55] But if you take an agentic workflow and wrap it around GPT 3.5, say, it actually does better than GPT-3.5.
+[00:03:02] Right?
+[00:03:03] Yeah.
+[00:03:03] Even GPT-4.
+[00:03:04] And if you were to wrap this type of workflow around GPT-4, it also does very well.
+[00:03:12] And you notice that GPT 3.5 with an agentic workflow actually outperforms GPT-4.
+[00:03:20] And I think this means that this has significant consequences for, I think, how we all approach building applications.
+[00:03:28] So agents is a term that's been tossed around a lot.
+[00:03:31] There's a lot of consultant reports.
+[00:03:32] How about agents?
+[00:03:33] Agents is the future of AI, blah, blah, blah.
+[00:03:35] I want to be a bit concrete and share with you the broad design patterns I'm seeing in agents.
+[00:03:41] It's a very messy, chaotic space.
+[00:03:42] Tons of research, tons of open source.
+[00:03:44] There's a lot going on.
+[00:03:45] But I try to categorize a bit more concretely what's going on in agents.
+[00:03:50] Reflection is a tool that I think many of us should just use.
+[00:03:53] It just works.
+[00:03:55] To use, I think it's more widely appreciated.
+[00:03:57] But it actually works pretty well.
+[00:03:58] I think of these as pretty robust technologies.
+[00:04:00] When I use them, I can, you know, almost always get them.
+[00:04:03] To work well, planning and multi-agent collaboration, I think it was more emerging when I use them.
+[00:04:09] Sometimes my mind is blown for how well they work.
+[00:04:12] But at least at this moment in time, I don't feel like I can always get them to work reliably.
+[00:04:17] So let me walk through these four design patterns in a few slides.
+[00:04:20] And if some of you go back and yourself or ask your engineers to use these, I think you get a productivity boost quite quickly.
+[00:04:27] So reflection, here's an example.
+[00:04:29] Let's say I ask a system, please write code for me.
+[00:04:33] For a given task.
+[00:04:34] Then we have a coder agent, just an LLM that you prompt to write code.
+[00:04:38] To say, yo, def, do task, write a function like that.
+[00:04:42] An example of self-reflection would be if you then prompt the LLM with something like this.
+[00:04:48] Here's code intended for a task.
+[00:04:50] And just give it back the exact same code that we just generated.
+[00:04:53] And then say, check the code carefully for correctness, sound efficiency, good construction.
+[00:04:57] Just write a prompt like that.
+[00:04:59] It turns out the same LLM that you prompted to write the code.
+[00:05:01] May be able to spot problems like this bug in line five, may fix it by blah, blah, blah.
+[00:05:06] And if you now take his own feedback and give it to it and re-prompt it, it may come up with a version two of the code that could well work better than the first version.
+[00:05:14] Not guaranteed, but it works, you know, often enough for this to be worth trying for a lot of applications.
+[00:05:21] To foreshadow tool use, if you let it run unit tests, if it fails a unit test, then why did you fail the unit test?
+[00:05:28] Have that conversation.
+[00:05:29] Maybe they'll figure out, failed the unit test.
+[00:05:31] So you should try changing something and come up with v3.
+[00:05:35] By the way, for those of you that want to learn more about these technologies, I'm very excited about them.
+[00:05:39] For each of the four sections, I have a little recommended reading section in the bottom that, you know, hopefully gives more references.
+[00:05:45] And again, just to foreshadow multi-agent systems, I've described as a single coder agent that you prompt to have it, you know, have this conversation with itself.
+[00:05:54] One natural evolution of this idea is instead of a single coder agent, you can have two agents.
+[00:06:01] Where one is a coder agent, and the second is a critic agent.
+[00:06:05] And these could be the same base LLM model, but that you prompt in different ways.
+[00:06:10] Where you say, one, you're an expert coder, write code.
+[00:06:13] The other one is, say, you're an expert code reviewer, so review this code.
+[00:06:16] And this type of workflow is actually pretty easy to implement.
+[00:06:19] I think it's such a very general purpose technology for a lot of workflows.
+[00:06:22] This would give you a significant boost in the performance of LLMs.
+[00:06:27] The second design pattern is tool use.
+[00:06:29] Many of you will already have seen.
+[00:06:31] You know, LLM-based systems using tools.
+[00:06:34] On the left is a screenshot from Copilot.
+[00:06:38] On the right is something that I kind of extracted from GPT-4.
+[00:06:42] But, you know, LLMs today, if you ask it, what's the best copy maker in your web search for some problems, LLMs will generate code and run code.
+[00:06:50] And it turns out that there are a lot of different tools that many different people are using for analysis, for gathering information, for taking action, for personal productivity.
+[00:07:01] It turns out that there are a lot of different tools that many different people are using for analysis, for gathering information, for taking action, for personal productivity.
+[00:07:01] It turns out that there are a lot of different tools that many different people are using for analysis, for gathering information, for taking action, for personal productivity.
+[00:07:02] And also a lot of the early work in tool use turned out to be in the computer vision community, because before large language models, LLMs, you know, they couldn't do anything with images.
+[00:07:10] So the only option was to have the LLM generate a function called that could manipulate an image, like generate an image or do object detection or whatever.
+[00:07:16] So if you actually look at literature, it's been interesting how much of the work in tool use seems like it originated from vision, because LLMs were blind to images before, you know, GPT-4v and and and lava and stuff like that.
+[00:07:17] I think that would be a huge benefit to the software, but it's difficult to generate images with LLMs.
+[00:07:19] I think the other thing about tool use is it really gets out.
+[00:07:20] It's been interesting how much of the work in 2Us
+[00:07:24] seems like it originated from vision,
+[00:07:26] because LLMs were blind to images before GPT-4V and LAVR
+[00:07:31] and so on.
+[00:07:32] So that's 2Us, and it expands what an LLM can do.
+[00:07:38] And then planning, for those of you
+[00:07:40] that have not yet played a lot with planning algorithms,
+[00:07:43] I feel like a lot of people talk about the chat GPT moment,
+[00:07:46] where you're, wow, never seen anything like this.
+[00:07:49] I think if you've not used planning algorithms,
+[00:07:51] many people will have an AI agent, wow,
+[00:07:55] I couldn't imagine an AI agent doing this.
+[00:07:58] I've run live demos where something failed,
+[00:08:00] and the AI agent rerouted around the failures.
+[00:08:03] I've actually had quite a few of those moments where, wow,
+[00:08:06] can't believe my AI system just did that autonomously.
+[00:08:09] But one example that I adapted from a hugging GPT paper,
+[00:08:13] you say, please generate an image where a girl is reading
+[00:08:16] a book, and it posts the same as a boy in the image.
+[00:08:19] Example.jpg, and please describe the new image
+[00:08:21] with the boy.
+[00:08:22] So give an example like this.
+[00:08:24] Today, with AI agents, you can kind of decide,
+[00:08:27] first thing I need to do is determine the pose of the boy,
+[00:08:30] then find the right model, maybe on hugging face,
+[00:08:34] to extract the pose.
+[00:08:36] Then next, you need to find a post-image model
+[00:08:38] to synthesize a picture of a girl as following instructions,
+[00:08:43] then use image to text, and then finally use text-to-speech.
+[00:08:48] And today, we actually have agents,
+[00:08:49] that I don't want to say they work reliably.
+[00:08:53] They're kind of finicky.
+[00:08:55] They don't always work, but when it works,
+[00:08:57] it's actually pretty amazing.
+[00:08:58] But with agentic groups, sometimes you
+[00:09:00] can recover from earlier failures as well.
+[00:09:02] So I find myself already using research agents
+[00:09:05] in some of my work, where I'll want a piece of research,
+[00:09:08] but I don't feel like Googling myself and spend a long time.
+[00:09:11] I should send it to the research agent,
+[00:09:13] come back in a few minutes, and see what it's come up with.
+[00:09:15] And it sometimes works, sometimes it doesn't.
+[00:09:17] But that's already a possibility.
+[00:09:19] That's part of my personal workflow.
+[00:09:21] The final design pattern, multi-agent collaboration.
+[00:09:24] This is one of those funny things,
+[00:09:25] but it works much better than you might think.
+[00:09:31] But on the left is a screenshot from a paper called ChatDev,
+[00:09:37] which is completely open, which is actually open source.
+[00:09:39] Many of you saw the flashy social media
+[00:09:42] announcement of demo of a Devon.
+[00:09:46] ChatDev is actually open source.
+[00:09:47] It runs on my laptop.
+[00:09:48] And what ChatDev does is an example
+[00:09:51] of a multi-agent system where you prompt one LLM to sometimes
+[00:09:56] act like the CEO of a software engine company, sometimes
+[00:09:59] act like a designer, sometimes a product manager,
+[00:10:01] sometimes act like a tester.
+[00:10:03] And this flock of agents that you build,
+[00:10:04] by prompting an LLM to tell them, you're now a CO, you're now a software engineer. They collaborate,
+[00:10:09] have an extended conversation so that if you tell it, please develop a game, develop a GoMoki game,
+[00:10:16] they'll actually spend a few minutes writing code, testing it, iterating, and they generate
+[00:10:22] a surprisingly complex program. It doesn't always work. I've used it, sometimes it doesn't work,
+[00:10:27] sometimes it's amazing, but this technology is really getting better. And just one of the design
+[00:10:34] patterns, it turns out that multi-agent debate where you have different agents, you know,
+[00:10:38] for example, it could be have ChatGPT and Gemini debate each other. That actually results in a
+[00:10:44] better performance as well. So getting multiple simulated AI agents work together has been a
+[00:10:49] powerful design pattern as well. So just to summarize, I think these are the patterns I've
+[00:10:57] seen. And I think that if we were to use these patterns, you know, in our work,
+[00:11:04] like I said, we're going to be able to do a lot of things. We're going to be able to do a lot of
+[00:11:04] things. We're going to be able to do a lot of things. We're going to be able to do a lot of things.
+[00:11:04] A lot of us can get a productivity boost quite quickly. And I think that agentic reasoning design
+[00:11:10] patterns are going to be important. This is my small slide. I expect that the set of tasks AI
+[00:11:16] could do will expand dramatically this year because of agentic workflows. And one thing that
+[00:11:23] it's actually difficult for people to get used to is when we prompt an LLM, we want a response
+[00:11:28] right away. In fact, a decade ago when I was, you know, having discussions at Google,
+[00:11:34] we called it a big box search. We type in long prompt. One of the reasons, you know, I failed to
+[00:11:40] push successfully for that was because when you do a web search, you want a response back in half a
+[00:11:45] second, right? That's just human nature. We like that instant grab, instant feedback. But for a lot
+[00:11:50] of the agent workflows, I think we'll need to learn to dedicate a task to an AI agent and patiently
+[00:11:56] wait minutes, maybe even hours for a response. But just like I've seen a lot of novice managers
+[00:12:02] delegate something to someone who's been doing it for a long time. And I think that's going to be
+[00:12:04] a lot of fun. And I think we need to do that with some of our AI agents as well. And then one of the
+[00:12:16] important trends, fast token generation is important because with these agentic workflows,
+[00:12:21] we're iterating over and over. So the LLM is generating tokens for the LLM to read.
+[00:12:25] So being able to generate tokens way faster than any human to read is fantastic. And I think that
+[00:12:31] generating more tokens really quickly from
+[00:12:34] even a slightly lower quality LLM might give good results compared to slower tokens from a better LLM,
+[00:12:41] maybe. It's a little bit controversial because it may let you go around this loop a lot more times,
+[00:12:45] kind of like the results I showed with GPT-3 and an agent architecture on the first slide.
+[00:12:50] And candidly, I'm really looking forward to Cloud 4 and GPT-5 and Gemini 2.0 and all these other
+[00:12:57] wonderful models that we're building. And part of me feels like if you're looking forward to running
+[00:13:04] a GPT-5 zero shot, you may be able to get closer to that level of performance on some applications
+[00:13:10] than you might think with agenting reasoning, but on an early model. I think this is an important
+[00:13:17] trend. And honestly, the path to AGI feels like a journey rather than a destination. But I think
+[00:13:25] this sort of agent workflows could help us take a small step forward on this very long journey.

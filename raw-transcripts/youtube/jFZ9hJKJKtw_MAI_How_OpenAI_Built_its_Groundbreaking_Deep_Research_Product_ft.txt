@@ -1,0 +1,124 @@
+# How OpenAI Built its Groundbreaking Deep Research Product ft. Isa Fulford
+# URL: https://mavi-resource.openinterx.com/jFZ9hJKJKtw/133d377b-b4a8-45cd-9e85-089993b601cf.mp4
+# video_no: VI713773999464906752
+# source: Memories.ai
+
+[00:00:02] I'm so excited to welcome Isa Fulford, who created a product that all of us know about,
+[00:00:10] use, love, OpenAI deep research.
+[00:00:14] She is going to talk a little bit about the product, how they did it, where it's going,
+[00:00:19] a demo live for all of us.
+[00:00:21] She just red-eyed in from Korea specifically for this event, landed 5.45 this morning.
+[00:00:27] So please join me in a very warm Sequoia welcome to Isa.
+[00:00:36] Hi, everyone. I'm Isa. I lead the deep research research team at OpenAI.
+[00:00:41] As some of you may know, deep research is an agentic capability in ChatGPT
+[00:00:45] that conducts multi-step research online to solve really complex tasks.
+[00:00:50] So you give it a prompt, and then deep research will spend 5 to 30 minutes
+[00:00:53] looking through loads of online web sources, reasoning about the content it finds,
+[00:00:58] and then it will come back with a fully-cited comprehensive report
+[00:01:01] at around the level of a research analyst.
+[00:01:03] So it's able to do in a few minutes what would take,
+[00:01:06] I think, a human many hours.
+[00:01:08] And so deep research is powered by a version of O3 that we fine-tuned specifically
+[00:01:12] to be good at web browsing and data analysis.
+[00:01:14] I'll talk more about how we did this in a minute.
+[00:01:17] And so a little bit of background about why we started building deep research.
+[00:01:20] So a little over a year ago, we were seeing a lot of progress internally
+[00:01:24] with reinforcement learning and reasoning models.
+[00:01:27] And we were training mostly on math and science and coding tasks.
+[00:01:31] And we saw some generalization from training on those kinds of tasks to other domains.
+[00:01:35] But we wondered,
+[00:01:36] what would happen if we trained directly on tasks that users do in their daily lives?
+[00:01:41] And if we could make a really useful model by training directly on those kinds of things?
+[00:01:45] We felt that online browsing was a really good first place to try this
+[00:01:49] because a lot of people do online browsing across a really broad range of domains and jobs
+[00:01:54] and also in their daily lives.
+[00:01:55] And also, it's a nice kind of first sandbox where read-only agents is kind of a good place to start
+[00:02:02] because the kind of safety considerations are maybe a little bit more constrained.
+[00:02:05] So to do this, we first needed to get people excited.
+[00:02:10] So we hacked together a demo by just prompting models.
+[00:02:13] I was actually working on this with Yash Patel and Thomas Simpson, who's also here today.
+[00:02:18] And we just made this demo of what the deep research product might look like.
+[00:02:22] We didn't train any models, got people excited about it, and then started the process
+[00:02:26] of training a model to be good at deep research.
+[00:02:28] And so this involved creating tasks, reinforcement learning tasks,
+[00:02:32] to actually teach the model the browsing capabilities and data analysis capabilities,
+[00:02:34] and so on and so forth.
+[00:02:35] And we did a lot of research on that.
+[00:02:35] And we did a lot of research on that.
+[00:02:35] And we did a lot of research on that.
+[00:02:35] And we did a lot of research on the capabilities that we wanted the model to learn,
+[00:02:38] and also creating tools and giving the model access to those tools to use during training.
+[00:02:43] And so we needed to give it access to a browser so it could search and click on things
+[00:02:47] and scroll through things, and then also a way to execute code to do data analysis
+[00:02:52] and plot graphs and things like that.
+[00:02:55] So now I'll show you a few examples of deep research today.
+[00:03:01] Most of our users use ChatGPT for professional use cases.
+[00:03:06] Most of our users use ChatGPT for professional use cases.
+[00:03:06] So, you know, academics, VCs, so I've been told, consultants, a lot of other things.
+[00:03:11] But then also a lot of people have personal use cases.
+[00:03:13] I would say that's probably my biggest use case would be, like, shopping and travel recommendations.
+[00:03:18] So I'll show you a few example queries, and then I'll actually show you some of my own queries that I've been doing recently.
+[00:03:25] So if we could switch to the screen, that would be great.
+[00:03:29] So this is ChatGPT.
+[00:03:30] I'm sure you're all familiar.
+[00:03:36] Okay.
+[00:03:36] So this is just the prompt.
+[00:03:37] I actually had ChatGPT write this prompt for me.
+[00:03:39] So I'm giving a presentation at Sequoia AISN today, and I want to understand and visually communicate recent trends
+[00:03:45] in venture capital investments and AI companies.
+[00:03:48] And then please analyze funding across, you know, a number of different things that I want to investigate.
+[00:03:54] And then I want a graph that meaningfully conveys a key trend, mostly because I wanted you guys to know that it can plot graphs.
+[00:04:02] So it's slightly contrived.
+[00:04:04] And so.
+[00:04:06] You press start.
+[00:04:08] And the first thing that deep research will do is it will come back with some clarifying questions.
+[00:04:12] The reason we designed it this way is because we felt that if the model is going to do something for you for quite a few minutes,
+[00:04:19] you want to make sure that the output you get is exactly what you wanted.
+[00:04:22] And we want the user to give as much detail as possible up front.
+[00:04:26] And so we want to encourage the user to be very specific.
+[00:04:30] So it came back with a few questions.
+[00:04:31] So I'll say, like, just U.S.
+[00:04:37] Maybe both is fine and either.
+[00:04:43] And so now deep research will kick off a research class.
+[00:04:49] And so in a minute, we will be able to follow along with a summary of its chain of thought and the actions that it's taking.
+[00:04:58] So you'll be able to see interleaved chain of thought, which is the model reasoning through the sources it's encountering.
+[00:05:03] And then also the tool calls that it makes.
+[00:05:05] So either searching or, you know, analyzing with Python tool.
+[00:05:09] So it takes a minute to start.
+[00:05:12] I also have some preloaded examples that I can show in the meantime, if this is OK, I'll show you one that I asked this week and then we can go back to this.
+[00:05:27] So earlier this week, I was in I was in Korea and I actually did this query on my phone.
+[00:05:33] I was looking for a night market that was maximum 15 minutes away from where I was.
+[00:05:38] And I wanted it to look at Reddit and also Korean sources that I'm not able to read myself.
+[00:05:42] And then within each of those markets, find the best rated stores.
+[00:05:45] So you can imagine that with normal search.
+[00:05:48] It's pretty hard to do a search that has all of these constraints in one go.
+[00:05:51] But deep research is actually able to search the Web and for each item, like go pretty deep and identify like whether it fits the constraints and then synthesize it all back for me.
+[00:06:01] So the final response it gave me was like this pretty long report with a few suggestions of markets to try.
+[00:06:09] And then for each thing, there are citations.
+[00:06:10] As you can see, the citations actually also cite the specific lines from the.
+[00:06:18] From the sources that are relevant to the sentence that it's citing, and I actually ended up going to to this first one.
+[00:06:26] So, OK, if I go back to the original query that I just asked, so you can see the model is like thinking through and then we just summarize the chain of thought.
+[00:06:38] So it says what it's planning to do, then it made a search and it's thinking if you also use O3, you'll know that O3 is also able to do search really well.
+[00:06:46] So if you're looking for a more like medium search.
+[00:06:49] I'd recommend using O3 deep research will really is kind of like the far end of how long it will take to to do a search query.
+[00:06:56] And the reason O3 is good at searching is actually because it's trained with the same tools and browsing data sets that we developed for deep research.
+[00:07:04] And so I'm going to skip to this to an example that I ran this morning.
+[00:07:12] So this is this is the the final report on the on the landscape.
+[00:07:21] It plotted a graph, which I'll show you at first when I saw this, I thought there must be a mistake.
+[00:07:25] But I think that this is counting the OpenAI investment, which is why this graph looks really weird.
+[00:07:33] But yeah, I won't make you read through the entire report right now, but I hope hopefully there's some good insights in here.
+[00:07:40] So I encourage you to try it as well yourself.
+[00:07:43] And then I just wanted to show that there are quite a broad range of different things that deep research is useful for.
+[00:07:48] So this is an example from.
+[00:07:51] Like a biology use case asking about specific gene therapies that have gained regulatory approval in the U.S.
+[00:07:58] for treating hemophilia with information, and then the model is able to do research and then come back with the correct list with like citations and explanations.
+[00:08:07] So we're very excited to continue developing deep research.
+[00:08:10] It's obviously not perfect. Sometimes it can hallucinate.
+[00:08:12] So we're working on improving reliability.
+[00:08:15] We're also excited to integrate deep research into the main reasoning models.
+[00:08:19] So, you know, as you know, O3 is already good at search and will continue to like upstream things that we work on into the other, the bigger reasoning models.
+[00:08:27] We're also really excited to bring private context into deep research.
+[00:08:31] So your internal company knowledge, paywall sources.
+[00:08:35] And then I think the next big thing for us will be not just synthesizing existing information, but actually taking actions as well.
+[00:08:43] So thank you very much for having me.
+[00:08:46] And I'll pass over to Zach.

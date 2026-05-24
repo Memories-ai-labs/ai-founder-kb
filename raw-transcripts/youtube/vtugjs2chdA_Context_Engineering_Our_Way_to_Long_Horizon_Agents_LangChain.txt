@@ -1,0 +1,1268 @@
+[00:00:00] People use traces from the start to just
+[00:00:02] tell what's going on under the hood. And
+[00:00:04] it's way more impactful in agents than
+[00:00:06] in single LLM applications because in
+[00:00:07] single LM applications, you get some bad
+[00:00:09] response from the LLM. You know exactly
+[00:00:11] what your prompt is. You know exactly
+[00:00:12] what the context that goes in is because
+[00:00:14] that's determined by code and then you
+[00:00:16] get something out. In agents, they're
+[00:00:17] running and and and repeating and so you
+[00:00:20] don't actually know what the context at
+[00:00:21] step 14 will be because there's 13 steps
+[00:00:24] before that that could pull arbitrary
+[00:00:25] things in. So like what exactly is
+[00:00:27] everything's context engineering?
+[00:00:28] Context engineering is such a good term.
+[00:00:30] I wish I came up with that term. Like it
+[00:00:31] actually really describes like
+[00:00:32] everything we've done at Langchain um
+[00:00:35] without knowing that that term existed.
+[00:00:36] But like traces just like tell you
+[00:00:38] what's in your context and that's so
+[00:00:40] important.
+[00:00:57] Welcome to training data. Harrison, you
+[00:00:59] are our very first guest on training
+[00:01:01] data and the AI space has moved so
+[00:01:03] quickly uh in the 18 months or so since
+[00:01:05] we originally interviewed you and so I'm
+[00:01:07] delighted to get you on the show today.
+[00:01:09] Um topics of the moment. I think there's
+[00:01:11] nobody better than you to talk about
+[00:01:12] some of these topics. We're going to
+[00:01:14] talk first about long horizon agents and
+[00:01:16] agent harnesses. Pat and I had this blog
+[00:01:18] post on this yesterday. I know this is
+[00:01:19] something that you are deeply um fluent
+[00:01:22] in. And then we're going to talk about
+[00:01:23] what's the difference between building
+[00:01:24] long horizon agents versus building
+[00:01:26] software um and the role that you see
+[00:01:28] Lang Chain playing in that ecosystem.
+[00:01:30] And then finally, I just want to chat
+[00:01:31] with you about the future. I think you
+[00:01:33] single-handedly, you know, kind of saw
+[00:01:35] the agent opportunity I think before
+[00:01:37] anybody. You know, we were back in the
+[00:01:39] GP3 days and um I think you see the
+[00:01:41] future for what's happening with agents
+[00:01:43] and so I'm just excited to chat with you
+[00:01:44] open-endedly about the future as well.
+[00:01:46] >> I am really excited as well. Thank you
+[00:01:48] guys for having me back. It's quite an
+[00:01:49] honor. I'll tell my mom again and that
+[00:01:51] I'm back on the line.
+[00:01:53] >> Wonderful. Okay, let's start with long
+[00:01:56] horizon agents.
+[00:01:57] >> Yes, that was a great term. You guys
+[00:01:58] wrote a great article.
+[00:01:59] >> Sony's good at naming things.
+[00:02:01] >> We're not going to get into the the
+[00:02:02] backstory there. Um, what do you think?
+[00:02:04] What do you agree with? What do you
+[00:02:05] disagree with?
+[00:02:06] >> I mean, uh, I agree that they're
+[00:02:08] starting to finally work. I think like
+[00:02:10] the idea of running an LLM in a loop and
+[00:02:12] just having it go was, uh, was always
+[00:02:15] the idea of agents from the start. uh
+[00:02:18] autog was basically this then this is
+[00:02:20] why it took off and and captured so many
+[00:02:21] people's imagination because it was just
+[00:02:22] an LLM running a loop completely
+[00:02:24] deciding what to do. The issue is the
+[00:02:26] models weren't really good enough and
+[00:02:27] the scaffolding and harnesses around
+[00:02:29] them weren't really good enough and I
+[00:02:31] think the models got better. We learned
+[00:02:33] more about what makes a good harness
+[00:02:35] over the past few years and now they
+[00:02:38] start to like really really work and you
+[00:02:39] see this in coding first and I think
+[00:02:40] that's the domain where they're taking
+[00:02:41] off the most and that's spreading to
+[00:02:43] other domains but you can give a task to
+[00:02:46] an agent and you still need to
+[00:02:47] communicate to it what you want it to do
+[00:02:48] and it needs to have the right tools and
+[00:02:50] all of that but it can actually operate
+[00:02:51] for longer and longer periods of time
+[00:02:53] and so that yeah the long horizons kind
+[00:02:55] of like uh uh framing of it I think is
+[00:02:57] really really apt and really really
+[00:02:58] good.
+[00:02:59] >> Awesome. Um, what are your favorite
+[00:03:01] examples of long horizon agents and I
+[00:03:03] guess what shapes you see them taking?
+[00:03:05] >> So, coding is the place where there's
+[00:03:07] the most. I think that's the one that I
+[00:03:09] probably use. Yeah, that's the one that
+[00:03:11] I use the most. Um, adjacent to that, I
+[00:03:14] think like really good ones are AI
+[00:03:16] SRRES. So, Traversal I think is a
+[00:03:18] Sequoia company and and they have an AI
+[00:03:20] SR that that that operates over longer
+[00:03:22] time horizons. research in general and
+[00:03:25] I'd call like AISR kind of research like
+[00:03:27] they're taking a incident and they're
+[00:03:28] going and digging through logs like
+[00:03:29] research in general is a really really
+[00:03:31] good task because it ends up producing
+[00:03:33] like a first draft of something and the
+[00:03:35] issue with agents is they aren't like
+[00:03:37] reliable to 99 of reliability but they
+[00:03:39] can do a ton of work and and more and
+[00:03:40] more work over longer time horizons. So
+[00:03:42] if you can find these framings where
+[00:03:45] they run for a long period of time but
+[00:03:47] produce like a first draft of something
+[00:03:49] those to me are like the killer
+[00:03:50] applications of long horizon agents
+[00:03:51] right now. So like I coding coding is an
+[00:03:54] example of that like coding you usually
+[00:03:55] put up a PR you don't directly push to
+[00:03:57] prod unless you're vibe coding which is
+[00:03:59] also starting to get better and better.
+[00:04:00] Uh AISR usually surface it to a human
+[00:04:03] who comes in and then reviews it. Report
+[00:04:05] generation you don't send it out to all
+[00:04:07] of your followers right away. You look
+[00:04:09] at it you edit it. It creates like a
+[00:04:10] first draft of something. So we see this
+[00:04:11] in uh we see this in finance a bunch.
+[00:04:14] This is this is a huge research
+[00:04:15] opportunity. Customer support. We see a
+[00:04:18] lot of things pivoting from kind of like
+[00:04:20] the initial the initial customer support
+[00:04:22] was like first-line response like
+[00:04:23] someone messages you just respond really
+[00:04:25] quickly and there's still that and and
+[00:04:26] that's going great but now there's
+[00:04:28] examples K is a great example of this
+[00:04:30] where it's like humans and AI working
+[00:04:32] together when the first line fails you
+[00:04:35] escalate to a human you don't just have
+[00:04:36] the human handle it you have this long
+[00:04:38] horizon agent run in the background
+[00:04:40] produce a report of everything that
+[00:04:41] happened and then hand it off to the to
+[00:04:43] the to the agent there um to the human
+[00:04:46] agent there agent starts to get
+[00:04:47] confusing in customer support.
+[00:04:50] >> Um, so so I think the killer use case of
+[00:04:52] all of these is places where you have
+[00:04:53] like this first draft type of concept.
+[00:04:56] >> And then how much of the uh the why now
+[00:04:59] do you think is the models themselves
+[00:05:00] are just so good versus people are doing
+[00:05:02] really smart things on the harness side?
+[00:05:06] >> And maybe even before we get to that,
+[00:05:07] can you say a word for for our listeners
+[00:05:09] on like you know how you frame the the
+[00:05:11] harness versus the model in terms of the
+[00:05:13] actual composition of an agent?
+[00:05:14] >> Yeah. So and and I'll maybe I'll maybe
+[00:05:17] bring in like framework as well because
+[00:05:18] I think early on I mean that's how we
+[00:05:20] describe lang chain as that's what lang
+[00:05:22] chain is it's an agent framework and now
+[00:05:24] and now we have deep agents which I'd
+[00:05:25] call an agent harness and we get asked
+[00:05:27] about what's the difference so a model
+[00:05:29] is obviously the LLM tokens messages in
+[00:05:32] messages out um the framework would be
+[00:05:35] abstractions around that so making it
+[00:05:37] easy to switch between models uh adding
+[00:05:39] abstractions for other things like tools
+[00:05:41] and vector stores and memory and things
+[00:05:42] like that but pretty like unopinion
+[00:05:45] about what goes in there more values
+[00:05:51] are more like batteries included. So
+[00:05:53] when we talk about deep agents we're
+[00:05:55] talking about we we actually give it a
+[00:05:57] planning tool by default. So it has a
+[00:05:59] tool that that that comes built into the
+[00:06:01] harness. That's pretty opinionated that
+[00:06:02] like this is the right way to do things.
+[00:06:04] Um we do compaction. So you have these
+[00:06:06] long horizon agents. They're running for
+[00:06:08] long periods of time. Context windows
+[00:06:10] are larger but they're still not
+[00:06:11] infinite. And so at some point you need
+[00:06:12] to compact that. How do you do that?
+[00:06:14] There's a lot of research going on there
+[00:06:16] right now. Uh, one of the other sets of
+[00:06:19] tools that we and a lot of people are
+[00:06:21] giving to these agents are tools for
+[00:06:22] interacting with the file system whether
+[00:06:24] directly or via bash and and
+[00:06:27] this is it's kind of tough to separate
+[00:06:29] from the models because the models are
+[00:06:31] being trained on a lot of this data as
+[00:06:33] well. And so there's this kind of
+[00:06:35] evolution between like I don't know if
+[00:06:37] we could have known that like these file
+[00:06:39] system based harnesses are the best
+[00:06:41] thing at like if if we fast if we go
+[00:06:43] back two years ago I don't think we
+[00:06:44] could have known that because models
+[00:06:45] weren't really being trained on that as
+[00:06:47] much as they are now and so they're kind
+[00:06:49] of evolving together. So so I think it's
+[00:06:51] like a combination of things. It's the
+[00:06:52] models absolutely are getting better.
+[00:06:54] Reasoning models are helping helping a
+[00:06:56] lot. Um, but it's also the fact that
+[00:06:58] we're figuring out all these primitives
+[00:07:00] around compaction and uh and planning
+[00:07:04] and and these file system tools being
+[00:07:05] really useful. And so it's I I do think
+[00:07:07] it's a combination of both.
+[00:07:09] >> Um I remember in in that very first
+[00:07:11] episode we did together, you know, you
+[00:07:13] described
+[00:07:15] laying graph I think as the almost the
+[00:07:17] cognitive framework.
+[00:07:19] >> Yeah.
+[00:07:19] >> Uh of of the of the agent. Is that the
+[00:07:22] right way to think about what the the
+[00:07:24] harness is? Uh yeah, I think I think
+[00:07:26] that's right. Yeah, so we we build we
+[00:07:28] build deep agents on top of Langraph.
+[00:07:30] It's one particular kind of like
+[00:07:31] langraph instance. It's very
+[00:07:32] opinionated. It's more general purpose.
+[00:07:34] Um and so I think early on we talked
+[00:07:36] about general purpose architectures and
+[00:07:37] more specific architectures. And what
+[00:07:40] we've seen is that a lot of the
+[00:07:44] specificity for tasks previously that
+[00:07:47] might have been in langraph because you
+[00:07:49] needed to put more structure on the
+[00:07:50] models. Now that specificity is moving
+[00:07:52] into the tools and the instructions. So
+[00:07:54] there's still the same level of
+[00:07:55] complexity. It's just in natural
+[00:07:57] language. And so prompting and editing
+[00:08:00] those prompts and and and automatic
+[00:08:02] maybe automatically updating those is
+[00:08:04] becoming a part, but the harness is
+[00:08:05] remaining a little bit more fixed.
+[00:08:07] >> Um
+[00:08:08] >> what's the hardest thing to get right on
+[00:08:11] the harness side? And do you think, you
+[00:08:13] know, do you think individual companies
+[00:08:15] can actually excel at the harness
+[00:08:17] engineering side of things? Who do you
+[00:08:18] admire there? Uh I think a lot of the
+[00:08:21] companies that are doing the best
+[00:08:22] harness engineering are coding
+[00:08:25] companies. Honestly, I think that's the
+[00:08:26] place where it's taken off a bunch. I
+[00:08:29] mean you look at cloud code. I would
+[00:08:31] argue a big reason for the popularity of
+[00:08:32] cloud code is the harness itself. Um
+[00:08:35] >> does that by the way imply that
+[00:08:36] harnesses are better built by foundation
+[00:08:39] model companies than by third party
+[00:08:42] startups?
+[00:08:43] >> I I I don't know. Um I so the next
+[00:08:46] company I was going to mention is
+[00:08:47] Factory which is another coding company
+[00:08:49] and and I think you look at at the
+[00:08:50] harness they've done there. AMP um is
+[00:08:52] another coding company has a has a has a
+[00:08:54] really good harness. Um I think there's
+[00:08:58] pros and cons. They there definitely is
+[00:09:02] some aspect of the harness being tied to
+[00:09:05] a model. Um and and maybe not just not a
+[00:09:07] specific model but a family of models.
+[00:09:09] So like all cloud models like anthropic
+[00:09:11] fine-tunes on some specific tools.
+[00:09:13] OpenAI fine-tunes on different ones. So
+[00:09:16] like I think probably probably probably
+[00:09:17] probably probably when we were doing
+[00:09:18] this last time we maybe talked about how
+[00:09:19] prompts need to be different for one
+[00:09:21] model versus another. Hardnesses also
+[00:09:22] need to be slightly different for one
+[00:09:24] family of of things versus the other
+[00:09:26] >> but there are similarities. Uh all of
+[00:09:27] them use the file system in in in some
+[00:09:30] sense.
+[00:09:30] >> Um so I think this is I I I I actually
+[00:09:33] don't know the answer to that. It's a
+[00:09:34] really interesting uh thing. Um we see
+[00:09:37] that a lot of the coding com a lot
+[00:09:39] everyone who's building a coding company
+[00:09:41] is basically building their own harness
+[00:09:42] right now. Yeah.
+[00:09:43] >> Um,
+[00:09:44] >> and there's all these leaderboards and
+[00:09:46] you can see it's actually kind of
+[00:09:47] interesting if you go to terminal bench
+[00:09:49] 2, which I think is probably the one of
+[00:09:51] the more kind of like popular coding
+[00:09:52] benchmarks right now. You can actually
+[00:09:54] see they they have like the the agent
+[00:09:57] harness and then the model and so you
+[00:09:58] can see the variation in performance and
+[00:10:00] claude code is not at the top of that.
+[00:10:02] >> Um, so there's there's differences but I
+[00:10:04] think it
+[00:10:05] >> it doesn't necessarily mean that the
+[00:10:07] model labs are better at it. It just
+[00:10:10] means that you have to understand how
+[00:10:12] the models work and people who look at
+[00:10:14] the at what makes a harness tick around
+[00:10:17] the model can can get some performance
+[00:10:18] gains there.
+[00:10:19] >> Yeah.
+[00:10:20] >> What do you think goes into, you know,
+[00:10:21] making the harness tick? Like what do
+[00:10:23] you think that the guys at the top of
+[00:10:24] the leaderboard are doing exceptionally
+[00:10:25] well?
+[00:10:26] >> I think part of it is definitely
+[00:10:27] understanding like what tools the models
+[00:10:30] uh trained on. So uh I think OpenAI
+[00:10:32] trains really heavily on Bash. I think
+[00:10:34] Anthropic has an explicit kind of like
+[00:10:36] file editing tools and so I think
+[00:10:38] leaning into that is part of it. Um
+[00:10:40] compaction is becoming more and more of
+[00:10:42] a thing. Uh so especially as you start
+[00:10:44] doing longer horizon tasks like you
+[00:10:47] start to fill up the context window and
+[00:10:48] so what do you do there is a really big
+[00:10:50] question and there's a bunch of
+[00:10:51] strategies for for kind of like
+[00:10:53] approaching that. I'd argue that's part
+[00:10:55] of a harness. I mean, so all of these
+[00:10:57] harnesses also this is where like skills
+[00:10:59] and MCPs and sub aents start to come
+[00:11:02] into play as well and you can use those
+[00:11:04] in like different ways and and I don't
+[00:11:07] know how I I don't think a ton of like
+[00:11:09] skills or sub agents are trained into
+[00:11:10] the models yet like those are still
+[00:11:12] pretty new.
+[00:11:13] >> Yeah.
+[00:11:13] >> Um and and so like one one of the things
+[00:11:16] that we see in our harness is like when
+[00:11:18] you have a sub agent the the the the
+[00:11:19] main model needs to communicate with it
+[00:11:21] like well it needs to it needs to give
+[00:11:23] it all the appropriate information. it
+[00:11:24] needs to let the sub aent know that it
+[00:11:26] needs to like give it its final response
+[00:11:27] out. So like we would see some failure
+[00:11:29] modes where the sub aent because
+[00:11:30] basically what happens is you kick off
+[00:11:31] the sub agent and then only the final
+[00:11:33] response is passed back to the main
+[00:11:34] agent. And so we'd see some failure
+[00:11:36] modes where the sub agent would do a
+[00:11:37] bunch of work and then it would be
+[00:11:39] basically like look at my work above and
+[00:11:41] then you know pass that back to the main
+[00:11:42] agent and it can't see it and it's like
+[00:11:43] what are you talking about? And so like
+[00:11:45] that type of like prompting to get these
+[00:11:47] pieces to work together is a big part of
+[00:11:49] it. So like skills, sub agents, MCP,
+[00:11:51] there there are like prompts in all of
+[00:11:54] these harnesses that make them work well
+[00:11:56] or don't make work them work well. And
+[00:11:58] they're they're hundreds of of lines
+[00:12:00] long if you look at some of the the the
+[00:12:02] ones that are out there.
+[00:12:03] >> Can I ask you a question on how this has
+[00:12:05] evolved and um
+[00:12:08] since you've always been
+[00:12:10] really kind of on the bleeding edge of
+[00:12:12] what are people doing around the models
+[00:12:13] to make them work in the real world,
+[00:12:15] right? If we think about in our
+[00:12:18] simplistic view on like what the big
+[00:12:20] inflection points over the last five
+[00:12:22] years have been feels like there was a
+[00:12:23] big inflection point around pre-training
+[00:12:25] when chatbd came out. Feels like there
+[00:12:26] was a big inflection point around
+[00:12:28] reasoning when 01 came out. Feels like
+[00:12:30] just recently there's been a third big
+[00:12:32] inflection point around these long
+[00:12:33] horizon agents with cloud code and opus
+[00:12:35] 45. Um in your world the world of all
+[00:12:38] the stuff around the models that that
+[00:12:40] makes them work in the real world. Would
+[00:12:42] you have a different set of inflection
+[00:12:43] points? Like what have the major changes
+[00:12:45] been? I remember we talked about
+[00:12:47] cognitive architectures a couple years
+[00:12:48] ago and now we're talking about
+[00:12:49] frameworks and agent harnesses. Like
+[00:12:51] what have the major leaps in
+[00:12:55] um sort of the design around the model?
+[00:12:58] Yeah. What have they been?
+[00:13:00] >> So I think there's maybe like three eras
+[00:13:03] I would say. I'd say like early on and
+[00:13:05] this is when Langchain was just started
+[00:13:06] like these were still the raw like text
+[00:13:08] in text out like not even chatbased
+[00:13:10] models. And so they didn't have any of
+[00:13:11] the tool calling. They didn't have
+[00:13:14] >> any content blocks, any reasoning at
+[00:13:16] all. They were really just like
+[00:13:17] >> really really
+[00:13:19] >> basic. Uh and so the the things that
+[00:13:22] people were doing were mostly like
+[00:13:23] single prompts or like chains. Um and
+[00:13:26] and it wasn't even possible to do
+[00:13:27] anything like that complicated. Then a
+[00:13:30] lot of the model labs started training
+[00:13:31] in a lot of like the tool calling into
+[00:13:33] the models and they got really good at
+[00:13:35] kind or they tried to make them good at
+[00:13:36] like thinking and planning and they
+[00:13:37] still weren't they still weren't good
+[00:13:39] yet. they sort of weren't good as they
+[00:13:41] as they are today. Um, but they were
+[00:13:43] good enough to like
+[00:13:44] >> decide what to do. And this is where
+[00:13:45] like the custom cognitive architectures
+[00:13:47] would come in more into play because
+[00:13:48] you'd ask it explicitly like what do I
+[00:13:50] do here? But it was like a very like
+[00:13:51] point in time and then you go down this
+[00:13:53] branch and then like what do I do here?
+[00:13:54] And maybe there's a loop and and there
+[00:13:55] started to be some loops but it's still
+[00:13:57] a little bit more kind of like
+[00:13:58] scaffolding around it.
+[00:14:00] >> And then there was an inflection point
+[00:14:01] and I don't know where exactly that was.
+[00:14:03] I would say I think we noticed it
+[00:14:05] probably in like June July of this year
+[00:14:07] where we saw Cloud Code taking off, deep
+[00:14:09] research taking off, Manis taking off
+[00:14:11] and these all use the same architecture
+[00:14:12] under the hood of just the the LLM
+[00:14:14] running in the loop but like cleverly
+[00:14:16] like a lot of a lot of hardness is
+[00:14:18] context engineering like everything
+[00:14:19] around contraction context engineering
+[00:14:21] sub agents context skills context
+[00:14:23] engineering. So we basically saw them
+[00:14:25] using the same core algorithm but making
+[00:14:27] just like improvements on context
+[00:14:28] engineering and we're like oh that's
+[00:14:30] interesting that's pretty different than
+[00:14:32] before. And so that's when we started
+[00:14:33] working on deep agents.
+[00:14:34] >> I think for a lot of people in the
+[00:14:36] coding community, I think probably like
+[00:14:38] Opus 4 5 was when they started to like
+[00:14:41] really feel this. It might have also
+[00:14:42] just coincided with winter break when
+[00:14:44] everyone went home and started using
+[00:14:45] claude code and realiz how good it was.
+[00:14:47] Um but I think like around like
+[00:14:49] November, December like I think there's
+[00:14:51] has been this like
+[00:14:53] >> at least I I sense a pretty big like
+[00:14:55] vibe shift in like people just like yeah
+[00:14:57] you throw hard problems at these things
+[00:14:58] and you get long horizon agents. And so
+[00:15:00] I don't know whether it was early 2025
+[00:15:02] or late 2025, but at some point the
+[00:15:04] models got good enough and and that's
+[00:15:06] when we moved from like scaffolds to to
+[00:15:08] harnesses.
+[00:15:08] >> And what's next on this arc?
+[00:15:11] >> I I wish I could tell you. Um, I mean I
+[00:15:14] do think that like this algorithm of
+[00:15:16] just running the LM in a loop and
+[00:15:17] letting it orchestrate its own uh let
+[00:15:20] letting it really choose what to pull
+[00:15:21] into context and and and doing stuff
+[00:15:23] there that is like it's so simple and so
+[00:15:26] general purpose like I mean that was the
+[00:15:27] core idea of agents and all along and
+[00:15:29] and and we're finally there.
+[00:15:30] >> Um if you look at some of the manual
+[00:15:32] scaffolding like maybe some of that goes
+[00:15:34] away. So like compaction is still very
+[00:15:36] manual like the the harness author
+[00:15:38] decides what to do with it. Anthropic
+[00:15:40] has some interesting things where they
+[00:15:41] let the model decide like when to
+[00:15:43] compact things. We don't really see a
+[00:15:45] ton of people using that. Maybe that'll
+[00:15:47] be a part that's next. Uh part of what
+[00:15:51] we're really interested in is memory as
+[00:15:53] well. If you think about memory in the
+[00:15:55] context of this, that's also context
+[00:15:56] engineering, right? It's context
+[00:15:57] engineering over longer time horizons
+[00:15:59] and it's a slightly different set of
+[00:16:01] contexts, but it's still giving that to
+[00:16:03] the to the LLM. And I think uh I think
+[00:16:06] like the the core algorithm is is is
+[00:16:10] pretty like it's pretty simple. It's run
+[00:16:13] the LLM in a loop and we're finally
+[00:16:14] there and it kind of works. And so I
+[00:16:15] think there'll be a bunch of like
+[00:16:16] context engineering tricks around it.
+[00:16:19] And maybe some of that is giving the
+[00:16:20] context engineering actually to the LLM
+[00:16:22] like letting like the anthropic thing.
+[00:16:24] Maybe some of that is just pulling in
+[00:16:25] new types of context. The models will
+[00:16:27] will probably get better. They'll
+[00:16:29] probably I mean they'll probably get
+[00:16:30] better and better at these types of
+[00:16:31] longer horizon tasks. that'll be great
+[00:16:33] as well. Um, one of the big questions on
+[00:16:36] my mind it so a lot of these harnesses
+[00:16:38] that we see are very coding specific.
+[00:16:40] Yeah. Um, and that's where we first
+[00:16:42] started to really see these long horizon
+[00:16:44] uh, agents take off and even for
+[00:16:46] non-coding tasks I think you can make an
+[00:16:49] argument that like writing code is
+[00:16:51] really useful and uh, can be general
+[00:16:54] purpose.
+[00:16:55] >> I was going to ask you are coding agents
+[00:16:57] is that a subcategory or are coding
+[00:16:59] agents just agents? Meaning the job of
+[00:17:01] an agent is to figure out how to get a
+[00:17:03] computer to do useful stuff and code is
+[00:17:05] a pretty good way to get a computer to
+[00:17:07] do useful stuff.
+[00:17:09] >> I don't know. Um this is one of the big
+[00:17:11] so I I I very very strongly believe that
+[00:17:14] like right now if you're building a long
+[00:17:15] horizon agent, you need to give it
+[00:17:17] access to a file system. Like there's so
+[00:17:19] many things you can do with a file
+[00:17:20] system in terms of context management.
+[00:17:22] Like when we talk about compaction, one
+[00:17:23] strategy is to summarize but put all the
+[00:17:25] messages in the file system so that if
+[00:17:26] it needs to look it up, it can. Uh,
+[00:17:28] another strategy is when you have like
+[00:17:30] big tool call results, don't pass it all
+[00:17:32] to the model. Put it in the file system
+[00:17:34] and let it looking let it look it up.
+[00:17:36] Now you can do all of that without like
+[00:17:38] a real file system actually without
+[00:17:39] letting it write code. So we have a
+[00:17:41] concept of like a virtual file system
+[00:17:42] where it's just backed by Postgress or
+[00:17:44] something like that and it's more
+[00:17:45] scalable, but there are obviously things
+[00:17:46] you can do with code that you can't do
+[00:17:47] with a virtual file system. You can't
+[00:17:49] run code in a virtual file system. Um,
+[00:17:51] so like writing scripts is like really
+[00:17:53] useful for that.
+[00:17:54] >> Yeah. Um, and I think a coding agent can
+[00:17:58] be general purpose, but I don't know if
+[00:18:00] that means that today's coding agents
+[00:18:02] are, if that makes sense. Because I
+[00:18:03] think a lot of the coding agents today
+[00:18:05] are pretty optimized for coding tasks.
+[00:18:07] And so I think it's possible that a
+[00:18:09] general purpose agent is a coding agent,
+[00:18:11] but I don't know if like the reverse is
+[00:18:12] true if if if that kind of like makes
+[00:18:14] sense.
+[00:18:15] >> Yeah. Yeah. Yeah.
+[00:18:15] >> We're thinking about that a lot as well.
+[00:18:17] Are all agents coding agents?
+[00:18:18] >> Yeah. That's that's one of the biggest
+[00:18:20] things that we're thinking about right
+[00:18:22] now.
+[00:18:22] >> Yeah. Maybe can we transition into
+[00:18:23] talking about what goes into building a
+[00:18:26] long horizon agent versus building
+[00:18:28] software? Um can you maybe describe the
+[00:18:31] software development stack for for 1.0
+[00:18:33] code development and um and what's
+[00:18:35] different now? And I thought you had a
+[00:18:36] really good X article on this. Maybe
+[00:18:38] maybe just summarize the the punch line.
+[00:18:41] >> I've been I to think about this a bunch
+[00:18:42] because we like to say that build and I
+[00:18:44] think a lot of people would agree that
+[00:18:45] like building agents is different than
+[00:18:47] building software. But like what exactly
+[00:18:49] is different? Cuz I think it's it's easy
+[00:18:51] and lazy to say that it's different, but
+[00:18:53] what actually is different? These might
+[00:18:54] sound obvious, but hopefully that's good
+[00:18:56] and they're not controversial. But like
+[00:18:58] um when you're building software, all of
+[00:19:00] the logic is in the code in the software
+[00:19:02] and you can see it there. When you're
+[00:19:04] building an agent, the logic for how
+[00:19:06] your applications works is not all in
+[00:19:08] the code. A large part of it comes from
+[00:19:10] the model. And so what this means is
+[00:19:12] that you can't just look at the code and
+[00:19:14] tell exactly what the agent would do in
+[00:19:16] a specific scenario. you actually have
+[00:19:17] to run it. And so and so and so what
+[00:19:20] does that mean? And and I think that's
+[00:19:21] the biggest difference by the way like
+[00:19:22] we're introducing like these
+[00:19:24] nondeterministic systems into it and
+[00:19:25] it's a black box and it lives outside
+[00:19:27] and I think all that that's that's the
+[00:19:29] biggest difference. So what exactly does
+[00:19:30] that mean? I think like one thing that
+[00:19:33] that means is that in order to tell what
+[00:19:36] the application is actually doing, you
+[00:19:38] can't look at the code. You have to look
+[00:19:39] at actually what it does in in real
+[00:19:41] life. Um, and so I think one of the the
+[00:19:44] one of the things that one of the things
+[00:19:47] that we do that is most popular is
+[00:19:48] Langmith. One of the core parts of that
+[00:19:50] is tracing. Why are traces so popular?
+[00:19:52] Because they tell you exactly what goes
+[00:19:53] on inside your agent at every step. Um,
+[00:19:55] and it's different than software traces
+[00:19:57] where in software you kind of have your
+[00:19:59] system over here and it emits a bunch of
+[00:20:02] like uh stuff and you you know you look
+[00:20:04] at it when maybe there's some errors but
+[00:20:07] you don't need like everything and and
+[00:20:10] you usually only turn that on when you
+[00:20:11] put it in production because if it's
+[00:20:12] local you just put a breakpoint or
+[00:20:14] something like that. in agents like
+[00:20:16] people use traces from the start to just
+[00:20:19] tell what's going on under the hood. And
+[00:20:21] and it's way more impactful in agents
+[00:20:23] than in single LLM applications because
+[00:20:24] in single LM applications you get some
+[00:20:26] bad response from the LLM. You know
+[00:20:28] exactly what your prompt is. You know
+[00:20:29] exactly what the context that goes in is
+[00:20:31] because that's determined by code and
+[00:20:32] then you get something out. In agents
+[00:20:34] they're running and and and repeating
+[00:20:36] and so you don't actually know what the
+[00:20:38] context at step 14 will be because
+[00:20:40] there's 13 steps before that that could
+[00:20:41] pull arbitrary things in. So, like what
+[00:20:43] exactly is everything's context
+[00:20:45] engineering. Context engineering is such
+[00:20:46] a good term. I wish I came up with that
+[00:20:48] term. Like it actually really describes
+[00:20:49] like everything we've done at Langchain
+[00:20:52] um without knowing that that term
+[00:20:53] existed. But like traces just like tell
+[00:20:55] you what's in your context. And that's
+[00:20:56] so important. And so then and so like
+[00:20:59] what does that mean? That means that the
+[00:21:00] the source of truth for software is in
+[00:21:03] code. In for agents it's a combination
+[00:21:05] now of code and and and traces are where
+[00:21:08] you can see the source of truth.
+[00:21:10] technically in you know all those
+[00:21:11] millions of parameters but like you
+[00:21:13] can't really do anything with that. So
+[00:21:15] now so now that means that traces become
+[00:21:17] a place where you start to think about
+[00:21:19] testing because now you can't you can
+[00:21:21] test you can test some parts still of of
+[00:21:24] the harness and and and you can do some
+[00:21:25] unit testing offline but like in order
+[00:21:27] to get the the what the test cases are
+[00:21:29] you probably want to use the traces to
+[00:21:31] construct that. You probably want to be
+[00:21:32] testing online. That's probably more
+[00:21:34] important in agents than it is in
+[00:21:36] software is online testing because
+[00:21:38] behavior doesn't emerge until until it's
+[00:21:40] actually being used with with real world
+[00:21:41] inputs. Um, we see traces becoming a
+[00:21:44] point of collaboration for teams because
+[00:21:46] if something goes wrong, it's not, oh,
+[00:21:48] let's go look at the code in GitHub.
+[00:21:49] It's let's go look at the trace. We see
+[00:21:50] this in our open source as well when
+[00:21:52] people are being like, hey, deep agents
+[00:21:54] like went off the rails here. What
+[00:21:56] happened? Our response is like send us a
+[00:21:58] lang trace. Like we can't really help
+[00:21:59] you debug if it's if it's not that.
+[00:22:01] Previously would be like, show me the
+[00:22:02] code, right? So there's think there's a
+[00:22:03] transition there. And then I think the
+[00:22:05] other thing that's and and so that was
+[00:22:07] the blog post that I wrote on next which
+[00:22:09] got a lot of good feedback on. I'm still
+[00:22:10] kind of figuring out how to like phrase
+[00:22:12] it but I think that's that's a big part
+[00:22:13] of it. Um the other thing which I'm
+[00:22:16] still trying to think through as well is
+[00:22:18] I think building agents is more
+[00:22:19] iterative. And we used to say that and I
+[00:22:22] would kind of roll my eyes because
+[00:22:23] building software is iterative as well,
+[00:22:25] right? You you ship it, you get feedback
+[00:22:27] and it's it's constant iteration. That's
+[00:22:29] like what it is. I think the difference
+[00:22:31] is that in software you're you're you're
+[00:22:34] kind of like iterating based on what you
+[00:22:37] want the software to do. Like you have
+[00:22:38] some idea, you ship it, you get
+[00:22:39] feedback. Oh, maybe this, you know,
+[00:22:41] button is confusing. Maybe this uh maybe
+[00:22:44] users actually want to do X instead of
+[00:22:45] Y, but you know what the software does
+[00:22:47] before you ship it. With agents, you
+[00:22:49] don't know what the agent does before
+[00:22:51] you ship it. You have an idea, but you
+[00:22:52] don't really know what it does before
+[00:22:54] you ship it. And so I think there's way
+[00:22:56] more iteration involved in order to get
+[00:22:58] it like accurate, get it like right and
+[00:23:00] passing like conceptual unit tests
+[00:23:03] basically.
+[00:23:04] >> Um, and
+[00:23:07] building upon that like this is actually
+[00:23:09] why I think memory is really important
+[00:23:10] as well. Um, because memor is like
+[00:23:12] learning from those interactions. And so
+[00:23:14] if now you have a process that's like
+[00:23:15] way more iterative. And so now you have
+[00:23:17] to like it's it's way harder to build as
+[00:23:19] a developer because I have to like
+[00:23:20] change the system prompt like way more
+[00:23:22] than I would have to change code in
+[00:23:24] order to get it just perform like
+[00:23:26] correctly.
+[00:23:27] >> Yeah.
+[00:23:28] >> So that's where memory comes in because
+[00:23:29] if there's a way where the system can
+[00:23:30] kind of like learn by itself that cuts
+[00:23:32] down the iteration that you have to do
+[00:23:33] as a developer and makes it easier to
+[00:23:35] build these types of agents. So that's
+[00:23:37] another kind of like angle that I I like
+[00:23:41] I absolutely think agents are different
+[00:23:43] than building software. I think it's
+[00:23:44] also a little cliche to say that and so
+[00:23:46] I've tried to think about what exactly
+[00:23:47] is different and those are like the two
+[00:23:48] things that I've kind of come up with.
+[00:23:49] >> Well, and I'm curious on that too. Um,
+[00:23:52] one of the questions there's a big
+[00:23:54] public market debate right now is are
+[00:23:57] the existing software companies going to
+[00:23:59] make it. And if you analogize to when
+[00:24:01] on-prem software went to cloud, very few
+[00:24:04] actually did make it because it turned
+[00:24:06] out that building cloud software was
+[00:24:08] actually quite different than building
+[00:24:09] on-prim. And since you're in the middle
+[00:24:11] of kind of how people are building with
+[00:24:13] AI, um what's your take on not
+[00:24:16] necessarily the public market question,
+[00:24:18] but how different is it? Like do you see
+[00:24:22] have you seen a lot of people who kind
+[00:24:23] of like were good at building software
+[00:24:26] the old way and now they're good at
+[00:24:27] building software the new way? Or is it
+[00:24:29] more just you either grow up building it
+[00:24:31] the new way or you never get it? Like do
+[00:24:32] you think people can make the leap? a
+[00:24:34] lot of young founders out there right
+[00:24:36] now which which makes me think that
+[00:24:38] certainly it seems like the younger
+[00:24:40] people without a lot of preconceived
+[00:24:42] notions on how to build software you
+[00:24:44] know have the blank slate that has
+[00:24:45] allowed them to like pick up on a lot of
+[00:24:46] this stuff. I do think we we have
+[00:24:49] consistently heard that a lot of the
+[00:24:52] people who are on these agent
+[00:24:54] engineering teams are more junior
+[00:24:56] developers uh more junior builders even
+[00:25:00] um
+[00:25:01] >> who yeah don't have those preconceived
+[00:25:03] notions. Our applied AI team internally
+[00:25:05] definitely skews on the on the younger
+[00:25:07] side.
+[00:25:08] >> Um I do think I mean in terms of kind of
+[00:25:11] like I think there's like a there's like
+[00:25:14] a person aspect to this. There's also
+[00:25:15] like a company aspect to this. Like I do
+[00:25:17] think that like data is still really
+[00:25:19] really really valuable. Um
+[00:25:21] >> I think when you think about this
+[00:25:23] harness basically there's like if if
+[00:25:25] harnesses become I by the way I I don't
+[00:25:27] think that most people will build their
+[00:25:29] own harness in the long run because it's
+[00:25:30] actually way harder than than building a
+[00:25:32] framework. And so I think they'll uh use
+[00:25:35] uh a harness from us or from someone
+[00:25:37] else. And so if you think about what
+[00:25:38] goes into that it's like the prompt and
+[00:25:40] the instructions and then the tools that
+[00:25:42] it's connected to. And I think one thing
+[00:25:43] that this is more at the company level
+[00:25:45] now, but like one thing that existing
+[00:25:46] companies have is all the data and all
+[00:25:48] the APIs if if you've done a good job at
+[00:25:50] that then I think it will actually be
+[00:25:52] pretty easy to plug those in and get
+[00:25:53] real value out of things. Um we were
+[00:25:56] talking to someone in the finance space
+[00:25:58] and and they are saying yeah like the
+[00:25:59] value of data is just going up and up
+[00:26:00] and up and up. So if you're a previous
+[00:26:02] uh software vendor and you have this
+[00:26:04] data that is valuable like you should be
+[00:26:06] able to expose it to agents and get a
+[00:26:07] lot of value out of that.
+[00:26:08] >> Yeah. The other part of it though is the
+[00:26:11] instructions on what to do with that
+[00:26:12] data and that's probably like more net
+[00:26:14] new um in terms of like how to use that
+[00:26:17] data. That's probably you probably had
+[00:26:19] some ideas about that as a software
+[00:26:21] vendor but you didn't kind of like
+[00:26:22] consolidate it. You didn't have it
+[00:26:25] because that was something that humans
+[00:26:26] would still do. Like a lot of what
+[00:26:27] agents are doing what humans would still
+[00:26:29] do. So you'd give them the tools to do
+[00:26:30] it but you wouldn't have tried to like
+[00:26:31] automate that or you wouldn't have
+[00:26:33] successfully automated it before kind of
+[00:26:35] like agents. And so that part I think is
+[00:26:37] is is newer and we're also seeing a lot
+[00:26:40] of demand like I think a lot of the a
+[00:26:42] lot of the vertical startups um rogo is
+[00:26:44] a great example of someone who has
+[00:26:46] experience in finance and is bringing
+[00:26:48] that knowledge to agents and the reason
+[00:26:50] that's kind of like effective is because
+[00:26:52] a lot of the agents are driven by by
+[00:26:54] knowledge and and and and and not like
+[00:26:57] world knowledge but like knowledge on
+[00:26:58] how to do specific patterns. Um so kind
+[00:27:00] of yeah I think there's like are the
+[00:27:03] people who are building software the
+[00:27:04] right people to build agents. Um I think
+[00:27:07] we saw a lot of really senior developers
+[00:27:09] adopt agentic coding and so I think it
+[00:27:11] it it's a mindset thing but like yeah
+[00:27:13] there there is maybe a younger skew
+[00:27:15] there. Um and then and then for
+[00:27:16] companies depends on the data.
+[00:27:18] >> Yeah.
+[00:27:18] >> Even Pat's on on cloud code. So
+[00:27:21] >> even old guys can get it.
+[00:27:22] >> Sonia got me on there.
+[00:27:25] >> Um okay. Okay. So, it seems like the
+[00:27:27] trace is a core artifact you think in
+[00:27:29] kind of this new world of of agent
+[00:27:30] development and it's something that
+[00:27:32] linksmith helps a lot with. What other
+[00:27:34] core artifacts do you think are there?
+[00:27:36] And specifically, I'm wondering about
+[00:27:37] eval.
+[00:27:38] >> Yeah, I think um
+[00:27:40] >> maybe artifact is the wrong word.
+[00:27:42] >> Components.
+[00:27:43] >> Component. Yeah, I mean I I I think one
+[00:27:45] other thing that is different between
+[00:27:46] building software and and building
+[00:27:48] agents is that to evaluate software you
+[00:27:50] could pretty reliably you you could rely
+[00:27:52] on tests and assertions of of things
+[00:27:55] programmatically.
+[00:27:56] >> Um with agents a lot of what they're
+[00:27:58] doing is things that humans would do. So
+[00:28:00] in order to judge them you need to bring
+[00:28:01] human judgment into that. And that's
+[00:28:03] another thing that we try to do in
+[00:28:04] Lingsmith is how can you bring you've
+[00:28:06] got these traces how can you bring human
+[00:28:07] judgment to them? And so that like one
+[00:28:11] obvious way to do that is to bring
+[00:28:12] humans into the equation. Um and so we
+[00:28:14] see data labeling startups doing really
+[00:28:16] well. Uh we have a concept of annotation
+[00:28:18] cues in Langmith to bring people in
+[00:28:20] there. And so that actual like actual
+[00:28:22] human judgment is is a big part of it.
+[00:28:23] >> And this is humans annotating the actual
+[00:28:25] trace. So like ah the agent did this and
+[00:28:27] this and this and that was good or bad.
+[00:28:29] >> Yeah. Yeah. Um saying and and sometimes
+[00:28:32] giving like natural language feedback on
+[00:28:33] it like this is good, this is bad,
+[00:28:35] should have done this. sometimes just
+[00:28:36] like correcting it like actually like
+[00:28:37] laying out what the what the uh correct
+[00:28:40] steps were kind of depends on the use
+[00:28:41] case and it's probably different for
+[00:28:43] model companies doing RL than it is for
+[00:28:45] for agent companies building building
+[00:28:47] agents. Yeah.
+[00:28:48] >> Um but it's bringing that human judgment
+[00:28:49] to it. Um but then another thing we see
+[00:28:52] is trying to build proxies for this
+[00:28:53] human judgment. And this is where LLM as
+[00:28:55] a judge type things come in where you
+[00:28:56] can run an LLM or something else that
+[00:28:59] you know has some semblance of human
+[00:29:01] judgment in it to grade the the thing
+[00:29:03] that requires human judgment. Um, and so
+[00:29:05] one of the things that we think a lot
+[00:29:07] about is how to make building these
+[00:29:09] elements as judges easy because a big
+[00:29:11] part of them is making sure that they're
+[00:29:13] aligned with your human judgment and
+[00:29:15] human preferences. And so and because if
+[00:29:17] they're not, you know, then your then
+[00:29:18] your greater is just bad. And so we have
+[00:29:20] a we have a concept in Langmith called
+[00:29:22] align evals. Um, where a human goes in
+[00:29:25] labels some traces and then that that
+[00:29:27] builds an LLM as a judge that that kind
+[00:29:29] of like is calibrated against those
+[00:29:31] traces. Um because a bit yeah a big part
+[00:29:33] of it is bringing this human judgment
+[00:29:35] and you just want to make sure that if
+[00:29:36] you're bringing a proxy of it it's it's
+[00:29:37] well calibrated.
+[00:29:38] >> Interesting. I remember when we first
+[00:29:40] got into business with you we were
+[00:29:41] emailing about LLM as judge. Is it a
+[00:29:43] viable idea or not? So it seems like
+[00:29:44] it's come a long way.
+[00:29:45] >> Okay. So there's there's a few different
+[00:29:47] aspects of LM as a judge, right? There's
+[00:29:48] like the immediate like so what most
+[00:29:50] people use them for in eval is like
+[00:29:51] taking this trace and give it a score of
+[00:29:53] like one to to zero or or 0 to 10 or
+[00:29:56] something like that. And yeah, I think
+[00:29:57] that's valu uh viable and people are
+[00:30:00] doing that. They're doing it offline.
+[00:30:01] They're also doing it online because
+[00:30:02] some of these judgments you don't need
+[00:30:03] ground truth for. But I think the other
+[00:30:05] area where this comes into is uh I mean
+[00:30:09] you you kind of see this in the coding
+[00:30:11] agents themselves like the coding agents
+[00:30:13] will they'll work up until something
+[00:30:16] then they hit an error and they get an
+[00:30:18] error and then they have to correct
+[00:30:18] there and so they're kind of judging
+[00:30:20] their previous work. And so and and we
+[00:30:22] also see this in memory like a big part
+[00:30:23] of memory is like reflecting on traces
+[00:30:25] and then updating something. And so like
+[00:30:28] can LLM reflect on traces that are
+[00:30:30] either like their own or their own from
+[00:30:33] a previous session or someone? Yeah,
+[00:30:35] absolutely. I think they can. We see
+[00:30:36] this all across evals and just like
+[00:30:38] error correcting and and memory. It's
+[00:30:40] all kind of the same thing.
+[00:30:41] >> I see. And then maybe Okay, so you have
+[00:30:44] all this you you have all the traces.
+[00:30:46] >> Yep.
+[00:30:47] >> You have the evals.
+[00:30:48] >> Yep. Um I think the natural question
+[00:30:50] that comes to mind for me is is the EVEL
+[00:30:53] like a reward signal for reinforcement
+[00:30:54] learning or is it a feedback mechanism
+[00:30:57] for you know a human engineer to improve
+[00:30:59] the harness
+[00:31:00] >> or for agent engineers to improve the
+[00:31:03] harness because everyone's no one's no
+[00:31:05] one's coding manual anymore. They're all
+[00:31:06] using these. So yeah, one big thing that
+[00:31:08] we've seen is like um we we have a
+[00:31:10] Langmith MCP and we have Langmith fetch
+[00:31:13] which is a CLI because coding agents are
+[00:31:15] actually great at using CLIs. um you
+[00:31:17] give that to an agent and it can pull
+[00:31:19] down traces and diagnose what went wrong
+[00:31:21] and then and then it brings those traces
+[00:31:23] into the codebase where it can then fix
+[00:31:24] it. That's absolutely a pattern that we
+[00:31:26] are seeing and and we really really
+[00:31:27] really want to support that pattern.
+[00:31:30] Crazy. Yeah, I know.
+[00:31:31] >> And it's good.
+[00:31:32] >> Yeah. Yeah. Yeah. Yeah. It's good. Like
+[00:31:33] it it Yeah, it um and and so we see I'm
+[00:31:36] probably more bullish on that than on
+[00:31:38] kind of like reinforcement learning at
+[00:31:40] least for like the agent app kind of
+[00:31:42] like companies right now. That seems
+[00:31:45] like real recursive self-improvement
+[00:31:46] though.
+[00:31:47] >> Yeah, I think I think uh again there's
+[00:31:49] still a human in the loop. So like uh
+[00:31:51] back to the point around around like
+[00:31:52] things are good when you can do
+[00:31:53] something as a first draft like it it
+[00:31:55] changes the prompt and then the human
+[00:31:57] reviews it and like it it keeps it on
+[00:31:59] the rails. But like um I absolutely so
+[00:32:02] so one of the things we launched was
+[00:32:04] Langmith agent builder which is a no
+[00:32:06] code way to build agents. One of the
+[00:32:07] cool things that we have in there is
+[00:32:09] memory. Um, and so right now the way
+[00:32:12] that memory works is when you interact
+[00:32:15] with an agent, so it's not in the
+[00:32:16] background yet. It's not like pulling
+[00:32:17] down its traces, but when you interact
+[00:32:18] with the agent, if you say, "Oh, you
+[00:32:20] should instead of X, you should have
+[00:32:21] done Y," it will go to its own
+[00:32:22] instructions, which are just files, and
+[00:32:24] it will edit those files. So then in the
+[00:32:25] future, and so that's also kind of like
+[00:32:26] a a version of this. One thing we do
+[00:32:29] want to add is like the thing that runs
+[00:32:30] every night, looks at all the traces for
+[00:32:32] the day, updates its own instructions,
+[00:32:35] and so
+[00:32:35] >> the dreaming thing.
+[00:32:36] >> Yeah. Yeah. Sleep time compute. Um,
+[00:32:38] yeah,
+[00:32:39] >> sleep time compute. Is that what it's
+[00:32:40] called?
+[00:32:40] >> That's a term. Yeah, I think Leta came
+[00:32:42] up with that. It's It's a great term.
+[00:32:44] Yeah,
+[00:32:44] >> that is good.
+[00:32:45] >> Love it.
+[00:32:46] >> Awesome. Okay, let's talk more about the
+[00:32:48] future. Um, what are you what are you
+[00:32:50] most excited about? Sounds like you was
+[00:32:51] talking a lot about memory here.
+[00:32:53] >> I like memory a bunch. Yeah, I mean I
+[00:32:54] think asking the agents to improve
+[00:32:56] themselves is I mean I think very very
+[00:33:00] cool and can be useful in a lot of
+[00:33:01] situations. Not useful in all situations
+[00:33:03] by the way. like if I'm chatting so so
+[00:33:05] chat GPT added memory I don't actually
+[00:33:07] really use that feature that much and I
+[00:33:10] don't think it's created any more
+[00:33:11] stickiness for me to use the product or
+[00:33:13] anything like that and I think part of
+[00:33:14] the reason is when I go to chat GPT I do
+[00:33:16] like
+[00:33:18] everything's a one-off thing like I
+[00:33:20] don't really repeat myself that much I
+[00:33:21] have like I'm asking about software I'm
+[00:33:23] asking about food trips like everything
+[00:33:26] um in agent builder that you you build
+[00:33:28] kind of like specific workflows for
+[00:33:30] specific things so I have an email agent
+[00:33:32] Um, and I actually
+[00:33:34] >> I know it's been emailing me for two
+[00:33:35] years.
+[00:33:37] >> Well, so, okay, so I had an email agent
+[00:33:39] outside of agent builder and it had this
+[00:33:41] like memory as part of it. We then built
+[00:33:43] agent builder and I wanted to move it
+[00:33:45] into it and it didn't have all of my
+[00:33:48] memories and that was a big even though
+[00:33:50] it had the same starter prompt and the
+[00:33:51] same tools and that was actually a I
+[00:33:53] still haven't fully switched over
+[00:33:54] because it kind of sucks now compared to
+[00:33:57] what it was before like the compared to
+[00:33:59] the other one and I if I just interact
+[00:34:01] with it then it will get better and it
+[00:34:02] will stop sucking but like that's where
+[00:34:04] memory I think can be like a real moat
+[00:34:05] and I absolutely think that we're at a
+[00:34:07] point right now where LLM can look at
+[00:34:10] traces and change things about their
+[00:34:13] code. Um, and I think the question then
+[00:34:16] becomes how do you do that in a way
+[00:34:17] that's uh safe and acceptable to to
+[00:34:20] users. Um, but I I I think that's
+[00:34:22] absolutely uh something that we'll see
+[00:34:25] more of for specific scenarios, not all
+[00:34:27] of them. Like I still don't know if this
+[00:34:28] would be useful in chat GPT in this form
+[00:34:31] at least.
+[00:34:31] >> Yeah.
+[00:34:32] >> How do you think the UI around working
+[00:34:35] with long horizon agents will evolve?
+[00:34:37] >> I think there probably needs to be like
+[00:34:39] a sync mode and an async mode. So long
+[00:34:42] horizon agents running for a long time,
+[00:34:44] probably default would be some sort of
+[00:34:45] like async way to manage them. Like
+[00:34:47] you're if if it runs for like a day,
+[00:34:49] you're not just going to sit there and
+[00:34:50] wait for it to finish. You're probably
+[00:34:51] going to kick off another one and
+[00:34:52] another one and do a bunch of work. And
+[00:34:53] so I think this is where like async
+[00:34:55] management of things comes into play. I
+[00:34:57] think things like linear and Jira and
+[00:34:59] canban boards and maybe even email are
+[00:35:02] uh interesting to look at for
+[00:35:03] inspiration about like what it looks to
+[00:35:05] like to basically manage a lot of these
+[00:35:07] agents. But I think for a lot of these
+[00:35:09] at some point you're going to want to uh
+[00:35:11] switch into synchronous communication
+[00:35:13] with uh these agents because they come
+[00:35:15] back with a research report and you want
+[00:35:17] to give it feedback that it wrote
+[00:35:18] something wrong. And I actually think
+[00:35:19] chat's like reasonably good at that. The
+[00:35:22] only thing that I'll maybe say there is
+[00:35:24] that so many of these agents are now
+[00:35:26] modifying other things like files in a
+[00:35:29] file system that having some way to view
+[00:35:31] that like state is really important. And
+[00:35:34] so you see this in coding um where IDE's
+[00:35:38] >> ids are still used when you want to go
+[00:35:40] in and manually kind of like change code
+[00:35:42] and and uh even when I kick off uh cloud
+[00:35:45] code when it finishes I sometimes I pull
+[00:35:47] it up and look at the code that it
+[00:35:49] actually wrote. Um and so I think I
+[00:35:51] think having a a way to view that state
+[00:35:52] is interesting. One of the one of the
+[00:35:54] really cool things that Anthropic did
+[00:35:56] with their Claude co-work um when you
+[00:35:59] set it up, you choose the directory that
+[00:36:01] it's kind of like working in and you're
+[00:36:03] basically saying like this is your
+[00:36:04] environment. Um and obviously like
+[00:36:06] that's what you do in coding as well.
+[00:36:07] You open your ID to a particular
+[00:36:09] directory. But I think that's a nice
+[00:36:10] mental kind of like framing is like this
+[00:36:13] is your workspace. That could workspace
+[00:36:14] could be a Google drive. It could be a
+[00:36:16] notion page. Um, it could be anything
+[00:36:18] that like stores state and then you and
+[00:36:21] the agent are collaborating on that
+[00:36:22] state. You kick it off, you manage maybe
+[00:36:24] a bunch of these running asynchronously.
+[00:36:26] Then you go into sync mode where you
+[00:36:27] chat with it, but you also view this
+[00:36:28] state. And so that's kind of what I see
+[00:36:31] right now.
+[00:36:32] >> And this is like your agent inbox idea
+[00:36:34] then of, you know, to to enable the sync
+[00:36:36] mode, your agent's going to have to need
+[00:36:38] a way of reaching you.
+[00:36:39] >> Yeah, exactly. And so yeah, so the agent
+[00:36:41] inbox or something we launched that
+[00:36:42] about a year ago and and had this idea
+[00:36:44] of like ambient agents that ran in the
+[00:36:46] background and pinged you and the first
+[00:36:48] version of that didn't have a sync mode
+[00:36:50] and so it would ping you and then you'd
+[00:36:52] give a response but then you'd kind of
+[00:36:53] just wait for it to ping you again but
+[00:36:56] oftentimes like when I was switching in
+[00:36:57] to email you and respond to you, I would
+[00:36:59] I would I would I would say very small
+[00:37:01] things and I didn't want to switch out
+[00:37:02] and wait like I I you're really
+[00:37:04] important. So I wanted to like be in the
+[00:37:05] sync mode in this conversation with the
+[00:37:07] agent. And so one of the things we added
+[00:37:08] was this was was now when you open the
+[00:37:11] inbox you're brought into chat and chat
+[00:37:13] is very synchronous and that was
+[00:37:14] actually a big unlock. So I actually
+[00:37:15] think having just an async mode. I don't
+[00:37:18] think that really works right now. Maybe
+[00:37:20] in the future if they get so good that
+[00:37:21] you don't really need to like correct
+[00:37:23] them as much it gets more viable. But at
+[00:37:25] least right now I think we see people
+[00:37:26] switching from async to sync and back
+[00:37:28] and forth.
+[00:37:29] >> What do you think of code sandboxes?
+[00:37:32] Like is is every agent going to have
+[00:37:34] access to a sandbox? Is every agent
+[00:37:35] going to have access to or a computer?
+[00:37:38] Is every agent going to have access to a
+[00:37:39] browser?
+[00:37:40] >> Really good question. Something we're
+[00:37:42] thinking a bunch about. I think uh I
+[00:37:45] think coding has clearly worked more
+[00:37:48] than browser use so far. So at least in
+[00:37:50] the short term, it seems like if any of
+[00:37:52] those are going to be a key part there,
+[00:37:53] it's going to be this code execution
+[00:37:55] part. Um file systems, I'm completely
+[00:37:58] file system pled. I think in some form
+[00:38:00] agent should have access to some file
+[00:38:01] system coding. I'm maybe not as pilled,
+[00:38:04] but I'm probably like I'm like maybe
+[00:38:06] like 90% there. Like yeah, I think like
+[00:38:08] it is definitely possible. There are
+[00:38:10] it's maybe for like the longer
+[00:38:13] um tale of use cases. So maybe there's
+[00:38:15] something where if you're doing
+[00:38:16] something repeated, you need code less,
+[00:38:19] but I think file systems are still
+[00:38:20] useful because that repeated thing could
+[00:38:21] be generating a lot of context and and
+[00:38:23] you need to do context engineering. Um
+[00:38:25] but for the long tale of things,
+[00:38:27] coding's great and there's really no
+[00:38:28] replacement for that. browser use. Um, I
+[00:38:31] think the models just aren't good enough
+[00:38:32] at it right now from what we've seen.
+[00:38:34] Um, you could probably give like a
+[00:38:36] coding agent a CLI to do browser use and
+[00:38:38] there's probably some approximation
+[00:38:39] there. There's probably some people
+[00:38:40] doing some I think I have seen some cool
+[00:38:42] stuff there.
+[00:38:43] >> Um, and then computer use is like a
+[00:38:44] weird hybrid of the two. Um, so if Yeah,
+[00:38:47] code sandboxes, I really like code
+[00:38:49] sandboxes.
+[00:38:49] >> Yeah. Yeah.
+[00:38:50] >> Cool. Um, Harrison, thank you so much
+[00:38:52] for joining us today. you have
+[00:38:54] consistently seen the future on agents
+[00:38:56] and it was really cool to have this
+[00:38:57] conversation and talk about how context
+[00:38:59] engineering has evolved to the current
+[00:39:01] point in time with with harnesses and
+[00:39:03] and long horizon agents and so thank you
+[00:39:05] for for driving that future and thank
+[00:39:07] you for always chatting with us about
+[00:39:08] it.
+[00:39:08] >> Thank you for having me on. I look
+[00:39:09] forward to being back on sometime in the
+[00:39:11] future and being completely wrong about
+[00:39:12] everything I said today. So it's very
+[00:39:14] hard to predict the future.

@@ -1,0 +1,112 @@
+# Learnings by Source
+
+**106 sources** (podcasts / newsletters / blogs / articles). Sorted by number of entries.
+
+- [Sequoia Training Data](./sequoia-training-data.md) — 36 entries
+- [Sequoia AI Ascent 2026](./sequoia-ai-ascent-2026.md) — 29 entries
+- [Dwarkesh Podcast](./dwarkesh-podcast.md) — 23 entries
+- [Sequoia Founder Spotlight](./sequoia-founder-spotlight.md) — 21 entries
+- [Cheeky Pint](./cheeky-pint.md) — 17 entries
+- [Lenny's Podcast](./lenny-s-podcast.md) — 17 entries
+- [Latent Space](./latent-space.md) — 11 entries
+- [No Priors](./no-priors.md) — 9 entries
+- [Founder's Playbook](./founder-s-playbook.md) — 9 entries
+- [How People Ask Claude](./how-people-ask-claude.md) — 7 entries
+- [Huxiu Deep Interview](./huxiu-deep-interview.md) — 5 entries
+- [Zhang Xiaojun Business Interview PodcastEP122](./zhang-xiaojun-business-interview-podcastep122.md) — 5 entries
+- [AI Ascent 2026 Keynote](./ai-ascent-2026-keynote.md) — 5 entries
+- [LatePost Talk EP150](./latepost-talk-ep150.md) — 5 entries
+- [Multi-source roundup](./multi-source-roundup.md) — 5 entries
+- [Wavelet (Waves) Interview](./wavelet-waves-interview.md) — 4 entries
+- [BAAI Community](./baai-community.md) — 4 entries
+- [Luo Yonghao's Crossroads EP2](./luo-yonghao-s-crossroads-ep2.md) — 4 entries
+- [Zhang Xiaojun Business Interview PodcastEP113](./zhang-xiaojun-business-interview-podcastep113.md) — 4 entries
+- [Zhang Xiaojun EP115](./zhang-xiaojun-ep115.md) — 4 entries
+- [Luo Yonghao's Crossroads](./luo-yonghao-s-crossroads.md) — 4 entries
+- [Stanford GSB](./stanford-gsb.md) — 4 entries
+- [Sequoia podcast](./sequoia-podcast.md) — 4 entries
+- [Vol.55](./vol55.md) — 4 entries
+- [Zhang Xiaojun Business Interview Podcast2026第一集](./zhang-xiaojun-business-interview-podcast2026.md) — 4 entries
+- [Invest Like the Best](./invest-like-the-best.md) — 4 entries
+- [GeekPark](./geekpark.md) — 3 entries
+- [Logan Bartlett Show](./logan-bartlett-show.md) — 3 entries
+- [Founders Podcast](./founders-podcast.md) — 3 entries
+- [In Good Company](./in-good-company.md) — 3 entries
+- [Fortune](./fortune.md) — 3 entries
+- [Cognitive Revolution](./cognitive-revolution.md) — 3 entries
+- [Linear Capital](./linear-capital.md) — 3 entries
+- [OnBoard EP65](./onboard-ep65.md) — 3 entries
+- [Luo Yonghao's Crossroads EP1](./luo-yonghao-s-crossroads-ep1.md) — 3 entries
+- [Huxiu](./huxiu.md) — 3 entries
+- [Big Technology Podcast](./big-technology-podcast.md) — 3 entries
+- [Zhang Xiaojun EP128](./zhang-xiaojun-ep128.md) — 3 entries
+- [Zhang Xiaojun Business Interview PodcastEP131](./zhang-xiaojun-business-interview-podcastep131.md) — 3 entries
+- [Founder's Playbook — Launch Stage](./founder-s-playbook-—-launch-stage.md) — 3 entries
+- [Huxiu Deep Conversation](./huxiu-deep-conversation.md) — 2 entries
+- [Luo Yonghao's Crossroads (4 hours)](./luo-yonghao-s-crossroads-4-hours.md) — 2 entries
+- [Zhang Xiaojun EP127](./zhang-xiaojun-ep127.md) — 2 entries
+- [21 Finance](./21-finance.md) — 2 entries
+- [Sina Tech](./sina-tech.md) — 2 entries
+- [Uncapped](./uncapped.md) — 2 entries
+- [China Newsweek](./china-newsweek.md) — 2 entries
+- [Luo Yonghao's Crossroads EP15](./luo-yonghao-s-crossroads-ep15.md) — 2 entries
+- [Every (Dan Shipper)](./every-dan-shipper.md) — 2 entries
+- [42 Chapters Podcast](./42-chapters-podcast.md) — 2 entries
+- [Xiaoyuzhou (小宇宙)](./xiaoyuzhou.md) — 2 entries
+- [Finance Interview](./finance-interview.md) — 2 entries
+- [OnBoard EP58](./onboard-ep58.md) — 2 entries
+- [Founder's Playbook — MVP](./founder-s-playbook-—-mvp.md) — 2 entries
+- [硅谷101](./101.md) — 2 entries
+- [Meituan Internal 2025 Postmortem](./meituan-internal-2025-postmortem.md) — 2 entries
+- [GeekPark + 21st Century Business Herald](./geekpark-+-21st-century-business-herald.md) — 1 entries
+- [Zhang Xiaojun Business Interview PodcastEP51 + 虎嗅](./zhang-xiaojun-business-interview-podcastep51-+.md) — 1 entries
+- [Huxiu Deep Interview (first in 10 years)](./huxiu-deep-interview-first-in-10-years.md) — 1 entries
+- [TechCrunch / Axios BFD](./techcrunch-axios-bfd.md) — 1 entries
+- [TechCrunch Equity / Perspectives](./techcrunch-equity-perspectives.md) — 1 entries
+- [TechCrunch Equity](./techcrunch-equity.md) — 1 entries
+- [How People Ask Claude (配套研究)](./how-people-ask-claude.md) — 1 entries
+- [Founder's Playbook (PDF + Coverage)](./founder-s-playbook-pdf-+-coverage.md) — 1 entries
+- [Founder's Playbook (Cal AI 配套案例)](./founder-s-playbook-cal-ai.md) — 1 entries
+- [Linear Capital Interview](./linear-capital-interview.md) — 1 entries
+- [21 Finance + Jiemian Deep](./21-finance-+-jiemian-deep.md) — 1 entries
+- [21st Century + Sina Tech](./21st-century-+-sina-tech.md) — 1 entries
+- [Finance Interview + Talk](./finance-interview-+-talk.md) — 1 entries
+- [BG2 Pod](./bg2-pod.md) — 1 entries
+- [Zhang Xiaojun Business Interview Podcast EP128](./zhang-xiaojun-business-interview-podcast-ep128.md) — 1 entries
+- [Bloomberg](./bloomberg.md) — 1 entries
+- [Upstarts Podcast / No Priors](./upstarts-podcast-no-priors.md) — 1 entries
+- [The MAD Podcast / Upstarts](./the-mad-podcast-upstarts.md) — 1 entries
+- [Accel Spotlight On](./accel-spotlight-on.md) — 1 entries
+- [Stratechery (Ben Thompson)](./stratechery-ben-thompson.md) — 1 entries
+- [CNBC / Big Technology](./cnbc-big-technology.md) — 1 entries
+- [CNBC + All-In](./cnbc-+-all-in.md) — 1 entries
+- [Multiple sources](./multiple-sources.md) — 1 entries
+- [Stratechery](./stratechery.md) — 1 entries
+- [China Newsweek Deep Report](./china-newsweek-deep-report.md) — 1 entries
+- [Bain Capital Ventures](./bain-capital-ventures.md) — 1 entries
+- [Founder's Playbook (Cal AI + Vulcan 对标)](./founder-s-playbook-cal-ai-+-vulcan.md) — 1 entries
+- [InfoQ Deep Interview](./infoq-deep-interview.md) — 1 entries
+- [Conversations with Tyler](./conversations-with-tyler.md) — 1 entries
+- [YouTube interview](./youtube-interview.md) — 1 entries
+- [YC Lightcone](./yc-lightcone.md) — 1 entries
+- [BAAI Community Interview](./baai-community-interview.md) — 1 entries
+- [Zhang Xiaojun Business Interview PodcastEP51](./zhang-xiaojun-business-interview-podcastep51.md) — 1 entries
+- [Founder's Playbook — Idea Exit Criteria](./founder-s-playbook-—-idea-exit-criteria.md) — 1 entries
+- [Founder's Playbook — Idea Failure Modes](./founder-s-playbook-—-idea-failure-modes.md) — 1 entries
+- [Founder's Playbook — MVP Stage](./founder-s-playbook-—-mvp-stage.md) — 1 entries
+- [Founder's Playbook — MVP Exit Criteria](./founder-s-playbook-—-mvp-exit-criteria.md) — 1 entries
+- [Founder's Playbook — Scale Stage Product Matrix](./founder-s-playbook-—-scale-stage-product-matrix.md) — 1 entries
+- [MLST / 多源](./mlst.md) — 1 entries
+- [Semafor](./semafor.md) — 1 entries
+- [Founder's Playbook (Carta Healthcare / Anything 案例)](./founder-s-playbook-carta-healthcare-anything.md) — 1 entries
+- [TechCrunch](./techcrunch.md) — 1 entries
+- [Year-end internal letter (media-quoted)](./year-end-internal-letter-media-quoted.md) — 1 entries
+- [Cursor podcast + 多源](./cursor-podcast-+.md) — 1 entries
+- [Zhang Xiaojun EP94](./zhang-xiaojun-ep94.md) — 1 entries
+- [Cheeky Pint (John Collison)](./cheeky-pint-john-collison.md) — 1 entries
+- [36Kr + Guancha](./36kr-+-guancha.md) — 1 entries
+- [Founder's Playbook — Scale Stage](./founder-s-playbook-—-scale-stage.md) — 1 entries
+- [Zhang Xiaojun EP102](./zhang-xiaojun-ep102.md) — 1 entries
+- [CNBC Tech Download](./cnbc-tech-download.md) — 1 entries
+
+← [Back to KB home](../README.md)

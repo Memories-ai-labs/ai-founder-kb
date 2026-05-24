@@ -1,0 +1,272 @@
+[00:00:03] One of the themes that we've heard
+[00:00:04] throughout the day is that neural nets
+[00:00:06] are replacing a lot of traditional
+[00:00:07] tools. And I think one of the most
+[00:00:10] exciting application categories where
+[00:00:11] we've actually seen that come to life is
+[00:00:14] within chip design, where neural nets
+[00:00:15] are now becoming superhuman at certain
+[00:00:18] parts of the semiconductor design
+[00:00:20] process. And so I'm thrilled to
+[00:00:22] introduce Anna and Azalia. They were the
+[00:00:24] co-creators of AlphaChip, which did
+[00:00:26] exactly this at Google and
+[00:00:28] was used on multiple generations of TPU
+[00:00:30] and have now started a company to to
+[00:00:32] build this. Thank you and welcome Anna
+[00:00:34] and Azalia.
+[00:00:36] Thank you so much.
+[00:00:37] >> [applause]
+[00:00:42] >> Hi everyone. Azalia and I are so excited
+[00:00:44] to be here today to talk about our new
+[00:00:46] company, Recursive Intelligence, where
+[00:00:49] we're doing AI for chip design and chip
+[00:00:51] design for AI.
+[00:00:53] We've been working together closely for
+[00:00:55] the last 10 years across Google Brain,
+[00:00:57] Anthropic, DeepMind, and then because it
+[00:01:00] wasn't enough to work at one
+[00:01:02] institution in parallel, I started my
+[00:01:04] PhD while continuing to work full-time
+[00:01:06] and Azalia joined the Stanford faculty.
+[00:01:08] So you know, we have been working in
+[00:01:11] many different
+[00:01:12] places together for a long time. But our
+[00:01:14] thesis in this company is that chips are
+[00:01:17] the fuel for AI and that we should be
+[00:01:20] using AI to design, to optimize, and
+[00:01:23] automate the chip design process and
+[00:01:25] close this recursive self-improving loop
+[00:01:27] between AI and its physical substrate.
+[00:01:31] We started this direction in 2018 with
+[00:01:35] our work on AlphaChip,
+[00:01:37] where we developed a deep reinforcement
+[00:01:38] learning agent that was capable of
+[00:01:40] generating superhuman chip layouts.
+[00:01:43] This work was published in Nature, but
+[00:01:44] the interesting part about it, in our
+[00:01:46] opinion, was that it was actually used
+[00:01:48] in the tape-out of real chips. So the
+[00:01:50] last four generations now of Google's AI
+[00:01:53] accelerator chips, TPU,
+[00:01:55] data center [clears throat] CPUs called
+[00:01:57] Axion,
+[00:01:58] Pixel phones, and also autonomous
+[00:02:01] vehicle chips, and in addition to
+[00:02:04] adoption by external companies like
+[00:02:05] MediaTek.
+[00:02:07] And so we decided to start this company
+[00:02:10] to take this work to the next level and
+[00:02:13] take on all of the chip design workflow.
+[00:02:17] We see the company in three phases. So
+[00:02:20] currently we're in phase one, where we
+[00:02:22] want to accelerate the chip design
+[00:02:24] process. So today there are two long
+[00:02:26] poles. One is physical design,
+[00:02:29] and which is placing the billions of
+[00:02:32] standard cells or billions of
+[00:02:34] transistors and routing billions of
+[00:02:36] these components onto a chip canvas, and
+[00:02:39] design verification, which is verifying
+[00:02:41] the correctness of the logic of that
+[00:02:42] chip. Each of these can take up to a
+[00:02:44] year and involves hundreds or thousands
+[00:02:46] of human experts. And the stakes are
+[00:02:48] extremely high. So we've heard estimates
+[00:02:51] like one day of delay of an Nvidia
+[00:02:54] chip cost like a Blackwell cost a
+[00:02:56] company something like $225 million in
+[00:02:58] lost opportunity cost. So we want to
+[00:03:01] help existing chip makers get to market
+[00:03:03] faster, build faster, cheaper, and more
+[00:03:05] environmentally friendly chips.
+[00:03:08] But I think in phase two of the company,
+[00:03:09] we want to democratize chip design. So
+[00:03:12] we want to become a platform for
+[00:03:13] designing new hardware, where we can
+[00:03:15] take as input like a workload, say like
+[00:03:18] the next quad model, design an
+[00:03:20] architecture that massively accelerates
+[00:03:23] that workload, and then do the entire
+[00:03:25] design process all the way to GDS2
+[00:03:27] clean, which is the format that we send
+[00:03:29] to the fabs for manufacturing.
+[00:03:31] And in that case, we can massively
+[00:03:33] unlock the number of customers that we
+[00:03:36] could serve. Like any company that has a
+[00:03:38] workload that that they serve at
+[00:03:39] sufficient scale could benefit from
+[00:03:42] custom chips, even if they don't have
+[00:03:43] teams of hundreds or thousands of human
+[00:03:45] experts.
+[00:03:46] And then phase three of the company
+[00:03:48] would be vertical integration. So if we
+[00:03:50] have this capability to quickly design
+[00:03:52] highly performant chips, why not build
+[00:03:55] our own chips? Why not train our own
+[00:03:57] models and co-evolve them?
+[00:03:59] And serve intelligence at a price or
+[00:04:01] capability that would be impossible to
+[00:04:03] match.
+[00:04:04] So Azalia's going to talk a bit more
+[00:04:06] about our our approach in this company.
+[00:04:08] Yes.
+[00:04:09] If I can stop on this slide. So on the
+[00:04:12] right side, we're showing you the flow,
+[00:04:14] the traditional flow for chip design. It
+[00:04:16] starts with architecture design and it
+[00:04:19] goes all the way to sign-off, and that's
+[00:04:21] what you send to the fabs. And as you
+[00:04:23] can see, there are many components here,
+[00:04:25] and the way these
+[00:04:27] kind of phases are done today with human
+[00:04:29] experts in the loop, working with
+[00:04:32] commercial tools that sometimes takes
+[00:04:35] days to run for a single iteration of an
+[00:04:38] optimization. So our approach here at
+[00:04:40] Recursive is to first redesign the way
+[00:04:43] these tools
+[00:04:45] perform, make them 100,000x faster, and
+[00:04:49] then they're primed to be used with AI
+[00:04:51] because, as you know, our AIs really
+[00:04:55] like fast iteration loops and they can
+[00:04:57] just exponentially learn more and
+[00:04:59] co-optimize across a very, very large
+[00:05:02] space if we enable them to do so.
+[00:05:05] So by co-designing across the stack, we
+[00:05:08] what this enables is unlocking massive
+[00:05:11] performance improvements and time to
+[00:05:13] market, which comes from both the
+[00:05:15] co-design and the automation.
+[00:05:17] To just show you a glimpse into what we
+[00:05:20] are building, here is an STA, a static
+[00:05:22] timing analysis engine. This is one of
+[00:05:25] the
+[00:05:26] a very challenging component of physical
+[00:05:28] design. And what we are showing here is
+[00:05:30] that we are we have built a tool that
+[00:05:32] correlates with the commercial tools
+[00:05:35] very high fidelity, and what we can do
+[00:05:38] here is do so a thousand x faster. Now
+[00:05:41] imagine if you're doing an AI tool use
+[00:05:44] or an RL loop, we can we now have this
+[00:05:48] kind of feed feedback signal that we can
+[00:05:50] use in the optimization, we can do a lot
+[00:05:52] more with it. Here is a example of how
+[00:05:55] our outer outer loop, our AI works with
+[00:05:58] this tool. Like here, early on is what
+[00:06:01] we get with a single iteration of our
+[00:06:04] inner loop, but as the AI optimizes
+[00:06:06] around the recipes that are possible to
+[00:06:09] use these tools with, we can get
+[00:06:11] significantly more performance.
+[00:06:15] So taking a step back, what Recursive
+[00:06:20] is enabling is a new era, which we call
+[00:06:23] designless, just like fabless, um
+[00:06:27] enabled by companies like TSMC,
+[00:06:30] made made it such that we can have
+[00:06:32] Nvidia, Apple, other companies focus on
+[00:06:35] designing chips and send off the the
+[00:06:37] designs for fabrication elsewhere. We
+[00:06:40] want to be the platform for
+[00:06:43] chip design, so companies can focus on
+[00:06:46] the application, modeling, and other
+[00:06:48] layers, and we can be the compute and
+[00:06:51] hardware that enable those applications.
+[00:06:54] And the impact would be that we we can
+[00:06:56] democratize chip design and enable a lot
+[00:06:59] more variety and performance types of
+[00:07:02] chips possible.
+[00:07:04] So
+[00:07:06] right now,
+[00:07:07] there are a few mainstream chips for AI
+[00:07:10] inference. But as you can imagine, and
+[00:07:12] as a lot of talks and conversations
+[00:07:14] today allude to, we are going to need a
+[00:07:16] whole lot more performance in the coming
+[00:07:18] years. And one way to unlock a lot of
+[00:07:21] performance is through customization. So
+[00:07:24] when we build chips that are truly
+[00:07:25] customized to the workloads that we are
+[00:07:27] serving, and we at Recursive want to be
+[00:07:30] the platform that enables this Cambrian
+[00:07:33] explosion of chips, so we can build a
+[00:07:36] lot more variety of chips that are
+[00:07:38] really custom to the types of workloads
+[00:07:40] that
+[00:07:41] the companies and the users care about.
+[00:07:44] And if you can imagine, these chips can
+[00:07:46] enable a very large workload like a
+[00:07:49] frontier model, or it can they can
+[00:07:52] enable like a very low power or high
+[00:07:54] throughput or other kind of variations
+[00:07:57] of performance that we that we would
+[00:07:59] need.
+[00:08:01] And finally, we have an amazing team.
+[00:08:04] Our company is a little unusual in that
+[00:08:06] we have this
+[00:08:08] subset of people who are very expert in
+[00:08:10] LLM. They have
+[00:08:12] they have worked on um
+[00:08:14] Quad, Gemini, um
+[00:08:17] Grok, and such in the past. And now that
+[00:08:19] we have put them together with these
+[00:08:20] experts in chip design, and so it's a
+[00:08:24] very great mix and we are very glad that
+[00:08:27] we get to build together.
+[00:08:30] Yeah, and with that we can conclude the
+[00:08:32] talk. Happy to answer questions.
+[00:08:34] >> [applause]
+[00:08:38] >> Hey,
+[00:08:39] any word on the the shape of the chip
+[00:08:41] placements that you end up seeing out of
+[00:08:44] these models compared to the Oh shoot,
+[00:08:46] we should have shown some of the
+[00:08:47] layouts. So I think just like in
+[00:08:49] AlphaChip, we're seeing these kind of
+[00:08:51] curved, organic-looking
+[00:08:53] shapes to our placements. So human
+[00:08:55] experts, they tend to make these very
+[00:08:56] aligned,
+[00:08:58] regular-looking placements, but the the
+[00:09:00] AI-generated ones look more like
+[00:09:03] yeah, organic, curved, which minimizes
+[00:09:06] wire length, improves performance, but
+[00:09:08] it was kind of shocking to physical
+[00:09:10] design engineers when they first saw
+[00:09:11] them. A question on the
+[00:09:13] cost of these specialized chips. I
+[00:09:15] totally understand that you could make a
+[00:09:17] better chip with AI and have better
+[00:09:19] placements and stuff. But you I think
+[00:09:21] Azalia was also making the point that
+[00:09:22] you could make specialized chips.
+[00:09:25] How does the scale work out? I don't
+[00:09:26] know the first principles of chip
+[00:09:28] design. Can you make thousands of
+[00:09:29] different chips and make them as cheaply
+[00:09:31] as one Hopper architecture?
+[00:09:35] I mean there's yeah, go ahead. Yes,
+[00:09:37] there is
+[00:09:38] definitely what we are doing here is
+[00:09:40] like we are going into a new regime
+[00:09:43] where we have we can work compute into
+[00:09:46] our advantage. So by scaling compute, we
+[00:09:49] can reduce the run times to design the
+[00:09:51] chip and also to enable more performant
+[00:09:54] chips. So we are basically introducing a
+[00:09:56] knob. Um now, through customization,
+[00:10:00] given the scale at which AI workloads
+[00:10:02] are going to be run, the economy of
+[00:10:04] scales is going to is is working itself,
+[00:10:07] right? Even a 1% improvement in a chip
+[00:10:11] that serves a frontier model is a is a
+[00:10:14] massive uh gain and success if you can
+[00:10:16] if you could enable that. But, at
+[00:10:18] different scales, we have different
+[00:10:20] performance gains. And again, what we
+[00:10:21] are talking here is that we are using
+[00:10:23] compute to bring automation and better
+[00:10:26] performance. And and and that's a knob
+[00:10:29] that we can play with.
+[00:10:32] >> [applause and cheering]

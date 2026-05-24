@@ -1,0 +1,29 @@
+# StepFun / Qianlikeji
+
+**Entries**: 3  
+**People featured**: Yin Qi
+
+---
+
+## Yin Qi
+
+### ★★ [Strategy] · Zhang Xiaojun Business Interview PodcastEP131 (2026-01-26)
+
+"Fighting from behind" — Stepfun's transition and reflection from AI 1.0 (Megvii) to 2.0.
+
+[Source](https://podcasts.apple.com/cn/podcast/id1634356920?i=1000746623201)
+
+### ★★ [Strategy] · Zhang Xiaojun Business Interview PodcastEP131 (2026-01-26)
+
+"A brutal elimination round, with everything on the table" — an AI 1.0 founder reflecting on the trade-offs of the large-model era.
+
+[Source](https://podcasts.apple.com/cn/podcast/id1634356920?i=1000746623201)
+
+### ★★ [Strategy] · Zhang Xiaojun Business Interview PodcastEP131 (2026-01-26)
+
+After Yin Qi took over, the company has explicitly narrowed to base model + smart terminals.
+
+[Source](https://podcasts.apple.com/cn/podcast/id1634356920?i=1000746623201)
+
+---
+← [Company index](./README.md) · [→ KB home](../README.md)

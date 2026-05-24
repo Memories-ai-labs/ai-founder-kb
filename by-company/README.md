@@ -1,0 +1,114 @@
+# Learnings by Company
+
+**108 companies**. Sorted by number of entries.
+
+- [Anthropic](./anthropic.md) — 48 entries · Anthropic, Anthropic Team, Boris Cherny, Daniela Amodei, Dario Amodei, Overseas Unicorn (Shixiang), Overseas Unicorn Roundup, Sholto Douglas + Trenton Bricken, Tom Brown
+- [OpenAI](./openai.md) — 22 entries · Eric Mitchell + Brandon McKinzie, Greg Brockman, Sam Altman, Sherwin Wu / Christina Huang, Yao Shunyu
+- [Manus](./manus.md) — 10 entries · Ji Yichao, Xiao Hong
+- [Notion](./notion.md) — 10 entries · Ivan Zhao
+- [Block](./block.md) — 8 entries · Jack Dorsey
+- [DJI](./dji.md) — 6 entries · Wang Tao
+- [Harvey](./harvey.md) — 6 entries · Winston Weinberg
+- [Twitter (ex-CEO)](./twitter-ex-ceo.md) — 6 entries · Dick Costolo
+- [independent](./independent.md) — 6 entries · Andrej Karpathy
+- [indie](./indie.md) — 5 entries · Pieter Levels, Simon Willison
+- [Moonshot / Kimi](./moonshot-kimi.md) — 5 entries · Yang Zhilin
+- [(ex-OpenAI)](./ex-openai.md) — 5 entries · Andrej Karpathy
+- [Sierra](./sierra.md) — 5 entries · Bret Taylor
+- [Replit](./replit.md) — 5 entries · Amjad Masad
+- [GSR Ventures](./gsr-ventures.md) — 5 entries · Zhu Xiaohu
+- [MiniMax](./minimax.md) — 5 entries · Yan Junjie
+- [Perplexity](./perplexity.md) — 5 entries · Aravind Srinivas
+- [Sequoia](./sequoia.md) — 5 entries · Konstantine Buhler, Pat Grady, Pat Grady + Sonya Huang + Konstantine Buhler, Sonya Huang
+- [Cursor (Anysphere)](./cursor-anysphere.md) — 5 entries · Aman Sanger, Michael Truell
+- [DeepSeek](./deepseek.md) — 4 entries · Liang Wenfeng
+- [Baichuan AI](./baichuan-ai.md) — 4 entries · Wang Xiaochuan
+- [Bot Company](./bot-company.md) — 4 entries · Kyle Vogt
+- [XPeng Motors](./xpeng-motors.md) — 4 entries · He Xiaopeng
+- [Plaud](./plaud.md) — 4 entries · Xu Gao
+- [Conviction / Khosla](./conviction---khosla.md) — 4 entries · Sarah Guo + Elad Gil
+- [DeepMind](./deepmind.md) — 4 entries · Demis Hassabis
+- [ElevenLabs](./elevenlabs.md) — 4 entries · Mati Staniszewski
+- [MIT](./mit.md) — 4 entries · Sally Kornbluth
+- [Google DeepMind](./google-deepmind.md) — 4 entries · Demis Hassabis, Logan Kilpatrick + Tulsee Doshi
+- [42章经](./42章经.md) — 4 entries · Qu Kai
+- [StepFun (Jieyue Xingchen)](./stepfun.md) — 4 entries · Jiang Daxin, Zhang Xiangyu
+- [屠龙之术](./屠龙之术.md) — 4 entries · Zhuang Minghao
+- [Suno](./suno.md) — 4 entries · Mikey Shulman
+- [Zhipu AI](./zhipu-ai.md) — 4 entries · Zhang Peng
+- [Daytona](./daytona.md) — 4 entries · Ivan Burazin
+- [n8n](./n8n.md) — 3 entries · Jan Oberhauser
+- [Salesforce](./salesforce.md) — 3 entries · Marc Benioff
+- [XPO / QXO](./xpo---qxo.md) — 3 entries · Brad Jacobs
+- [fal](./fal.md) — 3 entries · Gorkem Yurtseven
+- [Waymo](./waymo.md) — 3 entries · Dmitri Dolgov
+- [SemiAnalysis](./semianalysis.md) — 3 entries · Dylan Patel
+- [Nvidia](./nvidia.md) — 3 entries · Jensen Huang
+- [Daloopa](./daloopa.md) — 3 entries · Jeremy Huang
+- [01.AI](./01-ai.md) — 3 entries · Lee Kai-Fu
+- [Orion Star (Lieyao Xingkong)](./orion-star.md) — 3 entries · Fu Sheng
+- [Unitree Robotics](./unitree-robotics.md) — 3 entries · Wang Xingxing
+- [Li Auto (Lixiang)](./lixiang-auto.md) — 3 entries · Li Xiang
+- [NVIDIA Robotics](./nvidia-robotics.md) — 3 entries · Jim Fan
+- [StepFun / Qianlikeji](./stepfun-qianlikeji.md) — 3 entries · Yin Qi
+- [Khosla](./khosla.md) — 3 entries · Keith Rabois
+- [Lovable](./lovable.md) — 3 entries · Elena Verna
+- [OpenAI Sora](./openai-sora.md) — 3 entries · Bill Peebles
+- [Snap](./snap.md) — 3 entries · Evan Spiegel
+- [Railway](./railway.md) — 3 entries · Jake Cooper
+- [Crosby](./crosby.md) — 2 entries · Ryan Daniel
+- [Hugging Face](./hugging-face.md) — 2 entries · Clem Delangue
+- [XBOW](./xbow.md) — 2 entries · Oege de Moor
+- [Figma](./figma.md) — 2 entries · Dylan Field
+- [拾象](./拾象.md) — 2 entries · Guangmi
+- [Glean](./glean.md) — 2 entries · Arvind Jain
+- [Google](./google.md) — 2 entries · Sundar Pichai
+- [Insta360 (Yingshi)](./insta360.md) — 2 entries · Liu Jingkang
+- [Microsoft AI](./microsoft-ai.md) — 2 entries · Mustafa Suleyman
+- [Decagon](./decagon.md) — 2 entries · Jesse Zhang
+- [Cohere](./cohere.md) — 2 entries · Aidan Gomez
+- [Mistral](./mistral.md) — 2 entries · Arthur Mensch
+- [多公司](./多公司.md) — 2 entries · LatePost EP150, LatePost Panel
+- [Every](./every.md) — 2 entries · Dan Shipper
+- [World Labs](./world-labs.md) — 2 entries · Fei-Fei Li
+- [Airbnb](./airbnb.md) — 2 entries · Brian Chesky
+- [Anthropic (Claude Code)](./anthropic-claude-code.md) — 2 entries · Boris Cherny
+- [Manus/Monica](./manus-monica.md) — 2 entries · Xiao Hong, Xiao Hong + Ji Yichao
+- [AI 炼金术](./ai-炼金术.md) — 2 entries · Ren Xin / Xu Wenhao
+- [DoorDash](./doordash.md) — 2 entries · Tony Xu
+- [Gamma](./gamma.md) — 2 entries · Grant Lee
+- [Thinking Machines Lab](./thinking-machines-lab.md) — 2 entries · Mira Murati, Mira Murati / John Schulman
+- [多产品](./多产品.md) — 2 entries · OnBoard Roundtable
+- [Physical Intelligence](./physical-intelligence.md) — 2 entries · Sergey Levine
+- [Meituan](./meituan.md) — 2 entries · Wang Xing / Wang Huiwen
+- [SSI](./ssi.md) — 1 entries · Ilya Sutskever
+- [Khosla Ventures](./khosla-ventures.md) — 1 entries · Vinod Khosla
+- [Mercor](./mercor.md) — 1 entries · Brendan Foody
+- [OpenAI/MS](./openai-ms.md) — 1 entries · Sam Altman + Satya Nadella
+- [Manas AI / 投资人](./manas-ai---投资人.md) — 1 entries · Reid Hoffman
+- [OpenAI / AWS](./openai---aws.md) — 1 entries · Sam Altman + Matt Garman
+- [DeepMind / Isomorphic](./deepmind---isomorphic.md) — 1 entries · Demis Hassabis
+- [Unconventional AI](./unconventional-ai.md) — 1 entries · Naveen Rao
+- [Profound](./profound.md) — 1 entries · James Cadwallader
+- [AI 眼镜](./ai-眼镜.md) — 1 entries · LatePost EP150
+- [字节/阿里/腾讯](./字节-阿里-腾讯.md) — 1 entries · LatePost EP150
+- [行业反思](./行业反思.md) — 1 entries · LatePost EP150
+- [Cursor](./cursor.md) — 1 entries · Overseas Unicorn (Shixiang)
+- [多公司格局](./多公司格局.md) — 1 entries · Overseas Unicorn (Shixiang)
+- [Cursor 危机](./cursor-危机.md) — 1 entries · Overseas Unicorn (Shixiang)
+- [360](./360.md) — 1 entries · Zhou Hongyi
+- [(独立分析师)](./独立分析师.md) — 1 entries · Benedict Evans
+- [Lepton AI](./lepton-ai.md) — 1 entries · Jia Yangqing
+- [(投资人视角)](./投资人视角.md) — 1 entries · Reid Hoffman
+- [Kuse.ai / Junior.so](./kuse.ai---junior.so.md) — 1 entries · Xu Yuhao
+- [Ambral](./ambral.md) — 1 entries · Anthropic — Ambral 案例
+- [HumanLayer](./humanlayer.md) — 1 entries · Anthropic — HumanLayer 案例
+- [Vulcan Technologies](./vulcan-technologies.md) — 1 entries · Anthropic — Vulcan Technologies 案例
+- [Kuse](./kuse.md) — 1 entries · Xu Yuhao
+- [MIT 解读](./mit-解读.md) — 1 entries · Songlin
+- [Recursive AI](./recursive-ai.md) — 1 entries · Anna Goldie + Azalia Mirhoseini
+- [Qwen (Alibaba Tongyi)](./qwen-alibaba.md) — 1 entries · Lin Junyang
+- [NVIDIA GTC 2025](./nvidia-gtc-2025.md) — 1 entries · Guigu101
+- [NVIDIA](./nvidia.md) — 1 entries · Guigu101
+
+← [Back to KB home](../README.md)

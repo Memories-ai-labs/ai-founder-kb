@@ -1,0 +1,327 @@
+[00:00:03] Bringing up two frontier spotlights, the
+[00:00:04] first is Ben and Asher, two brilliant
+[00:00:07] brothers. Yes, they are come on up. Uh
+[00:00:09] founders of swimming submarines. Wait,
+[00:00:11] no. Wait a second, flapping airplanes.
+[00:00:14] Um and we're excited to hear about data
+[00:00:16] efficiency. Thanks so much. Thanks,
+[00:00:18] Konstantin.
+[00:00:20] >> [applause]
+[00:00:25] >> All right, yeah. It's uh really great to
+[00:00:27] be here. Thanks for having us. Uh we're
+[00:00:28] very excited to tell you about why the
+[00:00:29] future is data efficient. Um so, let's
+[00:00:32] get into it. So, uh first I think
+[00:00:34] introductions are in order. Uh my
+[00:00:36] background, I spent 3 years in the PhD
+[00:00:38] kind of deep in the kernel mines uh
+[00:00:41] writing very low-level GPU systems uh
+[00:00:43] before helping to start Flappy. And uh I
+[00:00:46] I also should say I I at one point
+[00:00:47] helped start an incubator called Prod
+[00:00:48] that worked with a bunch of companies
+[00:00:49] that did well. So, that's also part of
+[00:00:51] my background.
+[00:00:52] Cool. And so, I'm Asher. Um if you can't
+[00:00:54] tell, I'm Ben's older, um wiser, and
+[00:00:56] slightly less handsome brother. Um I
+[00:00:58] previously was also a Stanford PhD,
+[00:01:00] spent time at Cursor, Mercor.
+[00:01:02] And then lastly, our third co-founder is
+[00:01:03] Aiden Smith. Uh he's a Thiel fellow.
+[00:01:05] He's busy working right now. Uh but he's
+[00:01:07] spent uh 3 years super commuting between
+[00:01:08] his college and our lab. So, he knows a
+[00:01:10] lot both about the brain and also about
+[00:01:11] machine learning.
+[00:01:14] Um so, before we get started in earnest,
+[00:01:15] I do want to clarify some confusion. We
+[00:01:17] launched the company 3 months ago. Um we
+[00:01:20] are very excited to have received a lot
+[00:01:21] of inbound, but a surprising amount of
+[00:01:23] it has been from the aviation industry.
+[00:01:26] Um you know, people trying to sell us
+[00:01:28] things like runways, like not not runway
+[00:01:30] in the venture capital sense, like
+[00:01:31] literal runways. Uh you know, airplane
+[00:01:33] parts, wind tunnels, etc. So, I'd like
+[00:01:35] to disclaim once and for all, uh we are
+[00:01:37] not an airplane, we're an AI lab, and
+[00:01:39] hopefully that will become clear by the
+[00:01:40] end of this talk.
+[00:01:43] Okay, great. Um so, first a quick
+[00:01:45] outline. In this talk, we're going to
+[00:01:46] tell you about two things. First of all,
+[00:01:48] our thesis of why this is a really
+[00:01:49] important problem. And second, we'll
+[00:01:50] tell you a bit about our approach that
+[00:01:52] fuses both systems work and algorithmic
+[00:01:54] work. So, uh first on the thesis side.
+[00:01:57] So, if we look at the current state of
+[00:01:58] the world, LLMs have gotten incredibly
+[00:02:00] good at a couple of really valuable
+[00:02:02] tasks. So, for example, search, coding.
+[00:02:04] Together, these are, you know, at least
+[00:02:05] a trillion-dollar market that's probably
+[00:02:06] accessible here. A big part of the
+[00:02:08] reason why they've gotten so good at
+[00:02:09] these tasks, and this is related to what
+[00:02:10] uh Andre I think talked about this
+[00:02:11] morning, is that these are incredibly
+[00:02:13] well-resourced tasks in terms of the
+[00:02:15] amount of data that's available for
+[00:02:16] them. For search, this is basically the
+[00:02:18] entire internet. For coding, this is a
+[00:02:20] big fraction of the internet. Coding is
+[00:02:21] also a very friendly environment in that
+[00:02:23] it's very easy to produce mountains of
+[00:02:24] synthetic data if you want to.
+[00:02:26] Um so, when we talk about data
+[00:02:28] efficiency, what we're asking the
+[00:02:29] question of is, is it possible to get
+[00:02:31] these kinds of capabilities with much
+[00:02:33] less data? Intuitively, it seems like it
+[00:02:35] should be possible. Uh you know, humans
+[00:02:37] are able to become quite good at coding
+[00:02:38] uh with, you know, maybe 10,000 times or
+[00:02:41] 100,000 times less data on this than
+[00:02:43] these current models take. So, this is
+[00:02:45] kind of the core question. And a reason
+[00:02:47] why this matters is that if we look
+[00:02:48] towards the future, there's a bunch of
+[00:02:50] other domains of the economy
+[00:02:52] where this uh where there's there's much
+[00:02:54] less data. So, for example, you know,
+[00:02:55] Jim talked this morning about how in
+[00:02:57] robotics, there's a ton of work that has
+[00:02:58] to go on to try to generate the data.
+[00:03:00] It's much more complicated than it is uh
+[00:03:02] in in coding and search. In trading,
+[00:03:04] there's only so much financial data.
+[00:03:06] Scientific discoveries, obviously very
+[00:03:07] little data. Uh but the the uh the
+[00:03:10] potential there is sort of unbounded.
+[00:03:11] And most important of all is, of course,
+[00:03:13] the end-to-end toaster supply chain.
+[00:03:15] Now, the reason I bring this up is not
+[00:03:16] because of what it is, it's because of
+[00:03:17] what it represents, namely that there
+[00:03:19] are tens of thousands of things like
+[00:03:21] this that really make up the broad
+[00:03:22] economy. And the broad economy doesn't
+[00:03:24] just look like search and coding, it
+[00:03:25] looks like a lot of things that are
+[00:03:26] actually really not well-resourced.
+[00:03:28] Yeah, and so
+[00:03:29] Ben's given you one economic reason to
+[00:03:31] believe that the future is data
+[00:03:32] efficient. I think a second claim is
+[00:03:34] that compute is actually easier to scale
+[00:03:35] than data.
+[00:03:36] I mean, we know that flops get
+[00:03:37] exponentially cheaper over time. And you
+[00:03:39] know, I think it's probably true that
+[00:03:40] data is not getting cheap as quickly as
+[00:03:42] compute is. Although, it is getting
+[00:03:43] cheaper. Um I think, you know, the
+[00:03:45] second reason is that collecting
+[00:03:47] frontier quality is complicated. The the
+[00:03:49] compute market is homogeneous in a or is
+[00:03:51] more homogeneous than the the data
+[00:03:52] market is. Like, you know, Greg was
+[00:03:53] telling us after, you know, GPT
+[00:03:55] launched, they could just try to buy all
+[00:03:57] the compute. And there's no centralized
+[00:03:58] data provider. Like, if you want to go
+[00:04:00] into the economy and collect the long
+[00:04:01] tail of tasks, you have to like deal
+[00:04:03] with regulations, you have to negotiate
+[00:04:05] with businesses about terms of use. It's
+[00:04:07] actually very annoying.
+[00:04:08] So, I think if you could As a result, if
+[00:04:10] you can make a model that's a thousand
+[00:04:11] times more data efficient, I think it'd
+[00:04:13] be a thousand times easier to deploy.
+[00:04:15] So,
+[00:04:16] those are two sort of economic reasons
+[00:04:18] that we think data efficiency is
+[00:04:19] important. The last reason is actually
+[00:04:21] kind of philosophical.
+[00:04:23] I think that, you know, if you look at
+[00:04:24] the world today,
+[00:04:26] um
+[00:04:27] there's not that many companies that can
+[00:04:28] train AI models. And And you know, part
+[00:04:30] of this is because of uh of
+[00:04:31] centralization of compute. But I think
+[00:04:33] it's also because of centralization of
+[00:04:34] data. Like, you know, I've heard news
+[00:04:36] about Neo Labs who, when trying to
+[00:04:38] create new capabilities, they like
+[00:04:39] literally buy out distressed bookstores
+[00:04:41] to find all the the data they can find.
+[00:04:43] They like go to like rare libraries to
+[00:04:44] find all the tiny niches of data that
+[00:04:46] you need to actually make a frontier
+[00:04:48] model. And I think um in a world that's
+[00:04:50] data efficient, I think that companies
+[00:04:52] can actually more broadly participate in
+[00:04:54] the AI revolution. Like, you know, we
+[00:04:55] heard earlier today that uh you know, in
+[00:04:58] in the poll about what the moat is in
+[00:04:59] the AI world, the the most common answer
+[00:05:01] was data. If that's true, then data
+[00:05:03] efficiency is the thing that actually
+[00:05:04] enables broader competition. So, I think
+[00:05:06] if you care about the shape of the world
+[00:05:07] to come, I think you really should care
+[00:05:09] about data efficiency because it it
+[00:05:11] modulates who can actually participate
+[00:05:12] in which parts of the AI economy.
+[00:05:15] Cool. So, now we're going to talk about
+[00:05:17] our approach. Um so, our goal is to
+[00:05:19] design data efficient AI. Um we design
+[00:05:21] algorithms for this. We're not going to
+[00:05:23] talk about them cuz they're our core IP.
+[00:05:24] But I will tell you about an important
+[00:05:26] facet of our approach, which is how we
+[00:05:27] try to look in new places. Like, if you
+[00:05:29] want new capabilities, where can you
+[00:05:30] find them?
+[00:05:32] So, our claim is that essentially, if
+[00:05:34] you want to develop new algorithms, you
+[00:05:36] should look at new primitives for
+[00:05:37] interacting with hardware. There's some
+[00:05:39] set of things that GPUs can do
+[00:05:40] efficiently.
+[00:05:41] And then there's a smaller set of things
+[00:05:43] that current frameworks like PyTorch,
+[00:05:44] for example, can actually express
+[00:05:45] efficiently. And, you know, that that
+[00:05:47] gray circle, we've seen a lot of
+[00:05:49] research into that circle. We actually
+[00:05:50] know what kinds of algorithms work.
+[00:05:52] But if you're looking for new
+[00:05:53] capabilities, you might want to look in
+[00:05:55] these new places. And that's where we
+[00:05:57] live at Flappy Airplanes. That's what we
+[00:05:58] try to do.
+[00:06:00] And you know, Ben will talk for a little
+[00:06:01] bit later, for example, about things
+[00:06:02] like fine-grainedness, which actually
+[00:06:03] are hard to do under current frameworks,
+[00:06:04] but a GPU actually can do.
+[00:06:08] Um you know, history suggests that this
+[00:06:09] is a good bet, for what it's worth. I
+[00:06:10] mean, a lot of the development of
+[00:06:11] machine learning over the past 15, 20,
+[00:06:13] even 100 years has actually been new
+[00:06:15] primitives for interacting with
+[00:06:16] hardware. Not necessarily designing new
+[00:06:18] chips, which is also important, but
+[00:06:20] merely figuring out how to squeeze more
+[00:06:21] out of the existing technology that has
+[00:06:23] proliferated.
+[00:06:25] Yeah, so I guess a bit of context. Um in
+[00:06:28] my PhD, I did some of this work on on
+[00:06:30] early work on mega kernels, uh which was
+[00:06:32] trying to make GPUs do weird stuff. Um
+[00:06:35] at Flappy, I would say that we are going
+[00:06:37] further in spiritually similar
+[00:06:38] directions, uh namely trying to kind of
+[00:06:40] abuse the crap out of GPUs in ways that
+[00:06:42] haven't been done before. Um this has
+[00:06:44] been quite a lot of fun. So, I actually
+[00:06:45] would recommend it if you if you like
+[00:06:46] playing with hardware. And I guess part
+[00:06:48] of what I'm excited about in this uh
+[00:06:50] talk is that I, you know, this is in
+[00:06:53] general I think a fairly high-level
+[00:06:54] venue, but I actually want to get into
+[00:06:55] the weeds of some stuff because I think
+[00:06:56] it's fun. Um
+[00:06:58] So, if we look at how kind of current
+[00:07:00] systems work, and this will be a little
+[00:07:01] bit abstract, but I hope that the the
+[00:07:03] concept will come across. What makes
+[00:07:05] current machine learning frameworks easy
+[00:07:06] to use is that they synthesize a
+[00:07:08] single-threaded programming model out of
+[00:07:10] very parallel processors. So, basically,
+[00:07:12] when you write PyTorch, you write
+[00:07:14] matmul, and then attention, and then
+[00:07:16] matmul, and then RMS norm. And under the
+[00:07:18] hood, there's all kinds of contortions
+[00:07:19] that happen where the software
+[00:07:20] dispatches it in parallel across a very
+[00:07:22] parallel set of processors. But
+[00:07:24] nonetheless, to the programmer, this
+[00:07:25] looks very natural.
+[00:07:26] But what happens if you want to run
+[00:07:28] things that look like this?
+[00:07:30] Or maybe you want to run things that
+[00:07:32] look like this.
+[00:07:34] All of a sudden, these kinds of things
+[00:07:36] are not easily expressed in current
+[00:07:37] frameworks.
+[00:07:39] So, uh one thing I'm just very excited
+[00:07:40] to show sort of a little teaser of is
+[00:07:42] our internal framework that we use,
+[00:07:44] which is built off a virtual machine uh
+[00:07:47] that kind of just takes over the whole
+[00:07:48] GPU, and we just do everything we want
+[00:07:49] ourselves on it. Uh in this particular
+[00:07:51] case, this is not a real workload I'm
+[00:07:52] showing. This is kind of a stylized
+[00:07:54] thing that is uh similar, but uh gives
+[00:07:57] is an example of something that is also
+[00:07:59] asymptotically inefficient to run in
+[00:08:00] PyTorch. This is a very small batch kind
+[00:08:03] of deeply pipelined hogwild-style
+[00:08:05] training loop. Uh this is the kind of
+[00:08:06] thing that's very hard to do with with
+[00:08:07] current frameworks. So,
+[00:08:09] uh the the thing that I sort of like to
+[00:08:11] get across here is that when you build
+[00:08:13] these new kinds of systems, you enable
+[00:08:15] new algorithms. Many of these algorithms
+[00:08:16] we think are actually very relevant to
+[00:08:18] the data efficiency problems. This is
+[00:08:19] why we care about it. Um
+[00:08:21] and that it is the kind of
+[00:08:22] co-optimization of those things that we
+[00:08:24] find really interesting.
+[00:08:26] Cool. So, um we're almost out of time. I
+[00:08:28] I just really have one more thing to
+[00:08:29] say, which is that if you find this
+[00:08:30] exciting, please come talk to us. Um you
+[00:08:32] know, we we work with lots of folks who
+[00:08:34] have trained big models before, but
+[00:08:35] we're also trying to do creative new
+[00:08:36] things. We're trying to change the
+[00:08:37] paradigm. And you know, certainly our
+[00:08:39] experience watching uh some of the the
+[00:08:41] companies Ben has has helped incubate is
+[00:08:43] that, you know, creative people with
+[00:08:45] unconventional backgrounds can actually
+[00:08:46] do amazing things and change the world.
+[00:08:47] So, if you are of that background,
+[00:08:49] please come chat with us.
+[00:08:51] Okay, so I guess maybe a very quick
+[00:08:52] recap, and then I think we probably have
+[00:08:53] time for one question or so. Uh
+[00:08:56] first of all, data efficiency. If you
+[00:08:58] care about the shape of the world to
+[00:08:59] come, if you care about the broad
+[00:09:00] deployment of AI into the economy, you
+[00:09:03] should care about making models much
+[00:09:04] more data efficient. And that uh
+[00:09:06] you know, our finding has been that
+[00:09:08] building new systems to enable more
+[00:09:10] fine-grained use of GPUs is actually
+[00:09:12] very relevant to building these kinds of
+[00:09:13] systems. Um and as Asher said, if you
+[00:09:15] find this exciting, please come talk to
+[00:09:17] us for a round.
+[00:09:19] Thanks, everyone. Thank you.
+[00:09:20] >> [applause]
