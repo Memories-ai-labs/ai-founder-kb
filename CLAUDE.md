@@ -224,7 +224,7 @@ If you want full context, read the operator's external memory file at `/Users/ju
 
 ## 8. Operator preferences
 
-- **Communicates in Chinese, but knowledge content should be native English.** When updating curated layer files, write in English.
+- **Can communicate in any language with the operator, but KB content is definitely English.** When updating curated layer files (`by-topic/`, `by-person/`, `by-company/`, `by-source/`, `patterns/`, `memories-ai-actions/`, framework descriptions, etc.) — always write in native English. Raw transcripts stay in whatever language they were captured.
 - **Wants candid, evidence-cited analysis** — no PR-fluff. If something failed or is uncertain, say so.
 - **Action-oriented** — prefers "I'll do X now" over "should we do X?"
 - **Comfortable with multiple parallel things running** — don't wait for one thing to finish if another can proceed.
