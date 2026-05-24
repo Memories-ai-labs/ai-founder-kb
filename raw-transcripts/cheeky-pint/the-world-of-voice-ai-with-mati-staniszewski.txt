@@ -1,0 +1,1016 @@
+# The world of voice AI, with Mati Staniszewski of ElevenLabs
+# URL: https://cheekypint.substack.com/p/the-world-of-voice-ai-with-mati-staniszewski
+# Date: 2026-04-14
+# source: Cheeky Pint
+
+The world of voice AI, with Mati Staniszewski of ElevenLabs
+
+Cheeky Pint
+
+Apr 14, 2026
+
+3
+
+Share
+
+Mati Staniszewski is the co-founder of ElevenLabs, the research company making audio accessible across languages and voices. He sits down with John to discuss the “voice Turing Test” and why AI has conquered text but still struggles with conversational speech. They discuss the future of human-computer interaction, including why we still can’t get our phones to read a PDF properly and the massive potential for voice agents in everything from farming to healthcare. Mati also opens up about ElevenLabs’ rapid ascent to an $11 billion valuation and gives a behind-the-scenes look at how Ukraine is using their tech for digital government services.
+
+Timestamps
+
+00:00:27 How audio models work
+00:08:52 ElevenLabs business model
+00:17:50 The conversational Turing Test
+00:21:01 Link by Stripe
+00:26:02 Cascaded vs speech-to-speech
+00:31:53 Universal translation
+00:51:41 Designing an AI-native org
+
+Transcript
+
+[00:00:01.21] John Collison
+
+Mati Staniszewski co-founded ElevenLabs in 2022, and has since scaled it to the $11 billion leader in AI audio. He’s credited it with capturing the humanness of speech through realistic emotional inflection, and they’re now expanding into everything from agentic workflows to music.
+
+[00:00:16.10] Mati Staniszewski
+
+Cheers. Thanks for having me.
+
+[00:00:21.14] John Collison
+
+Maybe a good place to start is, describe to me how… I know how an LLM works at a high level. Describe to me how an audio model works. If we were Karpathy-style looking to build a toy one from scratch, how does it work?
+
+[00:00:36.03] Mati Staniszewski
+
+In the early days, you try to replicate it exactly like you would replicate it with the human body. You would completely try to reproduce a machine, analogue machine, that would create a vocal tract effectively. Then that progressed into trying to create effectively a digital signal for speech. Bell Labs was one of the first to try to create a structured set of signals that would represent the speech. That is a first precursor to what we would do today.
+
+[00:01:02.10] Mati Staniszewski
+
+Then you would try to stitch in phonemes, effectively different sounds of how we would speak as humans, and then try to concatenate them together. It’s another important part in that equation where you would... Based on the most probabilistic approach of the next word, you would effectively try to bring the phonemes from your library of phonemes and bring them together.
+
+[00:01:22.18] Mati Staniszewski
+
+Then down to the modern history where now we effectively do similar neural nets in other domains. You predict the next sound based on, of course, the context of the previous sounds if it’s a streaming speech. If it’s, let’s say, a context of audio, you will use combination of predicting of the phonemes, but you also use the contextual text element of that work.
+
+[00:01:46.20] Mati Staniszewski
+
+Here, credit to my co-founder, Piotr, who effectively came with that new idea of how you can now create voice models which are both reliable, high quality, quick, where you would bring a lot of the ideas from transformer models, from diffusion models, into the speech space. That prediction of the next token in the phoneme space wasn’t something that was possible. We spoke briefly about this, of how you can operate on the text, on the waveform space. There’s also Mel spectrogram space. Usually, you do text, Mel spectrogram, waveform.
+
+[00:02:15.16] John Collison
+
+Sorry, what’s the spectrogram space?
+
+[00:02:17.11] Mati Staniszewski
+
+It’s like a visual representation of how the speech sounds across pitch, across energy, and then you transform that into a waveform. When WaveNet came along and Tacotron models, they would effectively use text to Mel spectrogram, so that visual representation, and then how you decode and encode that into the waveform to bring it across.
+
+[00:02:36.05] Mati Staniszewski
+
+Piotr figured out how to abstract some of those steps and decode and encode them a lot better. That predicting of the next phoneme was one of the big piece. Second big piece was, how do you bring that context into the equation? What I mean by context is, if a voice actor was reading a textual copy, you would know that, okay, this is a dialect sequence. I need to produce a dialect. If it’s a happy sentence, I might need to pronounce as a happy sentence. But what happens before and after comes into the equation, and you need to bring that across.
+
+[00:03:07.06] Mati Staniszewski
+
+Then there’s a last big piece. Voice model has the sound of how you intonate the given fragment. But the second big part is the voice itself, the characteristics of accent, of style, of prosody across that voice. When you actually try to vocalize something, when you create that voice model, you turn text into audio, you need the text. You also the voice reference of how you want it to be spoken.
+
+[00:03:33.15] Mati Staniszewski
+
+Here was the second big innovation. Apart from context, it’s how you decode and encode those features. When Bell Labs came with their initial representation of speech, the big piece there was you would have effectively hard-coded parameters for that speech. With ElevenLabs models—
+
+[00:03:49.23] John Collison
+
+Hard-coded parameters for enthusiastic speaker, British accent, that kind of stuff?
+
+[00:03:53.21] Mati Staniszewski
+
+Exactly, that kind of stuff. The set of pitch elements that you can select, set of energies, spectrograms you can select from. In our approach, effectively, you would give the model open-ended ability to select what those parameters should be. It’s not going to be British, Polish, Spanish, English speaker, but the model will deduce them themselves. The same for other sets of parameters that are not hard-coded, whether it’s the enthusiasm, whether it’s the sadness, et cetera.
+
+[00:04:21.10] John Collison
+
+You’re saying Britishness is an emergent property in your voice models? 
+
+[00:04:27.14] Mati Staniszewski
+
+Exactly. Those two big parts, so it’s encoding and decoding of how you create the voice. Super hard problem before, and figured out, too. How you then construct that in a sentence, how you get the context across so you can predict the next volumes, so how you bring them together in a reliable and stable way while doing it quick. These were the two first big innovations in the voice models that continue to today.
+
+[00:04:48.17] John Collison
+
+But okay, so if LLMs reason about text and word subparts tokens as the way they think about the world, what is the equivalent of a token in a voice model? You mentioned phonemes a bunch. What is that representation?
+
+[00:05:04.17] Mati Staniszewski
+
+We start the voice embedding effectively for the speaker. You need that reference when you produce and create the speech. Of course, in the input to the voice model, you still get the text, and you bring the speaker and coding. Then, when you produce speech, you do operate on the waveform or effectively on the phoneme level of that speech. Then when we go the opposite, so of course when we—
+
+[00:05:32.07] John Collison
+
+Sorry, what is a phoneme? Fill in my understanding.
+
+[00:05:33.21] Mati Staniszewski
+
+It’s like a syllable deconstructed even to smaller elements. These are effectively the human sounds you can produce. These would be the most close to that representation. But of course, in our models, now it’s going to be a combination of not only operating on phoneme level, you also operate on the text level. You operate both in sync because when you are predicting the context, you need to understand how that sentence will get constructed, and especially if it’s more of a streaming real-time use case in a voice agent setting, you need both parts to work across. It’s similar to how you operate on the token level on the tech side, we operate on the token level on the audio side.
+
+[00:06:12.21] John Collison
+
+It feels like a big part of the magic of Eleven was your voices were much more human-sounding. How did you accomplish that?
+
+[00:06:21.01] Mati Staniszewski
+
+I’ll give you a quick synopsis of how we think about the models on the text-to-speech side today. In any model, you need the architecture, you need to compute, you need data. Architecture innovations were one thing. The data part was the second big thing.
+
+[00:06:36.02] Mati Staniszewski
+
+With audio, you will have a lot of audio data available, but frequently you will not have it annotated in the right way. You won’t have which speaker is speaking when. Some of the “what” is annotated, but the “how” isn’t. As we are speaking now, what’s the emotions that we use? What are the accents that we use? We would invest a lot internally on effectively creating our own data labellers, our own team, to be able to create those data sets that will be better. That was a combination of, of course, semi-automatic techniques and then manual techniques.
+
+[00:07:11.22] Mati Staniszewski
+
+Actually, a lot of the models that we did afterwards actually span out from a lot of that research, too. Speech-to-text model initially was a model we did for ourselves because the models on the market just weren’t good to annotate that data. Then another brilliant research area on our team was being able to construct it so we could span it out as a model that we brought to the customer.
+
+[00:07:30.05] John Collison
+
+You’ve just been doing useful stuff in voice, and that has emerged with a whole bunch of products that you might not have expected because you find you’re building useful stuff.
+
+[00:07:39.00] Mati Staniszewski
+
+Exactly. That’s a combination of data, of being able to do it automatically, create a team that’s coached on voice, on how to describe it, because most of the labellers out there just aren’t as well-versed on understanding the audio and voice, helped us a lot to bring that back. Then, of course, deploying those models in production, seeing how customers interact with them, having them annotate all of the data helped us refine those models over time.
+
+[00:08:04.07] Mati Staniszewski
+
+A very interesting thing on the side. We spoke about the speech representation. The first guy who created the speech representation is a guy called Kempelen, Wolfgang von Kempelen. He created those analogue machine that would represent effectively a human vocal tract and try to produce that sound. He had to spend decades on that, and that started producing valves. But that was the same person that created a chess machine, the first viral, let’s say, chess machine that would simulate playing chess.
+
+[00:08:35.06] John Collison
+
+Is this the Mechanical Turk?
+
+[00:08:36.11] Mati Staniszewski
+
+It was called Turk. But the crazy thing behind it, it was operated by a human, and it was all a fluke. That’s where the Mechanical Turk came from, which actually we use in our data labelling production to make that work there.
+
+[00:08:52.15] John Collison
+
+Sorry, we jumped right in. But if you describe the Eleven business today, people think of you as the speech company. How should they actually think of your business to the extent you can describe the big areas? Text-to-speech, speech-to-text, voice agents. Just break down the business for us.
+
+[00:09:10.12] Mati Staniszewski
+
+In a nutshell, I’ll describe ElevenLabs as a research and product deployment company. We build foundational audio and voice models, and then build a platform for businesses to transform how they communicate with their customers, with their employees. That will apply through AI agents from customer support, sales, hiring, training, all the way through to marketing and storytelling for our creative tools.
+
+[00:09:38.21] Mati Staniszewski
+
+In that set, we’ve created all types of foundational audio models. Text-to-speech models for producing speech, speech-to-text models that work over 100 languages and happily beat others on benchmarks, all the way through to conversational models of how you loop them together to music, to other domains of audio. Then, of course, beyond the models, when you actually bring them to production, that’s where the second level of the platform comes in, where that meets the businesses on the specific use case.
+
+[00:10:07.10] Mati Staniszewski
+
+On the agent-specific example, it would be how you now connect those models to the knowledge base, to telephony, to the integrations that you need to perform the actions, how you evaluate and monitor the agent that it behaves in the right way, how you build the right safeguards.
+
+[00:10:21.14] Mati Staniszewski
+
+On the creative side, on the marketing side, it’s how do you create a good ad so you can create a good video voiceover for one of the campaigns. How you create an article that’s narrated with a specific voice that represents the brand in a good way. That’s where we combine the models and understanding of the customers we work with into one policy platform.
+
+[00:10:44.17] John Collison
+
+Every platform company has this question about how far they go into applications. How do you think about where you go horizontal and power the whole ecosystem versus where you develop application? Because you can imagine there being a whole ecosystem of closed captioning tools that grow up that, again, are built on the ElevenLabs tech. It’s not necessarily a space that you would have to go after yourself.
+
+[00:11:06.08] Mati Staniszewski
+
+I think the big difference between... In your question, today, we see ourselves as a platform where if you’re building a horizontal use case in your business, a great place to come. If you have a lot of domain specificity, that’s where I see a lot of the application companies forming over time, where that’s specifically not the spaces we will go into.
+
+[00:11:28.12] John Collison
+
+I think it also is interesting when the tech is moving as quickly as it is here. It’s one thing with SaaS where you get these vertical-specific providers, but I would imagine one of the biggest risks for you guys in being intermediated is if there is, like in this example, a closed captioning service that is on a two-versions-old version of ElevenLabs and hasn’t upgraded. That’s a problem because you want people to be using the latest and greatest model that you’ve developed, and you’ll be deploying new capabilities every week. I presume that’s part of your thinking, is that just when it’s moving that quickly, you need to go direct in a lot of cases.
+
+[00:12:04.20] Mati Staniszewski
+
+That’s right. In the closed captioning, here already now, we know that our services is going to be able to tackle 99.9% of the cases that customers have. Then there’s added benefit of we work with healthcare customers where we will create a custom model for those customers where we’ll get that transcription perfectly.
+
+[00:12:24.15] John Collison
+
+The context is the tricky thing in closed captions, where we talk a lot about a lot of technical stuff on this.
+
+[00:12:31.00] Mati Staniszewski
+
+Yeah, for sure. That’s where you need effectively a dictionary of where you do the tech beforehand, which, as we work with the businesses, we know we need to embed in that creation process.
+
+[00:12:42.15] John Collison
+
+We’re talking a bit about product here, and one thing I note is that LLMs are amazing, and you have the usage stats of ChatGPT and Gemini and all the popular LLMs where they’re working and people use them a ton. It feels like there’s a big product overhang when it comes to voice, where the leading-edge voice models are incredibly capable.
+
+[00:13:04.15] John Collison
+
+Yet, I was driving home the other day, and I needed to read a PDF, but I was driving. I said, “Okay, I’ll just have my phone read the PDF to me.” You can try and hack it with iOS screen reader, but it doesn’t really work with the scrolling. Then in theory, you can upload it to Gemini, but you’re trying to get it to not summarize it, and it actually just hung when I tried to press the Read This to Me button. There was no way I could get my phone to read me something, which seemed like a fairly basic feature. All cars advertise voice control, and yet, it sucks.
+
+[00:13:36.10] John Collison
+
+Separately, if you want to input something to the navigation, just no car has a good version of that yet. Maybe Tesla does, and, and, and... Why does it seem like with LLMs and Claude Code and everything, we are using all the capabilities of the intelligence, whereas with voice, we’re living 10 years ago somehow?
+
+[00:13:57.12] Mati Staniszewski
+
+Well, I’m thinking would I agree with the premise that we are 10 years behind.
+
+[00:14:01.03] John Collison
+
+In the lived experience of people day to day, they’re using Siri’s transcription, which has gotten better, and it’s still way behind the leading edge.
+
+[00:14:09.19] Mati Staniszewski
+
+There’s definitely a piece of… I think the technology in many of those cases already, there’s a deployment gap to what you are saying. It’s like an automative for some of the big companies are not adopting that quickly enough or bringing that into the production. But plenty of different problems that you need to fix along the way. The quality of voice models for them to actually sound good, this is only a last three years thing.
+
+[00:14:34.01] John Collison
+
+Yeah, but it’s three years.
+
+[00:14:35.10] Mati Staniszewski
+
+It’s a three years thing.
+
+[00:14:36.10] John Collison
+
+Cars have over-the-air software updates now.
+
+[00:14:38.06] Mati Staniszewski
+
+That’s three years for the first voice model that can narrate text async. Two years ago, we can start seeing the real-time version of that. I think the real break was a year ago, where you could start seeing that in production. Then I think over 2025, the big piece that hasn’t been possible is how you connect now the real-time voice interaction with something which I think you’re referring to. It has context of what you want to do, what is the material that you want to read, how does it connect to set off your preferences from the past and get that across.
+
+[00:15:09.13] Mati Staniszewski
+
+I think that only recently became possible, and where we’ve seen the big adoption across the enterprises leading on the technical side. I think this year, it should be in the automotive side too, or some of the applications.
+
+[00:15:22.23] John Collison
+
+You think we’ll start seeing great voice models in cars this year?
+
+[00:15:27.13] Mati Staniszewski
+
+This year for their own cloud use cases. On car, in car, so without connectivity, not yet. There’s deployment, of course, gap, of how you bring that into the gaps. But I think the next two years, three years.
+
+[00:15:41.09] John Collison
+
+How about the PDF reading use case?
+
+[00:15:42.23] Mati Staniszewski
+
+That should work. Yeah.
+
+[00:15:45.05] John Collison
+
+But how should I have done it?
+
+[00:15:48.16] Mati Staniszewski
+
+Back in the day... I’ll pre-empt this with a story to cue ElevenReader, but we had this problem. We had so many audiobook authors come into ElevenLabs. 2023, we released the first software. We had a lot of creators and then a lot of audiobook authors or book authors that couldn’t afford professional narration and wanted to create an audiobook. However, none of the companies accepted AI audiobooks.
+
+[00:16:12.10] John Collison
+
+You can’t sell an AI audiobook on Audible or something?
+
+[00:16:14.22] Mati Staniszewski
+
+Exactly. Audible would block AI content. We had no choice. We need to create an avenue for them to—
+
+[00:16:20.17] John Collison
+
+Ah, because there was no distribution for AI audiobooks.
+
+[00:16:24.14] Mati Staniszewski
+
+Exactly. We created ElevenReader, and that came with a functionality where you can upload your PDF, you can upload your text, and have it read out loud with a number of incredible voices, whether it’s Sir Michael Caine all the way through to estate and working together with Sir Richard Feynman, where you can have that—
+
+[00:16:41.08] John Collison
+
+You are working with the Sir Michael Caines of the world?
+
+[00:16:43.08] Mati Staniszewski
+
+Exactly. Then you can actually read it out loud. That works extremely well. That works. Now, how can you do it?
+
+[00:16:50.09] John Collison
+
+Gosh, I do want everything read to me by Michael Caine.
+
+[00:16:52.19] Mati Staniszewski
+
+It’s a great voice.
+
+[00:16:54.13] John Collison
+
+Shouldn’t you guys have a consumer app where I can just do the common voice things? I want to be able to have an Eleven app on my phone, and then if I upload a PDF to it, it can do the common things that I would like, such as have it read it to me.
+
+[00:17:06.12] Mati Staniszewski
+
+Yeah, that’s exactly ElevenReader. That works.
+
+[00:17:09.10] John Collison
+
+The phone makers allow third-party keyboards. Do they allow third-party transcription engines? Will they, do you think?
+
+[00:17:17.06] Mati Staniszewski
+
+The phone makers you said.
+
+[00:17:18.12] John Collison
+
+Like Apple and Google. The OS makers.
+
+[00:17:22.16] Mati Staniszewski
+
+Yeah, not all of them. With Android, you can work through it. There’s variations of that, Nothing.tech, and others.
+
+[00:17:30.00] John Collison
+
+I feel like if you had a popular Eleven app that allowed for transcription, people would use it a bunch, and maybe eventually, Apple would say, “Oh, we should allow third-party transcription engines if that’s what people want.”
+
+[00:17:39.00] Mati Staniszewski
+
+It seems like they might be going in that direction. Recently, they announced that it will open up the LLM ecosystem. Hopefully, they will do the same with voice ecosystem, which is similar.
+
+[00:17:48.02] John Collison
+
+I think it’s rational to do when it’s moving so quickly. The voice assistant paradigm is one of the oldest UI paradigms in computing, like the, “Open the pod bay doors, HAL,” from 1969. I will claim it’s not working yet. Siri doesn’t have the intelligence. Then on Gemini and ChatGPT and those apps, I want to use the voice mode, but I don’t know about you, it just doesn’t work. Sometimes I’ll be using my phone, and I’ll use the iOS keyboard transcription to type in the field and then say a bunch of stuff, and then send it off. But this suggests to me that consumers really want voice mode that works, and yet it’s just not working yet for the major LLM apps or for anyone. Why isn’t it working yet?
+
+[00:18:41.11] Mati Staniszewski
+
+It is pretty hard to do because you want two things. You want to be able to say things that you want, but you want sometimes for it to execute it, sometimes to wait for you to finish and add something in the sentence. Sometimes you want it to be interactive, so it asks you questions back to clarify and get some of the additional detail. All of that is actually pretty hard.
+
+[00:19:00.00] Mati Staniszewski
+
+That’s where the magical ideal version of a voice agent for us comes through, where you need the speech-to-text element, you need the transcription side, you need then the turn-taking mechanism. When do you finish sentences? When is it likely based on silence, based likely on the context? Then sometimes you want it to speak back and clarify, or at least give you the text back to clarify, and then maybe execute a set of instructions.
+
+[00:19:24.21] Mati Staniszewski
+
+That problem is still very hard. I agree with the claim that this orchestration side has not passed a true conversational agent Turing test, where it behaves as you would expect from another person, where you can say—
+
+[00:19:37.20] John Collison
+
+That’s the simpler way of saying what I’m saying is that we have passed the Turing test with text LLMs a long time ago. We’re actually nowhere near that on voice LLMs. It’s interesting how that’s a final frontier.
+
+[00:19:47.07] Mati Staniszewski
+
+I feel like it’s going to work in specific domains. In customer support calls, passes the voice Turing test. It works well. Let’s take another spectrum of that. An interactive gaming experience, a truly interactive as you would have with another human in that game, it’s so hard and further out there, we haven’t passed it yet there.
+
+[00:20:09.23] John Collison
+
+Yes, that makes sense.
+
+[00:20:11.11] Mati Staniszewski
+
+But I think that’s a combination of even a simpler version of within that. Sometimes you might give a response immediately back. Sometimes you need a tool call to get additional information from the database, how you orchestrate that. That’s probably the most common thing we see as we work with some of the companies out there is you want those systems to orchestrate extremely well where if it’s a conversational use case, pretty simple, you can root the agent to speak with it. But if you need to authenticate, if you need to pull additional information from the database, what do you do? How do you handle that graciously?
+
+[00:20:41.19] John Collison
+
+That’s where it gets tricky.
+
+[00:20:43.15] Mati Staniszewski
+
+To that extent, I would say that that’s just getting there. We’ll hopefully see that. Our goal is to pass the voice Turing test in all those cases or the Turing test for all conversational agents outside of voice, too. I hope we will all be there in the next year or so.
+
+[00:21:01.22] John Collison
+
+For subscription businesses, a lot of revenue is lost in that last few seconds before the checkout. Someone has to get up and find their wallet, or they mistyped their card number, or they hit an error, and they just give up, and you lose the sale. For a company like ElevenLabs, adding hundreds of thousands of subscribers, even a tiny bit of friction like that, it would really add up. But that’s why ElevenLabs uses Link from Stripe. Customers save their details once, and then they can check out in seconds across more than a million businesses with saved credentials. If you want a faster checkout for your customers, you should turn on Link from Stripe.
+
+[00:21:36.22] John Collison
+
+Are you guys working on personalized voice transcription where it feels like part of the way we’re making it hard for ourselves is when I speak to Siri, I have a bit of an accent, and so it sometimes has a hard time understanding me. But my accent doesn’t change. It could just get good at listening to John. But my understanding is it’s not, it’s just running the global voice recognition model. I’m guessing it’s the same for ElevenLabs where you’re running the global voice recognition model.
+
+[00:22:07.12] John Collison
+
+But again, you have an accent. If you walked up to someone in a coffee shop and said two words, they might have a hard time understanding it because they’re not putting it through their Mati Polish accent filter. Where’s this going with actually interpreting the person that you know to exist on the other side?
+
+[00:22:24.00] Mati Staniszewski
+
+I have a very tricky one to detect. My voice is frequently used in the tests.
+
+[00:22:29.05] John Collison
+
+You’re part of the test suite.
+
+[00:22:30.14] Mati Staniszewski
+
+For text-to-speech, for speech-to-text, for everything. It’s pretty—
+
+[00:22:34.21] John Collison
+
+But again, trying to parse your voice in a global model is just making life hard. It’s like, have a Mati-specific model.
+
+[00:22:40.14] Mati Staniszewski
+
+On the speech-to-text, by transcription, exactly. The big part now that we are bringing in is you have two parts. One, effectively a person or a voice-specific detection, which is true for the accent side, but it’s also true for a crowded room. We have an incredible research team that’s able to continually do both the accuracy high, but also add things like speaker detection, of course, noise reduction. But then the second part is also keyword detection. There are specific words that you would want to say in those settings that you want to effectively monitor for. We spoke about, let’s say I’m going to the coffee shop and order things. The set of actions the coffee shop would expect me to do.
+
+[00:23:26.11] John Collison
+
+This is information theory. It’s like they can just listen out for the coffee words.
+
+[00:23:30.00] Mati Staniszewski
+
+Exactly. Then try to match it to the closest proximity. Both things will help. In a setup where you have my voice, perfect. You can decode it and code it on that. If you don’t have my voice or even if you want to double amplify it, we already support effectively keyword detection, which is useful for real-time setting and async setting. Back to Cheeky Pint transcription, you could effectively pre-generate that from the previous podcast and look for a set of words that you would use traditionally in that.
+
+[00:24:03.12] John Collison
+
+You do the keyword detection already, but how hard are the… I want to get superhuman transcription performance by feeding it an hour of Mati audio before it listens to Mati, and then it should be able to do a much better job transcribing. Is that just a really hard research problem?
+
+[00:24:18.23] Mati Staniszewski
+
+No, solvable. We think we can roll it out in one of the next versions, which is hopefully in the next month.
+
+[00:24:26.07] John Collison
+
+You think this year you’re doing person-specific transcription?
+
+[00:24:30.23] Mati Staniszewski
+
+Person-specific transcription. We can already dial our speakers extremely well. If we are speaking, we can, of course, dissimulate who is speaking when, which is in transcription side, apart from accuracy, diarization is one of the harder problems. We do that extremely well. Now it’s going to be effectively what you’re saying, fine-tuning based on the speaker that I want to listen to, which we know will be important.
+
+[00:24:53.12] Mati Staniszewski
+
+In a healthcare setup, it’s such an important part. You’re in an operating room, you’re a doctor, you want to say a command, then you want to really be able to listen to that one person’s specific piece. You have a hardware device at home, let’s say it’s a pilot that helps you control the TV. Here, too, you will want that to listen to you versus, let’s say, the family running around. Or maybe you want it to everyone. You could decide that, but in many cases, you want to be able to specify that.
+
+[00:25:21.00] John Collison
+
+That’s really exciting.
+
+[00:25:22.06] Mati Staniszewski
+
+It’s great because there’s still so many unsolved research problems.
+
+[00:25:26.14] John Collison
+
+Yeah, there’s just breakthrough after breakthrough coming in the domain of voice models. How about on the flip side, when it comes to speech generation? In the Zoom “touch up my appearance” feature, I’ve always thought about that in the context of voice, where... Should you offer a de-accenting filter for voices? Or even there’s one podcast that I like to listen to, but the voice is a little mumbly, and I always thought they should put it through a de-mumbling filter just to make the—
+
+[00:25:54.20] Mati Staniszewski
+
+Or slow it down.
+
+[00:25:55.11] John Collison
+
+Yeah, make the enunciation a little better. But all these things, again, like Photoshopping an image, there’s no reason that the… Have you thought about voice-to-voice, basically, rather than voice-to-text or text-to-voice?
+
+[00:26:07.06] Mati Staniszewski
+
+Yeah. There are two big parts. One on the speed generation side, similar. So many innovations still there. There’s a wider piece, and we released the V3 model that we’re solving that for the first time. It’s like, can you control speech? You can have the text-to-speech. You generate something that sounds emotionally great.
+
+[00:26:27.23] Mati Staniszewski
+
+Previously, until the end of last year, effectively, you would rely on the model to decide what’s the best performance. You could regenerate it, but ultimately, model decides the best performance. That’s where the controllability came in, where we can finally give it cues of, say it in a slower way or change how you deliver the dramatic pause or any cues that you give.
+
+[00:26:47.11] Mati Staniszewski
+
+To be able to do that, you need the architectural changes and the data that we created over time where you annotated what was said and how it was said, so you can actually train the model to do that. Today, finally, you can have both speed generation or entire voice agent experience with what we call expressive mode, where the agent knows the emotions on the other side.
+
+[00:27:07.15] Mati Staniszewski
+
+If the person is stressed, it can react and be reassuring, and that’s generating an LLM response on the reassuring side and response in that set of emotions, too. That breakthrough was super hard to do. That, of course, stretches to a lot of what you said. It could be some version of speech enhancement, either real-time or in a pulsed setup to change how that’s delivered. That’s relatively recent innovation, and we know it can still be so much better. The edge cases of how you want to describe it is pretty large. That’s one.
+
+[00:27:41.21] Mati Staniszewski
+
+Then the second part of the question, which is a huge question, that’s speech-to-speech models. As you said, our approach, as you think about voice agent, conversational agent, is effectively a cascaded approach. You use transcription or speech-to-text, LLM, text-to-speech, and orchestrates all of that together. Then you have a speech-to-speech, which goes directly from speech, and there’s a speech response on the other side.
+
+[00:28:03.23] John Collison
+
+When we say speech-to-speech, is that the idea that it doesn’t go through text as an encoding in the intermediate?
+
+[00:28:08.23] Mati Staniszewski
+
+Exactly.
+
+[00:28:09.06] John Collison
+
+Oh, interesting. For performance reasons? For accuracy reasons?
+
+[00:28:13.08] Mati Staniszewski
+
+You usually do it for latency.
+
+[00:28:14.13] John Collison
+
+It is faster to run a model that does not have to transcribe and then generate.
+
+[00:28:19.12] Mati Staniszewski
+
+Exactly. It’s quicker, but on the flip side, you lose reliability. You lose like all visibility into the parts of the pipeline. In emotionality, we think you can deliver both on both sides extremely well, and maybe you can make it more controllable, too. Today, we are optimizing heavily on a cascaded approach.
+
+[00:28:36.10] John Collison
+
+I’m sorry, a cascaded approach is?
+
+[00:28:37.19] Mati Staniszewski
+
+Is the speech-to-text... Going through the text layer. As we work with a lot of the businesses and enterprises, they will need that visibility into what happens. They will want to execute certain tasks on top of that. They want a good visibility into each of the steps and great accuracy of all the models. But beyond that, they can abstract away what’s the LLM layer, what’s the intelligence layer, the integrations are easier in that system. That’s where we are betting a lot of the research work of how you can make that great, and we think we can make that great. In speech-to-speech, as you think about maybe more of a companion version of the applications, that’s where that will flourish because maybe the hallucinations aren’t as important, but the latency is a little bit more, and maybe hallucinations are even a feature. Maybe in the future-future, just to finish that part, you will have some version of combination of the models. That for low complexity, easy models, you will have speech-to-speech, and for higher complexity we will have to cascade it.
+
+[00:29:32.14] John Collison
+
+I was going to ask about this. You know the way there is research on how the invention of writing changed human brains and just changed the neural pathways in ways beyond the actual written language. Do you observe that speech-to-speech models think differently than cascaded models? It sounds like they’re dumber.
+
+[00:30:00.06] Mati Staniszewski
+
+They are definitely dumber. You need a smaller model.
+
+[00:30:02.14] John Collison
+
+But that’s interesting, that forcing models to reason about text. I know they just have much more in there as well, but they’re smarter.
+
+[00:30:10.22] Mati Staniszewski
+
+Yeah, but it’s like, if you are getting speech-to-speech, usually you will use smaller models, so it’s still quick.
+
+[00:30:17.08] John Collison
+
+I see. It’s also just a model size thing. But are there interesting differences beyond correlates like size?
+
+[00:30:24.10] Mati Staniszewski
+
+What I can say is slightly different to your question. The people interacting for voice and the performance we see for how they interact with the business changes just by nature of interacting with us. A good example, you can contact ElevenLabs and register for your interest, you go through the form, and at the end of that, we have supplemented that, that instead of going through the form process, you can speak with our agent and leave more details. What happened there are two things. One, people were actually much more keen to leave the forms through speaking with the agent, so we would go through the form a lot easier. But second, they would be a lot more open-ended in terms of what the use case are. They would start giving us information about the wider set of use cases, the complexity of the use case. The writing out was tedious and tricky—
+
+[00:31:12.05] John Collison
+
+This is like an open-ended adventure game.
+
+[00:31:14.01] Mati Staniszewski
+
+Open-ended. You could ask follow-up questions, you could clarify. But people were just more at ease and could trust the system while doing that, that it’s working. That helped us a lot. Then free, which maybe it’s more of a technological barrier, it also works across all languages.
+
+[00:31:28.23] Mati Staniszewski
+
+Now we have leads from all parts of the world coming in and leaving their details. We did that use case, and now we have a few different companies building their SDR versions of that, too, to help them capture the leads coming in from banks all the way to actually one of the automotive companies that leaves that where people are just more keen to speak through voice.
+
+[00:31:50.06] John Collison
+
+I want to ask about this second-order effects. You’ve talked in the past about how growing up in Poland, I guess the dubbing of TV shows, they were cheap, and so they would only have one voice actor for a TV show. No matter all the parts, male and female, they’re like, “I love you.” “I love you, too.” There’s one voice actor doing all of them.
+
+[00:32:10.23] John Collison
+
+Now, thanks to better voice models, you’ll be able to just have really good voices, AI-generated, for all the dubbing. Because again, it’s not like it’s taking jobs from great dubbing that was happening previously. It was awful dubbing happening in Poland previously. That’s one example of the second-order effect. What are the other second-order effects you’re seeing of ubiquitous good text-to-speech, speech-to-text? It seems like across a broad array of languages, because whatever in English, just this didn’t exist in Polish or Irish or, pick your language.
+
+[00:32:44.21] Mati Staniszewski
+
+One, breaking down the language barrier. The inspiration came from the movie side, but it also applies in any communication setup. Could in the future, could I travel to another country and speak Polish or speak English and that language isn’t being understood in the local native language? From The Hitchhiker’s Guide to the Galaxy, this version of the Babel fish. That you can actually understand the world. Voice, of course, will be an interaction layer.
+
+[00:33:08.19] Mati Staniszewski
+
+But similarly, all of us will have our own extension and voice agents that can help on our behalf. There are very clear and great examples of that of people that lost their voice and can get it for the first time back. We see that everywhere, whether that’s people that lost it due to ALS or throat cancer that can get it back.
+
+[00:33:28.18] Mati Staniszewski
+
+Just recently, there was an example of a patient that had Neuralink. We worked with them to bring the voice that that person could speak with their own voice back with the family around. We worked with a lady that lost her voice before she got married. Then finally, the technology became possible. We were able to recreate that voice. For the first time, she could replicate the marriage ceremony and speak the vows together, which was such a heartfelt moment.
+
+[00:33:59.19] John Collison
+
+That’s really sweet.
+
+[00:34:00.00] Mati Staniszewski
+
+It’s probably the most important from all the work that we do.
+
+[00:34:03.15] John Collison
+
+When you guys talk about voice agents, is a voice agent just the idea that you have some long-running or persistent agent that is going out and interacting with the world through voice? Customer service would be one example of it. In the other direction, your Claw going and making you a restaurant reservation and actually calling up the restaurant. Is that how I should think voice agents?
+
+[00:34:30.23] Mati Staniszewski
+
+That’s right. Exactly. Whether it’s the reactive side of being able to interact with the customer or the proactive to call it back. We recently had a very interesting one, topical because it was a Guinness-related one where there was a developer developing a Guinndex, effectively.
+
+[00:34:47.01] John Collison
+
+Oh, I saw that. They were calling all the pubs in Ireland to check on the price of a pint.
+
+[00:34:50.06] Mati Staniszewski
+
+You could ask that or report information.
+
+[00:34:53.22] John Collison
+
+The Guinndex was built with ElevenLabs technology?
+
+[00:34:55.23] Mati Staniszewski
+
+It was built with ElevenLabs, too. People could actually do both sides. Could proactively reach out, reactively reach out, always capture full voice. Then 3,000 different entities could report their prices and get that across.
+
+[00:35:12.02] John Collison
+
+Have you, by the way, hooked up your OpenClaw to ElevenLabs? Is the OpenClaw-ElevenLabs combo something that a lot of people at Eleven are doing?
+
+[00:35:21.23] Mati Staniszewski
+
+As you know, the OpenClaw will look for the most popular tools frequently where it tries to cook up. ElevenLabs is one of the recommended ones.
+
+[00:35:28.18] John Collison
+
+It’s the top option for voice. Can you tell me a bit about the business of voice models? I think people have an intuition around big LLMs where there are these very expensive training runs, and yes, they depreciate quickly, but there’s so much usage that all of the models trained to date have paid off their training runs and then some.
+
+[00:35:51.05] John Collison
+
+Then there’s this ever larger CapEx going into… I mean, a lot of it is inference these days, but also training. People have some intuitions from the LLM world. I’m curious just how I should think about voice, where one, how expensive is training the voice models? Is the expense in the researchers? Is the expense in the training runs? The economics is presumably simple where it’s just per-usage. But yeah, just talk us through the business.
+
+[00:36:21.16] Mati Staniszewski
+
+Definitely cheaper than the LLM and image-video models. Significantly smaller models.
+
+[00:36:28.03] John Collison
+
+The models are smaller?
+
+[00:36:29.07] Mati Staniszewski
+
+Smaller.
+
+[00:36:29.18] John Collison
+
+What’s the parameter count for a leading-edge voice model?
+
+[00:36:32.18] Mati Staniszewski
+
+A few billion to tens of billion per meter models.
+
+[00:36:38.04] John Collison
+
+For context, I think the… CPUs moved away eventually from gigahertz as the metric as they move to more cores. I think we’ve mostly moved away from just raw parameter count, but I think the leading edge LLMs are in the hundreds of billions of parameters.
+
+[00:36:52.16] Mati Staniszewski
+
+I think the leading ones, yes, but of course, you have the variations that you will use at lower scale. CapEx is still pretty high. We’ve, of course, raised recently a half a billion at 11 billion valuation.
+
+[00:37:04.22] John Collison
+
+Makes sense.
+
+[00:37:06.00] Mati Staniszewski
+
+Makes sense. To continue being able to build the best models in the world. Researchers, of course, you want the best people in the world. I think we have those people working in audio and my co-founder who is leading that work. That’s definitely a big piece of, not financially, but even how you keep the ambitious deployment, so you continue building leading models, helps you attract more talent in building that.
+
+[00:37:36.04] Mati Staniszewski
+
+Then on how we service, of course, inference is correlated with how the models are used. For us, we’ve seen incredible growth across the work. Mostly this is charged per… If it’s input text or text-to-speech, it’s usually per text token. If it’s voice agent or transcription, then it’s per minute. We see that being the bigger part. But usually, broadly, it’s per token basis. Of course, as we work with businesses, it’s like an annual agreement. The bigger the spend, the bigger the commit, the bigger the discount to get it across.
+
+[00:38:08.21] Mati Staniszewski
+
+The way we usually do is when we have a new model, we try to give it at cost to a lot of the customers so they can experience the best. It’s still usually not as reliable—
+
+[00:38:19.13] John Collison
+
+That’s interesting. The newest thing is often the most expensive, whereas you make the newest thing the most economically attractive one?
+
+[00:38:25.09] Mati Staniszewski
+
+We try to make it attractive so the customers are… It’s more expensive for us than any previous generation. The quality is higher, so we try to keep the prices still competitive.
+
+[00:38:36.10] John Collison
+
+I see. You subsidize it, but it’s inherently more expensive as a bigger model.
+
+[00:38:39.07] Mati Staniszewski
+
+Exactly. Over time, we might do some tricks to optimize it, but we want the customers to experience… Because of research, the big thing that we’ve seen is the reliability of the model in the early days might not be there. Then two, people don’t even know what’s possible with that model. You want the widest set of distribution, so people can show the world what’s possible. You can have it, of course, as the distribution mechanism, learn yourself what to improve, what to change, and then get it out there.
+
+[00:39:10.02] John Collison
+
+Are the voice models just getting bigger and bigger? Will we have voice models in the hundreds of billions of parameters, or have we found… It seems like for certain types of model architecture, there’s an upper limit on the natural size. Have we found that upper limit for voice models?
+
+[00:39:26.06] Mati Staniszewski
+
+It feels like for specific use cases, like say, audiobook narration, you probably found that size. You probably don’t need to stretch it much bigger to make the quality much higher, but for certain use cases, that will probably grow. The thing that I hesitated on the question is in a cascaded approach, you probably will not see dramatic size changes.
+
+[00:39:48.10] Mati Staniszewski
+
+You inherently want the models to be quick and reliable. You want to orchestrate them in a smart way. In a fused approach, probably that will get into tens, hundreds, billion-per-meter models because you combine, of course, the LLM side and the voice side, so that will get bigger, but on the just voice, I think it will keep being small.
+
+[00:40:07.10] John Collison
+
+There are certain domains where we’ll see bigger models.
+
+[00:40:10.19] Mati Staniszewski
+
+Yeah.
+
+[00:40:10.19] John Collison
+
+That’s so interesting. It does seem fun, from a research point-of-view, how there are still these various unsolved aspects, and how you guys are just making technical breakthroughs and then releasing them down the product pipeline. That’s a really fun stage of a company’s life cycle.
+
+[00:40:27.00] Mati Staniszewski
+
+For sure. It’s fun because it feels like we can do innovations on both sides. There’s so much on the research side, so much on product side. Ultimately, the biggest part is how we deploy it to the customers, where SMB will have a very different dynamic than the enterprise. It’s not vendor/SaaS relationship where you just give the product out there for the biggest companies out there, but you are more of a partner in their AI transformation part.
+
+[00:40:54.19] Mati Staniszewski
+
+You want the resources to work alongside them, to work on the frequently very new use cases that were impossible to help create and bring those voice agents to production. That’s a big shift. The biggest focus is how we bring the conversational agents out there to the businesses around the world.
+
+[00:41:14.00] John Collison
+
+When you say bring conversational agents is the biggest priority, is this for customer service-type use cases? What are the most popular use cases for conversational agents?
+
+[00:41:25.20] Mati Staniszewski
+
+We want to be a partner for full interactions between businesses and their customers or their audience. I’m saying their audience because that will apply in support. Support is the easiest one because that’s where it’s most ready. That’s maybe the big difference to how we see ourselves to some of the other companies in the space.
+
+[00:41:42.08] Mati Staniszewski
+
+This can also apply to sales. You can have the proactive side of reaching back. You can have AI SDR versions of that. Then you can have all the way to the marketing use cases where we are your partner for working even outside of the conversational agent space of how you create a great marketing campaign.
+
+[00:42:01.14] John Collison
+
+How does this break down between… We had Des Traynor from Intercom on here and they have Fin, their agent, and it’s a thing on the website that you can go talk to. He described a very similar phenomenon that you described, which is, you start maybe thinking, “Oh, this will help me answer customer support queries.” It becomes like a generic UI for the website, where it’s a box you can type in to go do things and understand things. Why wouldn’t you read the docs and design your integration that way? Whatever.
+
+[00:42:34.17] John Collison
+
+Will I have one for text and then one for voice? Will you guys do text, too? How does that... Because it seems like this is also succeeding at the text level with Fin and Sierra and all these things.
+
+[00:42:48.15] Mati Staniszewski
+
+The places where we know we will be able to provide the biggest value is where, ultimately, today you will have either a big portion or most of the interactions coming for voice. If that intersection is there, that’s where we can provide higher value.
+
+[00:43:04.01] Mati Staniszewski
+
+Of course, if you need a text chatbot there… If you fix the voice agent, you have fixed text piece inherently as well. The place where we do optimize today is going to be like, how do you select the right voice for the right customer interaction, how you pull that in there.
+
+[00:43:20.10] Mati Staniszewski
+
+In the pretty complex case of what you mentioned earlier, of how you orchestrate that to pause or look for something deeper into the docs, how it can be extension of entirety of the business, so not only in support, but across the entire user journey.
+
+[00:43:35.03] Mati Staniszewski
+
+The bottom line is we want to be able to provide you across the entirety of the interactions. Voice is usually a big part of those interactions. We need to solve the integrations, we need to solve the knowledge, we need to solve text as part of that. We wouldn’t, for example, go into what I think will happen in a lot of those cases, very deeply into reasoning version of those use cases where you maybe need the multitouch.
+
+[00:44:01.07] John Collison
+
+Yeah, and a lot of complex actions.
+
+[00:44:02.22] Mati Staniszewski
+
+A lot of financial analysis. That would be not something we optimize for.
+
+[00:44:08.12] John Collison
+
+Can we talk about your revenue ramp? You’re just one of the fastest-growing startups, period, of the past few years. What’s your most recently announced revenue figure?
+
+[00:44:16.02] Mati Staniszewski
+
+Most recently announced was end of 2025.
+
+[00:44:18.16] John Collison
+
+Whatever number you want to give us.
+
+[00:44:20.11] Mati Staniszewski
+
+Most recently announced was 350 at the end of 2025. The best proof of the technology working... Recently, we were in our work with Deutsche Telekom and T-Mobile with Revolut, with Klarna, with Meta, with IBM, a wide set of use cases. This quarter was one of the best for enterprise growth where we had the first quarter hit 100 million in additional ARR growth, which is crazy.
+
+[00:44:45.18] John Collison
+
+In net new ARR.
+
+[00:44:46.15] Mati Staniszewski
+
+In net new ARR.
+
+[00:44:47.22] John Collison
+
+If you’re thinking this quarter was 100 million net new ARR and 350 million at the end of the year, I’m no mathematician, but it’s up in the 450 million range. Versus this time last year, that’s a several-fold increase. Just, what’s working? From the outside, I would assume that there’s really strong cohort growth within accounts, and then you seem to have self-serve and enterprise businesses that both contribute a lot. I don’t know how big self-serve is, but as a user, I like to be able to fiddle with ElevenLabs and not have to go talk to sales. Maybe you can just talk about what worked to reach 450 million plus of ARR so quickly.
+
+[00:45:28.22] Mati Staniszewski
+
+We are over 50% is now sales-led enterprise. I think largely that technology powers a lot of their agentic interactions just became reliable at the same time as high quality over the last year, year and a half. Frequently, you know this extremely well, you will start the account, and then, of course, it continues expanding. We see there’s definitely land and expand motion across ElevenLabs. We bring—
+
+[00:45:58.23] John Collison
+
+What does that expand look like? Is it new departments? Is it just the usage starts taking off? When a customer expands—
+
+[00:46:05.10] Mati Staniszewski
+
+Both. Usually, the first part, too, it’s like we try to make it very easy for our customers. Maybe against ourselves, where we give the technology a pretty attractive economics because we so much believe in the technology providing value. You can actually try it and test it. Then within that one department—
+
+[00:46:24.17] John Collison
+
+You think you’ll make it up in usage, basically.
+
+[00:46:26.05] Mati Staniszewski
+
+Exactly. That usage, the commitment continues increasing because you know it’s providing value. Then it’s so much easier to make that a choice. Then, of course, cross-department pollination is there, too. Our work with Deutsche Telekom started with marketing side. We did Magenta work and podcast generation. Then it expanded to customer support. Then it expanded to us working on an agent across the entirety of the network, so people can call in and have the agent. You could see those step changes across.
+
+[00:46:57.02] Mati Staniszewski
+
+We are now 470 people as a company, so we keep on growing. Some of the things that stay consistent is small teams. We have less than 10-people teams for each of the product or research initiatives or even, as you think about sharding some of our go-to-market strategy, there will be smaller teams understanding the industry in-depth, understanding the market in-depth, and going independently and going quickly.
+
+[00:47:23.17] Mati Staniszewski
+
+That definitely contributed largely to that. Two, especially on the biggest enterprises, what we found works is we have the full spectrum: self-serve, PLG motion that helps drive distribution, drive awareness of ElevenLabs. On the completely other spectrum, we have the high-touch for deployed engineering working side-by-side with the customers to customize the entirety of their work together.
+
+[00:47:50.22] John Collison
+
+Why did you guys do self-serve? Because I presume you have a lot of competitors where they have tech, and it’s behind a contact sales form, and you have to go talk to an SDR and then talk to an AE. You guys just offer the tech available on the side.
+
+[00:48:04.03] John Collison
+
+I’m a huge believer in this. A huge part of Stripe’s growth has been driven by the fact that we just made Stripe available to anyone and built a lot of products around that adoption pattern, but so many companies seem to skip it. I’m curious how you guys came to—
+
+[00:48:18.21] Mati Staniszewski
+
+So many reasons. I think the quick ones that come to mind is feedback loop. You have immediate understanding of how good your technology is. Two, which is an extension of that. We stand behind our tech. We believe it’s the best in the world for models, for voice agents, for deployment. We want people to experience that.
+
+[00:48:39.10] Mati Staniszewski
+
+I think you do that the same in Stripe, where the best version of the technology is available to everyone, which is so attractive to actually try it out. We always try to make everything we built for the highest end use cases, bring it back to the ecosystem free.
+
+[00:48:53.10] Mati Staniszewski
+
+Frequently, the newest of the use cases... For enterprise, you will need reliability, you need compliance, you need to scale, which we deliver. Frequently, as you develop new technology, it might not be ready for a lot of those parameters, but it’s definitely ready for developers and SMBs. We love what they are doing because they are showing us the future and effectively helping us find a trajectory of where ElevenLabs should go.
+
+[00:49:17.20] John Collison
+
+I’m totally convinced. I’m just always amazed that more companies don’t pursue it, where it feels like they’re really shooting themselves in the foot by not. Did you guys self-serve on Stripe? Or did you—
+
+[00:49:27.06] Mati Staniszewski
+
+We self-serve on Stripe.
+
+[00:49:28.04] John Collison
+
+For example, Eleven is a huge company, and yet you started on Stripe on a self-serve basis.
+
+[00:49:33.22] Mati Staniszewski
+
+Initially, we were two of us at the beginning. You try to see what’s working in the industry, but you try to think from first principles. You want to try it out. You want to understand how it works. The more friction elements before you’re trying it out, the less you trust whether it’s available, whether it’ll be additional payment that’s hidden behind some of those steps. You don’t want to go through them. It’s so much.
+
+[00:49:55.16] John Collison
+
+Speaking of Stripe, do you have any Stripe feedback for us? Anything you want us to fix?
+
+[00:49:59.00] Mati Staniszewski
+
+My most common feedback until recently is like, why don’t you give us pay-as-you-go, usage-based billing type version? One of our finance leads, Maciej, I know was speaking with your team, and that was day before. He was great. He was thinking about it for a long time. He’s great.
+
+[00:50:17.02] John Collison
+
+Was it he who said, “You guys should buy Metronome?”
+
+[00:50:19.07] Mati Staniszewski
+
+You should buy Metronome. Then the next day, Metronome acquisition was announced. Now you have it. That was my most common feedback, and we’ll be launching. That’s a good announcement for this podcast: we’ll be launching usage-based billing to everyone.
+
+[00:50:33.22] John Collison
+
+Sorry, I’m shocked. As in previously—
+
+[00:50:36.23] Mati Staniszewski
+
+Pay-as-you-go.
+
+[00:50:38.00] John Collison
+
+Previously, you had it on an enterprise basis, but everything on the self-serve basis for like—
+
+[00:50:43.06] Mati Staniszewski
+
+We had the subscriptions, yeah. Subscription plans, you could go over them, but now we are launching a full pay-as-you-go experience. You can just try out voice engine, which is effectively this orchestration loop all the way through to any of the models directly.
+
+[00:50:56.21] John Collison
+
+Going back to self-serve, I think a new thing in AI is that all self-serve products should have pay-as-you-go as an option. Maybe you want to have a subscription with some unlimited tiers, but I don’t know if you had the experience of you’re using Claude, and you’re typing away your queries, and eventually you hit some rate limit, and it’s like, “Sorry, you’ve hit your usage limit,” and you want to be able to do the thing that you can do with Claude Code, which is just pay per API. It’s like, I’ll pay for it. It’s very funny as a consumer to not have the option to pay more, to use the product more.
+
+[00:51:26.21] John Collison
+
+I think every AI product will need… They probably want to have some all you can… Most of what you can eat subscription with limits and then the ability to pay for overages. It sounds like that’s what you’re doing.
+
+[00:51:38.06] Mati Staniszewski
+
+Yeah, exactly. That’s what we’re doing.
+
+[00:51:41.11] John Collison
+
+The only thing I wanted to ask you about is, I feel like all CEOs of larger companies today are trying to figure out how do all these AI advancements change the nature of the organization and how do you redesign your organization a bit around all this new intelligence. That could be about what the scaling factor is of the number of people you need to do the work.
+
+[00:52:06.07] John Collison
+
+It also should be like, do you need more senior people because they’re better able to direct the AIs, and the AIs are maybe you can do the work of what previously would have been junior people. Do you need more junior people because they’re going to be more AI-native in how they work? Do you want smaller teams? Do you want bigger teams? How do you actually go do the process engineering of... Your finance team should be using Claude extensively.
+
+[00:52:27.21] John Collison
+
+Finance teams do not historically have a lot of home-built software. There’s all these questions that are floating around, and you have very rapidly built a much more AI-native company. I’m curious what lessons we should all be learning from ElevenLabs as a large business recently built, and so without the baggage of decades of “how we’ve always done it.”
+
+[00:52:52.22] Mati Staniszewski
+
+We started in 2022, which is a year when the two topics of the day were crypto and metaverse. Just before, and then, of course, AI flow start—
+
+[00:53:01.05] John Collison
+
+Yeah, because you scaled in the AI—
+
+[00:53:01.14] Mati Staniszewski
+
+Exactly. We could have the privilege of scaling through the world when it was all happening. For us, what works, and we really believe in that being the big part of the future. The first is small teams, keeping the teams small and super flat. Both me and my co-founder will have over 15 direct reports each that we’ll work with. Most of those people will have that same scale of direct reports.
+
+[00:53:28.04] John Collison
+
+Your span of control is way larger than a traditional company. Normally, it would be eight, you have double that, and obviously, that’s an exponential.
+
+[00:53:34.15] Mati Staniszewski
+
+Exactly. Of course, there are some teams which in the short term might not do that, but ultimately, that’s where we think it’s going to be headed. It’s roughly 10 team size within each of those work items.
+
+[00:53:45.15] John Collison
+
+Startups, no offense, but startups often have pretty wacko management ideas. There was a funny tweet: Lord, grant me the confidence of an early-stage startup founder blogging about their management theories. You think this is not a startup effect? This is an AI effect where basically—
+
+[00:54:01.02] Mati Staniszewski
+
+No, it’s definitely a little bit of a startup effect. I figured out it’s the hindsight benefit.
+
+[00:54:07.21] John Collison
+
+I’m canceling our Stripe changes.
+
+[00:54:10.02] Mati Staniszewski
+
+No, it’s like I need to pre-end it. The hindsight of this may be working. We’ll see in next five to 10 years.
+
+[00:54:18.21] John Collison
+
+Much flatter org.
+
+[00:54:20.06] Mati Staniszewski
+
+Much flatter org.
+
+[00:54:21.23] John Collison
+
+Smart teams.
+
+[00:54:22.04] Mati Staniszewski
+
+It works for us, might not work for all the companies. There are some parts where go-to-market, we still are trying to figure out what’s the best way. But smaller teams, flatter org. I think there are two paradigms, but generally people being more technical, or if not technical, even in non-technical teams, having a technical resource. We will have a person in ops or in talent that will… We have effectively a tech lead for that team that helps them automate a lot of that work and helps up-level the rest of the team, too. There are two parts that are helping.
+
+[00:54:52.17] John Collison
+
+Talk me through this in talent or something like that. Is it that you are building your own software where other companies might have bought software, like a Workday or a Greenhouse or something? Is it that they are using the existing software you have better? Is the process that will be spreadsheets in a traditional company are built with software? How do you use the software in these organizations?
+
+[00:55:16.15] Mati Staniszewski
+
+Sometimes, but we still use a lot of the traditional vendors. One pattern is, of course, LLM-ifying everything, making the data explorable for you to be able to interact with it of who’s in the pipeline, what worked, who does the best references, all of that work, so you can double down on that.
+
+[00:55:35.14] Mati Staniszewski
+
+Two, it’s frequently things that you manually do that a lot of the… There’s a gap between where the agents are today versus what you could do if you have the technical skill set. A good example is, how do you scrape all the right profiles to be able to reach out to the right candidates? You analyze whether it’s… I don’t know how much I want to say, but try to detect specific things that we know worked. You bring that across to the people.
+
+[00:56:06.09] Mati Staniszewski
+
+On go-to-market side, there’s just so many things you can do with additional amplifiers. It goes from understanding what case studies are relevant and creating a good pre-read for you before you go to the meeting through creating the AI SDR experience that we spoke about, to creating an entire deck experience. You have a pre-populated deck with the right numbers that is customized to that customer, which you want still the person to go through and develop, but ultimately is in there.
+
+[00:56:35.20] Mati Staniszewski
+
+There are plenty of those additional things that you know will amplify the work of the people around, potentially replace some of those easier tasks that are done. Then we wanted for people to explore the culture at ElevenLabs. We created a voice agent that people can speak with and see what’s the culture, but also get prepped for the interviews.
+
+[00:56:55.09] Mati Staniszewski
+
+I think across many of those teams, additional benefit of what they can do. Interesting piece. Of course, in Ukraine, we’re doing ongoing work. They need to rethink a lot of how their development, their systems, their support, works for the citizens across the country.
+
+[00:57:11.04] Mati Staniszewski
+
+People that are in the war zone, they don’t have the same access to the information. They cannot rely on the same phone lines. They cannot rely on the same physical services around the country. They’ve developed effectively a central—
+
+[00:57:22.13] John Collison
+
+Is it your employees in the Ukraine?
+
+[00:57:24.08] Mati Staniszewski
+
+We had a few, but they reached out because they were developing their central map called DIIA. They developed it over the years, but now before, they were doubling down on how this can be a way of supporting the citizens. Of course, there’s an easy part of how you create a first agentic government where you have a help with the benefits and what’s happening on the front line or education.
+
+[00:57:48.02] Mati Staniszewski
+
+That’s delivered to everyone. Or healthcare, so you can book your checkup or appointment. How you create all of that. Of course, we travel to Kyiv, we worked with them on bringing that and making that available for voice so everybody can access it. But the thing we’ve learned while being there was that model of what we speak about where you have technical resources in each of the teams, they actually have the same in every of the ministries. Every ministry had technical resources working on creating that agentic version of their work.
+
+[00:58:17.23] Mati Staniszewski
+
+Then it was a central digital transformation team that would assemble this all together to deliver that through the central citizen support, which I thought was brilliant.
+
+[00:58:25.22] John Collison
+
+That’s very tech-forward by Ukraine.
+
+[00:58:27.11] Mati Staniszewski
+
+So tech-forward. The most advanced set of work we’ve seen. We got a little bit validated. Maybe technical resources in each of the teams is a good idea. That works heavily for us.
+
+[00:58:38.12] Mati Staniszewski
+
+You mentioned some of the other parts, like do you hire the senior or younger... Main thing we try to filter for, of course, the culture piece is so important. You could scale people, but scaling culture is much harder. You want to optimize for that being right.
+
+[00:58:53.06] Mati Staniszewski
+
+In our case, it’s first principles, taking ownership, striving for excellence but staying humble. The main thing that’s in that ownership part that I think works well for the AI world is agency. If you have that agency to explore, regardless of where you are in the experience cycle, it’s going to be a tremendous amplifier to your work.
+
+[00:59:13.03] John Collison
+
+My biggest takeaway from all this has been that around agency, where I feel like high-agency people are the winners of the advances in AI, and within organizations, low-agency people will lose out.
+
+[00:59:28.10] Mati Staniszewski
+
+Yeah, completely agree. It’s probably the most proud thing that Piotr and I are as we scaled ElevenLabs, the people that are at ElevenLabs, it’s been just the culture and seeing the expansion of the culture, where culture builds the company now rather than any single person or any single product builds the company. That is probably the biggest validation and happiness.
+
+[00:59:49.19] Mati Staniszewski
+
+There’s the other angle of that where I think people are striving to be incredible in their craft and their work, but at the same time have fun in a lot their work. That combination of agency and just enjoying what you do is probably the best thing we’ve been able to do today at ElevenLabs.
+
+[01:00:09.12] John Collison
+
+It sounds like a really fun stage, like we were saying. Interesting research breakthroughs, really fast-growing business. I’m sure you’re enjoying it. Mati, thank you.
+
+[01:00:16.19] Mati Staniszewski
+
+John, thank you so much.
+
+3
+
+Share

@@ -1,0 +1,838 @@
+# The 20-year journey to fully autonomous cars with Dmitri Dolgov of Waymo
+# URL: https://cheekypint.substack.com/p/the-20-year-journey-to-fully-autonomous
+# Date: 2026-03-24
+# source: Cheeky Pint
+
+The 20-year journey to fully autonomous cars with Dmitri Dolgov of Waymo
+
+Cheeky Pint
+
+Mar 24, 2026
+
+2
+
+Share
+
+Waymo is now doing nearly 500,000 rides a week across 10 cities. Co-CEO Dmitri Dolgov came to the pub to discuss how they moved from scientific research to massive global scaling. He gives a masterclass on the sensor stack (and why you still need Lidar), how they use "Simulation" and "Critic" models to train the AI, and why he believes cars that require human supervision will never naturally evolve into robotaxis. They also cover the new custom-built vehicle that feels like a living room, the economics of ride-hailing in rural Alaska, and the "Russian math nerd" diaspora that seems to run the UK tech scene.
+
+Timestamps
+
+00:00:22 Russia
+00:02:51 Waymo architecture
+00:09:59 Why now?
+00:19:46 Driving nuance
+00:29:37 Stripe Agentic Commerce Suite
+00:30:17 Hardware
+00:40:20 Emergent behavior
+00:46:36 Scaling
+00:57:56 Google
+
+Article:
+
+EMMA: End-to-End Multimodal Model for Autonomous Driving – Waymo Research
+
+Transcript
+
+[00:00:11.13] John Collison
+
+Dmitri Dolgov is Co-CEO of Waymo. He joined Google’s self-driving car project in 2009 as one of its first engineers, and was repeatedly promoted until he took it over in 2021. Waymo is Google’s most successful moonshot and now provides over 500,000 fully autonomous rides each week.
+
+[00:00:12.18] John Collison
+
+Cheers, by the way.
+
+[00:00:13.21] Dmitri Dolgov
+
+Yeah, cheers.
+
+[00:00:17.08] John Collison
+
+You grew up in Russia, right?
+
+[00:00:18.06] Dmitri Dolgov
+
+I grew up in Russia. It was actually the Soviet Union.
+
+[00:00:22.11] John Collison
+
+Right, exactly.
+
+[00:00:23.05] Dmitri Dolgov
+
+My dad is a physicist. The Soviet Union started falling apart, and then he had a visiting position in University, in Kyoto University for a year. We moved there as a family. Then he went to Berkeley, and I tagged along. Then I graduated from high school. I was thinking about the next thing I wanted to do. I really like that technical school in Russia.
+
+[00:00:50.03] John Collison
+
+The Russians are serious about their physics.
+
+[00:00:51.12] Dmitri Dolgov
+
+They are. I went back to Russia, and I got my bachelor’s and master’s there.
+
+[00:00:56.07] John Collison
+
+What year was this that you went back to Russia?
+
+[00:00:58.04] Dmitri Dolgov
+
+1994.
+
+[00:00:58.23] John Collison
+
+Okay. That was almost peak Russian optimism in the sense where it was opening up.
+
+[00:01:04.22] Dmitri Dolgov
+
+It was. I actually remember talking to my mom about it. Of course, my parents grew up in the Soviet Union. They’ve seen it. They were born right before the war, and then they saw… They lived through some really tough times. I remember talking to my mom… In fact, I got my green card here in the US before I went back, and she insisted that I do it. Actually, at that time, I wasn’t thinking of coming back. But then I was pretty excited about where Russia is and the trajectory it’s on. Being young and naive, there’s no turning back.
+
+[00:01:43.14] John Collison
+
+Why did you decide to come back? There’s more of a—
+
+[00:01:46.19] Dmitri Dolgov
+
+Yeah, I know. It was pretty clear to me. I wanted to continue studying math and computer science. While the undergrad and master’s that I got in physics and applied math, I think was still an incredibly strong foundational school of Russian math and science. Graduate school, it was very clear to me that the best way to do it was in the US, so I came back.
+
+[00:02:15.23] John Collison
+
+I’m struck by the founders of the two most valuable UK companies are Russian math nerds who both went to the same school, Nikolay at Revolut and Alex Gerko at XTX. It’s a strong diaspora.
+
+[00:02:35.18] Dmitri Dolgov
+
+There’s a company, not far from here, where one of the founders also has a similar pedigree. A company that we’re closely related to.
+
+[00:02:46.02] John Collison
+
+Exactly. You know the classic engineering interview question of “What happens when I type google.com and hit enter?” As in, talk me through whatever you like, HTTP, DNS, and BG. You can go down to whatever level of the stack you want. Do you want to maybe just describe, when I take a ride in a Waymo today, what’s happening at a technical level? What is the architecture?
+
+[00:03:10.10] Dmitri Dolgov
+
+Let me answer your question. It was happening in real-time, but this is going to be only a part of the story because we’re going to be talking about the inference, the real-time inference part of it. If we want to have a deeper, richer, technical conversation, I think it would be interesting also to zoom out and talk about the entire ecosystem of what goes into building, evaluating, and deploying the Waymo Driver.
+
+[00:03:35.12] Dmitri Dolgov
+
+But when you’re driving around or being driven around, we think about what we’re building as a driver. Obviously, it’s not a car. It has a number of sensors that are positioned around the vehicle. We use three different sensing modalities. There are cameras, there’s LiDARs or lasers, and there are radars. Those are the primary ones. There are also microphones, directional microphone arrays, but those are the primary three for sensing the world.
+
+[00:04:06.04] Dmitri Dolgov
+
+They all have very nicely complementary physical properties. They all have 360-degree coverage around the vehicle, so the Waymo Driver sees 360 all the time. All of the data goes into a computer, you would expect. The software that process, now it’s all AI, specialized AI in the physical world. It processes the sensor data. Nowadays, we talk about it using AI terminology as encoders that take this data in.
+
+[00:04:40.04] Dmitri Dolgov
+
+Then there’s the decoder, the action—the generative part, if you will—in the car. The generative task there is to figure out how to drive. That is, of course, connected through a specialized interface to the car where we can actuate the vehicle. That’s why you see the steering wheel turn, and it drives you around.
+
+[00:05:01.05] John Collison
+
+Okay, so I get into my car, there are three main families of sensors, LiDAR, radar, and cameras. It is using that to first build a model of what’s going on in the world, where are all the other cars and things like that, then you say make decisions, and then actuate that with the car. That is the system that you’re living in. Is all that inference done locally or presumably, yes, nothing’s in the cloud? Nothing real-time?
+
+[00:05:26.03] Dmitri Dolgov
+
+Nothing real-time in the cloud. There are some things that can happen in the cloud, but they’re not required.
+
+[00:05:32.00] John Collison
+
+Got it. What’s an example of a nice-to-have that happens in the cloud?
+
+[00:05:35.05] Dmitri Dolgov
+
+You can imagine a situation where we do… Some of it is not directly related to the task of driving, but let’s say after you leave the car, we want to check that the car is not dirty. You didn’t leave anything there. If you did leave an item, well, if you left it a mess, then we want to send the car to one of our depots, get it cleaned up. If you left an item there, maybe your phone, we want to detect that, and then send it to our listening phone and let you know. That we do by asking a model that actually lives off-board as opposed to having to put it on the car because it’s not a real-time task related to the driving. That’s one example of something that—
+
+[00:06:21.23] John Collison
+
+There are all these debates that go on on Twitter around self-driving. I can think of end-to the end versus the more modular approach. There’s cameras only versus array of sensors. I can’t tell, are these debates actually interesting to an expert in the field, or do you think these are just settled matters, and they’re just grist for the algorithm?
+
+[00:06:48.14] Dmitri Dolgov
+
+I understand where the questions are coming from. I do find that often the way they’re posed and the way the debate happens is losing a lot of the nuance and a lot of detail that really matters. To me, the most interesting technical questions are in that level. Because the way we think about building the Waymo Driver, it starts with a large off-board foundation model. I can imagine building a big model that understands how the physical world works and understands the important properties of what it means to drive, the social aspects of driving, and what it means to be a good driver as opposed to a bad one. That’s the foundation.
+
+[00:07:41.15] Dmitri Dolgov
+
+Then we specialize it into, let me call it, three main off-board teachers. There are still large, high-capacity off-board models. There’s the Waymo Driver, there is the simulator, and then there’s the critic. Those then get distilled into smaller models that you can run inference on faster. The Waymo Driver becomes the backbone, the backbone of what’s in the car. The simulator, of course, is what powers our synthetic generative environment that can run on the cloud for training and for evaluation enclosed the system. The critic is the value.
+
+[00:08:20.07] John Collison
+
+Does the simulator ever run locally? 
+
+[00:08:23.03] Dmitri Dolgov
+
+No, it doesn’t. However, what I think is interesting, in a way, the way the decoder works, the way the model works. If you think about the generative task in the simulator of creating those realistic worlds and how other people behave, how cars, pedestrians, cyclists, and the task that you have to solve on the car in real-time, there is this fundamental shared capability of understanding how these objects relate to each other and predicting what they might do in the future if you are running on car and then generating, some sampling, those probabilistic behaviors in the simulator. It’s different models, but this is why the shared foundation model is able to power both.
+
+[00:09:12.00] Dmitri Dolgov
+
+Similarly, if you think about the critic, the job of the critic is to find interesting events and then be opinionated about what’s good behavior and what’s bad behavior. Similar fundamental understanding. If you’re running inference on the car, you still have to figure out which of the multiple hypotheses of these future worlds you want to take action to steer towards.
+
+[00:09:35.08] John Collison
+
+Okay, and these are all downstream of the same foundation model?
+
+[00:09:39.02] Dmitri Dolgov
+
+That’s right. You start with the foundation model, then you specialize and fine-tune, still off-board model. Those are the teachers, and then you distill. Each one of the teachers trains its own student, the driver, the simulator, the critic.
+
+[00:09:56.08] John Collison
+
+You started working on self-driving 20 years ago. As you think about the tech evolution, is this just a scaling laws story where we had to be able to throw enough compute at it? Were there architectural approaches we needed to wait to have be invented? Was it just a story of we needed 20 years of going down the wrong cul-de-sacs before we eventually arrived at the right approach? Knowing what you know now, could you have a successful Waymo in market in 2015, or was there some enabling technology?
+
+[00:10:34.01] Dmitri Dolgov
+
+No. Technology breakthroughs that happened over the years were critically important, primarily in AI, but also in other areas. Compute. They have a compute... Now, I wouldn’t characterize it as going a thousand different dead ends and then having to retract and then finding the one right path, I would characterize it as iterative learning and evolution, and then transformers came around, but Transformers, for example, are very general architecture, powers of LLMs, powers of our models. But how you apply them to that space, I think this is where—
+
+[00:11:11.17] John Collison
+
+It didn’t just fall out of Transformers.
+
+[00:11:13.07] Dmitri Dolgov
+
+Exactly. Then, of course, people like to talk about architectures, but architecture is important, but really a lot of it comes down primarily to your metrics, to your evaluation mechanisms, to all of the training recipes, and of course, data.
+
+[00:11:29.04] John Collison
+
+LLMs are good at text or tokens, specifically, and obviously perform best at domains that have some single corpus of text they can work on, like coding, where it’s very helpful that everything was just textual already. Part of the success has been creating textual representations for domains such that we can then put a lens against them. Can you describe how you encode the world that you’re seeing? Are you just building a 3D bit map, essentially?
+
+[00:12:05.22] Dmitri Dolgov
+
+This is where I think we get a bit into this question of what is the interface between the encoder and the decoder parts. I think that touches also on the thing you flagged earlier where people like to debate end-to-end or not end-to-end. Let’s talk a little bit about end-to-end and then get back to what is the interface between those two.
+
+[00:12:36.11] Dmitri Dolgov
+
+When we say end-to-end, what do we mean? We mean that it is some large ML model. Typically, you don’t build them monolithically. You have different parts and different subgroups. But what’s important is that you can propagate/back prop the gradient and the loss function all through the different layers. Every layer, you can learn the weights and the representations that matter for the final task. You don’t force it through some narrow funnel between, let’s say, the encoder and the decoder.
+
+[00:13:08.07] John Collison
+
+I think of a simple view of end-to-end being pixels go in, and car actions come out, which may be a bit of an oversimplification.
+
+[00:13:15.15] Dmitri Dolgov
+
+That’s exactly right. This is the basic vanilla version of it. If you think about what will it take to build the driver that’s capable of fully autonomous operations. You think about this entire ecosystem of the driver, the simulator, the critic. If that’s all you do—pixels in, trajectories out—it becomes very difficult to do all of those three and achieve the high level of safety and performance that we require, and it becomes very difficult to do it at scale.
+
+[00:13:54.20] Dmitri Dolgov
+
+However, it’s a very easy way to get started. You collect some data… Kind of like the LLM world. The easiest thing you can do is pick a model. The easiest way to get started nowadays would be just take a VLM. It already has a language-aligned camera encoder, and then it has a decoder that can predict, generate text, and you can fine-tune it and say, “Instead of text, generate trajectories.” Very doable. In fact, a while ago, we published a paper called EMMA, that did exactly that. It will actually, in the nominal case, drive pretty darn well, which is mind-blowingly impressive.
+
+[00:14:44.21] John Collison
+
+That is very funny.
+
+[00:14:45.23] Dmitri Dolgov
+
+There’s something to it—
+
+[00:14:47.14] John Collison
+
+You’re saying you can take an off-the-shelf model, which has nothing to do with driving to start with, and you’ll get these good results.
+
+[00:14:53.14] Dmitri Dolgov
+
+That’s right. In the normal case. I just want to be clear. It’s orders of magnitude away from what you need to—
+
+[00:14:59.13] John Collison
+
+Yeah, you should not try it on the streets, but it works.
+
+[00:15:01.12] Dmitri Dolgov
+
+But for example, if you—
+
+[00:15:02.05] John Collison
+
+It’s like a talking horse. It’s impressive that it’s talking.
+
+[00:15:04.03] Dmitri Dolgov
+
+Exactly. You can actually… The product that you wanted to build was maybe a driver system, not a fully autonomous system, then maybe that’s all you need to do. Then for that, you don’t need all this other machinery of the simulator and the critic because the number of nines is drastically lower.
+
+[00:15:22.08] Dmitri Dolgov
+
+This is interesting because there is some intuition behind why that works. If you think about the hard parts of driving, it’s not unlike having a conversation, except if in the LLM world, you’re modeling a language, or may be modeling a dialogue in the space of sentences and words. What makes driving hard is also this multi-agent social interactive part of it. If I do something that’s going to affect you, it’s going to affect somebody else, and the history matters—it’s not local and just geometric—context matters, semantics matters. But it’s in a different… It’s not in the language of words, it’s in the language of body language, if you will. We see that empirically validated if you do this approach.
+
+[00:16:17.21] Dmitri Dolgov
+
+Let’s say we build this thing, just cameras, camera encoder, pixels go in, trajectory go out. The quality is sufficient to drive. In the normal case, it’s not sufficient to deal with the long tail of the edge cases and hit the high bar of superhuman safety that we require.
+
+[00:16:37.05] Dmitri Dolgov
+
+Then you start asking the question, what else do you need? If all you did was observing how other people drive when you trained this system, maybe observing just passively how people drive and how they interact, maybe also driving the car yourself and then using imitative learning to train it. You find that that’s not enough. You have to do something in closed loop. You have to do things like RLFT, which is also parallel to what we see also.
+
+[00:17:10.12] John Collison
+
+RLFT?
+
+[00:17:12.11] Dmitri Dolgov
+
+RLFT. Reinforcement Learning-based Fine-Tuning.
+
+[00:17:15.22] John Collison
+
+Okay.
+
+[00:17:16.10] Dmitri Dolgov
+
+Similar to the Reinforcement Learning with Human Feedback in the LLM world, right? You want to do maybe proper closed loop driving where you explore all kinds of different situations, and then you give it a reward signal to keep it in distribution. For that, then you need a realistic simulator. If you want to have a good RL system, you need to have an opinion for the reward function, this is where the critic comes in. If you have a purely end-to-end system, let’s look at the simulator. What do you do? You’re then constrained to just go from pixels to trajectory. That’s all you can run the system on, right? It’s a very high dimensional space. It’s a hard problem to generate everything.
+
+[00:18:06.23] Dmitri Dolgov
+
+But even if you solve that, it just becomes incredibly inefficient to run it in the full way of pixels to trajectories and simulation for training or for evaluation. This is when intermediate representations come in. There are some intermediate representations in the world in this task, in the physical world, we know are correct. They are not sufficient, but they’re not generality limiting. There’s an object here, there’s a concept of a road, there’re signs, there’s speed limits. This is where augmenting that learned representation, those learned embeddings from the encoder decoder with that more structured representation is what we do. We find that this gives us additional knobs to simulate in that space, just pixels to trajectories. It allows us to have additional safety validation layers in real-time. It also gives us additional mechanisms to specify the reward function for evaluation of the critic or for training.
+
+[00:19:13.02] Dmitri Dolgov
+
+This is, again, we’ve gone full circle of it. Is it end-to-end? Yes, it is. Then, if you want to do it at scale for full autonomy, it’s augmented with all of this other stuff.
+
+[00:19:23.10] John Collison
+
+That’s very interesting on the simulating point. It’s just very hard to simulate for an end-to-end model because it’s easier to deal in intermediate representations rather than coming up with a pixel-perfect view of the world.
+
+[00:19:35.22] Dmitri Dolgov
+
+You need both. Having end-to-end architecture that’s augmented with that structure allows you to play in both of those worlds.
+
+[00:19:44.01] John Collison
+
+Yeah, yeah, yeah.
+
+[00:19:46.05] John Collison
+
+What are you looking to do as a self-driving car? It sounds funny, but I think people maybe don’t realize that there are many different things that you’re looking to solve for, where you’re looking to get the person to their destination, you’re looking to get them there reasonably promptly, but also drive quite smoothly, and also have many lines of safety, and also not annoy other drivers and get honked at, and... What are some of the reward functions or things you’re optimizing for that maybe are not obvious to people?
+
+[00:20:16.05] Dmitri Dolgov
+
+Safety is the primary focus. But of course, we also want to be a smooth driver for both people in the car and other actors. We also want it to be a predictable, well-behaved one so that it can nicely fit into the whole social ecosystem of our roadways.
+
+[00:20:39.17] John Collison
+
+It seems like one of the issues that has quickly emerged with self-driving is the fact that people can’t have nice things or not everyone is nice to the robots. Whether you’re driving through a dodgy area or getting blocked, or maybe I’m not going to drop you off here. Maybe I’m going to go around the block and drop you somewhere better, but all of these, as you say, other human issues. How do you go about solving those?
+
+[00:21:10.08] Dmitri Dolgov
+
+A lot of the ones that you mentioned are just things that we need to work on and understanding. Honestly, as I said, that if we’re not dropping you off exactly where you wanted to be dropped off, or we don’t give you a good interface to tell us, that’s on us. We got to make it better.
+
+[00:21:31.00] John Collison
+
+It feels like the drop-off is actually a pretty nuanced part of the self-driving journey. The highway stuff and the 35-mile-an-hour roads, that is all nailed, but there’s just a lot of nuance in the drop-off experience.
+
+[00:21:44.23] Dmitri Dolgov
+
+I’d say they’re all hard. You picked freeways, and you picked drop-off for different reasons. For drop-offs, you’re absolutely right. There are a few things that are maybe not obvious. You just think about this problem, but it’s understanding where you want to go and making it as convenient as possible for you. Pickups from drop, it’s not exactly symmetric.
+
+[00:22:06.23] Dmitri Dolgov
+
+But then also understanding the context of the situation, where do you stop? You don’t want to block a driveway. You don’t want to double park, although in some cases where if it’s a quick one, maybe it’s okay. There’s a lot of nuance that goes into doing that well so that it’s smooth, frictionless experience for the rider as well as other folks.
+
+[00:22:27.18] Dmitri Dolgov
+
+Freeways, for most of the time, not much happens. They’re very well-structured because we designed them that way. But there is still that long tail of really complicated stuff that happens where the consequences of a bad event are much more severe. The speed is much higher. Everything is quadratic in speed. But we see a lot of stuff. Imagine grills falling off of freeways. Imagine people getting into accidents and spinning out of control.
+
+[00:23:08.10] John Collison
+
+You see one of those flatbed trucks with just a bunch of stuff piled in it, and you’re driving behind it? I don’t know. I always find it very nerve-wracking. 
+
+[00:23:16.18] Dmitri Dolgov
+
+I know. We’ve seen them leave a trail.
+
+[00:23:23.20] John Collison
+
+It’s a different set of problems. But I feel like the general sentiment with the Waymo is that the driving has mostly now been solved by you guys, and it’s a question of scaling up and maybe some super long-tail stuff, really snowy condition. Is that your sense internally, or is there actually much more nuance within that?
+
+[00:23:43.04] Dmitri Dolgov
+
+I would say it’s not like we’re done with engineering. I would say that we’ve clearly moved past the stage of scientific research and deep core technology development to this new phase of accelerated global scaling and deployment. We still have work to do, but I don’t see today any limitations or any gaps in the core technology.
+
+[00:24:13.09] John Collison
+
+The driving is good enough now.
+
+[00:24:14.21] Dmitri Dolgov
+
+Well, the core technology, I think, is good enough that I can’t think of any aspect of driving that is not supported by the fundamental technology. Now, that said, there is a lot of work to do in specialization and in validation before we can deploy responsibly.
+
+[00:24:36.20] Dmitri Dolgov
+
+We’re not driving everywhere in the world. We are planning to start operating in London and in Tokyo this year. Do we have a driver that you’re using today in San Francisco that we can just plop down in London and go? No. But what we’re seeing is incredibly encouraging from the perspective of is the core technology there?
+
+[00:24:59.10] Dmitri Dolgov
+
+Now it’s a matter of collecting the data, doing some specialization and validation. Science are different in both of those places. People drive on the other side of the road, but that’s actually not that hard for computers. The core technology generalizes really well, but there’s still work that you have to do.
+
+[00:25:16.05] John Collison
+
+What generalizes least well?
+
+[00:25:18.22] Dmitri Dolgov
+
+Increasingly, we’re finding, especially now that we’re able to hook the Waymo AI to the AI in the digital world, the VLMs, and inherit the general world knowledge from VLMs, we’re seeing really strong results from zero-shot or few-shot learning because of that general knowledge that we bring in.
+
+[00:25:38.21] Dmitri Dolgov
+
+But there are a few things like, say, cold weather, cold winter weather, where it affects the entire stack. It’s not just the AI, we actually have to—
+
+[00:25:50.13] John Collison
+
+The hardware.
+
+[00:25:50.23] Dmitri Dolgov
+
+You need the hardware. You need to have the proper cleaning solution, heating elements in it, and then you think about things that are completely solvable by computers, like motion control and slippery surfaces. That takes a bunch of work. You don’t get that for free from just pulling it, some VLM decoder.
+
+[00:26:10.17] John Collison
+
+Was it the case… My impression, not knowing anything is that in the early days, there was maybe a lot of San Francisco-specific work or Phoenix-specific work in the early markets, whether it be mapping or something else and that you guys seem to either have solved that in generalizing it or just scaled up your ability to do the city-specific work. What enabled the rapid-city expansion?
+
+[00:26:41.21] Dmitri Dolgov
+
+We usually think about it, the capability of the Waymo Driver as well as deployment, not primarily and directly in that space of cities or zip codes. I think about the operating domain. Then the freeways, cold weather, snow, rain, fog, density, et cetera.
+
+[00:27:03.01] Dmitri Dolgov
+
+That’s what we are building. That’s where we’re evaluating, and then that maps to a particular city, be it within the operating domain or outside of it. If we rewind history a little bit, our initial deployment in where we started offering a fully autonomous commercial service for the first time was in 2020 in Chandler, Arizona.
+
+[00:27:29.10] Dmitri Dolgov
+
+That was on what we called the fourth generation of the Waymo Driver. This was, if you remember, the Pacifica minivans with different hardware, different software. There, we were super focused on doing the whole thing end-to-end: learn how to build the driver, evaluate it, deploy regularly, operate it end-to-end 24/7 with customers, learn from the customers. Then we were very focused on that operating domain of mostly Chandler, which is a medium, low-complexity one.
+
+[00:28:01.21] Dmitri Dolgov
+
+Then, when we made the jump to the fifth generation of our system, this is what’s on the highways today, we really wanted to take a huge bite out of that operating domain. We collected data all over the United States, all different states, different cities. When we chose to deploy in the hardest parts of San Francisco, hardest parts of Phoenix, we made a big jump on the hardware side, and most importantly, on the software, the AI side.
+
+[00:28:30.07] Dmitri Dolgov
+
+I would say that was the big discontinuous jump. That’s what you’re seeing now after we’ve scaled up and iterated all of the aspects of building and deploying the driver. This is now why you’re seeing us go in parallel and scaling in the US and globally.
+
+[00:28:49.21] John Collison
+
+So driver v5 was just a much more generalizable stack than v4? What was it about it? Was it just that it had been trained on a much wider data set?
+
+[00:29:02.02] Dmitri Dolgov
+
+It was when we made this big bet on AI. There was a lot more little AI models and ML models in the fourth generation. We made a much bigger bet and jump to AI is the backbone for the fifth generation.
+
+[00:29:17.09] John Collison
+
+AI is the backbone as the core engine, as in you’re saying that Gen 4 had lots of small little AI subsystems?
+
+[00:29:27.12] Dmitri Dolgov
+
+Yes. We made that jump, and we’ve been iterating and improving the model since then.
+
+[00:29:37.10] John Collison
+
+As we’re seeing with Waymo rolling out widespread autonomy, it has second-order changes on the entire system. In this case, traffic patterns or other drivers’ behavior, or eventually, how cities are laid out. Autonomous systems are coming in many domains. In commerce, soon agents are going to be transacting without human intervention.
+
+[00:29:55.19] John Collison
+
+We’re basically getting driverless commerce. Stripe is building the economic infrastructure for AI. As part of that, we’re letting payments be initiated by humans or by agents. If you want to sell to agents or if you want to let your agent spend money all around the web, check out Stripe’s Agentic Commerce Suite.
+
+[00:30:16.03] John Collison
+
+Can we talk about hardware a second? Lots of hardware questions, but one is maybe, everyone in this space has a very charismatic demo of a vehicle that is custom-made for self-driving. It’s often the van with no steering wheel, seats facing in both directions. You guys have one.
+
+[00:30:43.01] John Collison
+
+Tesla has the steering wheel-less Cybercab. Cruise had the Cruise Origin. Yet, we’re still driving in Jaguars that have a steering wheel in the front and are pretty similar to consumer cars. It’s interesting to me because if we were talking about this 10 years ago, we might say, “Well, yes, developing a custom car, that’s relatively straightforward. We know how to put a bunch of sensors on a new car.” But the software will take a long time. What’s interesting is we’ve made huge progress in the software, but interestingly, the cars are still derivatives of cars that people are driving.
+
+[00:31:22.01] John Collison
+
+I’m curious why you just think the custom hardware has not happened as of 2026. It’s obviously a small improvement compared to Waymo is the big improvement, but it’s just interesting that it still hasn’t happened.
+
+[00:31:34.04] Dmitri Dolgov
+
+Well, let’s say our sixth generation of the vehicle and the driver is our version of that.
+
+[00:31:41.18] John Collison
+
+Oh, no, I know it is.
+
+[00:31:42.14] Dmitri Dolgov
+
+It is the Ojai platform. That still has the… We can talk about whether you want to have the seats pointed backwards or not. I actually think it looks nice in a demo, but practically speaking, it’s maybe not the way to go.
+
+[00:31:54.17] Dmitri Dolgov
+
+But it is a custom-designed vehicle, and we put a lot of thought into moving away from a car that’s designed around the driver to a car that’s designed around the passenger. It’s much more spacious. It’s happening. It’s not open to the public yet, but I took a ride in it the other day, fully autonomously, and that’s coming this year.
+
+[00:32:22.15] John Collison
+
+Yes. How much better is it as a passenger experience?
+
+[00:32:25.03] Dmitri Dolgov
+
+You’ll tell me once you give it a try. I love it. It’s all about the space and the convenience of ingress and egress and the screens and the interface of the passenger. We put a lot of thought into every aspect of it. It has sliding doors. It’s very easy to get in. It has a flat floor.
+
+[00:32:47.03] Dmitri Dolgov
+
+If you sit in the back, you can fully stretch out, and there’s so much space there. From the outside, it looks fairly big. But the actual footprint of that is barely larger than the I-PACE. It’s amazing that you walk in, and it feels like you’re in a living room.
+
+[00:33:07.12] John Collison
+
+Yes. I guess my question is just, Waymo does 25 million rides a year, run rate-ish, with the Jaguar I-PACE. It’s interesting that so much scaling has happened with self-driving so far on the old retrofit. Maybe that’s to be expected.
+
+[00:33:28.13] Dmitri Dolgov
+
+Well, it matches the high… I don’t think it’s a given. You’re right. But if you think about the value proposition, of course, there is the safety of it. You don’t have to worry about it. There’s also the privacy, being in the car by yourself, maybe with other folks, but not having to share that space with another human.
+
+[00:33:54.00] John Collison
+
+No, Waymo is a great product. 
+
+[00:33:55.08] Dmitri Dolgov
+
+But I guess this is why we’re seeing such consistency in car. It drives well, very predictable. You can go beyond that. You can specialize even more to make the experience even more magical around the rider.
+
+[00:34:10.21] Dmitri Dolgov
+
+But I guess it would have been disappointing without the specialized car, and I think I would have been surprised if we leveled off at some other much lower level of customer adoption because a car seems like more of an optimization improvement, but the core of the value proposition comes from those other factors.
+
+[00:34:28.18] John Collison
+
+Yes. I guess it just take risk on one thing at a time. We’ll start by doing the software layer, and then we’ll build a specialized car or something like that.
+
+[00:34:36.20] Dmitri Dolgov
+
+That’s right. It’s also, as you said, it’s a big investment. You have to de-risk the fundamentals. Throughout our history, we were very focused on setting the biggest goal for the company to de-risk the most important questions.
+
+[00:34:55.05] Dmitri Dolgov
+
+We talked about the third generation where we wanted to deploy something and go end-to-end. We talked about what was the goal with the fourth generation, sorry, the fifth generation, and then there’s the sixth generation. That was the sixth generation where it made sense to spend all this effort into the custom vehicle.
+
+[00:35:11.22] John Collison
+
+The sixth generation is both the custom vehicle. Is it also a new generation of the driving stack?
+
+[00:35:18.09] Dmitri Dolgov
+
+It is the new hardware. The sensors, the hardware, the self-reliant hardware they’re putting on the Ojai vehicle is the sixth generation. It is very different from the fifth generation. It is simpler. It is more capable. It is much lower cost. Just thinking of a fraction of the cost.
+
+[00:35:38.02] Dmitri Dolgov
+
+It’s comparable to what you would get like a fancy ADAS system nowadays, the driver-assist system. The software is pretty much the same. When we talk about generalizability of the Waymo Driver, we talk about weather conditions, we talk about cities, but it also generalizes well to different vehicle platforms and different sensor configurations.
+
+[00:35:59.14] John Collison
+
+Okay, so Gen 6 is a new vehicle and a new sensor stack, but it’s almost a TikTok cycle happening here. It’s a similar software.
+
+[00:36:07.14] Dmitri Dolgov
+
+That’s right. Then we’re going to put the sixth generation Waymo Driver on other vehicle platforms like the Hyundai Ionic that’s coming later in the year.
+
+[00:36:19.14] John Collison
+
+What is different about the sixth generation hardware stack, and how did you make it cheaper?
+
+[00:36:24.14] Dmitri Dolgov
+
+It still has the same three sensing modalities, but we’ve made significant optimizations in all three. Unification, simplification, and there’s just the… Just writing the—
+
+[00:36:41.00] John Collison
+
+Yes, is it a classic case of manufacturing scale where we’re not even—
+
+[00:36:44.10] Dmitri Dolgov
+
+Well, scale hasn’t fully come in place. But all of those, if you think about the supply chains, the industries, cameras is pretty mature. Radars, way many years ago, used to be bulky, complex, very expensive when we were putting them on planes. But then we started putting them on cars, now you can get a decent automotive radar for tens of dollars.
+
+[00:37:10.15] Dmitri Dolgov
+
+There is a variant of the automotive radar. It’s called the imaging radar. It gives you a richer… That also has come down in cost drastically, but it’s a little bit behind your standard automotive radars.
+
+[00:37:25.09] Dmitri Dolgov
+
+LiDARs are following the same very predictable, very well-known trend. We’re writing that, and we’re also learning from the previous generation to just make improvements and simplifications and optimizations.
+
+[00:37:36.20] John Collison
+
+It’s a very silly question. What are LiDARs versus radars better at in a self-driving context?
+
+[00:37:41.11] Dmitri Dolgov
+
+LiDARs—
+
+[00:37:41.11] John Collison
+
+Are they complementary?
+
+[00:37:44.18] Dmitri Dolgov
+
+They’re very complementary. It’s all blasting.
+
+[00:37:53.16] John Collison
+
+Echolocation.
+
+[00:37:54.21] Dmitri Dolgov
+
+Effectively, like blasting photos out there, and then they bounce off of something, they come back, you measure what comes back. The frequencies are very different. The laser gives you… Its very high resolution. You can think of it as like a laser beam that goes out, spins around. It shoots out millions of these laser pulses per second, and then each one comes back, and you’re sampling the 3D structure of the world with very high resolution.
+
+[00:38:25.11] John Collison
+
+LiDAR for very fine-grained mapping.
+
+[00:38:26.23] Dmitri Dolgov
+
+That’s right. Radar has much lower resolution, but because of the physics of it, it degrades much better in adverse weather conditions. So fog, snow, heavy rain.
+
+[00:38:43.06] John Collison
+
+It could be included by particles between it and the target.
+
+[00:38:47.21] Dmitri Dolgov
+
+Imagine driving in super dense fog.
+
+[00:38:51.19] John Collison
+
+Yes.
+
+[00:38:52.07] Dmitri Dolgov
+
+We’re close to San Francisco, so we probably don’t have the think that hard. It can be really hard to see. So cameras degrade. Laser, depending on the size of the particulates, can degrade better or worse than camera. Radar is not well-affected. So you can imagine driving on a freeway, then radar will give you really good returns for cars that are absolutely invisible in the camera space.
+
+[00:39:17.03] John Collison
+
+That’s interesting. Does that mean there are some environments where you’ll be relying significantly more on radar? Where the performance is good enough?
+
+[00:39:25.11] Dmitri Dolgov
+
+Well, it’s a combination of the sensors. We rely on… Each one is noisy. How the noise characteristic show up in different environments is different, but it’s not like we switch from one to another. It’s not like we estimate what’s happening with the world through cameras and through radars and through LiDAR, and then we compare. No, they’re like… There’s an encoder for camera, there’s an encoder for LiDAR. There’s an encoder… They all go into the system that gives you, jointly, the best view of what’s happening in the world around.
+
+[00:40:00.13] Dmitri Dolgov
+
+If it’s a nice, bright, sunny day, cameras are very valuable. If it’s pitch dark, or you have sun in your face, or you’re blinded by the headlights from an oncoming car, then the camera will degrade. There’s still some noisy signal, but it will degrade, and LiDAR is completely unaffected.
+
+[00:40:19.10] John Collison
+
+Are there technical problems that are your white whale, or you’re still chasing, or you are particularly interested in solving? Even if they’re niche for the… We really want to have driving when it’s actually snowing nailed or steep hills in San Francisco. Are there problems you’ve been very interested in historically or still are?
+
+[00:40:41.10] Dmitri Dolgov
+
+I’m super excited right now about the accelerating global expansion, more cities in the United States and going internationally. I understand I’m not answering your question about the technology, I’ll come back to that. But really, that’s the thing that I’m today most excited about. Just getting to a place where any major metropolitan area, you can fly into the airport, and then take a Waymo and go anywhere you want to go. That is insanely exciting to me right now.
+
+[00:41:16.16] Dmitri Dolgov
+
+Then technically, what I’m most excited about is all of the rapid progress in AI, and the world models, the foundational model work. It is just such a massive boost to how much we can simplify the system, how much we can bring down the cost, and how we can scale globally. There’s just some magic that happens that I don’t think I would have anticipated a few years ago. That I find from the technical perspective, just insanely thrilling.
+
+[00:41:57.01] John Collison
+
+When you talk about the progress in AI, what are the most fun parts of it for you these days?
+
+[00:42:02.13] Dmitri Dolgov
+
+I think it’s seeing the capability and the scaling laws from this approach of starting with that cornerstone of the foundational model, and then specializing to teachers and then distilling. You get such big wins in performance across the board. You invest something into the architecture or get a better data or training recipe, and then you invested that early stage, and then it just has massive amplification and ripple effects. That, in some ways, is kind of magical.
+
+[00:42:45.08] Dmitri Dolgov
+
+Then you see it on the car. I’ve had some moments where a car does something, and you look at a log, and I’ve been surprised. It does things that I didn’t think it was capable of doing. It’s that…
+
+[00:43:07.07] John Collison
+
+When you see emergent behavior, that’s a proud moment?
+
+[00:43:10.21] Dmitri Dolgov
+
+One example, yeah. When you build a system, and then you think you understand how it works, and you understand fully the limits of its capability and performance, and then it does something almost magical, it’s exhilarating.
+
+[00:43:26.15] Dmitri Dolgov
+
+One example I can give you, I think I’ve shared some videos of that publicly in some talks, was this example where the situation that happened in San Francisco. A fairly benign situation where at an intersection, our light is red, there’s near cross traffic, a bus goes by, and it stops partially blocking the lane. Our light turns green, so we start to go. We’re nudging around the bus, and then you see a pedestrian being detected on the other side of the bus. Then your car responds appropriately, it slows down, goes a little bit wider, and then a pedestrian actually emerges from the bus, and we go on our own.
+
+[00:44:14.02] Dmitri Dolgov
+
+The first time I looked at that log, I was like, “What’s going on here?” I know we have pretty darn good sensors, and the software is very capable, but we don’t see through stuff. That’s not how cameras or LiDARs and radars work.
+
+[00:44:30.00] John Collison
+
+It saw the pedestrian through the bus?
+
+[00:44:31.09] Dmitri Dolgov
+
+It saw the pedestrian on the other side of the bus. It’s not like you look at the windows, you’re like, “Okay, radars shouldn’t… This massive metal box.” Look at the sensor data, and radar shouldn’t be able to go through it. You can’t see in the camera because there’re reflections and there’s people on the bus. It’s not like you can see through the windows. What is going on? Maybe it’s noise or some coincidence.
+
+[00:44:58.06] Dmitri Dolgov
+
+The first time I saw it, I couldn’t actually believe it. I was like, “No, there’s something. It doesn’t smell right.” What actually turned out was happening is that our peripheral LiDARs bounced under the bus, and there was just a little bit of very noisy reflection of the movement of the person’s feet that was enough for the AI models. “Hey, likely there’s a pedestrian there, and I’m going to… I detect it as such, and moreover, there’s enough data there to predict what they’re going to do.” It just blew my mind.
+
+[00:45:31.18] John Collison
+
+Is this the perfect example to explain what we were talking about earlier, the value of one, fusion across a sensor suite, but then secondly, building, I mean, relatedly, building an intermediate representation of what’s going on, where if you’re just dealing with pixels, I mean, the person behind the bus does not exist in pixel space, and so you need to have some representation of the world that exists to be able to reason about the person behind the bus.
+
+[00:46:02.21] Dmitri Dolgov
+
+I think it’s an example where using that intermediate representation to boost the level of performance of all parts of the model is what’s happening here. Just imagine solving this problem with a black box, purely open loop imitative system. It could be—
+
+[00:46:27.15] John Collison
+
+Hard to impossible.
+
+[00:46:28.10] Dmitri Dolgov
+
+Is it impossible, no, but in practice, what would it take to achieve that level of performance? It’s very, very difficult.
+
+[00:46:35.17] John Collison
+
+What metrics can you share on just where the business is at today in terms of rides, revenues, cars on the roads?
+
+[00:46:44.18] Dmitri Dolgov
+
+We have about 3,000 cars on the roads. We’re doing about half a million rides per week. That translates to about over 4 million fully autonomous miles per week. We are operating in a fully autonomous mode in 11 cities in the US, and 10 of those, we have riders, public riders.
+
+[00:47:13.18] John Collison
+
+What’s the ghost city?
+
+[00:47:15.17] Dmitri Dolgov
+
+The ghost city? The ghost city is Nashville. We just started there. We just opened it up to riders in four new cities in one day. That was one of those little but super exciting moments where I thought back to the history, like how long did it take us from the first time we started fully autonomous, rider-only operation to the first time we had external riders in four cities. It was about eight years. Then the other week, we just launched four in one day.
+
+[00:47:48.11] John Collison
+
+Yes. It seems now clear that in 15 years, most miles that are driven will be autonomous. There will be some burn in period, and it’s lots of old cars in the road. I think it’ll actually take a little while. Some of that will be by level four, level five systems expanding in new cities and that expansion continuing. Some of it will be, you referenced the existing driver assist systems and getting up to level two and level three, and existing systems across current car brands getting more and more capable. What do you think that working your way up from the lower levels versus working your way expanding from existing products like Waymo? What will that convergence look like? Because we’re going to eat it from both sides.
+
+[00:48:41.14] Dmitri Dolgov
+
+I don’t believe we will. I actually think this—
+
+[00:48:45.03] John Collison
+
+That’s a great answer.
+
+[00:48:48.14] Dmitri Dolgov
+
+Cars will get smarter. There’s going to be advances in driver-assistance systems, and if there is at the same time from level four autonomy, there is simplification, and the sensors of today are not going to be the sensors of tomorrow, so they’ll be much more integrated, they’ll be simpler, there’ll be much lower cost. From that perspective, there is a path of convergence.
+
+[00:49:13.00] Dmitri Dolgov
+
+There’s also a path of convergence from the product lines. There’s ride hailing, and you can take a ride through the Waymo app today. Eventually, that’ll be on your personal car, so that I see. You can talk about the technology, and I see it just as fundamentally two different problems. There’s driver-assist systems, and then there is full autonomy. I think it’s deceptive to think of them as incremental on one spectrum of complexity.
+
+[00:49:44.04] John Collison
+
+Okay, but you think one cannot work one’s way up from driver-assist systems to full self-driving? You think you have to start building a full self-driving system?
+
+[00:49:54.12] Dmitri Dolgov
+
+I think you have to tackle… If I think about the hardest parts of building a fully autonomous, rider-only system, they are very different from what you do for a driver-assist system. Of course, some work in this space helps you. I don’t want to say you can’t make the jump, but it is a qualitative jump.
+
+[00:50:19.13] John Collison
+
+When can I buy a Waymo so that I don’t need to wait for it when I want to go? When I’m ready, I can walk out the door and it’s there.
+
+[00:50:27.01] Dmitri Dolgov
+
+I’m not going to give it a date today, but you’re not the first person to bring this up as a product request. Duly noted. I’ll add it to the list.
+
+[00:50:37.07] John Collison
+
+Just that waiting for the car, it should be nice just in the garage there and keep your stuff in it and everything. It’s not the first time you’ve heard that request. It seems to me operationally very intensive and very hard. A self-driving car is actually not self-driving, it takes a village. You have all of the human operator ready to step in. There was that thundering herd incident that you guys talked about in San Francisco that highlighted that for people. Then there’s just keeping the cars clean and keeping everything running in that regard. Can you describe just what the operational infrastructure that sits behind Waymo looks like?
+
+[00:51:21.08] Dmitri Dolgov
+
+Sure. I will say that we are overall in all of those areas on a path of increasing efficiency and automation. The number of manual steps that one had to do five years ago to launch a Waymo, versus where we are today, is drastically different. But nowadays, if you look at one of our depots as a fully, automatically orchestrated dance of autonomous vehicles.
+
+[00:52:03.04] Dmitri Dolgov
+
+The way it looks like today is cars will automatically go to pick up their riders, serve their trips. If for some reason they need to come back, maybe they’re low on energy, maybe somebody left a mess in the car, they will automatically come to the depot. If it is, so cleaning today is a manual process. It’ll get flagged, and the car. We have fleet management systems say, “Hey, car number 378 needs cleaning.” Actually, on the sensor dome, we’re able to display icons. We’ll show you like a little emoji.
+
+[00:52:49.12] John Collison
+
+They’ll put their hand up, yeah.
+
+[00:52:50.18] Dmitri Dolgov
+
+There’s people whose job it is to clean the car. They’ll come and clean it up. If that cleaning is not required, and it’s just charging, we’ll also automatically pull into a charging stall, and we’ll say, “Hey, I need charging.” We don’t yet have automated charging. In the future, you can imagine that being fully automated, but a person will come in and plug in a cable and the car will charge, and they’ll say, “Hey, now I’m ready to go.” It will get unplugged and the car will pull out of its parking stall and then go on its merry way.
+
+[00:53:20.07] John Collison
+
+One of the new Porsches, I think it is, has inductive charging, just like your iPhone, where you just drive over the charging mat. I was amazed that works at car scale, but yeah, possibly in the future, they’ll just be able to drive onto the charging mat, or do you think just robotic plug-in will be easier?
+
+[00:53:34.12] Dmitri Dolgov
+
+We’ll see. I don’t know. I think there’re some questions about efficiency and how that plays into the overall cost and which one will be most cost-beneficial. It remains to be seen, I think.
+
+[00:53:46.08] John Collison
+
+How well-behaved are the Waymo riding population in terms of not leaving a mess in the car?
+
+[00:53:54.14] Dmitri Dolgov
+
+We have wonderful riders. We have the most amazing customers in the world. Generally, I would say they are very good. I think there is something about… I talked about not having a person in the car, it’s not somebody else’s car. In some ways, you want to preserve the… I think generally people want to preserve the nice aspects of it.
+
+[00:54:19.04] John Collison
+
+It’s a broken window thing where it’s so clean to begin with.
+
+[00:54:22.01] Dmitri Dolgov
+
+I know. I think that’s the general trend that we see. Because it’s not somebody else’s space, you’re in it, it feels like it’s your own. You don’t want to mess up your own space. I don’t want to speculate too much on the psychology thing. However, I will say that it varies. You can imagine a college town on a Saturday night, and that’s a different distribution.
+
+[00:54:48.14] John Collison
+
+Yes. Will I be able to get a Waymo at any address that has USPS service in the US, or will there be some head/tail dynamic where Ketchikan, Alaska is just never worth it?
+
+[00:55:04.14] Dmitri Dolgov
+
+Eventually, it will, absolutely. There’s no doubt in my mind. I think it’s just a matter of when and what modality would make the most commercial sense.
+
+[00:55:15.11] John Collison
+
+This is for your ride-share versus privately owned.
+
+[00:55:18.09] Dmitri Dolgov
+
+For a ride, it’s not a technical problem. I mean, technology is solved. But then if you’re in the middle of nowhere and there’s just not enough density of the trips, does it make sense for the ride-hailing service that Waymo is running to have cars on standby? Probably not. They can be deployed somewhere else, and you probably don’t want a horribly bad ETA. This is where a personally-owned vehicle that is equipped with the Waymo Driver is maybe how you will see it materialized.
+
+[00:55:45.10] John Collison
+
+Relatedly, what will the second-order effects of, say, majority autonomous traffic be? It feels like a lot of things will work better where, as you say, when someone merges into a lane very poorly and everyone all the way back has to slam on the brakes, that’s an antisocial behavior. It feels like higher quality and more prosocial driving will just basically reduce traffic a little bit, even for the same number of cars on the road. But presumably, there’ll be other second-order effects. We’ll want higher throughput traffic lights and, yeah. How else will things change?
+
+[00:56:18.09] Dmitri Dolgov
+
+The first thing I think that you mentioned is that’s a huge deal. I just need to think about traffic jams. What’s that saying with the Navy SEALs? “Slow is smooth and smooth is fast.” That’s what you’re like, traffic jams are like, you accelerate abruptly, then you come to a stop, and sometimes you have a traffic jam, like what happened? Well, an old lady crossed the road three hours ago, and we still have the standing wave there. If everybody was a smooth, predictable driver and a consistent driver, and you would still have those traffic jams at the time of, but then the time constant should clean it out, I think, would be very different.
+
+[00:57:03.11] Dmitri Dolgov
+
+But longer term, things like parking lots. Right now, if you look at what is our most interesting pieces of land allocated to, it’s parking lots, it’s garages. Why is that? Well, because, again, your car is just sitting there 90% of the time. If more cars become fully autonomous, then there’s no need of that. Then imagine, just imagine what you can do with your favorite city in the world if you don’t have to spend that money, that huge fraction of it on just keeping these chunks of metal sitting around.
+
+[00:57:42.13] John Collison
+
+I don’t think people often realize how big a deal parking minimums are for the layout of the urban landscape. The coffee shop near where I am would like to have outdoor seating but can’t because it would reclaim parking spots.
+
+[00:57:53.16] Dmitri Dolgov
+
+Yeah, wouldn’t it be wonderful?
+
+[00:57:54.22] John Collison
+
+I have a few more questions, but I’m curious to talk about Google’s relationship with… Self-driving where, again, it feels like right now, Waymo is, aside from everything else AI-related, the most exciting thing happening at Google, but it was a very long journey to get here. I feel like you could say that Google almost started working on it too early because you were saying there’s been a bunch of recent enabling technologies, and so did it require Google starting when it did so early, or could one have spun up this project in 2015, 2020? Then, how did Google keep the faith when it almost felt like it was perennially two years away?
+
+[00:58:47.22] Dmitri Dolgov
+
+Yeah, on the latter part, I just have to give credit, huge kudos and gratitude to Larry and Sergey and Alphabet’s leadership in our company. It is part of the culture and the DNA of the company is to have that vision and have the stamina and conviction to go the distance.
+
+[00:59:18.14] Dmitri Dolgov
+
+To the other part of the question, was it too early? I don’t know. I think what we’ve been seeing, clearly, all of the breakthroughs that we’ve seen over the years have changed how we’re building the system. But the complexity of the problem is such that you need to go through these iterative cycles.
+
+[00:59:47.00] Dmitri Dolgov
+
+We’ve seen many waves of technology. There were breakthroughs in 2013, ImageNet came around. There was this narrative, “Okay, that is the right time to start or be a self-driving company.” Then transformers came around and VLMs. All of those are super powerful. You have applications in other spaces. In the digital world, they certainly have an impact on our AI in the physical world. But there are no silver bullets. They drastically reshape that early part of the curve.
+
+[01:00:20.02] Dmitri Dolgov
+
+It’s always been the nature of this problem. It’s very easy to get started. It’s deceptively easy to get started. But it is super hard to go the full distance. Edge case... It’s the number of nines. There’s the standard engineering rule of thumb that every next nine takes 10x more. Yeah, maybe there is a more optimal path, but I don’t see that there’s some magical moment where the true complexity of the problem goes away, and then you can just take some off-the-shelf components under your business. If that were the case, then I think the industry would look very different today.
+
+[01:01:00.07] John Collison
+
+Last question I have. You’ve been promoted a lot at Google. It feels like Google really recognized your talents. Just what do you think Google does? Google is famously one of the very best in the world at technical talent and say, the current AI wave more broadly happening, is either stuff happening at Google or generally Google alumni. But just what have you observed firsthand from how Google does this so well?
+
+[01:01:30.17] Dmitri Dolgov
+
+I would say that culture of Google of not accepting the status quo, having a big vision, and investing in technical talent—the people who can go the distance and realize the vision, that is part of the culture. I think this is what you’re seeing with the breakthroughs in AI in the digital world, and like all of the early investments in transformers and other fundamental technologies, quantum computing. I guess we are not unlike those efforts as well.
+
+[01:02:14.04] John Collison
+
+Dmitri, thank you.
+
+[01:02:18.16] Dmitri Dolgov
+
+Yeah, thank you.
+
+2
+
+Share
