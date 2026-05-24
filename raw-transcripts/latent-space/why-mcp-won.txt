@@ -1,0 +1,166 @@
+# Why MCP Won
+# URL: https://www.latent.space/p/why-mcp-won
+# Date: 2025-03-10
+# source: Latent Space
+
+Why MCP Won
+
+Learnings from Anthropic's extraordinarily successful Launch and Workshop
+
+Mar 10, 2025
+
+∙ Paid
+
+165
+
+1
+
+22
+
+Share
+
+Since this post, OpenAI (3/27) and Google (4/9) announced MCP support.
+
+Dear AI Engineers,
+
+I’m sorry for all the MCP filling your timeline right now.
+
+The Model Context Protocol launched in November 2024 and it was decently well received, but the initial flurry of excitement (with everyone from Copilot to Cognition to Cursor adding support) died down1 right until the Feb 26-27 AI Engineer Summit, where a chance conversation with Barry Zhang led to us booking Mahesh Murag (who wrote the MCP servers). I simply thought it’d be a nice change from Anthropic’s 2023 and 2024 prompting workshops, but then this happened:
+
+Normally workshops are great for live attendees but it’s rare for an online audience to keep the attention span for a full 2 hours. But then livetweets of the workshop started going viral, because for the first time the community was getting announcements of the highly anticipated official registry, and also comprehensive deep dives into every part of the protocol spec like this:
+
+We then bumped up the editing2 process to release the workshop video, and, with almost 300k combined views in the past week, this happened:
+
+everybody complaining about too much MCP
+
+One “reach” goal I have with Latent Space is to try to offer editorial opinions slightly ahead of the consensus. In November we said GPT Wrappers Are Good, Actually, and now a16z is excited about them. In December we told $200/month Pro haters that You’re all wrong, $2k/month “ChatGPT Max” is coming and now we have confirmation that $2-20k/month agents are planned. But I have to admit MCP’s popularity caught even me offguard, mostly because I have seen many attempted XKCD 927’s come and go, and MCP was initially presented as a way to write local, privacy-respecting integrations for Claude Desktop, which I’m willing to bet only a small % of the AI Engineer population have even downloaded (as opposed to say ChatGPT Desktop and even Raycast AI).
+
+Even though we made the workshop happen, I still feel that I underestimated MCP.
+
+To paraphrase Ben Thompson, the #1 feature of any network is the people already on it. Accordingly, the power of any new protocol derives from its adoption (aka ecosystem), and it’s fair to say that MCP has captured enough critical mass and momentum right now that it is already the presumptive winner of the 2023-2025 “agent open standard” wars. At current pace, MCP will overtake OpenAPI in July:
+
+See for yourself. Add Langchain if you’re curious but it skews the chart too much
+
+Widely accepted standards, like Kubernetes and React and HTTP, accommodate the vast diversity of data emitters and consumers by converting exploding MxN problems into tractable M+N ecosystem solutions, and are therefore immensely valuable IF they can get critical mass. Indeed even OpenAI had the previous AI standard3 with even Gemini, Anthropic and Ollama advertising OpenAI SDK compatibility.
+
+I’m not arrogant enough to think the AIE Summit workshop caused this acceleration; we merely poured fuel on a fire we already saw spreading. But as a student of developer tooling startups, many of which try and fail to create momentum for open standards4, I feel I cannot miss the opportunity to study this closer while it is still fresh, so as to serve as a handbook for future standard creation. Besides, I get asked my MCP thoughts 2x a day so it’s time to write it down.
+
+Why MCP Won (in short)
+
+aka “won” status as de facto standard, over not-exactly-equivalent-but-alternative approaches like OpenAPI and LangChain/LangGraph. In rough descending order.
+
+MCP is “AI-Native” version of old idea
+
+MCP is an “open standard” with a big backer
+
+Anthropic has the best developer AI brand
+
+MCP based off LSP, an existing successful protocol
+
+MCP dogfooded with complete set of 1st party client, servers, tooling, SDKs
+
+MCP started with minimal base, but with frequent roadmap updates
+
+Non-Factors: Things that we think surprisingly did not contribute to MCP’s success
+
+Lining up launch partners like Zed, SourceGraph Cody, and Replit
+
+Launching with great documentation
+
+I will now elaborate with some screengrabs.
+
+oh look, another god box: "We can solve any problem by introducing an extra level of indirection."
+
+MCP is “AI-Native” version of old idea
+
+A lot of the “old school developer” types, myself included, would initially be confused by MCP’s success because, at a technical level, MCP is mostly capable of the same5 kinds of capabilities enabled by existing standards like OpenAPI / OData / GraphQL / SOAP / etc. So the implicit assumption is that the older, Lindy, standard should win.
+
+However, to dismiss ideas on a technical basis is to neglect the sociological context that human engineers operate in. In other words, saying that “the old thing does the same, you should prefer the old thing” falls prey to the same Lavers’ Law fallacy of fashion every developer comes to, the same kind of attitude that leads one to dismiss the Rise of the AI Engineer because you assume it sufficiently closely maps on to an existing job. To paraphrase Eugene Wei’s Status as a Service, each new generation of developer actively looks for new ground to make their mark, basically because you already made your mark in yours.
+
+The reflexive nature of the value of protocols - remember, they only have value because they can get adoption - mean that there is very little ex ante value to any of these ideas. MCP is valuable because the AI influencers deem it so, and therefore it does become valuable.
+
+It’s also valuable that it is a revision of an old idea, meaning that it actually does fill a need we know we have, and not a made up need that is unproven.
+
+However it is ALSO too dismissive to say that MCP is exactly equivalent to OpenAPI and it is mere cynical faddish cycles that drive its success. This is why I choose to describe this success factor as “AI Native” - in this case, MCP was born from lessons felt in Claude Sonnet’s #1 SWE-Bench result and articulated in Building Effective Agents, primarily this slide:
+
+An “AI Native” standard that reifies patterns already independently reoccurring in every single Agent will always be more ergonomic to use and build tools for than an agnostic standard that was designed without those biases. 
+
+Hence MCP wins over OpenAPI.
+
+Second, going back to this slide, focus on the differences articulated between Tools (Model-controlled), Resources (Application-controlled), and Prompts (User-controlled).
+
+MCP’s “AI Native”ness being born after the initial wave of LLM frameworks, means that it has enough breathing room to resist doing the “obvious” thing of starting from LLM interoperability (now solved problems and likely owned by clients and gateways), and only focus on the annoying unsolved problems of putting dynamic context access at the center of its universe (very literally saying the motivation of MCP is that “Models are only as good as the context provided to them”).
+
+Hence MCP wins over LangChain et al.
+
+MCP is an “open standard” with a big backer
+
+This one is perhaps the most depressing for idealists who want the best idea to win: a standard from a Big Lab is very simply more likely to succeed than a standard from anyone else. Even ones with tens of thousands of Github stars and tens of millions of dollars in top tier VC funding. There is nothing fair about this; if the financial future of your startup incentivizes you at all to lock me in to your standard, I’m not adopting it. If the standard backer seems too big to really care about locking you in to the standard, then I will adopt it6.
+
+Hence MCP wins over Composio et al. 
+
+Any "open standard”7 should have a spec, and MCP has a VERY good spec. This spec alone defeats a lot of contenders, who do not provide such detailed specs.
+
+Hence MCP wins over many open source frameworks, and arguably even OpenAI function calling, whose docs fall just short of a properly exhaustive spec.
+
+Anthropic has the best developer AI brand
+
+Perhaps as important as the fact that a big backer is behind it, is which big backer. If you’re going to build a developer standard, it helps to be beloved by developers. Sonnet has been king here for almost 9 months.
+
+https://aider.chat/docs/leaderboards/by-release-date.html
+
+A bit of a more subtle point that might be missed by newer folks - Anthropic has always explicitly emphasized supporting more tools than OpenAI has - we don’t really have benchmarks/ablations for large tool counts, so we don’t know the differential capabilities between model labs, but intuitively MCP enables far more average tools in a single call than is “normal” in tools built without MCP (merely because of ease of inclusion, not due to any inherent technical limitation). So models that can handle higher tool counts better will do better.
+
+https://x.com/swyx/status/1775993946935906645
+
+Hence MCP wins over equivalent developer standards by, say, Cisco.
+
+MCP based off LSP, an existing successful protocol
+
+The other part of the ““open standard” with a big backer” statement requires that the standard not have any fatal flaws. Instead of inventing a standard on the fly, from scratch, and thus risking relitigating all the prior mistakes of the past, the Anthropic team smartly adapted Microsoft’s very successful Language Server Protocol.
+
+https://x.com/dsp_/status/1897821339332882617
+
+And again, from the workshop, a keen awareness of how MCP compares to LSP:
+
+The best way to understand this point is to look at any other open source AI-native competitor that tried to get mass adoption, and then try to think about how easy it might be for you to add them to Cursor/Windsurf as easily as an MCP. The basic insight is fungibility between clients and servers: Often these competitors are designed to be consumed in one way — as open source packages in another codebase — rather than emitting messages that can be consumed by anyone8. Another good choice was sticking to JSON RPC for messages - again inheirited from LSP.
+
+Hence MCP wins over other standard formats that are more “unproven”.
+
+MCP dogfooded with complete set of 1st party client, servers, tooling, SDKs
+
+MCP launched with:
+
+Client: Claude Desktop 
+
+Servers: 19 reference implementations, including interesting ones for memory, filesystem (Magic!) and sequential thinking
+
+Tooling: MCP Inspector, Claude Desktop DevTools
+
+SDKs: Python and TS SDKs, but also a llms-full.txt documentation
+
+Since then, the more recent Claude Code also sneaked in a SECOND official MCP client from Anthropic, this time in CLI form:
+
+https://x.com/willccbb/status/1898858751685255398
+
+This all came from real life use cases from Anthropic developers. 
+
+Hence MCP wins over less dogfooded attempts from other BigCos like Meta’s llama-stack.
+
+MCP started with a minimal base, but with frequent roadmap updates
+
+One of the most important concepts in devtools is having a minimal surface area:
+
+youtube
+
+Reasonable people can disagree on how minimal MCP is:
+
+Keep reading with a 7-day free trial
+
+Subscribe to Latent.Space to keep reading this post and get 7 days of free access to the full post archives.
+
+Start trial
+
+Already a paid subscriber? Sign in
+
+PreviousNext

@@ -2,6 +2,8 @@
 
 **Entries**: 17
 
+**Local raw transcripts**: 52 files in [`raw-transcripts/lennys-podcast/`](../raw-transcripts/lennys-podcast/). 3 full audio-transcribed episodes plus 49 long-form newsletter posts. Full podcast transcripts not in Substack public HTML — see folder [README](../raw-transcripts/lennys-podcast/README.md) for how to extend via Memories.ai audio pipeline.
+
 ---
 
 ## Dan Shipper (Every) — 2025-07

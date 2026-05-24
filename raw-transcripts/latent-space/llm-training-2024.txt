@@ -1,0 +1,1539 @@
+# State of the Art: Training >70B LLMs on 10,000 H100 clusters
+# URL: https://www.latent.space/p/llm-training-2024
+# Date: 2024-06-25
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+State of the Art: Training >70B LLMs on 10,000 H100 clusters
+
+16
+
+6
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:21:49
+
+-1:21:49
+
+Audio playback is not supported on your browser. Please upgrade.
+
+State of the Art: Training >70B LLMs on 10,000 H100 clusters
+
+Josh Albrecht, CTO of Imbue, and Jon Frankle, Chief AI Scientist of Databricks, dish on what it takes to train the largest models on the largest clusters... including fighting Infiniband Porch Pirates
+
+Josh Albrecht and Jon Frankle
+
+Jun 25, 2024
+
+16
+
+6
+
+2
+
+Share
+
+Transcript
+
+It’s return guest season here at Latent Space! We last talked to Kanjun in October and Jonathan in May (and December post Databricks acquisition):
+
+MPT-7B and The Beginning of Context=Infinity — with Jonathan Frankle and Abhinav Venigalla of MosaicML
+
+Alessio Fanelli and swyx & Alessio
+
+·
+
+May 20, 2023
+
+We are excited to be the first podcast in the world to release an in-depth interview on the new SOTA in commercially licensed open source models - MosiacML MPT-7B! The Latent Space crew will be at the NYC Lux AI Summit next week, and have two meetups in June. As usual, all events are on
+
+Listen now
+
+Why AI Agents Don't Work (yet) - with Kanjun Qiu of Imbue
+
+Kanjun Qiu
+
+·
+
+October 14, 2023
+
+Thanks to the over 11,000 people who joined us for the first AI Engineer Summit! A full recap is coming, but you can 1) catch up on the fun and videos on Twitter and YouTube, 2) help us reach 1000 people for the first comprehensive State of AI Engineering
+
+Listen now
+
+Imbue and Databricks are back for a rare treat: a double-header interview talking about DBRX from Databricks and Imbue 70B, a new internal LLM that “outperforms GPT-4o” zero-shot on a range of reasoning and coding-related benchmarks and datasets, while using 7x less data than Llama 3 70B.
+
+While Imbue, being an agents company rather than a model provider, are not releasing their models today, they are releasing almost everything else: 
+
+Cleaned-up and extended versions of 11 of the most popular NLP reasoning benchmarks
+
+An entirely new code-focused reasoning benchmark
+
+A fine-tuned 70B model, built with Meta Llama 3, to identify ambiguity
+
+A new dataset of 450,000 human judgments about ambiguity
+
+Infrastructure scripts for bringing a cluster from bare metal to robust, high performance training
+
+Our cost-aware hyperparameter optimizer, CARBS, which automatically and systematically fine-tunes all hyperparameters to derive optimum performance for models of any size
+
+As well as EXTREMELY detailed posts on the infrastructure needs, hyperparameter search, and clean versions of the sorry state of industry standard benchmarks. This means for the FIRST TIME (perhaps since Meta’s OPT-175B in 2022?) you have this level of educational detail into the hardware and ML nitty gritty of training extremely large LLMs, and if you are in fact training LLMs of this scale you now have evals, optimizers, scripts, and human data/benchmarks you can use to move the industry forward together with Imbue.
+
+We are busy running the sold-out AI Engineer World’s Fair today, and so are unable to do our usual quality writeup, however, please enjoy our show notes and the excellent conversation! Thanks also to Kanjun, Ashley, Tom and the rest of team Imbue for setting up this interview behind the scenes.
+
+Video pod
+
+Timestamps
+
+[00:00:00] Introduction and catch up with guests
+
+[00:01:55] Databricks' text to image model release
+
+[00:03:46] Details about the DBRX model
+
+[00:05:26] Imbue's infrastructure, evaluation, and hyperparameter optimizer releases
+
+[00:09:18] Challenges of training foundation models and getting infrastructure to work
+
+[00:12:03] Details of Imbue's cluster setup
+
+[00:18:53] Process of bringing machines online and common failures
+
+[00:22:52] Health checks and monitoring for the cluster
+
+[00:25:06] Typical timelines and team composition for setting up a cluster
+
+[00:27:24] Monitoring GPU utilization and performance
+
+[00:29:39] Open source tools and libraries used
+
+[00:32:33] Reproducibility and portability of cluster setup
+
+[00:35:57] Infrastructure changes needed for different model architectures
+
+[00:40:49] Imbue's focus on text-only models for coding and reasoning
+
+[00:42:26] CARBS hyperparameter tuner and cost-aware optimization
+
+[00:51:01] Emergence and CARBS
+
+[00:53:18] Evaluation datasets and reproducing them with high quality
+
+[00:58:40] Challenges of evaluating on more realistic tasks
+
+[01:06:01] Abstract reasoning benchmarks like ARC
+
+[01:10:13] Long context evaluation and needle-in-a-haystack tasks
+
+[01:13:50] Function calling and tool use evaluation
+
+[01:19:19] Imbue's future plans for coding and reasoning applications
+
+[01:20:14] Databricks' future plans for useful applications and upcoming blog posts
+
+Transcript
+
+SWYX [00:00:00]: Welcome to the Latent Space Podcast, another super special edition. Today, we have sort of like a two-header. John Frankel from Mosaic Databricks, or Databricks Mosaic, and Josh Albrecht from MBU. Welcome.
+
+JOSH [00:00:12]: Hey, glad to be here.
+
+SWYX [00:00:14]: Thank you for having us. Hey, so both of you are kind of past guests. Jonathan, you were actually one of the most popular episodes from last year talking about MPT7B. Remember the days when we trained large models and there was 7B?
+
+JONATHAN [00:00:30]: Yeah, back when reproducing LLAMA1-7B was considered a huge accomplishment for the field. Those are the good old days. I miss that.
+
+SWYX [00:00:38]: As the things have accelerated a lot. Actually, let's do a quick catch up and Josh, you can chime on in as well. So Databricks got acquired. I talked to you at New York.
+
+JONATHAN [00:00:45]: Mosaic got acquired, although sometimes it feels like Mosaic acquired Databricks because, you know, we're having a lot of fun being here. But, you know, yeah.
+
+SWYX [00:00:52]: Yeah. I mean, you are chief scientist now of Databricks.
+
+JONATHAN [00:00:55]: Chief AI scientist. Careful with the title. As much as I would love to understand how Spark works, I'm going to have to defer that to much smarter people than me.
+
+SWYX [00:01:03]: Got it. And I don't know about like what you would highlight so far as a post-acquisition, but the most recent news is that you guys released DBRX. Is that the thing that most people should be aware of?
+
+JONATHAN [00:01:13]: Actually, that's no longer the most recent news. Honestly, the most recent news, we announced this, but it was at our Data and AI Summit last week. So it was announced among like 100,000 other things, is that we finally released our text to image model, which has been a year in the making through a collaboration directly with Shutterstock. There was a lot of work put into finding a dataset that we were comfortable with working on and trying to build a model that honestly, I felt like I could trust and that others might be able to trust to put out in the world. So that model was released last week. It's unfortunately just available via API due to the fact that the data is quite sensitive and quite valuable. It's Shutterstock's entire business in a lot of ways, but I'm still really excited that there's now a model that is trained on a dataset where the provenance of every single image is known, and it's a damn good model. So I'm really proud of the team on that.
+
+SWYX [00:01:55]: Yeah, amazing. Josh, do you have any thoughts on image model questions?
+
+JOSH [00:01:59]: That is not my area of expertise, but I was excited to see the release of it last week as well, and very happy that you guys did a nice job on the data side of everything there. So that was cool to see.
+
+SWYX [00:02:09]: I think what's unusual is like, I think Shutterstock's doing multiple deals in multiple labs. So what is the Shutterstock model? Like, I guess, is this the house model for Shutterstock? Is this Databricks' version of the Shutterstock model? Like, what is this?
+
+JONATHAN [00:02:22]: The way that I would think about it is that Shutterstock is doing an amazing business in AI across the board. Their dataset is kind of widely known to be the best stock photos dataset in the world, the most comprehensive, the biggest. When you think about like, what dataset am I going to train a multimodal model on? You call Shutterstock. And I, at least I've heard in the news, like OpenAI, Google, Meta, Apple have all called Shutterstock and made those deals. So a lot of models have had Shutterstock data incorporated into them. But this is the only model I know of so far where it was, you know, exclusively and specifically trained just on the vanilla Shutterstock data. There was nothing else mixed in. We didn't go and scrape the web and find other data or combined datasets or anything like that. And so this is, in some sense, the house blend. But the other piece is that it's just a dataset where the provenance of every image is known in public. Where did the data come from? It is the Shutterstock collection. That's it. You know, nothing less, nothing more. And certainly being at Databricks, if I've learned one thing, I've learned about enterprise customers and what they want out of AI. And one of the things they ask for most is just, what can you tell me about the data the model was trained on? And here, especially for text to image models, where images are just tricky subject matter, there's been a lot of kind of legal conversation about images, especially. It's nice to just have something where I can point to it and say, you know, if you want to know where the images came from, these are what they are and this is how they got there.
+
+SWYX [00:03:36]: I will talk a little bit about Databricks because it's relevant to the rest of today's episode. So Databricks, sorry, I keep misspeaking. It's DBRX.
+
+JONATHAN [00:03:46]: DBRX, actually, there's been a pronunciation update. It is now D-B-Rex. So we have decided to add a dinosaur mascot because what model doesn't like a mascot? So literally, I wish I could pull it up. There is a little plush dinosaur that we had made. It's like the world's cutest dinosaur, but it is the official mascot of D-B-Rex. And there's a little dinosaur logo that, you know, you'll probably see around a little bit more because DBRX is a mouthful, but D-B-Rex, like, you know, it's just kind of...
+
+SWYX [00:04:13]: Rolls off the tongue. I love mascots. Like every company should have a mascot. And I think Hugging Face got it right. You need an emoji mascot because that's the minimal viable image.
+
+JONATHAN [00:04:21]: I probably shouldn't talk at all about, you know, Velociraptor, but, you know, that's a, maybe that's something we can talk about later in the summer. I'll just leave it at that.
+
+SWYX [00:04:28]: Okay. That's a hint to names. I feel like your names leak a lot of alpha. So just to quickly cover the headline details, DBRX, as Make Sure Experts model, that's fairly big, 132 billion total parameters, so 36 billion active on any input, pre-trained on 12 trillion tokens of text and code, and did really well on evals to the point where you had to dye your hair blue. That's my high level conclusion.
+
+JONATHAN [00:04:53]: Never make a bet with your team two weeks out from model launch, even when, you know, human eval is looking quite bad. Because if you set some bar, even if it's arbitrary and you think there's no way in hell they're going to hit it, apparently money doesn't motivate people anymore. Humiliating their boss motivates people. So Josh, you should really take a hint from this. You know, you cannot pay someone enough money to make up for you dyeing your hair blue.
+
+JOSH [00:05:15]: I'll keep that in mind for our next model.
+
+SWYX [00:05:17]: It works. So speaking of Imbue's next model, perhaps Josh, you want to actually just say hi to the general sort of latent space audience and talk about what we're releasing today. Yeah.
+
+JOSH [00:05:26]: I'm Josh, CTO of Imbue, and we're not releasing the model. We're not releasing the weights, but we are releasing a bunch of different things that should make it easier for other people to make their own models. So I think right now, training foundation models from scratch is like a very difficult, time-consuming, expensive, kind of risky endeavor, especially for smaller companies. And the things that we're releasing hopefully make that at least a little bit easier. So the things that we're releasing fall into kind of three different buckets. One is infrastructure and scripts for dealing with the kind of hardware and hardware failures and understanding how well is the actually lowest level of thing actually working so that you can actually do your training at all and at a reasonable speed without having to constantly restart, etc. So infrastructure and training scripts. A second set of things is around the evaluation. So after you've trained it, like how well is this actually working and how do you know how well it's working? We're releasing a whole bunch of different data there, a new benchmark about code, reasoning, understanding, as well as our own private versions of 11 different open source benchmarks. So things like pool queue or ANLI, where we've gone through and kind of cleaned up the data as much as possible by looking at all the ones that models get wrong or that are flagged for ambiguity and also our own kind of private reproductions of those where we've done like a kind of clean room black box, like, okay, this is what the data set is supposed to be. Here are some examples. Let's make our own version of this to make sure that there is no data contamination, etc. To make sure that we're actually, you know, not testing on train. And then I think a final thing that we're releasing there is around 450,000 human judgments about ambiguity and question quality, which we used in the process of cleaning these evaluations and we also hope will be helpful for other people training kind of similar models. And then the third thing is CARBS, our hyperparameter, our cost-aware hyperparameter optimizer, which was especially helpful for being able to experiment at much smaller scales and then scale those experiments up to the much larger scale kind of on the first try without having to retry it. You don't want to be training, you know, 10, 20 different 70B models. You really want to get these larger models
+
+SWYX [00:07:30]: right on the first try.
+
+JOSH [00:07:30]: And so the ability to kind of tune things very precisely and learn scaling laws, not just for, you know, the like data and flops, but also for learning rate and all the other hyperparameters and see like how should you scale these things up was extremely valuable to us as we were training the larger models. Yeah, that's a lot of stuff.
+
+SWYX [00:07:49]: Yeah, exactly. So there's a bunch of stuff
+
+JOSH [00:07:50]: we'll have to go through all of it.
+
+JONATHAN [00:07:52]: Yeah, I just want to throw in how excited I am about this. This is the stuff that nobody ever talks about. That is the difference between success and failure in this stuff. Like, can you get your cluster to run? Can you get software on your cluster? Can you figure out what broke? Because fault tolerance is still not really built into any of the fundamental primitives of training models. And so if something breaks, you have to go figure out what broke, your job stops, you have to restart your job. It is a nightmare just to get to the point where anything can train on the cluster. A basic MPI hello world that has the GPUs talk to each other is hard enough, let alone actually training a model, let alone getting good performance out of the GPUs, let alone actually getting a model that converges to anything interesting. There's so many levels of things you have to accomplish. This is the kind of stuff that matters. I think to a point that Josh made earlier, before we got on here, there are plenty of weights out there. Nobody's released this.
+
+JOSH [00:08:46]: Yeah, that was part of the motivation actually is that there are lots of other things that are complimentary, but I have not seen nearly as much discussion about some of these other things that we think are pretty important. I mean, in some sense,
+
+SWYX [00:08:56]: I'm very excited to have Jonathan on because this is a little bit, you're a bread and butter with Mosaic. And I think you've released some part with Composer. And I think it's just really interesting to see like a different take, basically a full stack take that's kind of open source today.
+
+JONATHAN [00:09:18]: Yeah, it's really kind of, it's been an ordeal to figure this out. And every time something changes, whether it's a new GPU or even a new driver update, you get new creative errors and new things go wrong. And, you know, we've dealt with the weirdest things from, you know, our InfiniBand cables getting stolen from the data center twice, like in boxes before they arrived at the data center. Like, you know, Porch Pirate basically had stolen our InfiniBand cables back when those were hard to come by. To like, you know, weird recalls of switches to like the strangest stuff has happened. I have my favorite GPU failures I've seen, like ones where the GPU doesn't fail, it has a correctable memory issue and the memory correction causes the GPU to become a straggler and hold up the whole job. Like weird stuff happens and figuring out how to not just identify all of that, but then eventually productize it, is in some sense, the entire story of Mosaic and now Databricks in terms of our ML offering. Really, the thing we offer is we have gone through this suffering and figured out how to even productize that. It has been a pain in the butt.
+
+SWYX [00:10:20]: Yeah, it's a lot of work.
+
+JOSH [00:10:20]: I think my favorite failure was GPU is just giving wrong math. Like if they give errors, great, because you can see the errors, but if they just give you the wrong math back, not so fun.
+
+SWYX [00:10:30]: When did they give you wrong math?
+
+JOSH [00:10:32]: Like literally you could just, you know, add two things. For example, the numbers come back. They're not the numbers that they're supposed to be.
+
+JONATHAN [00:10:40]: I think it's important to say at this stage, just because like it, I think it goes without saying for Josh and I, but it's worth saying here, this isn't to say that like anything is wrong with us. It's not like NVIDIA did a bad job or, you know, Mellanox did a bad job or the like the server builder, the data center operator, the cloud provider, like the million other parties that are involved in building this. We are running these insane chips that are huge and complicated and built on tiny transistors at insane frequencies with insane heat in data centers that for the most part, were not built remotely for this kind of power or heat and have been retrofitted for this. Like failures happen on a good day with normal CPUs. And this is not a good day and not a normal CPU for the most part. It's fun to joke about all the weird things we see. This is not to say anybody's done anything wrong. This is just kind of part and parcel of working on a massive cluster running at multiple megawatts of power at a time.
+
+SWYX [00:11:32]: It's crazy. Yeah.
+
+JONATHAN [00:11:33]: So optical cables, like all sorts, like everything.
+
+SWYX [00:11:37]: I'll take the opportunity to start going to the sort of infra piece. There's just like a description of the infra just to give people a sense of what we talk about when we talk about massive clusters. So I'm just going to read off the blog post here. This post is about one cluster that has 4,092 H100 GPUs spread across 511 computers. They use unified fabric manager nodes, which manage the infinite band network. And you talk a little bit about your networking. Is there anything unusual about this setup that you'll call out to people?
+
+JOSH [00:12:03]: Yeah, actually this particular cluster is a little bit non-standard. The normal, like vanilla setup for these large clusters as vanilla as it can be is what's normally like a 127 node cluster. So closer to like 1024 GPUs instead of 4,000. Here we have a larger cluster. As you start to get into the larger clusters, the networking becomes a little bit more custom. It's a little bit more, it's a little bit trickier. It's a little bit more difficult to get these things to all be able to talk to each other at the same speed. And so this has, in this particular case, this is a three tier network architecture instead of two tiers, kind of the normal one. So most of the clusters are a little bit smaller. As you get to even larger scales, then this becomes even much more complicated,
+
+SWYX [00:12:43]: much more expensive.
+
+JOSH [00:12:43]: So we chose this particular scale, kind of knowing our own workloads and kind of what we wanted to do. This was kind of the right size for us. But yeah, I think it's not exactly vanilla already. It's already getting into kind of the custom territory.
+
+SWYX [00:12:54]: So my understanding is that there, and is there any part of this that comes with the Voltage Park deal that you guys had? Is that part of the hardware that you got from the deal with them?
+
+JOSH [00:13:04]: Yeah, so we worked really closely with Voltage Park to set up all their clusters and infrastructure and everything and kind of decide even like what to order, how should the networking work? Like we were very involved in kind of the construction and bring up of this. And that's what this post is about, is about that process of like bringing up all these, there's like different clusters in different places of different scales. So in this particular post, we're talking about this one 4096 GPU, but there are other clusters that they have as well. And we were very closely involved with figuring out the exact architecture and kind of the trade-offs that go along with picking, you know, those exact components. You really don't want to like place the wrong order because it takes months to get it and it's very expensive. So yeah, we were happy to help out with that.
+
+JONATHAN [00:13:43]: And then your bit of good cables get stolen.
+
+SWYX [00:13:44]: Yeah, yeah, exactly.
+
+JOSH [00:13:47]: We wanted to make sure that we ended up with compute that would work for us and that would also work for their other customers. And so we kind of helped design something so that we would get exactly what we were looking for. We knew that these kinds of details would be super important and that getting down to the level of the hardware and like having these good scripts and everything was going to be a core part of like actually getting this to work. I'm very glad that we did that. I don't think that most companies kind of take that full stack approach, but for us, it certainly paid off.
+
+SWYX [00:14:12]: Yeah, it's basically sort of built to spec. It's interesting that relationship because you usually, for the rest of us who don't operate at your scale, we take whatever we can get from cloud providers, but you are basically co-designing from the single machine up. And you described that a little bit. Do you want to take us through the process that you described here?
+
+JOSH [00:14:27]: Yeah, so for the actual, like the blog post and kind of bringing these machines online.
+
+SWYX [00:14:32]: Yeah.
+
+JOSH [00:14:32]: So yeah, I think the process, as we have it broken down in the blog post, there's kind of a few different layers. First is like getting the individual machines to work at all and then getting the machines to actually be able to talk to each other. So getting the InfiniBand networking to work and then getting to a point where, you know, not just the machines are working and they can talk to each other, but everything is actually working correctly. There's a big gap between like it's working at all to it's working perfectly correctly. And then after you have all this stuff working perfectly correctly, nice and healthy, then now you get into kind of the software data, like training issues. And then after that, you're still not done. Like now, even once you're training at full speed, things are going to fail over time. Things are going to change. There's going to be new, you know, firmware updates. Like how do you kind of deal with this change and flux over time without going crazy
+
+SWYX [00:15:16]: and pulling your hair out,
+
+JOSH [00:15:16]: trying to like reproduce things or understand why there were regressions. And so there's a lot of work to kind of automate the infrastructure tooling as well. And kind of the first step, like bringing these things online in the first place, you know, you have hundreds of machines at this point. So you don't necessarily want to be like walking around with like a CD-ROM or a USB drive, like plugging it in with your keyboard, like hitting next, next, next on the OS install. That's not how this works. You do that for one machine. And then you use, we use this thing called Metal as a Service to bring up all the other machines. So it's a kind of server that can kind of install the operating system on these other machines. So most like when you're talking about these machines, like each machine is, you know, on the order of hundreds of thousands of dollars. So they usually come with a kind of out-of-band management interface as well. So they don't, they have their InfiniBand networking. They have their normal 100 gigabit per second Ethernet networking. These are like dual, redundant, et cetera. And then you also have this extra out-of-band management network. So you can log in and you can see like the boot screen or you can see the blue screen of death. You can like get in there and actually see what was wrong, which is pretty fun. And it makes it like possible to automate a lot of this work. So the beginning of that, and the blog post goes into much more detail about like exactly how we set these up and kind of the other errors that we ran into. When you're bringing these online, you'll definitely have failures. Even if they all worked in the factory, they get shipped, some parts come loose, something fails, something goes wrong. So when you're bringing them online, there'll be some that don't quite work for all sorts of reasons. As you start to be working with machines at this scale, like if something happens one in a thousand times, you're like pretty likely to see it. And so you can get pretty rare, weird things, especially since we had fairly early builds and fairly early versions of this hardware. Like these are some of the like first machines that were ever produced, some of the first GPUs. So you've got some extra special things there. We definitely worked with Dell, for example, on making fixes in the firmware level to be like, okay, like this thing is wrong. Like we need to update this at the firmware to like actually fix this particular thing. So we worked pretty closely with Dell and Nvidia. Yeah, that's what I'm saying. Like this stuff gets complicated. And the thing is like, you know, taking a step back, the whole reason we're doing this, right, is that we knew that this was going to be complicated. There would be these kinds of failures. And if we're just using, you know, AWS or some other cloud provider, these errors are still gonna be there and you're gonna have no way to know and no way to debug this and no way to diagnose what's going wrong. And so we would much rather be able to like call up Dell and say, hey, this isn't working. And they're like, yep, okay, cool. Let's debug it together. Oh, I see. Yeah, cool. We'll ship a firmware update and actually fix this for you. That was a much better experience than like, great, just magically fails. I guess we restart and hope that that machine goes away. Like that's not a very good place to be. So yeah, that's kind of the first place is getting to a place where like GPU training is working on your single node machines. You can observe stuff. We have tons of tooling around like, you know, Prometheus and all sorts of other tools for understanding what's going on in these machines because you don't want to be like logging into each one and looking at the temperature or something you really need to have tooling to collect all these metrics, et cetera. Unfortunately, all of the scripts that we have for this are like for this entire cluster and for all this infrastructure are a little bit like special purpose for our particular thing. So it's not that every script that we have, it's not that you can just like take this and plug this in. Even if we did open source all the tooling that we have, you'd still have to do like a lot of work to open source it. What we are releasing is as many of the things that we can that are going to be useful for other people. You're still going to have to have some way of kind of managing these things, making your own like logging aggregators, et cetera, et cetera. So that's kind of bringing them up to the like, you know, the single nodes that are working. From there, it goes into, I'm happy to keep going if you want. Well, I just want to leave the opportunity for John
+
+SWYX [00:18:53]: to comment if there's anything that's different from how he runs things.
+
+JONATHAN [00:18:57]: Oh, I mean, all I'll say is I'll endorse this and say this shit is hard. Like this is really, really hard. And, you know, I have a special props to, you know, the folks in Vue because they were building this from the ground up. You know, at Databricks and at Mosaic, we typically work with cloud providers because some of this stuff is just, there's too much to handle. It's complicated. There's a lot to deal with. And this doesn't even get into things like physical security, you know, securing power if you're the data center operator. Like this gets infinitely complicated and you have to abstract somewhere. Like, you know, and then you get to the folks who are literally building their own custom chips and like, good God.
+
+SWYX [00:19:36]: Like, oh my God, that's, you know,
+
+JONATHAN [00:19:38]: if you're one of those folks, you're having, you know, pour one out for the infra people at some of the AI chip startups who are having a really, really interesting time right now. But this stuff is really hard. And I don't think we talk about it much because there's so many other things that are hard. But the other hard things, I think everybody's becoming pretty familiar with at this point. This is something that I don't think there's ever really been a comprehensive discussion of, at least not that I've seen.
+
+SWYX [00:20:00]: Yeah, so my impression is that you guys, Mosaic, have your own software for sort of spinning up and down machines, just like Imbue had to build. But Imbue probably, it sounds like Imbue, you guys went fuller stack. I don't know how to describe it. Like Mosaic is not working with Dell on like their firmware.
+
+JONATHAN [00:20:21]: No, no, we're typically working with like, you know, pick your cloud provider on their Dell firmware or what have you. Like, it's kind of, I think one of the things, I don't know, Josh, you can correct me on this. It's kind of impossible if you're doing training to not go all the way through the entire stack, regardless of what happens. Like somehow I'm still chatting with cloud providers about power contracts, even though the whole point of dealing with the cloud provider is not to have to think about power contracts. Somehow I'm still asking them about which InfiniBand provider they used this time to see if this is part of the bad batch of cables I encountered on that cloud provider or what have you. Or like, we're still talking about a firmware update from pick your provider. You can't not do this. It's convenient that they have data center staff who are worrying about what to send back to which provider when, and they have people who can go and wait for the InfiniBand cables so they don't get stolen outside. But, you know, it's kind of, it's impossible not to really go full stack if you're thinking about the infrastructure at all. I don't know, Josh, correct me. No, I think that's right.
+
+JOSH [00:21:17]: That's what we expected from the beginning as well, is that we would inevitably have to get into the details here. And I'm glad that we kind of just planned for it. I think it made it a lot easier from our perspective to have direct control over this. Instead of having to go to the cloud provider that goes to the data center, that goes to the supplier, we could just go direct to NVIDIA or Dell
+
+SWYX [00:21:37]: or the data center,
+
+JOSH [00:21:37]: whoever was responsible and be like, hey, this thing needs to change. And they're like, oh, okay. Yeah, that is our responsibility. Great, we can fix that. So it was just a lot easier for us to fix these bugs than if we had to go through an extra layer of email.
+
+SWYX [00:21:48]: Something we discussed in the pre-show was that you had a rule of thumb for your cluster of reliability. You say here in the post, by and large, you expect around 3% of your machines to break every week. So you're basically going to turn through all your machines in a year.
+
+JOSH [00:22:04]: As it says in the post. So that would be true if it was a uniform failure like that. But as it says in the post, it's usually these kind of problematic nodes. And to be clear, that is the number that we've heard from other people is like they're having about 3%. I don't think we're experiencing failure rates that are that high. I think ours is actually quite a bit lower than that, probably because we've taken the time to like dig into a large, maybe larger number than we should have of these failures and get to the root cause of it and be like, oh, okay, like that's exactly what's going wrong.
+
+SWYX [00:22:33]: How do we fix this?
+
+JOSH [00:22:33]: How do we prevent this from happening? How do we make automated checks for this so that if it does happen, it just goes back to whoever owns that particular part of the process and they can fix it immediately.
+
+SWYX [00:22:43]: And that's part of what you're also open sourcing, which is the health checks, right? You got the NIC health checks, GPU health check, this space health check, Docker D message. I don't know what that is.
+
+JOSH [00:22:52]: That one is just a lot of stuff.
+
+SWYX [00:22:54]: Yeah.
+
+JOSH [00:22:55]: That one is one where we realized that actually like when these machines boot, sometimes they wouldn't actually boot cleanly all the way. Or when they rebooted, they had problems that they didn't have when they were working before, which was kind of frustrating. Like usually if you restart your computer,
+
+SWYX [00:23:08]: it gets better.
+
+JOSH [00:23:08]: Here you restart. It did not get better.
+
+SWYX [00:23:10]: It got worse.
+
+JOSH [00:23:10]: That was very frustrating. So this health check looks at every particular line we've ever seen from the boot, like in D message, like every single log line that your computer emits
+
+SWYX [00:23:21]: and says like,
+
+JOSH [00:23:21]: have we ever seen this before?
+
+SWYX [00:23:23]: Is this expected?
+
+JOSH [00:23:23]: Is this in the right order? Or is there something out of place? If there's anything out of place, let me say, okay, great. Like now it goes into this, like longer, more triage list of like, all right, great. Like, is this acceptable?
+
+SWYX [00:23:33]: Should we flag this?
+
+JOSH [00:23:33]: Like, should someone take a look at this? So we're looking down at a very, very granular detail level, what's happening on these computers to make sure that nothing is out of place. And that's critical because without that, if you're running your training, as Jonathan said, and this thing is slow, like what are you supposed to do? Right?
+
+SWYX [00:23:49]: Like you really,
+
+JOSH [00:23:49]: you really want to be very certain that like all 4,000 of these GPUs are working like they're supposed to.
+
+SWYX [00:23:54]: We know that.
+
+JOSH [00:23:54]: And so if it's slow, it's because like we messed up the config or something else and not because of this earlier thing that's like really hard to detect in software later.
+
+JONATHAN [00:24:01]: Yeah. I think the, I'm just curious to ask,
+
+SWYX [00:24:03]: like, you know,
+
+JONATHAN [00:24:03]: suppose you were to set up another, let's say another H100 cluster and it were at a different data center. And instead of the vendor being Dell, it was super micro or what have you. How much of this would be repeatable? And how much of this would you have to redo? I, you know, I genuinely don't know.
+
+SWYX [00:24:18]: A decent amount.
+
+JOSH [00:24:19]: I think it would go a lot faster the second time. I think there's lots of learnings that we had. And also the blog post,
+
+SWYX [00:24:24]: you know, yes,
+
+JOSH [00:24:24]: we are releasing the health checks, releasing some scripts, but a lot of the valuable stuff is also in the blog post itself, in the details and kind of the, you know, the learnings that we've had and the sort of errors that we run into. We tried to as much as possible surface those to other people
+
+SWYX [00:24:36]: could learn from those
+
+JOSH [00:24:36]: and avoid the same mistakes or failures as well. But I think it would go a lot faster.
+
+SWYX [00:24:41]: Although, yes,
+
+JOSH [00:24:41]: there would certainly be some things that'd be a little bit different. I mean, there'd probably be different CPUs
+
+SWYX [00:24:46]: or whatever,
+
+JOSH [00:24:46]: but I think a lot of that stuff is less,
+
+SWYX [00:24:49]: it's less,
+
+JOSH [00:24:49]: that's the like, that's less variable. I think most of it would apply the second time around. Although I'm sure next time
+
+SWYX [00:24:56]: we're building one,
+
+JOSH [00:24:56]: it'll probably be, you know, at a scale that's 10x as big with a different chip or something like this.
+
+SWYX [00:25:00]: And then who knows?
+
+JOSH [00:25:01]: Yeah, with Kinect X8,
+
+JONATHAN [00:25:02]: that will have its own fun behavior and all that good stuff. Yeah.
+
+SWYX [00:25:06]: Perhaps there's something that people don't discuss about, and you don't even talk about this in the blog, but I always wonder is what is the timeline that's like kind of reasonable for this amount of work, at least the initial stages? And also what does the team composition look like for setting up a cluster, right? Like what are the mix of skills that you typically would require to get all this going?
+
+JOSH [00:25:27]: I'm, I can't really speak to typical. One thing I am very proud of is how much we accomplished with such a ridiculously small team. Like our infrastructure team is like, you know, fluctuates from week to week, depending on like how many things are on fire and how much we need to build. But it's like between like three and six people, like it's small. It's not like some huge team of like tons and tons of engineers. But those people are very, very good at what they do. And so that has allowed us to get a lot of mileage out of out of these things. I think it's not that we're building everything, right? It's not that three to six people build this whole thing. I definitely want to like, you know, say thanks very much to Dell and H5 and NVIDIA and the other people that have done a lot of the work, like to bring up this cluster, you know, with 4000 GPUs and three tier networking, networking architecture, you have 12,000 cables. So that's 24,000 things that need to be plugged in. Like that's just a lot of stuff to plug in, right? And you don't want to mess it up. Like each one needs to be done correctly. Like it's a little bit loose. Like it doesn't really work.
+
+SWYX [00:26:23]: If you break it,
+
+JOSH [00:26:23]: you need to replace it. Like there's a lot of work
+
+SWYX [00:26:26]: that goes into this.
+
+JOSH [00:26:27]: Yeah.
+
+SWYX [00:26:28]: And then, you know,
+
+JOSH [00:26:28]: that's just like that's it. That's if you were to do everything right the first time.
+
+SWYX [00:26:32]: And if you didn't
+
+JOSH [00:26:32]: have to fix anything. But inevitably, you know, you will have to replace something, which means like taking all the wires out, pulling the thing out, taking all the GPUs out, going and fixing some cable, putting it all back correctly, putting it back in, doing this every time. So there were a lot of people at Dell, NVIDIA and at H5 that all helped a ton with this stuff. I don't know the exact size of the Dell team. It also fluctuated over time.
+
+SWYX [00:26:55]: Yeah, excellent. And then, you know, you so you have all the hardware set up and now you're firing it up for a single node. There's a long description that you guys have about just like monitoring the MFU, right? And what each situation might look might be indicative of. One of the most interesting things to me that I saw from here is like, you know, if training immediately starts off at 60 to 80% MFU, something's wrong.
+
+SWYX [00:27:24]: But like, you know, like what what are like, you know, some anecdotes or, you know, notable scenarios here that you might you might call out as maybe counterintuitive or super interesting.
+
+JOSH [00:27:36]: There's just so many of them. I mean, one of them, which I think is probably pretty common, like common knowledge by this point. But like we did have a sort of like
+
+SWYX [00:27:46]: which one was this exactly?
+
+JOSH [00:27:47]: I think for the MFU, like gradually getting worse over time. I think that one, when we saw that the first time we were like, what the heck is going on? Like, why does it get just like a little bit worse? This is so strange. Like, what is it getting lazy or tired or something? Like, is it heat? Like what's going on? And in this particular case, it was memory fragmentation. Because you have hundreds of machines, they're doing garbage collection slightly different times. And then they get slightly further apart and slightly more and more jittered until eventually they're all happening kind of at random times. And just like really messing up each one of your steps. So you just turn off garbage collection and call it a day, basically,
+
+SWYX [00:28:20]: to be honest.
+
+JOSH [00:28:20]: There's other things you can do if you want to be a little bit more sophisticated about it. But you can also just manually
+
+JONATHAN [00:28:25]: have it all garbage collect on some interval. Like that's what we've done. We just have a garbage collection callback that just runs. But I've seen the exact same thing.
+
+JOSH [00:28:33]: Yeah, yeah, exactly. So I thought that one was kind of funny. And we did trace that one down and look and we did find the actual call. Like, again, this goes to like having good tools. So we had really good tools where we could look at a bunch of like actual traces in C and be like, OK, cool. This is the thing that's taking a lot of time. Or like, you know, this is the thing that doesn't quite line up here. Like, oh, I guess it's garbage collection. OK, cool.
+
+SWYX [00:28:52]: Interesting.
+
+JOSH [00:28:52]: Yeah, let's just try taking it off.
+
+SWYX [00:28:54]: OK, great.
+
+JOSH [00:28:54]: That's what it was. Now we can fix it. So for each of them, like basically bugs are not hard if you have good tools. But if you don't have good tools, bugs can be very, very hard. So similarly for like heat, another thing that we saw was like, oh, you know, the CPU is getting throttled. OK, well, it's easy to see if you're monitoring the CPU throttling or monitoring the heat. If you're not monitoring that, it's really hard to know why it's just suddenly one of them is going slower. I noticed also in the piece
+
+SWYX [00:29:17]: that you mentioned FSDP with 0.3. Actually, we met, I went to iClear and Guanhua from the DSP team was there presenting 0++. I was wondering if you want to make any call outs to, you know, particular open source or open library or open whatever implementation teams that were super helpful in your process. I think we ended up actually
+
+JOSH [00:29:39]: pulling from a whole bunch of different ones to pull things in into our own particular pipeline. So we use things from NVIDIA's, you know, Megatron stuff. We use stuff from probably DeepSpeed. I think we pulled in a bunch of different pieces from a bunch of different places. So it was really nice to see all these working open source like examples. I think I really appreciate all the effort that has gone into actually tuning these things because you can tune them, but it's a lot of work to like tune this stuff and do all this stuff from scratch. It's really nice to have like a working example. I think those are probably the two biggest ones, DeepSpeed and Megatron alone, but there are probably other ones as well.
+
+SWYX [00:30:13]: Is there a particular thing in the ecosystem where you would call out as like, you know, there should be something here that is open source, but like it's not really, it's like everyone kind of builds it on their own. I want to say something with the file system because everyone talks about the file system eventually.
+
+JOSH [00:30:28]: The file system actually was,
+
+SWYX [00:30:30]: I mean, we did something
+
+JOSH [00:30:31]: kind of dumb there. Like we have our own sort of local mirror so that we can, you know, like a crappy version of S3
+
+SWYX [00:30:38]: that's local,
+
+JOSH [00:30:38]: but it's just a pretty simple script, right?
+
+SWYX [00:30:41]: Like I think we run like
+
+JOSH [00:30:41]: a little web server that just like serves files and then, you know, it can upload them
+
+SWYX [00:30:45]: and download them.
+
+JOSH [00:30:45]: Okay, great. And part of the reason we did that is that our internet connection
+
+SWYX [00:30:50]: in the beginning
+
+JOSH [00:30:50]: was not the like full speed
+
+SWYX [00:30:52]: one that we would
+
+JOSH [00:30:52]: eventually have. And so we are a little bit more kind of bottlenecked in terms of internet bandwidth. And so we had this. I think we looked at a bunch of services out there like Minio and some other ones, but a lot of these like come with a lot of extra overhead and maintenance. And since we already have so much infrastructure
+
+SWYX [00:31:09]: to deal with,
+
+JOSH [00:31:09]: we kind of didn't want to, you know, bring in a whole other like cloud provider, virtualize something, something.
+
+SWYX [00:31:14]: We just wanted something simple.
+
+JOSH [00:31:14]: So we went with that, which has been quite helpful. Like our tools
+
+SWYX [00:31:19]: are usually quite simple.
+
+JOSH [00:31:19]: It's like Bash and Python and SSH and Docker. Like we'd like to keep things simple so that's easier to debug, like less layers of infrastructure, less layers of abstraction, make it a lot easier to work with. Like we don't use Kubernetes,
+
+SWYX [00:31:30]: for example,
+
+JOSH [00:31:30]: and we just directly launch these things. And it's just been much easier to debug this way. One tool actually that does come into mind that I will call out is Kraken from Uber. That was great. We love that tool. We were a little bit skeptical. What is it?
+
+SWYX [00:31:44]: I'm sorry. Yeah.
+
+JOSH [00:31:45]: So Kraken is this, yeah, it's a distributed like Docker registry, basically, that uses BitTorrent to like transfer things between the machines in a sort of nice optimal way. Like in the very beginning, the naive way is like you have this one Docker registry, which was outside of the cluster. So every time we change an image, you know, there's many gigabytes that each of the 500 machines needs to download.
+
+SWYX [00:32:07]: So that just takes
+
+JOSH [00:32:07]: a really long time. So what this thing does is like just one of them downloads it and then like they all sort of broadcast all the pieces to each other. And it was just like a really nice, fast way of getting these images down. And it was very robust.
+
+SWYX [00:32:19]: Like there's a lot
+
+JOSH [00:32:19]: going on under the hood, but I think it's a pretty cool tool that we haven't really had any bugs with it at all. Amazing.
+
+SWYX [00:32:26]: Yeah. I mean, that's all my questions, I guess, for the info piece. I don't know if, John, you had something that you were sort of burning to ask or.
+
+JONATHAN [00:32:33]: No, all I can say is just same
+
+SWYX [00:32:36]: in a lot of places, like, you know, and they're done that
+
+JONATHAN [00:32:38]: seeing this plus one. I think the one big difference, you know, perhaps in philosophies is we've tried to basically standardize on as much commodity stuff as possible, just because, you know, I think the reason I asked about trying to do this
+
+SWYX [00:32:50]: on multiple different
+
+JONATHAN [00:32:50]: pieces of infrastructure is like, I think we're running on like six or seven different clouds right now. And everybody has done something slightly different. And my gosh, the little differences add up as you know, you've seen. And so, you know,
+
+SWYX [00:33:04]: our philosophy has been like, whatever the hell
+
+JONATHAN [00:33:05]: we can standardize, please let's standardize it. Like vanilla off the shelf FSDB.
+
+SWYX [00:33:10]: And like, you know,
+
+JONATHAN [00:33:10]: we wrote our own data loader, but we've tried to make that as much of a standard as we can across our infrastructure and in Databricks, because things just start getting really complicated
+
+SWYX [00:33:18]: or like we use
+
+JONATHAN [00:33:18]: Kubernetes extensively because it at least gives us a uniform set of APIs. Like that's our hardware abstraction layer to a certain extent for everything else. So it's just, you know, a difference in philosophy there. But otherwise, like, yeah, this stuff is really, really hard. And I feel like we take for granted how much of this, you know, is done for us when you go and you just query chat GPT, for example. Like, oh my God, everything going on underneath that, you know, it's kind of a miracle that the machines boot up, let alone that you can like query a giant language model that's probably doing inference across multiple machines and was trained across thousands of machines. Like, you know, minor miracle.
+
+SWYX [00:33:54]: Yeah, it is an awesome amount of power that we invoke with a single API call that we take for granted these days. It's absurd. Yeah, I mean, like Kubernetes, like that point about Kubernetes, I will say as a former AWS employee, like it seems like it would be ideal for imbue to at some point make it more abstracted or agnostic because you're going to want to, you know, replicate your setup. We do have our own
+
+JOSH [00:34:19]: sort of replacement. It's just a much simpler version of Kubernetes. Kubernetes is really designed for running services, not for running experiments. Like that's not its like main architecture. And so for us, like we have everything that's like, cool, you're going to run an experiment. So you want it to run to completion, right?
+
+SWYX [00:34:34]: OK, great.
+
+JOSH [00:34:34]: Like the primitives are sort of built around a slightly different style. And that makes it a lot easier, like just a lot simpler to fit that the nature of like these machines are going to disappear. They will need to be rebooted for infrastructure upgrades. They will like something will happen to the GPUs. Failure is like baked into this as like a core part of our infrastructure. So it's not that we don't have an abstraction. It's that it's a sort of simpler, more tailored abstraction for the particular work that we're doing.
+
+JONATHAN [00:34:58]: Yeah, I think it all depends on what your goals are. And like, I think the challenge in a lot of the deep learning stuff right now is that people are trying to like, people often build things that are more complicated than necessary to get the job done. And the complication is the enemy of everything. You know, don't use a fancier parallelism strategy than you have to. Don't use a fancier set of libraries than you have to.
+
+SWYX [00:35:18]: Don't do anything
+
+JONATHAN [00:35:18]: that you don't have to do because it's hard enough as it is. Like, don't overcomplicate
+
+SWYX [00:35:23]: your own life.
+
+JONATHAN [00:35:23]: Don't try to bring in more tools or more fancy architecture tweaks if you absolutely don't have to.
+
+SWYX [00:35:29]: Like getting to the minimum
+
+JONATHAN [00:35:30]: necessary to get the job done. And it's really tempting to want to try to use everything. So like, I totally understand that one.
+
+SWYX [00:35:37]: I think the last piece I'll maybe call out is that I'm just going to weave this in just because I see the opportunity to do it. Are there any infrastructure shifts that need to be, that need to rise because of changing architecture? So I think, for example,
+
+SWYX [00:35:57]: you're announcing a dense model, a 70B dense model, whereas John just worked on DBRX and the image-to-text model, which presumably has different bottlenecks.
+
+JONATHAN [00:36:10]: That's correct for us. You know, we train both dense and mixture of expert models. The one we happened to, you know, kind of get permission to open source was a mixture of expert model. And those models are very demanding when it comes to network bandwidth, at least if you're training them in kind of FSTP 03 style, where there's just a lot of parameters getting shuffled back and forth. And your ratio of kind of compute to amount of data that you have to shuffle back and forth becomes a lot worse because you're now, you know, you're only using a fraction of the parameters for every token instead of all the parameters. And so we had to really push the envelope on getting all the stuff to the right places on time. And so actually the networking part of DBRX was the single hardest thing, I think, of the entire process. Just get MOE training, working at scale across a big cluster. We still managed to, I think, do it all with commodity parts, which was very exciting. You know, we were using FSTP and we eventually used HSTP so that we could have HSTP as a version of FSTP where you have multiple smaller replicas and you're doing data parallel within those replicas. And that helped a lot with network latency issues that we were running into just because we were transmitting so much data, you know, for every single part of the process. I think it actually, like, it was instructive for how Google designs their hardware and software together personally. Their training, as far as I understand, using kind of a 03 style of training and have been for a while. They also train mixture of expert models. TPUs have a very different network bandwidth to compute ratio. They have a lot more bandwidth just objectively. And TPUs per chip tend to be a little bit less compute intensive and have a little bit less memory. You know, it's just a different design choice. So the ratio of flops to bandwidth is very different. And that means that it's much easier for Google to be able to pull off
+
+SWYX [00:37:54]: some of this stuff.
+
+JONATHAN [00:37:54]: They also have interesting, you know, Torus style network architecture or Torus style, like, literal network architecture
+
+SWYX [00:38:00]: is not like the model,
+
+JONATHAN [00:38:00]: but the network.
+
+SWYX [00:38:02]: Is this the sort of block attention? I forgot what you call it. So this is just more or the,
+
+JONATHAN [00:38:07]: yeah, this is more, not the ring attention, but these are the ring all reduces. Like you have three different dimensions of rings because they kind of put you in these three dimensional Toruses from what I understand. And so like, you know, Google's infrastructure in some sense is kind of, I wouldn't say built for this, but maybe the way that Google trains models is built for a slightly different bit of infrastructure they have. And it's kind of neat to think about that. You know, as one thing that I think NVIDIA announced for, you know, for, for both the GH200 and the GB200 is this hybrid networking where you'll have blocks of NVLink network chips. I think for the GB200, I think it's like groups of 72 GPUs will all have NVLink to each other. So higher bandwidth, then you'll have normal networking of some kind, InfiniBand or Rocky or what have you between these blocks. And that's kind of a, you know, it's a change due to the fact that, you know, it's hard to build really high bandwidth networks over very large groups, but it is now a blocked networking. And you have to think about how you architect your model and your parallelism differently. You also have to think about fault tolerance differently because it now matters where you lose a GPU, whereas it didn't before. So, you know, it's, it's, it's just all really interesting and really fun speaking personally, but it's going to mean new nightmares when we all move to that generation and have to think about, you know, new versions of these problems.
+
+JOSH [00:39:20]: As you go up to larger scales, it gets quite different. Like right now, you know, if you're experiencing, let's say, for example, you experience a GPU failure every day, that's fine.
+
+SWYX [00:39:31]: Just restart.
+
+JOSH [00:39:31]: If you make your thing 24 times as big, now it's once an hour. Now it stops being quite as easy to just restart, right? So now you have to kind of break, like bake in this sort of redundancy that you didn't have before. So I think as you go up in scale, you end up running into like a lot of really interesting problems that also inform the, the actual like design. Yeah, I mean, as an orchestration guy,
+
+SWYX [00:39:52]: this is why I always emphasize like very cheap storage or very fast storage. So you can checkpoint more, but I don't think that's probably not the best solution to for fast, you know, training.
+
+JONATHAN [00:40:05]: Which works fine when you're doing language and then you move to vision or video. And then, you know, you have multi petabyte datasets
+
+SWYX [00:40:12]: and getting, you know,
+
+JONATHAN [00:40:13]: cheap, fast multi petabyte storage starts to bite. Like I've certainly encountered issues where the literal data center where my GPUs were did not have enough, you know, object store to fit the datasets that people wanted to bring into that data center from whichever users were, were trying to bring them in. And then you get to a whole
+
+SWYX [00:40:31]: different world of hurt
+
+JONATHAN [00:40:31]: where you have to keep your data in a different region because the region is just out of storage. So things get fun really fast.
+
+SWYX [00:40:39]: Speaking of vision, Josh, actually, you know, Embu is an agents company, but you're only, you're announcing a text-only model. What, where does, where does the vision side come in?
+
+JOSH [00:40:49]: I think we've actually done a lot of work in the past and people can see kind of our blog posts about sort of self-supervised learning and some other kind of vision-related stuff in the past as well. So we're very familiar with, with that stuff. But I think our main focus right now is on kind of, as we say, coding and reasoning. And there, there's certainly a visual component to some problems. But, you know, it's not necessarily required for all problems. And actually we found that for most of the kind of like code writing and, and reasoning problems that we care about, the visual part isn't really a huge important part of it. Sometimes if you really need to, you can maybe describe
+
+SWYX [00:41:24]: the thing.
+
+JOSH [00:41:24]: There are other like, you know, multimodal models that you can use off the shelf to sort of plug in for those particular pieces
+
+SWYX [00:41:30]: that you need, right?
+
+JOSH [00:41:30]: Like if something is driving a browser or whatever, like you can sometimes get away with not having to have that baked into the original model. So our folk were, you know, in a sense, we kind of do a lot across the stack. We're working on our own infrastructure and pre-training and RL and fine tuning and products and everything. But in another sense, we're very narrowly focused on the application side. So all of the stuff across the stack is kind of going toward a very particular purpose. And so that particular purpose right now doesn't really need vision. So we think that people are going to make all sorts of really cool image models
+
+SWYX [00:42:00]: like Jonathan, right?
+
+JOSH [00:42:00]: And all sorts of interesting multimodal models into the future. We'll let them go do that. That's great. We'll take advantage of that, partner with those people in the future. And right now we're really focused on kind of the core reasoning and coding capabilities and aspects of the model.
+
+SWYX [00:42:14]: I wanted to go into carbs since that's kind of the next layer of the stack. We talked about carbs in the first episode with Kanjin because you've actually had a blog post about it like a couple of years ago. Maybe let's introduce it.
+
+JONATHAN [00:42:26]: Has that been a couple of years now?
+
+JOSH [00:42:28]: No, it must have been at least one year. Hopefully it's not multiple years.
+
+SWYX [00:42:32]: Sorry, I'm counting AI time. Yeah, yeah. Yeah, I was going to say
+
+JONATHAN [00:42:35]: you're making me feel really old right now.
+
+SWYX [00:42:39]: I count everything before the generally intelligent rename as like, you know, prehistory. Yeah. And now sort of modernity, right? So I actually thought carbs was more about hyperparameter optimization in a sense of like sort of parameters, hyperparameter search. Whereas, you know, when you introduced it, especially in this blog post, it's more about scaling laws and predictability of like, are we sort of in the right ballpark before we scale things up? Maybe sort of recount the history of carbs.
+
+JOSH [00:43:10]: Yeah, so it really is a little bit of both. So carbs is, it's maybe a backronym, but it's for cost aware Pareto region Bayesian search. So this is about technically how it works, but carbs is like, you know, we like pastries and stuff.
+
+SWYX [00:43:26]: So great, why not? But the point is that
+
+JOSH [00:43:29]: it's a cost aware hyperparameter tuner. So most hyperparameter tuners, you kind of say, OK, here's this objective function. I want you to make this number as big as possible or as small as possible, whichever direction you want to go. So yeah, just go make this number, you know, as small as possible. OK, so it'll try a bunch of different
+
+SWYX [00:43:46]: hyperparameters,
+
+JOSH [00:43:46]: a bunch of different configurations
+
+SWYX [00:43:48]: to figure out, like,
+
+JOSH [00:43:48]: how do I tweak your network and architecture, et cetera, to get the kind of best performance I possibly can. That's usually saying, like, you know, almost all of these hyperparameter configurations are, let's say they're all going to use the same number of GPUs or the same number of nodes.
+
+SWYX [00:44:01]: So it's going to run
+
+JOSH [00:44:01]: for the same amount of time.
+
+SWYX [00:44:03]: So you can do that.
+
+JOSH [00:44:03]: You can get a number out and that's great. But what carbs does is it says,
+
+SWYX [00:44:07]: OK, actually,
+
+JOSH [00:44:07]: what if we relax that constraint? What if we say each of these different points, we're going to model how expensive it will be to sample this configuration. So if what if we train with just one one hundredth of the data? Like, how well can we do?
+
+SWYX [00:44:19]: What if we train
+
+JOSH [00:44:19]: with one tenth of the data? What if we train with all the data? That way you can understand, like, as we get more and more data, as we spend more and more compute,
+
+SWYX [00:44:26]: as we make a bigger
+
+JOSH [00:44:26]: and bigger network, how does performance change with these things that change? Like how expensive it is to even explore this data point. So by doing that, we can see the scaling laws for not just, you know,
+
+SWYX [00:44:36]: the scaling laws
+
+JOSH [00:44:36]: from like the, you know, Chantilla paper, the scaling laws for all parameters. We can see how does how does the number of layers change with this? How does the, you know, the learning rate change? How do the like, you know, various types of regularization change? So you can see these nice scaling laws. And as you're going across costs, like how should this be changing as you're scaling up your model? So that, coupled with the kind of metric that we chose, which is a very precise way of measuring performance, allowed us to really like hone in on parameters that worked really well
+
+SWYX [00:45:05]: and understand, like,
+
+JOSH [00:45:05]: how do we want to scale those up, especially as we're changing
+
+SWYX [00:45:08]: things about the network?
+
+JOSH [00:45:08]: Like one of the things that we did is we used a custom tokenizer. As we change this tokenizer, changes a bunch of other things about the model. So how should we scale up this entirely new tokenizer? Like no one has ever made a model this large with this tokenizer before. And so how do we want to
+
+SWYX [00:45:22]: change all these things?
+
+JOSH [00:45:22]: Harps kind of shows you, like, look, as you change these parameters, like these other ones are kind of dependent on this.
+
+SWYX [00:45:28]: Like this is the, these are
+
+JOSH [00:45:28]: the relationships between them. So you can better understand, like, OK, if I'm going to scale this up 10x or 100x, like, where do I want to be? I can only go so far. And so, you know, we did run, like, I think maybe it was like a 14b one or something
+
+SWYX [00:45:40]: like that to check.
+
+JOSH [00:45:41]: But and so we had a bunch of like 1b or 14b and then at 70b. I don't think we had a, I think we just did like one at 14b. So you can, we get to check that like, oh, is this on the curve? Like, is this where we expect? It was like right there. So then great, go on to the next one. Yeah, I mean, that makes a lot of sense.
+
+SWYX [00:45:56]: I wonder if, so one of the key questions, and correct me if I'm wrong, but like usually people do search or do their evals just based on loss. But you actually evaluate based on, you know, the sort of end state evals that people might expect, like HellaSwag and Lombata, whatever. What is the norm here? Is there a norm?
+
+JOSH [00:46:20]: Yeah, I don't know if there's a hundred percent.
+
+SWYX [00:46:21]: I don't know. I only see loss on most people's reports.
+
+JOSH [00:46:25]: I think it's easy to, like, loss is very nice because it's very precise. It will tell you, like, very fine grained differences between like really small changes in your hyperparameters or network architecture. Whereas, especially at the smaller scales, if you're looking at like accuracy, it's very noisy. Like it might be zero or a hundred or like, you know, fluctuating by like 10 or 20 percentage points, which makes it really hard to tell, like, did that change actually mean anything? So our loss is sort of a combination of these two. Instead of saying, like, let's just look at perplexity, we say, let's look at perplexity on the tasks that we care about for multiple choice questions effectively.
+
+SWYX [00:47:00]: So we're saying like, yes,
+
+JOSH [00:47:00]: this is formulated as a multiple choice question, and we're going to look at the, like, you know, the loss of perplexity for this particular answer token. And that ends up being something that's like both targeted to what you actually care about and also very precise. The nice thing about this though is that it's independent of the data that you train on. One thing that's annoying about perplexity or about loss is that as you change your data set, this is really obnoxious because now it fundamentally changes your loss, right? And so you can't tell, like, how do I tweak my data set? But because we have this held out evaluation data set where we're looking at perplexity, we can actually change the data mix. And so CARBs actually control what is the mix of data that we want to see, like how much code, you know, how much internet text, et cetera, in order to figure out what is the best optimal mix of data and we could do that because we have this other metric. So that was one of the things that was really, really helpful.
+
+SWYX [00:47:46]: I think there is a trend overall about changing data mix as training goes on. I don't know how, you know, we're deciding not to talk about data sets in this podcast, but what have you observed about the changing data mix question?
+
+JOSH [00:48:06]: We did some experiments
+
+SWYX [00:48:08]: and we've actually talked
+
+JOSH [00:48:08]: to a bunch of researchers who are doing work here as well
+
+SWYX [00:48:11]: and looking at kind of
+
+JOSH [00:48:12]: their experiments on this. And we were originally pretty hopeful because it sounds like something that should work and make sense, right? Like, oh, cool. Like maybe you would have your model, like learn the basic features
+
+SWYX [00:48:22]: and then over time,
+
+JOSH [00:48:22]: it could get really good at these complicated math problems or coding or something, right? But it just turns out that like, it's just not the way it works. Like we've done so many experiments and you can get like a tiny, tiny little boost from this, but it just is not like, it's just not the important thing, at least in the experiments that we've seen. So yeah, we've kind of, we're letting other people
+
+SWYX [00:48:40]: explore that more
+
+JOSH [00:48:40]: if they want, but that just doesn't seem like the most promising direction for us.
+
+JONATHAN [00:48:44]: We've had some surprisingly good luck with this. We just released a paper on it. The details matter a lot and it really matters what you're trying to do with the model.
+
+SWYX [00:48:53]: Yeah.
+
+JONATHAN [00:48:53]: But it's been quite effective for us depending on the setting. And certainly when we're thinking about domain-specific models, this helps a ton. You know, to a certain extent, you can always think of this as like early fine tuning. But yeah, I like, there've been little glimmers of this in the literature for years. Like especially, I think the Gemini 1.5 paper mentions this. And I don't remember whether the Llama 3 paper mentions this,
+
+SWYX [00:49:15]: but it's kind of,
+
+JONATHAN [00:49:16]: it's one of those, like people have different ways to get to these endpoints.
+
+SWYX [00:49:20]: I think, you know,
+
+JONATHAN [00:49:20]: there are the architectural tricks that each lab has to mitigate loss spikes or what have you. And everybody's got, you know, their own bag of tricks and it leads to kind of sometimes this contradictory information. It's not contradictory. People are just kind of exploring
+
+SWYX [00:49:33]: different parts of the space
+
+JONATHAN [00:49:33]: in some sense. And there are lots of ways to get a great model. But certainly for us within our config, and it seems like, I guess for the folks at Google, within kind of the part of the world they live in, changing the dataset has helped, but the details matter a lot. And it's really hard to get those details right for the reasons Josh,
+
+SWYX [00:49:48]: you know, just mentioned.
+
+JONATHAN [00:49:48]: Like there's a lot of search involved and you essentially have to make hard choices about
+
+SWYX [00:49:52]: what parts of the space
+
+JONATHAN [00:49:52]: you're going to search and which ones you're going to leave be. And so, you know, some people have done an amazing job. Like I think the, who is it? The Deep Seek folks have done an awesome job looking at like batch size warmup. And that's been really, really fruitful for them. You know, other people are looking really hard at things like data mix, but it just gets tricky to look at everything.
+
+JOSH [00:50:09]: Yeah, I think we've found that like we could get some things that looked like gains from datasets. But one of the things that I like about carbs is that when we applied carbs to like properly tune things, then a lot of those kind of evaporated. Whereas like, like if we just tune these other parameters, actually we can get almost the same gains without having to do this more complicated thing. So at least in the experiment and in the settings that we've, like in the particular metrics
+
+SWYX [00:50:34]: that we care about,
+
+JOSH [00:50:34]: we haven't seen these kind of like pan out or scale up in quite the same way. But not to rule it out. And I think you're right, Jonathan,
+
+SWYX [00:50:41]: that there probably are
+
+JOSH [00:50:41]: a lot of like details that go into like exactly what is the metric, exactly what is the dataset, exactly which, like what schedule are we using for this. And I certainly wouldn't rule it out working.
+
+SWYX [00:50:52]: Quick question about emergence. Doesn't emergence throw a spanner into a theory of carbs? Ah, so there is a paper
+
+JOSH [00:51:01]: of which I really liked and I think informed
+
+SWYX [00:51:05]: a little bit of how
+
+JOSH [00:51:05]: we thought about this, which is are emergent properties of language models a mirage? And I think if you look at that paper, it actually makes a relatively compelling case that in fact, you know, this emergent behavior that you're seeing is not really emergent behavior, but is really a function of the evaluation metrics that we're using. So if you look at accuracy as a metric, what's happening is that accuracy is actually going up continually over training, but it's in log scale. So it starts out at 0.001%, 0.1, 0.1, 10.
+
+SWYX [00:51:35]: Only when you're going
+
+JOSH [00:51:35]: between 10 and 90 do you see this happen, right? When you go from one in, you know,
+
+SWYX [00:51:40]: a thousand getting right
+
+JOSH [00:51:40]: to one in a thousand getting wrong, like there's many orders of magnitude happening here.
+
+SWYX [00:51:44]: So when you're looking
+
+JOSH [00:51:44]: at this in perplexity, then you just see this nice straight line. And so that's actually what carbs is exploiting. Like since we're, since our metric is in this kind of like perplexity log space, like you can see like, oh, it's just like getting better as you make it bigger in this nice, very predictable way. So that, and that is exactly what we saw. Like these things were really, really bad at, you know, predicting the multiple choice answer, just always guess A. OK, it's so terrible at it, but it was like learning to be less confident about that.
+
+SWYX [00:52:09]: Yeah. One trick I saw from one of the papers recently was just like, just randomize the order of the multiple choice questions. And if you, if, if, if they, if they over, if that hits the performance a lot, then they're just basically memorizing the test set, which makes a lot of sense.
+
+JONATHAN [00:52:28]: Yeah, this is, I, I mean, you know, I, I completely agree with what Josh said.
+
+SWYX [00:52:32]: I think the, you know,
+
+JONATHAN [00:52:32]: my bigger lesson is that anything can look however you want it to look. If you put it on a log scale to a certain extent and log, we love our log scales and deep learning for various reasons. Everything looks very clean on a log scale until everything looks very flat on a log scale. Um, I don't know. I like log scales always mix me up. That's, that's all I can say.
+
+SWYX [00:52:51]: Great. I think the, the last thing I was, I was going to mention on, uh, carbs. Oh, well, I mean, let's, let's just kind of go right into evals because I think that's going to be, uh, the, the sort of crowd favorite. Um, so carbs, we already mentioned, um, you know, leans heavily on, uh, the sort of end evals that we would typically eval LLMs on, except that you had to make your own. Um, there are a lot of documented problems with many of the common evals out there and you fixed all of them. It sounds like, I don't know
+
+JOSH [00:53:18]: about fixed all of them, but, uh, I think in the same way that we like to dig into the infrastructure and hardware and understand, like what actually is going
+
+SWYX [00:53:27]: wrong?
+
+JOSH [00:53:27]: Like what is the actual error on this machine with this GPU?
+
+SWYX [00:53:31]: And why did that happen?
+
+JOSH [00:53:31]: And how do we fix it? We take the same approach to the evaluations. So when we looked at the evaluations and actually looked at the data sets, you know, what we did is
+
+SWYX [00:53:39]: like, okay, if we're going
+
+JOSH [00:53:39]: to be, you know, evaluating natural language, understanding and reasoning, like, let's look at all the data sets that are out there. Let's actually look at a bunch of the examples and say, like, is this a good data set that we should use for evaluation? That's kind of how we selected the evaluation data set that we had. Uh, and then when we looked at the actual examples in there, we noticed like a lot of these are very messy. Like some of them messy
+
+SWYX [00:54:00]: to the point of like
+
+JOSH [00:54:00]: incoherence and some of the ones that we didn't choose. Uh, but even the ones that we chose, like people tried pretty hard on
+
+SWYX [00:54:06]: these data sets.
+
+JOSH [00:54:06]: They did try and clean them, but there's just a lot of data points in there and it's just easy to
+
+SWYX [00:54:10]: make mistakes.
+
+JOSH [00:54:10]: Right. And so, you know, it's not that they have a
+
+SWYX [00:54:13]: hundred people looking
+
+JOSH [00:54:13]: at every question, like that's just way too
+
+SWYX [00:54:15]: expensive.
+
+JOSH [00:54:15]: So you end up with questions that just don't make sense.
+
+SWYX [00:54:18]: Somebody didn't really
+
+JOSH [00:54:18]: see this. Somebody just clicked the wrong box for the answer. Uh, or the question makes sense in your head. When you write it, we've often seen this, it's not even like malice or
+
+SWYX [00:54:26]: incompetence.
+
+JOSH [00:54:26]: It's really just like, you know, you write this,
+
+SWYX [00:54:28]: you're ready.
+
+JOSH [00:54:28]: You're like, this makes
+
+SWYX [00:54:29]: sense to me.
+
+JOSH [00:54:29]: You show it to another person like that makes
+
+SWYX [00:54:31]: sense.
+
+JOSH [00:54:31]: You show it to a third
+
+SWYX [00:54:32]: person.
+
+JOSH [00:54:32]: They're like, this makes no sense at all.
+
+SWYX [00:54:34]: That's because you're
+
+JOSH [00:54:34]: kind of, you know, using a different meaning of
+
+SWYX [00:54:36]: the word.
+
+JOSH [00:54:36]: And then when they say that, you're like, Oh,
+
+SWYX [00:54:38]: wow, you're right.
+
+JOSH [00:54:38]: That is actually really confusing. It's easy for things to
+
+SWYX [00:54:41]: kind of make sense in
+
+JOSH [00:54:41]: our own head. So what we did for the evaluations is really dug into the details of each of these data sets and tried to ask, like, what makes a good
+
+SWYX [00:54:50]: question?
+
+JOSH [00:54:50]: What makes a good answer?
+
+SWYX [00:54:52]: Like, what does it mean
+
+JOSH [00:54:52]: for it to be ambiguous? We had a whole, like,
+
+SWYX [00:54:55]: we looked at lots of
+
+JOSH [00:54:55]: data, broke this down, asked lots of people
+
+SWYX [00:54:58]: about all these
+
+JOSH [00:54:58]: different questions to build a model of this and help us kind of clean these data sets. That was sort of one big piece of it. A second big piece was making sure that our data that we're training on is not data that we're testing on. So there we kind of took a step back and said, like, OK, well, let's just reproduce, you know, 500 to a thousand examples for every single one of these data sets ourselves. And just make sure that this data is definitely not in the, you know, the training set. So we did that. And then we're able to, like, now be confident about, like, our performance of our model and also performance of other open source and other closed source models. Yeah, there's a lot there.
+
+SWYX [00:55:33]: You had 11? I don't know how many data sets. I think so. One, two? Yeah. Any one you want to call out in particular to dive deeper on? Some of these are very famous, like HelloSwag, MitoGrand. Some are less famous, like Race. I don't know if... Race is a great data set.
+
+JOSH [00:55:50]: See that one?
+
+SWYX [00:55:51]: Yeah. Yeah. Just, you know, anything that's interesting you want on specific data sets? I think there are
+
+JOSH [00:55:57]: a few asterisks in there. You know, definitely read the whole paper
+
+SWYX [00:56:02]: as you're looking at
+
+JOSH [00:56:02]: some of these, like the GSM8K one is a little bit weird. I think one that was
+
+SWYX [00:56:06]: kind of funny,
+
+JOSH [00:56:06]: it was, like, low performance on ethics from some of the more recent models. I think that was a
+
+SWYX [00:56:11]: little bit funny
+
+JOSH [00:56:11]: because the models, you know,
+
+SWYX [00:56:13]: I think there was
+
+JOSH [00:56:13]: a reaction to, like, oh, no, like, you know,
+
+SWYX [00:56:16]: the models are saying
+
+JOSH [00:56:16]: bad things.
+
+SWYX [00:56:17]: And so they went way,
+
+JOSH [00:56:17]: way in the other direction. And now, like, on the ethics data set,
+
+SWYX [00:56:20]: it's always like,
+
+JOSH [00:56:20]: this is totally unethical, even though it's really fine. So they've just been tuned to, you know, make sure they don't make any PR disasters.
+
+SWYX [00:56:28]: I thought that was
+
+JOSH [00:56:28]: a little bit funny. Not to say that it's necessarily like a flaw of the model, but just kind of like, you know, political or tuning opinion. I think the main takeaway, I was just going to say
+
+SWYX [00:56:38]: the main takeaway
+
+JOSH [00:56:38]: for many of the, like, actual performance is, like, once you fix these ambiguous examples, a lot of these benchmarks are really saturated. Like, I think it's
+
+SWYX [00:56:48]: important to look at,
+
+JOSH [00:56:48]: like, you know,
+
+SWYX [00:56:50]: like when you're
+
+JOSH [00:56:50]: talking about performance on ANLI or race or pool queue or something, what you're really talking about is, like, performance on questions that make no sense. Like, it's just like, did it guess the answer in this, like, really weird scenario? Like, those are the ones that are left.
+
+SWYX [00:57:03]: Like, when you look
+
+JOSH [00:57:03]: at the performance on the ones that actually make sense to everyone, all the models agree.
+
+SWYX [00:57:07]: We agree, like,
+
+JOSH [00:57:07]: everyone's on the same page, which I think is kind of a really interesting result.
+
+SWYX [00:57:11]: The question then becomes, you know, what are the new, like, set of evals that would be like the next frontier that often embeds with it your idea of what reasoning is, because it's obviously you're super interested in reasoning. And yeah, I mean, like, where does this, where does the state of evals go from here?
+
+JOSH [00:57:30]: This work and this blog post is talking mostly about the public evaluations
+
+SWYX [00:57:34]: and the things
+
+JOSH [00:57:34]: that we can release. We do have our own internal evaluations. For example, one of them that we are releasing is the code understanding evaluation, which is about predicting,
+
+SWYX [00:57:44]: you know,
+
+JOSH [00:57:44]: what will this variable be or asking questions about code, et cetera. And that is one of the early benchmarks that we made that we can release. We can partly release it because we can generate an almost infinite amount of this data because these are programmatically generated. And so, you know, we're not really worried about there being like corruption in the kind of the training or test sets. So that makes it a little
+
+SWYX [00:58:03]: bit easier for us.
+
+JOSH [00:58:04]: But I think it's, you know, we have built other data sets as well that we can't release. Some of them, you know,
+
+SWYX [00:58:09]: for example,
+
+JOSH [00:58:09]: because they maybe use other open source code and so we can't redistribute it necessarily. Other ones, because, you know, that's, I think evaluations and data are like a core, important part of, you know, the business. And I think we take evaluations very seriously and are spending a lot of effort in terms of like, what exactly do we make as part of the evaluation set? How do you evaluate these things? We've done a lot of other stuff, you know, since these evaluations. But I think a lot around like code understanding for us, since that's our main focus. And it's a nice place to explore reasoning as well.
+
+SWYX [00:58:40]: It sounds like you talk a little bit about like code understanding as like sort of variable level, like sort of very micro context. Is there a sense of like larger code context as well? I don't know what I mean by that, by the way. It's mostly just like if I told the senior engineer to go look at a code base, they would understand at a broad level, the architecture, but also the design decisions and be able to tell me that. I don't know if that's useful or not, but I mean, that's useful to me as a, as someone who might be working with them. Yeah.
+
+JOSH [00:59:06]: This particular dataset is like the more low level code understanding,
+
+SWYX [00:59:10]: like just literally
+
+JOSH [00:59:10]: what happens in this code. And this is mostly because, you know,
+
+SWYX [00:59:13]: this is part of the
+
+JOSH [00:59:13]: carbs tuning metric, etc.
+
+SWYX [00:59:15]: Like we care about
+
+JOSH [00:59:15]: the low scale version
+
+SWYX [00:59:17]: of this as well.
+
+JOSH [00:59:17]: We want smaller scale models to be able to do something on this. And so that's kind of the focus for this.
+
+SWYX [00:59:22]: And hopefully this is more
+
+JOSH [00:59:22]: useful for other people. But yes,
+
+SWYX [00:59:25]: those other questions
+
+JOSH [00:59:25]: are also quite interesting. They get a lot harder to evaluate, like, is this a good architecture or not? Like you and I could probably debate for a while on, you know, different architectures. And so it becomes a lot trickier to do these evaluations as they become more realistic. So I think that's one of the things that we've been playing around with a lot, especially around like code generation.
+
+SWYX [00:59:44]: So if you're saying,
+
+JOSH [00:59:44]: you know, implement this function, okay, it can be kind of objective, but, you know, even MBPP, we've made our own internal version of this data set, right?
+
+SWYX [00:59:52]: Where we've taken like
+
+JOSH [00:59:52]: every single example
+
+SWYX [00:59:54]: and looked at it and been like,
+
+JOSH [00:59:54]: does this actually make sense? Like, what is the type signature? Like, can we remove all ambiguity, et cetera?
+
+SWYX [01:00:00]: So you basically like reviewed every single question on, I mean, that's impossible for like HelloSwag, right? Yeah, yeah.
+
+JOSH [01:00:05]: We didn't do that for HelloSwag, but this is for MBPP, which is only like a few hundred. So we just sat down and did it. Yeah.
+
+JONATHAN [01:00:12]: I'm so excited to get to look at this data set. Like this is such a resource for the community. I absolutely can't wait. We should probably do the,
+
+JOSH [01:00:19]: I don't know. I don't know if we were planning on doing the healed MBPP one,
+
+SWYX [01:00:23]: but hopefully we can do
+
+JOSH [01:00:23]: that one in the future. Did you look at SweetBench?
+
+SWYX [01:00:26]: It's the sort of hot new data set of the summer.
+
+JOSH [01:00:28]: Yeah, I've taken a quick look
+
+SWYX [01:00:29]: at SweetBench.
+
+JOSH [01:00:29]: It's really interesting. I like that it's a much more difficult kind of coding, code related task for bug fixing. I think it gets into some of these problems where it is a lot harder to evaluate these things once they get more realistic. Like we were looking at the AgentBench paper, I think just last week for our paper club and one of the things
+
+SWYX [01:00:49]: that we noticed
+
+JOSH [01:00:49]: is that actually like both of the examples in the appendix that are given as like traces where it got it right. This is actually not the right solution. And it's OK. You know, it's fine. Like it did make it past the test. That's what the metric is.
+
+SWYX [01:01:02]: That's what the benchmark
+
+JOSH [01:01:02]: is about, right? But like it just said,
+
+SWYX [01:01:05]: you know, like,
+
+JOSH [01:01:05]: you know, dot encode ASCII. Like, well, that's not the right way to do this. Like it just dropped all the other edge cases that you actually would have cared about in production for this thing.
+
+SWYX [01:01:14]: And there is like
+
+JOSH [01:01:14]: a better way of doing it.
+
+SWYX [01:01:16]: And you know,
+
+JOSH [01:01:16]: that's what the real golden patch was. But, you know, that's OK. But then how do you test all of that?
+
+SWYX [01:01:21]: Like as you start to do
+
+JOSH [01:01:21]: more realistic things, the test coverage, like getting test coverage over all possible ways of solving these bugs is really hard. Evaluation is the single
+
+JONATHAN [01:01:28]: hardest part of the whole thing. Like I spend a shocking amount of time just telling our customers
+
+SWYX [01:01:34]: we need to find a way
+
+JONATHAN [01:01:34]: to measure what you actually want out of the model before you should ever touch a GPU. And, you know, trying to convince my team and me to follow our own advice a lot of the time on that. And I think everybody like on the one hand,
+
+SWYX [01:01:46]: it's easy to laugh
+
+JONATHAN [01:01:46]: at the state of the evaluations that we have. None of them are good. Like if you go read these eval benchmarks, you'll always come away
+
+SWYX [01:01:52]: disappointed.
+
+JONATHAN [01:01:53]: And yet they've given us useful hills to climb. And we do seem to be making progress and measuring
+
+SWYX [01:01:58]: progress in the field.
+
+JONATHAN [01:01:58]: And I think anecdotally, models are getting better year to year. So I feel like people tend to go and get into one situation or the other, like evals don't matter. I'm just going to look at loss
+
+SWYX [01:02:07]: or like, you know,
+
+JONATHAN [01:02:08]: the evals matter a lot and they're all broken. So what do I do? And I think like a lot of things in deep learning, we have to make peace with just complete imperfection. Like the most successful scientists I see are the ones who are OK operating in a world
+
+SWYX [01:02:20]: where everything's
+
+JONATHAN [01:02:20]: going to be broken.
+
+SWYX [01:02:22]: And yet we can still
+
+JONATHAN [01:02:22]: cobble things together and make something
+
+SWYX [01:02:24]: interesting happen.
+
+JONATHAN [01:02:24]: I mean, we were just discussing that with literal infrastructure. And now we're all the way
+
+SWYX [01:02:28]: up to like,
+
+JONATHAN [01:02:28]: how do we measure whether a model performed a complex coding task correctly? And everything is broken.
+
+SWYX [01:02:34]: And yet we're still able
+
+JONATHAN [01:02:34]: to make huge amounts of forward progress.
+
+SWYX [01:02:36]: I think that's right, Jonathan.
+
+JOSH [01:02:38]: And that the challenge
+
+SWYX [01:02:40]: isn't necessarily
+
+JOSH [01:02:40]: making perfect evaluations. I think our blog post here is about going really into the weeds on these to figure out like, what does that look like? And I think one thing is like, you know,
+
+SWYX [01:02:49]: as you said,
+
+JOSH [01:02:49]: we have been able to make a lot of progress without making these perfect.
+
+SWYX [01:02:52]: That's great.
+
+JOSH [01:02:52]: You don't have to have perfect evaluations. And, you know, the more interesting work is the stuff that we can't necessarily publish about, which is the imperfect evaluations that we have for actual coding tasks, for example.
+
+SWYX [01:03:04]: Like, what does this
+
+JOSH [01:03:04]: really mean as a person? And there, as you said, it's much messier.
+
+SWYX [01:03:08]: So it's a lot harder
+
+JOSH [01:03:08]: to put it out and say like, hey, everybody use this because there's so many
+
+SWYX [01:03:12]: rough edges.
+
+JOSH [01:03:12]: It's so hard to like even say, oh, is this even the right task? Is this even the right way to do it? And there's a lot of judgment.
+
+SWYX [01:03:19]: There's a lot of intuition
+
+JOSH [01:03:19]: that it comes down to. But yeah, I think that's where it's critical to do
+
+SWYX [01:03:23]: if you actually want to
+
+JOSH [01:03:23]: make these systems work.
+
+JONATHAN [01:03:24]: Yeah, you have to make peace with with living in that in between.
+
+SWYX [01:03:28]: Yeah.
+
+JONATHAN [01:03:28]: And I think that in some sense,
+
+SWYX [01:03:30]: when I hire researchers,
+
+JONATHAN [01:03:30]: that's the number one quality I look for. Like, can they be at peace living in a house that is neither clean nor messy,
+
+SWYX [01:03:36]: but it's just kind of
+
+JONATHAN [01:03:36]: somewhere in between? And are they OK with that? Are they OK with a few dishes being out on the table and a few clothes
+
+SWYX [01:03:42]: being on the floor?
+
+JONATHAN [01:03:43]: Or will that drive them insane? Or will they just end up with all the clothes on the floor and like all the dishes out all the time? Like, it's kind of I'm looking for that perfect balance because, you know, we have to operate in this imperfect world. Like, yeah, go ahead and give me the perfect evaluation for programmers
+
+SWYX [01:03:58]: or for an LLM
+
+JONATHAN [01:03:58]: that is a program assistant tool. Like there is no perfect evaluation. But clearly we've made progress. And so the most important part
+
+SWYX [01:04:06]: is just are we
+
+JONATHAN [01:04:06]: climbing the right hills? And so this is why I'm so excited to see the ambiguity aspect of this. We often think we have more room to climb on these benchmarks. It turns out we don't. Or it turns out that actually we're climbing, getting good at the benchmark and not actually getting good at the task we care about underlying the benchmark anymore.
+
+SWYX [01:04:21]: Maybe the model,
+
+JONATHAN [01:04:21]: like this is the famous example where if you get 100% at MNIST, your model must be broken in some way because there are four examples mislabeled, you know, it's it's that all over again. Welcome to this.
+
+SWYX [01:04:33]: Yeah, it's the accidental canary canary in this. I think one thing that's
+
+JOSH [01:04:37]: actually really interesting about this also is that, yes, like the ambiguous examples are sort of, you know, not that great from the perspective of these particular tasks that we're evaluating.
+
+SWYX [01:04:46]: But actually, one thing
+
+JOSH [01:04:46]: that we're very interested in is ambiguity itself. Like, can we detect whether a task from a user is ambiguous or whether you've, you know, completed a task successfully? Like these are actually hard, messy problems, but are really important from like the user experience of using these models. I would much rather have a coding agent that will give me back a thing. And, you know, it's it's actually the code doesn't work like 10% less of the time than some other model, but it will tell me 100% of the time like when it's not sure. Like that's so much more useful if it can communicate like, I'm not really sure about this or maybe there's some errors here. Then just like, here's some code. I have no idea if it works. And so these kind of like, you know, detecting ambiguity and detecting correctness
+
+SWYX [01:05:25]: or uncertainty,
+
+JOSH [01:05:25]: I think are really interesting problems
+
+SWYX [01:05:27]: that we're really like
+
+JOSH [01:05:27]: digging into quite deeply.
+
+SWYX [01:05:29]: I want to touch on maybe a couple of hot topics in evals, maybe tangentially related, but we're on the evals train right now. So I'm just going to get on that. So ArcAGI, Francois Chollet's hot new thing, it's sort of my take on it is basically it's trying to measure reasoning through an abstract IQ test. Effectively, I noticed that you don't use it. There's a lot of community debate, pro and con about it. What are your thoughts on just more abstract reasoning and maybe ArcAGI specifically?
+
+JOSH [01:06:01]: I think we purposely stayed away from the very, like there's BigBench, for example, that has a lot of, I think, to me, feels sort of similar types of tasks that are like very unrealistic. Like, oh, you know, we have books of different colors and then you're going to shuffle them and like which book is furthest to the left or something like, OK, cool, I guess it's neat. It's neat, I think, for us to explore in terms of like an agent reasoning in a larger loop. And we do care about these types of evaluations there. The types of evaluations we're talking about in the blog post here are for getting at, like, does this model in a base model sense, is this working at all? There's no chain of thought in these evaluations. These are just like, go straight to the answer. Does this make sense?
+
+SWYX [01:06:42]: Like, is this a thing that
+
+JOSH [01:06:42]: you can answer very quickly? That's what we were selecting for with these evaluations. This is not to say that these are the only evaluations we have. I think the Arc ones are like a little bit too, probably, visual for us to really be able to integrate with.
+
+SWYX [01:06:56]: But I think some of the
+
+JOSH [01:06:56]: BigBench ones are... You can tokenize it.
+
+SWYX [01:06:59]: Yeah, but, you know,
+
+JOSH [01:07:00]: I think it's not really... I think you can spend a lot of time getting really good at these kinds of benchmarks without making, like, kind of more general purpose progress. And so I think we're a little bit leery of going too far in that direction. Similarly, like, coding competitions. Like, we do a lot of code generation, but we don't really do a lot on, like, code competition problems for the very, very hard ones.
+
+SWYX [01:07:20]: So I think you can go
+
+JOSH [01:07:20]: very far down that route
+
+SWYX [01:07:22]: and make something that's, like,
+
+JOSH [01:07:22]: really good at those problems, but not actually that useful as, like, a programmer day to day.
+
+SWYX [01:07:26]: Yeah.
+
+JONATHAN [01:07:27]: Take a different tactic, which is, like, at the end of the day at Databricks, I have 12,000 customers, or I think that's the latest number, all of whom are trying to do something with, you know, LLMs or AI or machine learning. And those things don't look like these tasks. I don't think I have a single customer that's asking to, you know, have AI solve abstract reasoning problems. Things are pretty, like, they can be ambiguous,
+
+SWYX [01:07:53]: they can be challenging,
+
+JONATHAN [01:07:53]: they can be really interesting,
+
+SWYX [01:07:55]: but none of them look quite like this.
+
+JONATHAN [01:07:56]: And so, you know, I think to Josh's point, like, it's really about asking, why are we doing this? Even if you're trying to build AGI, and that's not personally my purpose, and I, you know, Josh has much more interesting things to say about that than I do. I don't even know if this is the kind of intelligence I would get excited about or care about personally, or if I would consider, you know, to Josh's point, this to be the indicia of intelligence.
+
+SWYX [01:08:17]: It's neat.
+
+JONATHAN [01:08:17]: But, you know, for me, it's, like, more down to earth things, like having a model that can have a conversation with you about data
+
+SWYX [01:08:24]: that on the backend
+
+JONATHAN [01:08:24]: is running SQL queries on your literal data. That's a much more interesting task to me. That's something that really matters day to day for my customers and, you know, different perspectives, but, you know, I think Josh and I would probably say the same thing,
+
+SWYX [01:08:36]: even though I would,
+
+JONATHAN [01:08:36]: I'm guessing, I don't want to put words in your mouth. You would say that you're pursuing more general intelligence in your own way. And I would say that I'm very happy with narrow intelligence. Like, I'm very happy with my little SQL bot and building 12,000 of those because they're moving the needle for a lot of folks every day.
+
+JOSH [01:08:51]: Yeah, I think we're, you know, we're not as far away in our position as it might seem. I think we're also excited about, like,
+
+SWYX [01:08:58]: how do you actually
+
+JOSH [01:08:58]: make these things useful? And that does end up being pretty narrow. I think these other tasks can be interesting as, like, ways to explore these more abstract reasoning questions or like, OK, how could an agent actually work through this? But it's important to keep in mind that it's like a toy, not a real problem. It's like it's a scientific tool to tell us something about the models.
+
+SWYX [01:09:16]: It's not something we should
+
+JOSH [01:09:16]: be optimizing for necessarily.
+
+SWYX [01:09:18]: The one thing I'll point out is, you know, as a kid, I was graded into a gifted program based on my ability to solve these exact type of problems. And then I entered college based on my ability to solve SATs, which, again, have nothing to do with my college experience, but whatever. So, you know, we have a history in the humanity of doing correlated IQ tests to general capability. OK, so the two more, two more viral evals, and then, you know, I just want to be mindful of your time. Needle in a haystack, long context utilization. Oh, for the love of God. Something, well, OK, like, let's just assume that, you know, on our podcast, we've discussed the, you know, baseline problems with needle in a haystack, but just generally long context, right? It's a useful thing for agents. I assume. And it's something that, you know, it's out there. Like, we don't know, don't really know what the best way to utilize memory is. But like, I assume it's important, right? What I'll say is like, you know,
+
+JONATHAN [01:10:13]: I spend a lot of time thinking about RAG these days. And RAG, you know, in one sense, you know, the way that I think about RAG is it's the world's simplest agent. It is an agent that basically, you know, there's at least more than one thing happening in the process of building models, at least a system. If you give the model the ability to decide when it wants to retrieve data from a context or retrieve data from a database, then we're talking about an agent. So RAG kind of, I think, like toes that boundary really nicely. There are a lot of reasons why you do genuinely need a long context. Like, I don't think long contexts are problematic in and of themselves. I know there's some controversy even about that. I love the idea of doing like thousand shot tasks as an alternative to fine tuning. I love the idea of pulling in lots of data into the context. I love the idea of once you get in a multimodal land, you're just going to end up
+
+SWYX [01:10:54]: with giant context.
+
+JONATHAN [01:10:54]: It's kind of unavoidable. The flip side is I don't know of anyone who like is hiding a secret passphrase in a book and needs the model to find it. Needle in a haystack is, it's interesting. The challenge with long context to my mind, and Josh,
+
+SWYX [01:11:08]: I'm curious what you think,
+
+JONATHAN [01:11:08]: is simply that annotating long context evals is really hard and really expensive, you know, intrinsically, because you need someone to read 10,000 tokens or 100,000 tokens, or like you need someone to read a 1,000 page book or the equivalent thereof in order to measure those long context benchmarks. I don't know if a human could solve these tasks, let alone that a human could do this in any amount of time where you're willing to pay the money to get the data annotated. And so any long context eval
+
+SWYX [01:11:33]: has to, in some sense,
+
+JONATHAN [01:11:33]: be correct by construction. And you have to, you know, the, you have to know the answer before you've created the example. And needle in a haystack is kind of the simplest way
+
+SWYX [01:11:41]: of doing that.
+
+JONATHAN [01:11:41]: I think the problems of needle in a haystack are well known, you know, it doesn't measure anything real. You're not even testing the model's ability to holistically use the context just to identify one part of the context. So you can do some wacky things to your model, like quantize the hell out of the KV cache and still get needle in a haystack to work quite well because it's not trying to holistically take advantage
+
+SWYX [01:11:59]: of things.
+
+JONATHAN [01:12:00]: You know, I have some thoughts on things that I like more that are also still correct by construction. Like, I really like the idea of doing thousand shot tasks where you can look at the scaling as you go from 10 shot to 100 shot to thousand shot to fine tuning on that data instead. And I like that as a way to, you know, have something that's correct by construction, or at least where you have
+
+SWYX [01:12:19]: a nice baseline
+
+JONATHAN [01:12:19]: that you can compare to automatically. So I'm typically looking for like contexts that are situations where long context is one way to solve the task, but not the only way
+
+SWYX [01:12:28]: to solve the task.
+
+JONATHAN [01:12:28]: And we have some other strong baseline floating around personally. But yeah, needle in a haystack, not my favorite thing in the world, to say the least.
+
+JOSH [01:12:35]: Yeah, I mean, I agree with most of what Jonathan
+
+SWYX [01:12:38]: said, I think.
+
+JOSH [01:12:38]: I think one other thing that I will call out
+
+SWYX [01:12:40]: is that, you know,
+
+JOSH [01:12:40]: from like a coding application perspective, it's useful to have long context because the lazy thing of just like throw the whole repo in the context is like,
+
+SWYX [01:12:48]: OK, cool.
+
+JOSH [01:12:48]: Like, you know, you can just get started with that. But then in, you know, in real scenarios, you don't necessarily want to put the whole thing in there. You can have code bases
+
+SWYX [01:12:56]: that are bigger.
+
+JOSH [01:12:56]: You probably want to filter down to the stuff that's relevant anyway to not be confusing. Like you probably even if you did have a lot of context,
+
+SWYX [01:13:02]: you might want to sort it
+
+JOSH [01:13:02]: in some way to say this is more important than this other stuff. So and, you know, you don't want to wait for you don't want to be wasting all this time and compute
+
+SWYX [01:13:09]: on inference and like
+
+JOSH [01:13:09]: doesn't really matter. So, yeah, I don't know that it's the most important thing.
+
+SWYX [01:13:15]: I think people will find creative use cases. And like Jon said, I think the multimodality examples will naturally lend themselves to long context. Cool. And then one last one on just general sort of agent related capabilities that we didn't really talk about in the eval section is function calling and tool use. There's a recent trend, I think, basically led again by OpenAI on parallel function calling. There's always there's been a limit on how many tools you can call from four to now, I think, 128. And I think theoretically, Claude and Jem and I support a lot more.
+
+JOSH [01:13:49]: So just generally,
+
+SWYX [01:13:50]: how do you think about evaling tool use? Is that super important for you guys? We're thinking about it
+
+JOSH [01:13:55]: in a slightly different way, which is, yes, you can have this like hard coded list of tools. But if only you could have like this really large open set of like tools, maybe they would be like functions that you could call if only there was like a language or like a programming thing, like being able to write code. I think for us, it's like, well, look, if we can write code, like now you have all these tools accessible at the end of the day,
+
+SWYX [01:14:16]: like function calling
+
+JOSH [01:14:16]: is just a function invocation, like literally in code. I think our approach to this is like
+
+SWYX [01:14:21]: instead of worrying about
+
+JOSH [01:14:21]: like weird hard coded agents using tools, like let's just make them
+
+SWYX [01:14:25]: able to actually
+
+JOSH [01:14:25]: write code robustly and make that code work and be able to debug that code, know if that code is safe to run, like get really good at the like code writing and execution part of things, because that will open up the action space like far more than, you know, 128 tools, like just everything is at your fingertips, especially I think over the next few years, like we already have so many really good APIs. As we get better and better at writing code, we'll be able to make APIs to things that don't even have APIs today. That's kind of how we think about it is less as like a special purpose thing
+
+SWYX [01:14:52]: and more as like
+
+JOSH [01:14:52]: this is one of the reasons to focus on code.
+
+SWYX [01:14:55]: On my end,
+
+JONATHAN [01:14:55]: the way that I think about this is, you know, I think a lot about how models interact with data.
+
+SWYX [01:15:00]: And so for me,
+
+JONATHAN [01:15:00]: tool use is really a question of how do you take models
+
+SWYX [01:15:04]: that are really built
+
+JONATHAN [01:15:04]: for unstructured data
+
+SWYX [01:15:06]: and have them interact
+
+JONATHAN [01:15:06]: with structured data? So, you know, and I get the question a lot from my customers,
+
+SWYX [01:15:10]: like what do I do
+
+JONATHAN [01:15:10]: with tabular data? Or what do I do with like, you know, JSON? Or what do I do? I mean, you name it, like even what do I do
+
+SWYX [01:15:17]: with a PDF?
+
+JONATHAN [01:15:17]: Because PDF parsing is still an unsolved problem, even in 2024. And the answer, or even just the basic question
+
+SWYX [01:15:24]: of like, should I bother
+
+JONATHAN [01:15:24]: to structure my data anymore? Shouldn't I just toss the table? Shouldn't I flatten it
+
+SWYX [01:15:28]: and just throw it
+
+JONATHAN [01:15:28]: into the LLM context and like let the model
+
+SWYX [01:15:30]: figure it out?
+
+JONATHAN [01:15:30]: Answer is no. We've built all these fun APIs and fun languages
+
+SWYX [01:15:36]: and paradigms
+
+JONATHAN [01:15:36]: for dealing with structured data over the years. Just use them.
+
+SWYX [01:15:40]: Have your model use them.
+
+JONATHAN [01:15:40]: Train a model that can interact
+
+SWYX [01:15:42]: with these things
+
+JONATHAN [01:15:42]: in a meaningful way. Like text to SQL
+
+SWYX [01:15:45]: is still,
+
+JONATHAN [01:15:45]: or like having a model be able to make SQL calls in the backend is actually like one of the single
+
+SWYX [01:15:51]: most useful things
+
+JONATHAN [01:15:51]: for my customers. It sounds really boring. Models are really good at it. And it moves the needle day to day.
+
+SWYX [01:15:57]: So tool use for me
+
+JONATHAN [01:15:58]: really is that like, how do you just interact with structured data sources and take advantage of the fact that you have some
+
+SWYX [01:16:05]: prior knowledge
+
+JONATHAN [01:16:05]: about the structure of your data that an LLM would completely flatten away. In many ways, this is kind of one of the, one of my biggest frustrations with the fact that LLMs work well with code. We have decades and decades and decades
+
+SWYX [01:16:17]: of understanding
+
+JONATHAN [01:16:17]: about the structure and interpretation of programs. Like I think that's literally the name of a book on programming, if I remember right. And, you know, we have all this theory. We know everything there is to know about programming languages if they're well-formed languages and have the right properties. And yet when we have an LLM
+
+SWYX [01:16:31]: work with them,
+
+JONATHAN [01:16:31]: we literally just turn it into a token stream.
+
+SWYX [01:16:33]: Despite the fact that we know
+
+JONATHAN [01:16:34]: how to parse it. We know, you know, how to do all sorts of, you know,
+
+SWYX [01:16:38]: reference, you know,
+
+JONATHAN [01:16:38]: disambiguation and things like that. We're still just flattening it into a model and making the model relearn all of these things from scratch. And it frustrates
+
+SWYX [01:16:45]: the hell out of me.
+
+JONATHAN [01:16:45]: I don't have a better answer when it comes to code, but I really appreciate that with a lot of data sources that have structure to them. Tool uses and function calling
+
+SWYX [01:16:53]: are just,
+
+JONATHAN [01:16:53]: in my mind,
+
+SWYX [01:16:55]: So I think basically what you're saying is like code is the God tool for Jonathan. Like, you know, SQL is so much the right abstraction for accessing all this data. One thing I do spend a lot of time thinking about is for the stuff that doesn't fit in a SQL table, you know, is knowledge graphs the answer? I think a lot of people are exploring that and I think every now and then people get a bout of knowledge graph religion and then it kind of doesn't work out. So I wonder, I wonder what the end state is. Like, is this an idea where it's a mirage? Or is this the idea where it sometime is going to work? It's about having the right tools
+
+JOSH [01:17:27]: for the problems, right? Like as Jonathan was saying, SQL is sometimes definitely the right tool. Like you've got your, you know, order table or something and you want to know, you know, number of sales last month. Like you should be using SQL sum that column. OK, great. You're all set. Knowledge graphs also,
+
+SWYX [01:17:40]: you know,
+
+JOSH [01:17:40]: are sometimes the right tool for a particular problem. You have some like weird question about relationships between entities
+
+SWYX [01:17:46]: that are modeled
+
+JOSH [01:17:46]: on some particular ontology that you actually understand and it's like math to the real world. Great. Use a knowledge base. Like use a knowledge graph. This is fine. But I think in the real world, it gets a lot messier than like knowledge graph style of things where it's like, well, is there a relationship between these two nodes? Like, I don't know.
+
+SWYX [01:18:04]: Like, is are these
+
+JOSH [01:18:04]: two separate nodes? Like those kind of messy borders, I think, prevent it
+
+SWYX [01:18:08]: from being a tool
+
+JOSH [01:18:08]: that can like solve everything forever. And so I think it'll always be good for certain problems, just like SQL is good
+
+SWYX [01:18:14]: for certain problems.
+
+JOSH [01:18:14]: Like different abstractions are good for different problems. And yeah, I think this is why I'm excited about code. Like code lets you
+
+SWYX [01:18:20]: kind of pick the right,
+
+JOSH [01:18:20]: like let's use this library for this problem.
+
+SWYX [01:18:22]: Let's use this library
+
+JOSH [01:18:22]: for this other problem.
+
+JONATHAN [01:18:24]: I think Josh said it and you said it well, like code is kind of the God tool. It unlocks literally everything. The challenge for me is always like,
+
+SWYX [01:18:31]: you know, sometimes
+
+JONATHAN [01:18:31]: unlocking too much power can sometimes inconvenient things can happen. And so it's all about balancing that
+
+SWYX [01:18:37]: in some sense,
+
+JONATHAN [01:18:37]: language is the God tool.
+
+SWYX [01:18:39]: If only, you know,
+
+JONATHAN [01:18:39]: we knew how to interpret it all the time. So code is has the really nice property
+
+SWYX [01:18:44]: that at least you can
+
+JONATHAN [01:18:44]: always execute it. And sometimes you just literally want your model to be able to do SQL calls and nothing else. And setting those boundaries properly for the problem,
+
+SWYX [01:18:52]: I think is going to be, I think at least a lot of my customers
+
+JONATHAN [01:18:54]: are going to be thinking very hard about that.
+
+SWYX [01:18:56]: Like, should I give
+
+JONATHAN [01:18:56]: the model access to the web?
+
+SWYX [01:18:58]: Is that actually helpful
+
+JONATHAN [01:18:58]: for this problem? It sounds great to just like flip yes on all the tools.
+
+SWYX [01:19:02]: Is that actually going to mean
+
+JONATHAN [01:19:02]: I'm going to get better solutions to my problems?
+
+SWYX [01:19:04]: So I want to be mindful of time. I think that's basically our sort of recap of our discussion based on Imbue's releases today. I wanted to leave some time for what's next for both of you guys. Maybe Josh, as a guest of honor, you want to go first as to what happens next.
+
+JOSH [01:19:19]: We have these releases. We're happy to put these things out. I think there's a lot of stuff
+
+SWYX [01:19:22]: that we haven't released.
+
+JOSH [01:19:22]: Like, this is not the only thing we've been working on. Most of our actual focus has been on kind of coding and reasoning. In particular, like the things that we're excited about are can we make these things useful? Like Jonathan is saying, right? Like, it's not about toy problems. It's like, can we use these today in our day-to-day workflow and actually have them accelerate us? And I think we have some kind of internal product prototypes and things that we're excited about. And so we're excited to share more about this in the coming, you know, months to quarters as we get it to a place where like other people could maybe get value out of this as well. But that's kind of our real focus right now is like, how do you take these really cool capabilities that are out there that our models have, et cetera. And like, make sure that they're actually useful today for us, like when we're doing real work and then for other people as well. In particular, focused on generating code, understanding code, testing code, verifying it, like starting with the like robust creation of software. Excellent.
+
+SWYX [01:20:13]: Jonathan?
+
+JONATHAN [01:20:14]: I never like to talk too much about the future because I think you've heard this from me before. I like for us to speak
+
+SWYX [01:20:19]: through our work.
+
+JONATHAN [01:20:19]: And so I don't, I don't like to tease too much. Our mission is, to Josh's point, to make this stuff useful to 12,000 customers. And not a lot of that ends up making it into the public eye
+
+SWYX [01:20:30]: and not a lot of that
+
+JONATHAN [01:20:30]: ends up getting released open source. So for this kind of forum where really, you know,
+
+SWYX [01:20:34]: where we're talking
+
+JONATHAN [01:20:34]: to the community, I'm asking myself right now, like, you know, what exciting things
+
+SWYX [01:20:38]: are we going to have
+
+JONATHAN [01:20:38]: to offer the community in the next little while? I think the most exciting part is just we're writing a lot of blog posts right now. We're trying to share more and more of our science because I feel like
+
+SWYX [01:20:47]: we've been doing
+
+JONATHAN [01:20:47]: these big pushes to create these really giant models.
+
+SWYX [01:20:50]: I think, Josh,
+
+JONATHAN [01:20:50]: I'm sure you had
+
+SWYX [01:20:51]: the same experience.
+
+JONATHAN [01:20:51]: It's exhausting and all-consuming and you get to the end
+
+SWYX [01:20:54]: and you're like,
+
+JONATHAN [01:20:54]: oh, I have all this stuff
+
+SWYX [01:20:56]: I want to talk about.
+
+JONATHAN [01:20:56]: Now I need to find the time to talk about it now that I've survived this huge push. And we're definitely in that mode right now. So there's going to be a lot of that coming in in the next little while. And, you know, we're always cooking up fun new models. I think the real question is, you know, releasing models open source is not our day-to-day bread and butter. It's kind of a fun reward that we get to do sometimes when we have something really cool to share and a little bit of time and spare GPUs in our hands. But for the most part,
+
+SWYX [01:21:20]: everything is going
+
+JONATHAN [01:21:20]: toward customers. You know, I think the joke is Databricks has been 18 months away from IPO for five years. So I guess Databricks
+
+SWYX [01:21:26]: is 18 months away
+
+JONATHAN [01:21:26]: from IPO still. But 18 months away from IPO means there's a lot of pressure to deliver for customers. And we're going to keep working on that. But I think you'll see hopefully some cool, interesting things
+
+SWYX [01:21:36]: get dropped over the course
+
+JONATHAN [01:21:36]: of the summer and into the fall. We'll find out when we get there.
+
+SWYX [01:21:39]: I think that's the right way
+
+JONATHAN [01:21:39]: to put it. I know we were talking earlier about kind of Abracadabra and Alakazam. And all I'll say is that, you know, the DBRX small model that we still haven't released yet was called Abra. DBRX was called Kadabra. And there's a third Pokémon in that evolution. And that's all I'll say for now. Cool stuff kind of popping up sometimes on Chatbot Arena. And, you know, keep your eyes out. Yep.
+
+SWYX [01:21:59]: I'll leave the links and the hints in the show notes. That was a very fun way to leave some breadcrumbs for people to follow. Cool. I'll leave everything to sort of some calls to action. We're going to be releasing this next week. So I'll be deep in my conference, the AI Engineer World's Fair. So people can just go to AI.Engineer and livestream it. Do you guys have any other calls to action before you wrap?
+
+JOSH [01:22:20]: The only one is, you know, we're definitely hiring. So if you're interested in working on coding, reasoning, interested in working on all of this stuff, you know, from the ground up and really deeply understanding not just how does the hardware work, but how do the models work and also designing these, you know, systems to actually be useful for yourself day to day, come say hi.
+
+JONATHAN [01:22:36]: The only thing I'll say is, you know, and I like saying it these days, it feels like the field is so crowded and, you know, it requires so many resources to do impactful work. And, you know, on some days it feels like everything's been done or somebody else is doing everything before you can. At least I remember that feeling every single day of my PhD and even more so now. But I hope like what you heard from Josh today tells you there is so much enormously impactful work to do in the field. If only you take a step back and take a fresh look at some of these things and just talk about what you're doing. There's a huge amount left to do here and a huge amount of exciting work happening every day. And for those who are certainly feeling that exhaustion right now, and I count myself among those folks many days, it's refreshing to see these kinds of drops and see that there is so much more even in things that people feel like they understand how to set up a cluster. My God, you know, even in these evals that we think we understand, there is still more to understand and still more work to do. I hope everybody's keeping at it.
+
+SWYX [01:23:32]: All right. Keep on keeping on. Well, thanks so much for your time, guys. That was a great discussion and we'll put the links in the show notes for people to read more. Thanks. Thanks a bunch.
+
+JOSH [01:23:40]: Thank you so much.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Jon Frankle
+
+Writes Jon Frankle Subscribe
+
+Josh Albrecht
+
+Writes Thursday Nights in AI Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

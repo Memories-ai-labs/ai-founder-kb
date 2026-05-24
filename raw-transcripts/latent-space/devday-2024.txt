@@ -1,0 +1,1771 @@
+# Building AGI in Real Time (OpenAI Dev Day 2024)
+# URL: https://www.latent.space/p/devday-2024
+# Date: 2024-10-03
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Building AGI in Real Time (OpenAI Dev Day 2024)
+
+17
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -2:09:13
+
+-2:09:13
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Building AGI in Real Time (OpenAI Dev Day 2024)
+
+with OpenAI's Heads of Product, Developer Experience, and API tech, plus: full Sam Altman + Kevin Weill Q&A, Return of Simon Willison and Alistair Pullen
+
+Simon Willison and Latent.Space
+
+Oct 03, 2024
+
+17
+
+2
+
+Share
+
+Transcript
+
+We all have fond memories of the first Dev Day in 2023:
+
+AGI is Being Achieved Incrementally (OpenAI DevDay w/ Simon Willison, Alex Volkov, Jim Fan, Raza Habib, Shreya Rajpal, Rahul Ligma, et al)
+
+Simon Willison, Alex Volkov, and 2 others
+
+·
+
+November 8, 2023
+
+Listen now
+
+and the blip that followed soon after. 
+
+As Ben Thompson has noted, this year’s DevDay took a quieter, more intimate tone. No Satya, no livestream, (slightly fewer people?). 
+
+Instead of putting ChatGPT announcements in DevDay as in 2023, o1 was announced 2 weeks prior, and DevDay 2024 was reserved purely for developer-facing API announcements, primarily the Realtime API, Vision Finetuning, Prompt Caching, and Model Distillation.
+
+However the larger venue and more spread out schedule did allow a lot more hallway conversations with attendees as well as more community presentations including our recent guest Alistair Pullen of Cosine as well as deeper dives from OpenAI including our recent guest Michelle Pokrass of the API Team. 
+
+Thanks to OpenAI’s warm collaboration (we particularly want to thank Lindsay McCallum Rémy!), we managed to record exclusive interviews with many of the main presenters of both the keynotes and breakout sessions. We present them in full in today’s episode, together with a full lightly edited Q&A with Sam Altman.
+
+Show notes and related resources
+
+Some of these used in the final audio episode below
+
+Simon Willison Live Blog
+
+swyx live tweets and videos
+
+Greg Kamradt coverage of Structured Output session, Scaling LLM Apps session
+
+Fireside Chat Q&A with Sam Altman
+
+Timestamps
+
+[00:00:00] Intro by Suno.ai
+
+[00:01:23] NotebookLM Recap of DevDay
+
+[00:09:25] Ilan's Strawberry Demo with Realtime Voice Function Calling
+
+[00:19:16] Olivier Godement, Head of Product, OpenAI
+
+[00:36:57] Romain Huet, Head of DX, OpenAI
+
+[00:47:08] Michelle Pokrass, API Tech Lead at OpenAI ft. Simon Willison
+
+[01:04:45] Alistair Pullen, CEO, Cosine (Genie)
+
+[01:18:31] Sam Altman + Kevin Weill Q&A
+
+[02:03:07] Notebook LM Recap of Podcast
+
+Transcript
+
+[00:00:00] Suno AI: Under dev daylights, code ignites. Real time voice streams reach new heights. O1 and GPT, 4. 0 in flight. Fine tune the future, data in sight. Schema sync up, outputs precise. Distill the models, efficiency splice.
+
+[00:00:33] AI Charlie: Happy October. This is your AI co host, Charlie. One of our longest standing traditions is covering major AI and ML conferences in podcast format. Delving, yes delving, into the vibes of what it is like to be there stitched in with short samples of conversations with key players, just to help you feel like you were there.
+
+[00:00:54] AI Charlie: Covering this year's Dev Day was significantly more challenging because we were all requested not to record the opening keynotes. So, in place of the opening keynotes, we had the viral notebook LM Deep Dive crew, my new AI podcast nemesis, Give you a seven minute recap of everything that was announced.
+
+[00:01:15] AI Charlie: Of course, you can also check the show notes for details. I'll then come back with an explainer of all the interviews we have for you today. Watch out and take care.
+
+[00:01:23] NotebookLM Recap of DevDay
+
+[00:01:23] NotebookLM: All right, so we've got a pretty hefty stack of articles and blog posts here all about open ais. Dev day 2024.
+
+[00:01:32] NotebookLM 2: Yeah, lots to dig into there.
+
+[00:01:34] NotebookLM 2: Seems
+
+[00:01:34] NotebookLM: like you're really interested in what's new with AI.
+
+[00:01:36] NotebookLM 2: Definitely. And it seems like OpenAI had a lot to announce. New tools, changes to the company. It's a lot.
+
+[00:01:43] NotebookLM: It is. And especially since you're interested in how AI can be used in the real world, you know, practical applications, we'll focus on that.
+
+[00:01:51] NotebookLM: Perfect. Like, for example, this Real time API, they announced that, right? That seems like a big deal if we want AI to sound, well, less like a robot.
+
+[00:01:59] NotebookLM 2: It could be huge. The real time API could completely change how we, like, interact with AI. Like, imagine if your voice assistant could actually handle it if you interrupted it.
+
+[00:02:08] NotebookLM: Or, like, have an actual conversation.
+
+[00:02:10] NotebookLM 2: Right, not just these clunky back and forth things we're used to.
+
+[00:02:14] NotebookLM: And they actually showed it off, didn't they? I read something about a travel app, one for languages. Even one where the AI ordered takeout.
+
+[00:02:21] NotebookLM 2: Those demos were really interesting, and I think they show how this real time API can be used in so many ways.
+
+[00:02:28] NotebookLM 2: And the tech behind it is fascinating, by the way. It uses persistent WebSocket connections and this thing called function calling, so it can respond in real time.
+
+[00:02:38] NotebookLM: So the function calling thing, that sounds kind of complicated. Can you, like, explain how that works?
+
+[00:02:42] NotebookLM 2: So imagine giving the AI Access to this whole toolbox, right?
+
+[00:02:46] NotebookLM 2: Information, capabilities, all sorts of things. Okay. So take the travel agent demo, for example. With function calling, the AI can pull up details, let's say about Fort Mason, right, from some database. Like nearby restaurants, stuff like that.
+
+[00:02:59] NotebookLM: Ah, I get it. So instead of being limited to what it already knows, It can go and find the information it needs, like a human travel agent would.
+
+[00:03:07] NotebookLM 2: Precisely. And someone on Hacker News pointed out a cool detail. The API actually gives you a text version of what's being said. So you can store that, analyze it.
+
+[00:03:17] NotebookLM: That's smart. It seems like OpenAI put a lot of thought into making this API easy for developers to use. But, while we're on OpenAI, you know, Besides their tech, there's been some news about, like, internal changes, too.
+
+[00:03:30] NotebookLM: Didn't they say they're moving away from being a non profit?
+
+[00:03:32] NotebookLM 2: They did. And it's got everyone talking. It's a major shift. And it's only natural for people to wonder how that'll change things for OpenAI in the future. I mean, there are definitely some valid questions about this move to for profit. Like, will they have more money for research now?
+
+[00:03:46] NotebookLM 2: Probably. But will they, you know, care as much about making sure AI benefits everyone?
+
+[00:03:51] NotebookLM: Yeah, that's the big question, especially with all the, like, the leadership changes happening at OpenAI too, right? I read that their Chief Research Officer left, and their VP of Research, and even their CTO.
+
+[00:04:03] NotebookLM 2: It's true. A lot of people are connecting those departures with the changes in OpenAI's structure.
+
+[00:04:08] NotebookLM: And I guess it makes you wonder what's going on behind the scenes. But they are still putting out new stuff. Like this whole fine tuning thing really caught my eye.
+
+[00:04:17] NotebookLM 2: Right, fine tuning. It's essentially taking a pre trained AI model. And, like, customizing it.
+
+[00:04:23] NotebookLM: So instead of a general AI, you get one that's tailored for a specific job.
+
+[00:04:27] NotebookLM 2: Exactly. And that opens up so many possibilities, especially for businesses. Imagine you could train an AI on your company's data, you know, like how you communicate your brand guidelines.
+
+[00:04:37] NotebookLM: So it's like having an AI that's specifically trained for your company?
+
+[00:04:41] NotebookLM 2: That's the idea.
+
+[00:04:41] NotebookLM: And they're doing it with images now, too, right?
+
+[00:04:44] NotebookLM: Fine tuning with vision is what they called it.
+
+[00:04:46] NotebookLM 2: It's pretty incredible what they're doing with that, especially in fields like medicine.
+
+[00:04:50] NotebookLM: Like using AI to help doctors make diagnoses.
+
+[00:04:52] NotebookLM 2: Exactly. And AI could be trained on thousands of medical images, right? And then it could potentially spot things that even a trained doctor might miss.
+
+[00:05:03] NotebookLM: That's kind of scary, to be honest. What if it gets it wrong?
+
+[00:05:06] NotebookLM 2: Well, the idea isn't to replace doctors, but to give them another tool, you know, help them make better decisions.
+
+[00:05:12] NotebookLM: Okay, that makes sense. But training these AI models must be really expensive.
+
+[00:05:17] NotebookLM 2: It can be. All those tokens add up. But OpenAI announced something called automatic prompt caching.
+
+[00:05:23] Alex Volkov: Automatic what now? I don't think I came across that.
+
+[00:05:26] NotebookLM 2: So basically, if your AI sees a prompt that it's already seen before, OpenAI will give you a discount.
+
+[00:05:31] NotebookLM: Huh. Like a frequent buyer program for AI.
+
+[00:05:35] NotebookLM 2: Kind of, yeah. It's good that they're trying to make it more affordable. And they're also doing something called model distillation.
+
+[00:05:41] NotebookLM: Okay, now you're just using big words to sound smart. What's that?
+
+[00:05:45] NotebookLM 2: Think of it like like a recipe, right? You can take a really complex recipe and break it down to the essential parts.
+
+[00:05:50] NotebookLM: Make it simpler, but it still tastes the same.
+
+[00:05:53] NotebookLM 2: Yeah. And that's what model distillation is. You take a big, powerful AI model and create a smaller, more efficient version.
+
+[00:06:00] NotebookLM: So it's like lighter weight, but still just as capable.
+
+[00:06:03] NotebookLM 2: Exactly. And that means more people can actually use these powerful tools. They don't need, like, a supercomputer to run them.
+
+[00:06:10] NotebookLM: So they're making AI more accessible. That's great.
+
+[00:06:13] NotebookLM 2: It is. And speaking of powerful tools, they also talked about their new O1 model.
+
+[00:06:18] NotebookLM 2: That's the one they've been hyping up. The one that's supposed to be this big leap forward.
+
+[00:06:22] NotebookLM: Yeah, O1. It sounds pretty futuristic. Like, from what I read, it's not just a bigger, better language model.
+
+[00:06:28] NotebookLM 2: Right. It's a different porch.
+
+[00:06:29] NotebookLM: They're saying it can, like, actually reason, right? Think.
+
+[00:06:33] NotebookLM 2: It's trained differently.
+
+[00:06:34] NotebookLM 2: They used reinforcement learning with O1.
+
+[00:06:36] NotebookLM: So it's not just finding patterns in the data it's seen before.
+
+[00:06:40] NotebookLM 2: Not just that. It can actually learn from its mistakes. Get better at solving problems.
+
+[00:06:46] NotebookLM: So give me an example. What can O1 do that, say, GPT 4 can't?
+
+[00:06:51] NotebookLM 2: Well, OpenAI showed it doing some pretty impressive stuff with math, like advanced math.
+
+[00:06:56] NotebookLM 2: And coding, too. Complex coding. Things that even GPT 4 struggled with.
+
+[00:07:00] NotebookLM: So you're saying if I needed to, like, write a screenplay, I'd stick with GPT 4? But if I wanted to solve some crazy physics problem, O1 is what I'd use.
+
+[00:07:08] NotebookLM 2: Something like that, yeah. Although there is a trade off. O1 takes a lot more power to run, and it takes longer to get those impressive results.
+
+[00:07:17] NotebookLM: Hmm, makes sense. More power, more time, higher quality.
+
+[00:07:21] NotebookLM 2: Exactly.
+
+[00:07:22] NotebookLM: It sounds like it's still in development, though, right? Is there anything else they're planning to add to it?
+
+[00:07:26] NotebookLM 2: Oh, yeah. They mentioned system prompts, which will let developers, like, set some ground rules for how it behaves. And they're working on adding structured outputs and function calling.
+
+[00:07:38] Alex Volkov: Wait, structured outputs? Didn't we just talk about that? We
+
+[00:07:41] NotebookLM 2: did. That's the thing where the AI's output is formatted in a way that's easy to use.
+
+[00:07:47] NotebookLM: Right, right. So you don't have to spend all day trying to make sense of what it gives you. It's good that they're thinking about that stuff.
+
+[00:07:53] NotebookLM 2: It's about making these tools usable.
+
+[00:07:56] NotebookLM 2: And speaking of that, Dev Day finished up with this really interesting talk. Sam Altman, the CEO of OpenAI, And Kevin Weil, their new chief product officer. They talked about, like, the big picture for AI.
+
+[00:08:09] NotebookLM: Yeah, they did, didn't they? Anything interesting come up?
+
+[00:08:12] NotebookLM 2: Well, Altman talked about moving past this whole AGI term, Artificial General Intelligence.
+
+[00:08:18] NotebookLM: I can see why. It's kind of a loaded term, isn't it?
+
+[00:08:20] NotebookLM 2: He thinks it's become a bit of a buzzword, and people don't really understand what it means.
+
+[00:08:24] NotebookLM: So are they saying they're not trying to build AGI anymore?
+
+[00:08:28] NotebookLM 2: It's more like they're saying they're focused on just Making AI better, constantly improving it, not worrying about putting it in a box.
+
+[00:08:36] NotebookLM: That makes sense. Keep pushing the limits.
+
+[00:08:38] NotebookLM 2: Exactly. But they were also very clear about doing it responsibly. They talked a lot about safety and ethics.
+
+[00:08:43] NotebookLM: Yeah, that's important.
+
+[00:08:44] NotebookLM 2: They said they were going to be very careful. About how they release new features.
+
+[00:08:48] NotebookLM: Good! Because this stuff is powerful.
+
+[00:08:51] NotebookLM 2: It is. It was a lot to take in, this whole Dev Day event.
+
+[00:08:54] NotebookLM 2: New tools, big changes at OpenAI, and these big questions about the future of AI.
+
+[00:08:59] NotebookLM: It was. But hopefully this deep dive helped make sense of some of it. At least, that's what we try to do here.
+
+[00:09:05] AI Charlie: Absolutely.
+
+[00:09:06] NotebookLM: Thanks for taking the deep dive with us.
+
+[00:09:08] AI Charlie: The biggest demo of the new Realtime API involved function calling with voice mode and buying chocolate covered strawberries from our friendly local OpenAI developer experience engineer and strawberry shop owner, Ilan Biggio.
+
+[00:09:21] AI Charlie: We'll first play you the audio of his demo and then go into a little interview with him.
+
+[00:09:25] Ilan's Strawberry Demo with Realtime Voice Function Calling
+
+[00:09:25] Romain Huet: Could you place a call and see if you could get us 400 strawberries delivered to the venue? But please keep that under 1500. I'm on it. We'll get those strawberries delivered for you.
+
+[00:09:47] Ilan: Hello? Hi there. Is this Ilan? I'm Romain's AI assistant. How is it going? Fantastic. Can you tell me what flavors of strawberry dips you have for me? Yeah, we have chocolate, vanilla, and we have peanut butter. Wait, how much would 400 chocolate covered strawberries cost? 400? Are you sure you want 400? Yes, 400 chocolate covered
+
+[00:10:14] swyx: strawberries.
+
+[00:10:15] Ilan: Wait,
+
+[00:10:16] swyx: how much
+
+[00:10:16] Ilan: would that be? I think that'll be around, like, 1, 415. 92.
+
+[00:10:25] Alex Volkov: Awesome. Let's go ahead and place the order for four chocolate covered strawberries.
+
+[00:10:31] Ilan: Great, where would you like that delivered? Please deliver them to the Gateway Pavilion at Fort Mason. And I'll be paying in cash.
+
+[00:10:42] Alex Volkov: Okay,
+
+[00:10:43] Ilan: sweet. So just to confirm, you want four strawberries?
+
+[00:10:45] Ilan: 400 chocolate covered strawberries to the Gateway Pavilion. Yes, that's perfect. And when can we expect delivery? Well, you guys are right nearby, so it'll be like, I don't know, 37 seconds? That's incredibly fast. Cool, you too.
+
+[00:11:09] swyx: Hi, Ilan, welcome to Lanespace. Oh, thank you. I just saw your amazing demos, had your amazing strawberries. You are dressed up, like, exactly like a strawberry salesman. Gotta have it all. What was the building on demo like? What was the story behind the demo?
+
+[00:11:22] swyx: It was really interesting. This is actually something I had been thinking about for months before the launch.
+
+[00:11:27] swyx: Like, having a, like, AI that can make phone calls is something like I've personally wanted for a long time. And so as soon as we launched internally, like, I started hacking on it. And then that sort of just started. We made it into like an internal demo, and then people found it really interesting, and then we thought how cool would it be to have this like on stage as, as one of the demos.
+
+[00:11:47] swyx: Yeah, would would you call out any technical issues building, like you were basically one of the first people ever to build with a voice mode API. Would you call out any issues like integrating it with Twilio like that, like you did with function calling, with like a form filling elements. I noticed that you had like intents of things to fulfill, and then.
+
+[00:12:07] swyx: When there's still missing info, the voice would prompt you, roleplaying the store guy.
+
+[00:12:13] swyx: Yeah, yeah, so, I think technically, there's like the whole, just working with audio and streams is a whole different beast. Like, even separate from like AI and this, this like, new capabilities, it's just, it's just tough.
+
+[00:12:26] swyx: Yeah, when you have a prompt, conversationally it'll just follow, like the, it was, Instead of like, kind of step by step to like ask the right questions based on like the like what the request was, right? The function calling itself is sort of tangential to that. Like, you have to prompt it to call the functions, but then handling it isn't too much different from, like, what you would do with assistant streaming or, like, chat completion streaming.
+
+[00:12:47] swyx: I think, like, the API feels very similar just to, like, if everything in the API was streaming, it actually feels quite familiar to that.
+
+[00:12:53] swyx: And then, function calling wise, I mean, does it work the same? I don't know. Like, I saw a lot of logs. You guys showed, like, in the playground, a lot of logs. What is in there?
+
+[00:13:03] swyx: What should people know?
+
+[00:13:04] swyx: Yeah, I mean, it is, like, the events may have different names than the streaming events that we have in chat completions, but they represent very similar things. It's things like, you know, function call started, argument started, it's like, here's like argument deltas, and then like function call done.
+
+[00:13:20] swyx: Conveniently we send one that has the full function, and then I just use that. Nice.
+
+[00:13:25] swyx: Yeah and then, like, what restrictions do, should people be aware of? Like, you know, I think, I think, before we recorded, we discussed a little bit about the sensitivities around basically calling random store owners and putting, putting like an AI on them.
+
+[00:13:40] swyx: Yeah, so there's, I think there's recent regulation on that, which is why we want to be like very, I guess, aware of, of You know, you can't just call anybody with AI, right? That's like just robocalling. You wouldn't want someone just calling you with AI.
+
+[00:13:54] swyx: I'm a developer, I'm about to do this on random people.
+
+[00:13:57] swyx: What laws am I about to break?
+
+[00:14:00] swyx: I forget what the governing body is, but you should, I think, Having consent of the person you're about to call, it always works. I, as the strawberry owner, have consented to like getting called with AI. I think past that you, you want to be careful. Definitely individuals are more sensitive than businesses.
+
+[00:14:19] swyx: I think businesses you have a little bit more leeway. Also, they're like, businesses I think have an incentive to want to receive AI phone calls. Especially if like, they're dealing with it. It's doing business. Right, like, it's more business. It's kind of like getting on a booking platform, right, you're exposed to more.
+
+[00:14:33] swyx: But, I think it's still very much like a gray area. Again, so. I think everybody should, you know, tread carefully, like, figure out what it is. I, I, I, the law is so recent, I didn't have enough time to, like, I'm also not a lawyer. Yeah, yeah, yeah, of course. Yeah.
+
+[00:14:49] swyx: Okay, cool fair enough. One other thing, this is kind of agentic.
+
+[00:14:52] swyx: Did you use a state machine at all? Did you use any framework? No. You just stick it in context and then just run it in a loop until it ends call?
+
+[00:15:01] swyx: Yeah, there isn't even a loop, like Okay. Because the API is just based on sessions. It's always just going to keep going. Every time you speak, it'll trigger a call.
+
+[00:15:11] swyx: And then after every function call was also invoked invoking like a generation. And so that is another difference here. It's like it's inherently almost like in a loop, be just by being in a session, right? No state machines needed. I'd say this is very similar to like, the notion of routines, where it's just like a list of steps.
+
+[00:15:29] swyx: And it, like, sticks to them softly, but usually pretty well. And the steps is the prompts? The steps, it's like the prompt, like the steps are in the prompt. Yeah, yeah, yeah. Right, it's like step one, do this, step one, step two, do that. What if I want to change the system prompt halfway through the conversation?
+
+[00:15:44] swyx: You can. Okay. You can. To be honest, I have not played without two too much. Yeah,
+
+[00:15:47] swyx: yeah.
+
+[00:15:48] swyx: But, I know you can.
+
+[00:15:49] swyx: Yeah, yeah. Yeah. Awesome. I noticed that you called it real time API, but not voice API. Mm hmm. So I assume that it's like real time API starting with voice. Right, I think that's what he said on the thing.
+
+[00:16:00] swyx: I can't imagine, like, what else is real
+
+[00:16:02] swyx: time? Well, I guess, to use ChatGPT's voice mode as an example, Like, we've demoed the video, right? Like, real time image, right? So, I'm not actually sure what timelines are, But I would expect, if I had to guess, That, like, that is probably the next thing that we're gonna be making.
+
+[00:16:17] swyx: You'd probably have to talk directly with the team building this. Sure. But, You can't promise their timelines. Yeah, yeah, yeah, right, exactly. But, like, given that this is the features that currently, Or that exists that we've demoed on Chachapiti. Yeah. There
+
+[00:16:29] swyx: will never be a
+
+[00:16:29] swyx: case where there's like a real time text API, right?
+
+[00:16:31] swyx: I don't Well, this is a real time text API. You can do text only on this. Oh. Yeah. I don't know why you would. But it's actually So text to text here doesn't quite make a lot of sense. I don't think you'll get a lot of latency gain. But, like, speech to text is really interesting. Because you can prevent You can prevent responses, like audio responses.
+
+[00:16:54] swyx: And force function calls. And so you can do stuff like UI control. That is like super super reliable. We had a lot of like, you know, un, like, we weren't sure how well this was gonna work because it's like, you have a voice answering. It's like a whole persona, right? Like, that's a little bit more, you know, risky.
+
+[00:17:10] swyx: But if you, like, cut out the audio outputs and make it so it always has to output a function, like you can end up with pretty pretty good, like, Pretty reliable, like, command like a command architecture. Yeah,
+
+[00:17:21] swyx: actually, that's the way I want to interact with a lot of these things as well. Like, one sided voice.
+
+[00:17:26] swyx: Yeah, you don't necessarily want to hear the
+
+[00:17:27] swyx: voice back. And like, sometimes it's like, yeah, I think having an output voice is great. But I feel like I don't always want to hear an output voice. I'd say usually I don't. But yeah, exactly, being able to speak to it is super sweet.
+
+[00:17:39] swyx: Cool. Do you want to comment on any of the other stuff that you announced?
+
+[00:17:41] swyx: From caching I noticed was like, I like the no code change part. I'm looking forward to the docs because I'm sure there's a lot of details on like, what you cache, how long you cache. Cause like, enthalpy caches were like 5 minutes. I was like, okay, but what if I don't make a call every 5 minutes?
+
+[00:17:56] swyx: Yeah,
+
+[00:17:56] swyx: to be super honest with you, I've been so caught up with the real time API and making the demo that I haven't read up on the other stuff. Launches too much. I mean, I'm aware of them, but I think I'm excited to see how all distillation works. That's something that we've been doing like, I don't know, I've been like doing it between our models for a while And I've seen really good results like I've done back in a day like from GPT 4 to GPT 3.
+
+[00:18:19] swyx: 5 And got like, like pretty much the same level of like function calling with like hundreds of functions So that was super super compelling So, I feel like easier distillation, I'm really excited for. I see. Is it a tool?
+
+[00:18:31] swyx: So, I saw evals. Yeah. Like, what is the distillation product? It wasn't super clear, to be honest.
+
+[00:18:36] swyx: I, I think I want to, I want to let that team, I want to let that team talk about it. Okay,
+
+[00:18:40] swyx: alright. Well, I appreciate you jumping on. Yeah, of course. Amazing demo. It was beautifully designed. I'm sure that was part of you and Roman, and
+
+[00:18:47] swyx: Yeah, I guess, shout out to like, the first people to like, creators of Wanderlust, originally, were like, Simon and Carolis, and then like, I took it and built the voice component and the voice calling components.
+
+[00:18:59] swyx: Yeah, so it's been a big team effort. And like the entire PI team for like Debugging everything as it's been going on. It's been, it's been so good working with them. Yeah, you're the first consumers on the DX
+
+[00:19:07] swyx: team. Yeah. Yeah, I mean, the classic role of what we do there. Yeah. Okay, yeah, anything else? Any other call to action?
+
+[00:19:13] swyx: No, enjoy Dev Day. Thank you. Yeah. That's it.
+
+[00:19:16] Olivier Godement, Head of Product, OpenAI
+
+[00:19:16] AI Charlie: The latent space crew then talked to Olivier Godmont, head of product for the OpenAI platform, who led the entire Dev Day keynote and introduced all the major new features and updates that we talked about today.
+
+[00:19:28] swyx: Okay, so we are here with Olivier Godmont. That's right.
+
+[00:19:32] swyx: I don't pronounce French. That's fine. It was perfect. And it was amazing to see your keynote today. What was the back story of, of preparing something like this? Preparing, like, Dev Day? It
+
+[00:19:43] Olivier Godement: essentially came from a couple of places. Number one, excellent reception from last year's Dev Day.
+
+[00:19:48] Olivier Godement: Developers, startup founders, researchers want to spend more time with OpenAI, and we want to spend more time with them as well. And so for us, like, it was a no brainer, frankly, to do it again, like, you know, like a nice conference. The second thing is going global. We've done a few events like in Paris and like a few other like, you know, non European, non American countries.
+
+[00:20:05] Olivier Godement: And so this year we're doing SF, Singapore, and London. To frankly just meet more developers.
+
+[00:20:10] swyx: Yeah, I'm very excited for the Singapore one.
+
+[00:20:12] Olivier Godement: Ah,
+
+[00:20:12] swyx: yeah. Will you be
+
+[00:20:13] Olivier Godement: there?
+
+[00:20:14] swyx: I don't know. I don't know if I got an invite. No. I can't just talk to you. Yeah, like, and then there was some speculation around October 1st.
+
+[00:20:22] Olivier Godement: Yeah. Is it because
+
+[00:20:23] swyx: 01, October 1st? It
+
+[00:20:25] Olivier Godement: has nothing to do. I discovered the tweet yesterday where like, people are so creative. No one, there was no connection to October 1st. But in hindsight, that would have been a pretty good meme by Tiana. Okay.
+
+[00:20:37] swyx: Yeah, and you know, I think like, OpenAI's outreach to developers is something that I felt the whole in 2022, when like, you know, like, people were trying to build a chat GPT, and like, there was no function calling, all that stuff that you talked about in the past.
+
+[00:20:51] swyx: And that's why I started my own conference as like like, here's our little developer conference thing. And, but to see this OpenAI Dev Day now, and like to see so many developer oriented products coming to OpenAI, I think it's really encouraging.
+
+[00:21:02] Olivier Godement: Yeah, totally. It's that's what I said, essentially, like, developers are basically the people who make the best connection between the technology and, you know, the future, essentially.
+
+[00:21:14] Olivier Godement: Like, you know, essentially see a capability, see a low level, like, technology, and are like, hey, I see how that application or that use case that can be enabled. And so, in the direction of enabling, like, AGI, like, all of humanity, it's a no brainer for us, like, frankly, to partner with Devs.
+
+[00:21:31] Alessio: And most importantly, you almost never had waitlists, which, compared to like other releases, people usually, usually have.
+
+[00:21:38] Alessio: What is the, you know, you had from caching, you had real time voice API, we, you know, Shawn did a long Twitter thread, so people know the releases. Yeah. What is the thing that was like sneakily the hardest to actually get ready for, for that day, or like, what was the kind of like, you know, last 24 hours, anything that you didn't know was gonna work?
+
+[00:21:56] Olivier Godement: Yeah. The old Fairly, like, I would say, involved, like, features to ship. So the team has been working for a month, all of them. The one which I would say is the newest for OpenAI is the real time API. For a couple of reasons. I mean, one, you know, it's a new modality. Second, like, it's the first time that we have an actual, like, WebSocket based API.
+
+[00:22:16] Olivier Godement: And so, I would say that's the one that required, like, the most work over the month. To get right from a developer perspective and to also make sure that our existing safety mitigation that worked well with like real time audio in and audio out.
+
+[00:22:30] swyx: Yeah, what design choices or what was like the sort of design choices that you want to highlight?
+
+[00:22:35] swyx: Like, you know, like I think for me, like, WebSockets, you just receive a bunch of events. It's two way. I obviously don't have a ton of experience. I think a lot of developers are going to have to embrace this real time programming. Like, what are you designing for, or like, what advice would you have for developers exploring this?
+
+[00:22:51] Olivier Godement: The core design hypothesis was essentially, how do we enable, like, human level latency? We did a bunch of tests, like, on average, like, human beings, like, you know, takes, like, something like 300 milliseconds to converse with each other. And so that was the design principle, essentially. Like, working backward from that, and, you know, making the technology work.
+
+[00:23:11] Olivier Godement: And so we evaluated a few options, and WebSockets was the one that we landed on. So that was, like, one design choice. A few other, like, big design choices that we had to make prompt caching. Prompt caching, the design, like, target was automated from the get go. Like, zero code change from the developer.
+
+[00:23:27] Olivier Godement: That way you don't have to learn, like, what is a prompt prefix, and, you know, how long does a cache work, like, we just do it as much as we can, essentially. So that was a big design choice as well. And then finally, on distillation, like, and evaluation. The big design choice was something I learned at Skype, like in my previous job, like a philosophy around, like, a pit of success.
+
+[00:23:47] Olivier Godement: Like, what is essentially the, the, the minimum number of steps for the majority of developers to do the right thing? Because when you do evals on fat tuning, there are many, many ways, like, to mess it up, frankly, like, you know, and have, like, a crappy model, like, evals that tell, like, a wrong story. And so our whole design was, okay, we actually care about, like, helping people who don't have, like, that much experience, like, evaluating a model, like, get, like, in a few minutes, like, to a good spot.
+
+[00:24:11] Olivier Godement: And so how do we essentially enable that bit of success, like, in the product flow?
+
+[00:24:15] swyx: Yeah, yeah, I'm a little bit scared to fine tune especially for vision, because I don't know what I don't know for stuff like vision, right? Like, for text, I can evaluate pretty easily. For vision let's say I'm like trying to, one of your examples was grab.
+
+[00:24:33] swyx: Which, very close to home, I'm from Singapore. I think your example was like, they identified stop signs better. Why is that hard? Why do I have to fine tune that? If I fine tune that, do I lose other things? You know, like, there's a lot of unknowns with Vision that I think developers have to figure out.
+
+[00:24:50] swyx: For
+
+[00:24:50] Olivier Godement: sure. Vision is going to open up, like, a new, I would say, evaluation space. Because you're right, like, it's harder, like, you know, to tell correct from incorrect, essentially, with images. What I can say is we've been alpha testing, like, the Vision fine tuning, like, for several weeks at that point. We are seeing, like, even higher performance uplift compared to text fine tuning.
+
+[00:25:10] Olivier Godement: So that's, there is something here, like, we've been pretty impressed, like, in a good way, frankly. But, you know, how well it works. But for sure, like, you know, I expect the developers who are moving from one modality to, like, text and images will have, like, more, you know Testing, evaluation, like, you know, to set in place, like, to make sure it works well.
+
+[00:25:25] Alessio: The model distillation and evals is definitely, like, the most interesting. Moving away from just being a model provider to being a platform provider. How should people think about being the source of truth? Like, do you want OpenAI to be, like, the system of record of all the prompting? Because people sometimes store it in, like, different data sources.
+
+[00:25:41] Alessio: And then, is that going to be the same as the models evolve? So you don't have to worry about, you know, refactoring the data, like, things like that, or like future model structures.
+
+[00:25:51] Olivier Godement: The vision is if you want to be a source of truth, you have to earn it, right? Like, we're not going to force people, like, to pass us data.
+
+[00:25:57] Olivier Godement: There is no value prop, like, you know, for us to store the data. The vision here is at the moment, like, most developers, like, use like a one size fits all model, like be off the shelf, like GP40 essentially. The vision we have is fast forward a couple of years. I think, like, most developers will essentially, like, have a.
+
+[00:26:15] Olivier Godement: An automated, continuous, fine tuned model. The more, like, you use the model, the more data you pass to the model provider, like, the model is automatically, like, fine tuned, evaluated against some eval sets, and essentially, like, you don't have to every month, when there is a new snapshot, like, you know, to go online and, you know, try a few new things.
+
+[00:26:34] Olivier Godement: That's a direction. We are pretty far away from it. But I think, like, that evaluation and decision product are essentially a first good step in that direction. It's like, hey, it's you. I set it by that direction, and you give us the evaluation data. We can actually log your completion data and start to do some automation on your behalf.
+
+[00:26:52] Alessio: And then you can do evals for free if you share data with OpenAI. How should people think about when it's worth it, when it's not? Sometimes people get overly protective of their data when it's actually not that useful. But how should developers think about when it's right to do it, when not, or
+
+[00:27:07] Olivier Godement: if you have any thoughts on it?
+
+[00:27:08] Olivier Godement: The default policy is still the same, like, you know, we don't train on, like, any API data unless you opt in. What we've seen from feedback is evaluation can be expensive. Like, if you run, like, O1 evals on, like, thousands of samples Like, your build will get increased, like, you know, pretty pretty significantly.
+
+[00:27:22] Olivier Godement: That's problem statement number one. Problem statement number two is, essentially, I want to get to a world where whenever OpenAI ships a new model snapshot, we have full confidence that there is no regression for the task that developers care about. And for that to be the case, essentially, we need to get evals.
+
+[00:27:39] Olivier Godement: And so that, essentially, is a sort of a two bugs one stone. It's like, we subsidize, basically, the evals. And we also use the evals when we ship new models to make sure that we keep going in the right direction. So, in my sense, it's a win win, but again, completely opt in. I expect that many developers will not want to share their data, and that's perfectly fine to me.
+
+[00:27:56] swyx: Yeah, I think free evals though, very, very good incentive. I mean, it's a fair trade. You get data, we get free evals. Exactly,
+
+[00:28:04] Olivier Godement: and we sanitize PII, everything. We have no interest in the actual sensitive data. We just want to have good evaluation on the real use cases.
+
+[00:28:13] swyx: Like, I always want to eval the eval. I don't know if that ever came up.
+
+[00:28:17] swyx: Like, sometimes the evals themselves are wrong, and there's no way for me to tell you.
+
+[00:28:22] Olivier Godement: Everyone who is starting with LLM, teaching with LLM, is like, Yeah, evaluation, easy, you know, I've done testing, like, all my life. And then you start to actually be able to eval, understand, like, all the corner cases, And you realize, wow, there's like a whole field in itself.
+
+[00:28:35] Olivier Godement: So, yeah, good evaluation is hard and so, yeah. Yeah, yeah.
+
+[00:28:38] swyx: But I think there's a, you know, I just talked to Brain Trust which I think is one of your partners. Mm-Hmm. . They also emphasize code based evals versus your sort of low code. What I see is like, I don't know, maybe there's some more that you didn't demo.
+
+[00:28:53] swyx: YC is kind of like a low code experience, right, for evals. Would you ever support like a more code based, like, would I run code on OpenAI's eval platform?
+
+[00:29:02] Olivier Godement: For sure. I mean, we meet developers where they are, you know. At the moment, the demand was more for like, you know, easy to get started, like eval. But, you know, if we need to expose like an evaluation API, for instance, for people like, you know, to pass, like, you know, their existing test data we'll do it.
+
+[00:29:15] Olivier Godement: So yeah, there is no, you know, philosophical, I would say, like, you know, misalignment on that. Yeah,
+
+[00:29:19] swyx: yeah, yeah. What I think this is becoming, by the way, and I don't, like it's basically, like, you're becoming AWS. Like, the AI cloud. And I don't know if, like, that's a conscious strategy, or it's, like, It doesn't even have to be a conscious strategy.
+
+[00:29:33] swyx: Like, you're going to offer storage. You're going to offer compute. You're going to offer networking. I don't know what networking looks like. Networking is maybe, like, Caching or like it's a CDN. It's a prompt CDN.
+
+[00:29:45] Alex Volkov: Yeah,
+
+[00:29:45] swyx: but it's the AI versions of everything, right? Do you like do you see the analogies or?
+
+[00:29:52] Olivier Godement: Whatever Whatever I took to developers. I feel like Good models are just half of the story to build a good app There's a third model you need to do Evaluation is the perfect example. Like, you know, you can have the best model in the world If you're in the dark, like, you know, it's really hard to gain the confidence and so Our philosophy is
+
+[00:30:11] Olivier Godement: The whole like software development stack is being basically reinvented, you know, with LLMs. There is no freaking way that open AI can build everything. Like there is just too much to build, frankly. And so my philosophy is, essentially, we'll focus on like the tools which are like the closest to the model itself.
+
+[00:30:28] Olivier Godement: So that's why you see us like, you know, investing quite a bit in like fine tuning, distillation, our evaluation, because we think that it actually makes sense to have like in one spot, Like, you know, all of that. Like, there is some sort of virtual circle, essentially, that you can set in place. But stuff like, you know, LLMOps, like tools which are, like, further away from the model, I don't know if you want to do, like, you know, super elaborate, like, prompt management, or, you know, like, tooling, like, I'm not sure, like, you know, OpenAI has, like, such a big edge, frankly, like, you know, to build this sort of tools.
+
+[00:30:56] Olivier Godement: So that's how we view it at the moment. But again, frankly, the philosophy is super simple. The strategy is super simple. It's meeting developers where they want us to be. And so, you know that's frankly, like, you know, day in, day out, like, you know, what I try to do.
+
+[00:31:08] Alessio: Cool. Thank you so much for the time.
+
+[00:31:10] Alessio: I'm sure you,
+
+[00:31:10] swyx: Yeah, I have more questions on, a couple questions on voice, and then also, like, your call to action, like, what you want feedback on, right? So, I think we should spend a bit more time on voice, because I feel like that's, like, the big splash thing. I talked well Well, I mean, I mean, just what is the future of real time for OpenAI?
+
+[00:31:28] swyx: Yeah. Because I think obviously video is next. You already have it in the, the ChatGPT desktop app. Do we just have a permanent, like, you know, like, are developers just going to be, like, sending sockets back and forth with OpenAI? Like how do we program for that? Like, what what is the future?
+
+[00:31:44] Olivier Godement: Yeah, that makes sense. I think with multimodality, like, real time is quickly becoming, like, you know, essentially the right experience, like, to build an application. Yeah. So my expectation is that we'll see like a non trivial, like a volume of applications like moving to a real time API. Like if you zoom out, like, audio is really simple, like, audio until basically now.
+
+[00:32:05] Olivier Godement: Audio on the web, in apps, was basically very much like a second class citizen. Like, you basically did like an audio chatbot for users who did not have a choice. You know, they were like struggling to read, or I don't know, they were like not super educated with technology. And so, frankly, it was like the crappy option, you know, compared to text.
+
+[00:32:25] Olivier Godement: But when you talk to people in the real world, the vast majority of people, like, prefer to talk and listen instead of typing and writing.
+
+[00:32:34] swyx: We speak before we write.
+
+[00:32:35] Olivier Godement: Exactly. I don't know. I mean, I'm sure it's the case for you in Singapore. For me, my friends in Europe, the number of, like, WhatsApp, like, voice notes they receive every day, I mean, just people, it makes sense, frankly, like, you know.
+
+[00:32:45] Olivier Godement: Chinese. Chinese, yeah.
+
+[00:32:46] swyx: Yeah,
+
+[00:32:47] Olivier Godement: all voice. You know, it's easier. There is more emotions. I mean, you know, you get the point across, like, pretty well. And so my personal ambition for, like, the real time API and, like, audio in general is to make, like, audio and, like, multimodality, like, truly a first class experience.
+
+[00:33:01] Olivier Godement: Like, you know, if you're, like, you know, the amazing, like, super bold, like, start up out of YC, you want to build, like, the next, like, billion, like, you know, user application to make it, like, truly your first and make it feel, like, you know, an actual good, like, you know, product experience. So that's essentially the ambition, and I think, like, yeah, it could be pretty big.
+
+[00:33:17] swyx: Yeah. I think one, one people, one issue that people have with the voice so far as, as released in advanced voice mode is the refusals.
+
+[00:33:24] Alex Volkov: Yeah.
+
+[00:33:24] swyx: You guys had a very inspiring model spec. I think Joanne worked on that. Where you said, like, yeah, we don't want to overly refuse all the time. In fact, like, even if, like, not safe for work, like, in some occasions, it's okay.
+
+[00:33:38] swyx: How, is there an API that we can say, not safe for work, okay?
+
+[00:33:41] Olivier Godement: I think we'll get there. I think we'll get there. The mobile spec, like, nailed it, like, you know. It nailed it! It's so good! Yeah, we are not in the business of, like, policing, you know, if you can say, like, vulgar words or whatever. You know, there are some use cases, like, you know, I'm writing, like, a Hollywood, like, script I want to say, like, will go on, and it's perfectly fine, you know?
+
+[00:33:59] Olivier Godement: And so I think the direction where we'll go here is that basically There will always be like, you know, a set of behavior that we will, you know, just like forbid, frankly, because they're illegal against our terms of services. But then there will be like, you know, some more like risky, like themes, which are completely legal, like, you know, vulgar words or, you know, not safe for work stuff.
+
+[00:34:17] Olivier Godement: Where basically we'll expose like a controllable, like safety, like knobs in the API to basically allow you to say, hey, that theme okay, that theme not okay. How sensitive do you want the threshold to be on safety refusals? I think that's the Dijkstra. So a
+
+[00:34:31] swyx: safety API.
+
+[00:34:32] Olivier Godement: Yeah, in a way, yeah.
+
+[00:34:33] swyx: Yeah, we've never had that.
+
+[00:34:34] Olivier Godement: Yeah. '
+
+[00:34:35] swyx: cause right now is you, it is whatever you decide. And then it's, that's it. That, that, that would be the main reason I don't use opening a voice is because of
+
+[00:34:42] Olivier Godement: it's over police. Over refuse over refusals. Yeah. Yeah, yeah. No, we gotta fix that. Yeah. Like singing,
+
+[00:34:47] Alessio: we're trying to do voice. I'm a singer.
+
+[00:34:49] swyx: And you, you locked off singing.
+
+[00:34:51] swyx: Yeah,
+
+[00:34:51] Alessio: yeah, yeah.
+
+[00:34:52] swyx: But I, I understand music gets you in trouble. Okay. Yeah. So then, and then just generally, like, what do you want to hear from developers? Right? We have, we have all developers watching you know, what feedback do you want? Any, anything specific as well, like from, especially from today anything that you are unsure about, that you are like, Our feedback could really help you decide.
+
+[00:35:09] swyx: For sure.
+
+[00:35:10] Olivier Godement: I think, essentially, it's becoming pretty clear after today that, you know, I would say the open end direction has become pretty clear, like, you know, after today. Investment in reasoning, investment in multimodality, Investment as well, like in, I would say, tool use, like function calling. To me, the biggest question I have is, you know, Where should we put the cursor next?
+
+[00:35:30] Olivier Godement: I think we need all three of them, frankly, like, you know, so we'll keep pushing.
+
+[00:35:33] swyx: Hire 10, 000 people, or actually, no need, build a bunch of bots.
+
+[00:35:37] Olivier Godement: Exactly, and so let's take O1 smart enough, like, for your problems? Like, you know, let's set aside for a second the existing models, like, for the apps that you would love to build, is O1 basically it in reasoning, or do we still have, like, you know, a step to do?
+
+[00:35:50] Olivier Godement: Preview is not enough, I
+
+[00:35:52] swyx: need the full one.
+
+[00:35:53] Olivier Godement: Yeah, so that's exactly that sort of feedback. Essentially what they would love to do is for developers I mean, there's a thing that Sam has been saying like over and over again, like, you know, it's easier said than done, but I think it's directionally correct. As a developer, as a founder, you basically want to build an app which is a bit too difficult for the model today, right?
+
+[00:36:12] Olivier Godement: Like, what you think is right, it's like, sort of working, sometimes not working. And that way, you know, that basically gives us like a goalpost, and be like, okay, that's what you need to enable with the next model release, like in a few months. And so I would say that Usually, like, that's the sort of feedback which is like the most useful that I can, like, directly, like, you know, incorporate.
+
+[00:36:33] swyx: Awesome. I think that's our time. Thank you so much, guys. Yeah, thank you so much.
+
+[00:36:38] AI Charlie: Thank you. We were particularly impressed that Olivier addressed the not safe for work moderation policy question head on, as that had only previously been picked up on in Reddit forums. This is an encouraging sign that we will return to in the closing candor with Sam Altman at the end of this episode.
+
+[00:36:57] Romain Huet, Head of DX, OpenAI
+
+[00:36:57] AI Charlie: Next, a chat with Roman Hewitt, friend of the pod, AI Engineer World's fair closing keynote speaker, and head of developer experience at OpenAI on his incredible live demos And advice to AI engineers on all the new modalities.
+
+[00:37:12] Alessio: Alright, we're live from OpenAI Dev Day. We're with Juan, who just did two great demos on, on stage.
+
+[00:37:17] Alessio: And he's been a friend of Latentspace, so thanks for taking some of the time.
+
+[00:37:20] Romain Huet: Of course, yeah, thank you for being here and spending the time with us today.
+
+[00:37:23] swyx: Yeah, I appreciate appreciate you guys putting this on. I, I know it's like extra work, but it really shows the developers that you're, Care and about reaching out.
+
+[00:37:31] Romain Huet: Yeah, of course, I think when you go back to the OpenAI mission, I think for us it's super important that we have the developers involved in everything we do. Making sure that you know, they have all of the tools they need to build successful apps. And we really believe that the developers are always going to invent the ideas, the prototypes, the fun factors of AI that we can't build ourselves.
+
+[00:37:49] Romain Huet: So it's really cool to have everyone here.
+
+[00:37:51] swyx: We had Michelle from you guys on. Yes, great episode. She very seriously said API is the path to AGI. Correct. And people in our YouTube comments were like, API is not AGI. I'm like, no, she's very serious. API is the path to AGI. Like, you're not going to build everything like the developers are, right?
+
+[00:38:08] swyx: Of
+
+[00:38:08] Romain Huet: course, yeah, that's the whole value of having a platform and an ecosystem of amazing builders who can, like, in turn, create all of these apps. I'm sure we talked about this before, but there's now more than 3 million developers building on OpenAI, so it's pretty exciting to see all of that energy into creating new things.
+
+[00:38:26] Alessio: I was going to say, you built two apps on stage today, an international space station tracker and then a drone. The hardest thing must have been opening Xcode and setting that up. Now, like, the models are so good that they can do everything else. Yes. You had two modes of interaction. You had kind of like a GPT app to get the plan with one, and then you had a cursor to do apply some of the changes.
+
+[00:38:47] Alessio: Correct. How should people think about the best way to consume the coding models, especially both for You know, brand new projects and then existing projects that you're trying to modify.
+
+[00:38:56] Romain Huet: Yeah. I mean, one of the things that's really cool about O1 Preview and O1 Mini being available in the API is that you can use it in your favorite tools like cursor like I did, right?
+
+[00:39:06] Romain Huet: And that's also what like Devin from Cognition can use in their own software engineering agents. In the case of Xcode, like, it's not quite deeply integrated in Xcode, so that's why I had like chat GPT side by side. But it's cool, right, because I could instruct O1 Preview to be, like, my coding partner and brainstorming partner for this app, but also consolidate all of the, the files and architect the app the way I wanted.
+
+[00:39:28] Romain Huet: So, all I had to do was just, like, port the code over to Xcode and zero shot the app build. I don't think I conveyed, by the way, how big a deal that is, but, like, you can now create an iPhone app from scratch, describing a lot of intricate details that you want, and your vision comes to life in, like, a minute.
+
+[00:39:47] Romain Huet: It's pretty outstanding.
+
+[00:39:48] swyx: I have to admit, I was a bit skeptical because if I open up SQL, I don't know anything about iOS programming. You know which file to paste it in. You probably set it up a little bit. So I'm like, I have to go home and test it. And I need the ChatGPT desktop app so that it can tell me where to click.
+
+[00:40:04] Romain Huet: Yeah, I mean like, Xcode and iOS development has become easier over the years since they introduced Swift and SwiftUI. I think back in the days of Objective C, or like, you know, the storyboard, it was a bit harder to get in for someone new. But now with Swift and SwiftUI, their dev tools are really exceptional.
+
+[00:40:23] Romain Huet: But now when you combine that with O1, as your brainstorming and coding partner, it's like your architect, effectively. That's the best way, I think, to describe O1. People ask me, like, can GPT 4 do some of that? And it certainly can. But I think it will just start spitting out code, right? And I think what's great about O1, is that it can, like, make up a plan.
+
+[00:40:42] Romain Huet: In this case, for instance, the iOS app had to fetch data from an API, it had to look at the docs, it had to look at, like, how do I parse this JSON, where do I store this thing, and kind of wire things up together. So that's where it really shines. Is mini or preview the better model that people should be using?
+
+[00:40:58] Romain Huet: Like, how? I think people should try both. We're obviously very excited about the upcoming O1 that we shared the evals for. But we noticed that O1 Mini is very, very good at everything math, coding, everything STEM. If you need for your kind of brainstorming or your kind of science part, you need some broader knowledge than reaching for O1 previews better.
+
+[00:41:20] Romain Huet: But yeah, I used O1 Mini for my second demo. And it worked perfectly. All I needed was very much like something rooted in code, architecting and wiring up like a front end, a backend, some UDP packets, some web sockets, something very specific. And it did that perfectly.
+
+[00:41:35] swyx: And then maybe just talking about voice and Wanderlust, the app that keeps on giving, what's the backstory behind like preparing for all of that?
+
+[00:41:44] Romain Huet: You know, it's funny because when last year for Dev Day, we were trying to think about what could be a great demo app to show like an assistive experience. I've always thought travel is a kind of a great use case because you have, like, pictures, you have locations, you have the need for translations, potentially.
+
+[00:42:01] Romain Huet: There's like so many use cases that are bounded to travel that I thought last year, let's use a travel app. And that's how Wanderlust came to be. But of course, a year ago, all we had was a text based assistant. And now we thought, well, if there's a voice modality, what if we just bring this app back as a wink.
+
+[00:42:19] Romain Huet: And what if we were interacting better with voice? And so with this new demo, what I showed was the ability to like, So, we wanted to have a complete conversation in real time with the app, but also the thing we wanted to highlight was the ability to call tools and functions, right? So, like in this case, we placed a phone call using the Twilio API, interfacing with our AI agents, but developers are so smart that they'll come up with so many great ideas that we could not think of ourselves, right?
+
+[00:42:48] Romain Huet: But what if you could have like a, you know, a 911 dispatcher? What if you could have like a customer service? Like center, that is much smarter than what we've been used to today. There's gonna be so many use cases for real time, it's awesome.
+
+[00:43:00] swyx: Yeah, and sometimes actually you, you, like this should kill phone trees.
+
+[00:43:04] swyx: Like there should not be like dial one
+
+[00:43:07] Romain Huet: of course para
+
+[00:43:08] swyx: espanol, you know? Yeah, exactly. Or whatever. I dunno.
+
+[00:43:12] Romain Huet: I mean, even you starting speaking Spanish would just do the thing, you know you don't even have to ask. So yeah, I'm excited for this future where we don't have to interact with those legacy systems.
+
+[00:43:22] swyx: Yeah. Yeah. Is there anything, so you are doing function calling in a streaming environment. So basically it's, it's web sockets. It's UDP, I think. It's basically not guaranteed to be exactly once delivery. Like, is there any coding challenges that you encountered when building this?
+
+[00:43:39] Romain Huet: Yeah, it's a bit more delicate to get into it.
+
+[00:43:41] Romain Huet: We also think that for now, what we, what we shipped is a, is a beta of this API. I think there's much more to build onto it. It does have the function calling and the tools. But we think that for instance, if you want to have something very robust, On your client side, maybe you want to have web RTC as a client, right?
+
+[00:43:58] Romain Huet: And, and as opposed to like directly working with the sockets at scale. So that's why we have partners like Life Kit and Agora if you want to, if you want to use them. And I'm sure we'll have many mores in the, in many more in the future. But yeah, we keep on iterating on that, and I'm sure the feedback of developers in the weeks to come is going to be super critical for us to get it right.
+
+[00:44:16] swyx: Yeah, I think LiveKit has been fairly public that they are used in, in the Chachapiti app. Like, is it, it's just all open source, and we just use it directly with OpenAI, or do we use LiveKit Cloud or something?
+
+[00:44:28] Romain Huet: So right now we, we released the API, we released some sample code also, and referenced clients for people to get started with our API.
+
+[00:44:35] Romain Huet: And we also partnered with LifeKit and Agora, so they also have their own, like ways to help you get started that plugs natively with the real time API. So depending on the use case, people can, can can decide what to use. If you're working on something that's completely client or if you're working on something on the server side, for the voice interaction, you may have different needs, so we want to support all of those.
+
+[00:44:55] Alessio: I know you gotta run. Is there anything that you want the AI engineering community to give feedback on specifically, like even down to like, you know, a specific API end point or like, what, what's like the thing that you want? Yeah. I
+
+[00:45:08] Romain Huet: mean, you know, if we take a step back, I think dev Day this year is all different from last year and, and in, in a few different ways.
+
+[00:45:15] Romain Huet: But one way is that we wanted to keep it intimate, even more intimate than last year. We wanted to make sure that the community is. Thank you very much for joining us on the Spotlight. That's why we have community talks and everything. And the takeaway here is like learning from the very best developers and AI engineers.
+
+[00:45:31] Romain Huet: And so, you know we want to learn from them. Most of what we shipped this morning, including things like prompt caching the ability to generate prompts quickly in the playground, or even things like vision fine tuning. These are all things that developers have been asking of us. And so, the takeaway I would, I would leave them with is to say like, Hey, the roadmap that we're working on is heavily influenced by them and their work.
+
+[00:45:53] Romain Huet: And so we love feedback From high feature requests, as you say, down to, like, very intricate details of an API endpoint, we love feedback, so yes that's, that's how we, that's how we build this API.
+
+[00:46:05] swyx: Yeah, I think the, the model distillation thing as well, it might be, like, the, the most boring, but, like, actually used a lot.
+
+[00:46:12] Romain Huet: True, yeah. And I think maybe the most unexpected, right, because I think if I, if I read Twitter correctly the past few days, a lot of people were expecting us. To shape the real time API for speech to speech. I don't think developers were expecting us to have more tools for distillation, and we really think that's gonna be a big deal, right?
+
+[00:46:30] Romain Huet: If you're building apps that have you know, you, you want high, like like low latency, low cost, but high performance, high quality on the use case distillation is gonna be amazing.
+
+[00:46:40] swyx: Yeah. I sat in the distillation session just now and they showed how they distilled from four oh to four mini and it was like only like a 2% hit in the performance and 50 next.
+
+[00:46:49] swyx: Yeah,
+
+[00:46:50] Romain Huet: I was there as well for the superhuman kind of use case inspired for an Ebola client. Yeah, this was really good. Cool man! so much for having me. Thanks again for being here today. It's always
+
+[00:47:00] AI Charlie: great to have you. As you might have picked up at the end of that chat, there were many sessions throughout the day focused on specific new capabilities.
+
+[00:47:08] Michelle Pokrass, Head of API at OpenAI ft. Simon Willison
+
+[00:47:08] AI Charlie: Like the new model distillation features combining EVOLs and fine tuning. For our next session, we are delighted to bring back two former guests of the pod, which is something listeners have been greatly enjoying in our second year of doing the Latent Space podcast. Michelle Pokras of the API team joined us recently to talk about structured outputs, and today gave an updated long form session at Dev Day, describing the implementation details of the new structured output mode.
+
+[00:47:39] AI Charlie: We also got her updated thoughts on the VoiceMode API we discussed in her episode, now that it is finally announced. She is joined by friend of the pod and super blogger, Simon Willison, who also came back as guest co host in our Dev Day. 2023 episode.
+
+[00:47:56] Alessio: Great, we're back live at Dev Day returning guest Michelle and then returning guest co host Fork.
+
+[00:48:03] Alessio: Fork, yeah, I don't know. I've lost count. I think it's been a few. Simon Willison is back. Yeah, we just wrapped, we just wrapped everything up. Congrats on, on getting everything everything live. Simon did a great, like, blog, so if you haven't caught up, I
+
+[00:48:17] Simon Willison: wrote my, I implemented it. Now, I'm starting my live blog while waiting for the first talk to start, using like GPT 4, I wrote me the Javascript, and I got that live just in time and then, yeah, I was live blogging the whole day.
+
+[00:48:28] swyx: Are you a cursor enjoyer?
+
+[00:48:29] Simon Willison: I haven't really gotten into cursor yet to be honest. I just haven't spent enough time for it to click, I think. I'm more a copy and paste things out of Cloud and chat GPT. Yeah. It's interesting.
+
+[00:48:39] swyx: Yeah. I've converted to cursor and 01 is so easy to just toggle on and off.
+
+[00:48:45] Alessio: What's your workflow?
+
+[00:48:46] Alessio: VS
+
+[00:48:48] Michelle Pokrass: Code co pilot, so Yep, same here. Team co pilot. Co pilot is actually the reason I joined OpenAI. It was, you know, before ChatGPT, this is the thing that really got me. So I'm still into it, but I keep meaning to try out Cursor, and I think now that things have calmed down, I'm gonna give it a real go.
+
+[00:49:03] swyx: Yeah, it's a big thing to change your tool of choice.
+
+[00:49:06] swyx: Yes,
+
+[00:49:06] Michelle Pokrass: yeah, I'm pretty dialed, so.
+
+[00:49:09] swyx: I mean, you know, if you want, you can just fork VS Code and make your own. That's the thing to dumb thing, right? We joked about doing a hackathon where the only thing you do is fork VS Code and bet me the best fork win.
+
+[00:49:20] Michelle Pokrass: Nice.
+
+[00:49:22] swyx: That's actually a really good idea. Yeah, what's up?
+
+[00:49:26] swyx: I mean, congrats on launching everything today. I know, like, we touched on it a little bit, but, like, everyone was kind of guessing that Voice API was coming, and, like, we talked about it in our episode. How do you feel going into the launch? Like, any design decisions that you want to highlight?
+
+[00:49:41] Michelle Pokrass: Yeah, super jazzed about it. The team has been working on it for a while. It's, like, a very different API for us. It's the first WebSocket API, so a lot of different design decisions to be made. It's, like, what kind of events do you send? When do you send an event? What are the event names? What do you send, like, on connection versus on future messages?
+
+[00:49:57] Michelle Pokrass: So there have been a lot of interesting decisions there. The team has also hacked together really cool projects as we've been testing it. One that I really liked is we had an internal hack a thon for the API team. And some folks built like a little hack that you could use to, like VIM with voice mode, so like, control vim, and you would tell them on like, nice, write a file and it would, you know, know all the vim commands and, and pipe those in.
+
+[00:50:18] Michelle Pokrass: So yeah, a lot of cool stuff we've been hacking on and really excited to see what people build with it.
+
+[00:50:23] Simon Willison: I've gotta call out a demo from today. I think it was Katja had a 3D visualization of the solar system, like WebGL solar system, you could talk to. That is one of the coolest conference demos I've ever seen.
+
+[00:50:33] Simon Willison: That was so convincing. I really want the code. I really want the code for that to get put out there. I'll talk
+
+[00:50:39] Michelle Pokrass: to the team. I think we can
+
+[00:50:40] Simon Willison: probably set it up. Absolutely beautiful example. And it made me realize that The Realtime API, this WebSocket API, it means that building a website that you can just talk to is easy now.
+
+[00:50:50] Simon Willison: It's like, it's not difficult to build, spin up a web app where you have a conversation with it, it calls functions for different things, it interacts with what's on the screen. I'm so excited about that. There are all of these projects I thought I'd never get to, and now I'm like, you know what? Spend a weekend on it.
+
+[00:51:04] Simon Willison: I could have a talk to your data, talk to your database. With a web, with a, with a little web application. Yeah. That's so
+
+[00:51:10] Michelle Pokrass: cool. Chat with PDF, but really chat with, really chat with pdf. No, completely.
+
+[00:51:15] Simon Willison: Totally. And that's not even hard to build. That's the crazy thing about this.
+
+[00:51:18] Michelle Pokrass: Yeah. Very cool. Yeah, when I first saw the space demo, I was actually just wowed and I, and I had a similar moment I think to all the people in the crowd.
+
+[00:51:27] Michelle Pokrass: I also thought Romain's drone demo was super cool. That was a super
+
+[00:51:30] Simon Willison: fun one as well. Yeah, I
+
+[00:51:31] Michelle Pokrass: actually saw that live this morning, and I was holding my breath for sure.
+
+[00:51:35] swyx: Knowing Romain, he probably spent the last two days working on it. But yeah, like, I'm curious about you were talking with Romain actually earlier about what the different levels of extraction are with WebSockets.
+
+[00:51:47] swyx: It's something that most developers have zero experience with. I have zero experience with it. Apparently there's like, the RTC level, and then there's the WebSocket level, and there's like, levels in between.
+
+[00:51:56] Simon Willison: Not so much. I mean, with WebSockets with the way they've built their API, you can connect directly to the OpenAI WebSocket from your browser.
+
+[00:52:04] Simon Willison: And it's actually just regular JavaScript. Like, you instantiate the WebSocket thing. It looks quite easy from their example code. The problem is that if you do that, you're sending your API key. From like, source code that anyone can view. Yeah, we
+
+[00:52:16] Michelle Pokrass: don't recommend that for production.
+
+[00:52:18] Simon Willison: So it doesn't work for production, which is frustrating, because it means that you have to build a proxy.
+
+[00:52:23] Simon Willison: So I'm going to have to go home and build myself a little WebSocket proxy just to hide my API key. I want OpenAI to do that. I want OpenAI to solve that problem for me, so I don't have to build the 1000th WebSocket proxy just for that one problem. Totally.
+
+[00:52:36] Michelle Pokrass: We've also partnered with some some partner solutions.
+
+[00:52:39] Michelle Pokrass: We've partnered with, I think, Agora. LiveKit a few others. So there's some loose solutions there, but yeah, we hear you. It's a beta.
+
+[00:52:49] swyx: Yeah, yeah, I mean You still want a solution where someone brings their own key, And they can trust that you
+
+[00:52:55] Simon Willison: don't get it.
+
+[00:52:56] swyx: Right?
+
+[00:52:56] Simon Willison: Kind of. I mean, I've been building a lot of bring your own key apps, Where it's my HTML and JavaScript, I store the key in local storage in their browser, And it never goes anywhere near my server.
+
+[00:53:06] Simon Willison: Which works, but how do they trust me? How do they know I'm not gonna ship another piece of javascript that steals the key from them? And so, nominally, this actually
+
+[00:53:13] swyx: comes with the crypto background. This is what MetaMask does. Where Yeah, it's a
+
+[00:53:18] Michelle Pokrass: public private key thing. Yeah. Yeah.
+
+[00:53:20] swyx: Like, why doesn't OpenAI do that?
+
+[00:53:22] swyx: I don't know if, obviously it's
+
+[00:53:24] Michelle Pokrass: I mean, as with most things, I think there's, like, some really interesting questions. And the answer is just, you know, it's not been the top priority and it's hard for a small team to do everything. I have been hearing a lot more about the need for things like sign in with OpenAI.
+
+[00:53:40] Simon Willison: I want OAuth. I want to bounce my users through chat GPT and I get back a token that lets me spend up to 4 on the API on their behalf. Then I could ship all of my stupid little experiments, which currently require people to copy and paste their API key in, which cuts off everyone. Nobody knows how to do that.
+
+[00:53:57] Michelle Pokrass: Totally, I hear you. Something we're thinking about, and yeah, stay tuned.
+
+[00:54:01] swyx: Yeah, yeah right now, I think the only player in town is OpenRouter that is basically, it's funny, it was made by I forget his name but he used to be CTO of OpenSea, and the first thing he did when he came over was build Metamask for AI.
+
+[00:54:16] Michelle Pokrass: Totally. Yeah, very cool.
+
+[00:54:19] Alessio: What's the most underrated release from today?
+
+[00:54:23] Michelle Pokrass: Vision Fine Tuning. Vision Fine Tuning is so underrated. For the past, like, two months, whenever I talk to founders, they tell me this is the thing they need most. A lot of people are doing, like, OCR on very bespoke formats, like government documents, and Vision Fine Tuning can help a lot with that use case.
+
+[00:54:39] Michelle Pokrass: Also, bounding boxes. People have found, like, a lot of improvements for bounding boxes with Visionfine Tuning. So yeah, I think it's pretty slept on and people should try it. You only really need 100 images to get going.
+
+[00:54:49] Simon Willison: Tell me more about bounding boxes. I didn't think that GPT 4 Vision could do bounding boxes at all.
+
+[00:54:55] Michelle Pokrass: Yeah, it's actually not that amazing at it, we're working on it, but with fine tuning, you can make it really good for your use case.
+
+[00:55:02] Simon Willison: That's cool, because I've been using Google Gemini's bounding block stuff recently, it's very, very impressive.
+
+[00:55:06] Michelle Pokrass: Yeah, totally. But
+
+[00:55:07] Simon Willison: being able to fine tune a model for that. The first thing I'm going to do with fine tuning for images is, I've got fine tuning.
+
+[00:55:13] Simon Willison: And I'm going to fine tune a model that can tell which chicken is which. Which is hard because three of them are grey. So there's a little bit of Okay, this is
+
+[00:55:20] Michelle Pokrass: my new favourite use case. Yeah, it's
+
+[00:55:22] Simon Willison: I've managed to do it with prompting. Just like, I gave Claude Pictures of all of the chickens and then said, okay, which chicken is this?
+
+[00:55:30] Michelle Pokrass: Yeah,
+
+[00:55:30] Simon Willison: but it's not quite good enough because it confuses the great chicken. Listen,
+
+[00:55:33] Michelle Pokrass: we can close that eval gap. Yeah That's it's
+
+[00:55:36] Simon Willison: gonna be a great eval. My chicken eval is gonna be fantastic.
+
+[00:55:39] Michelle Pokrass: I'm also really jazzed about the evals product It's kind of like a sub launch of the distillation thing But people have been struggling to make evals and the first time I saw the flow with how easy it is to make an eval And in our product, I was just blown away so I recommend people really try that.
+
+[00:55:53] Michelle Pokrass: I think that's what's holding a lot of people back from really investing in AI, because they just have a hard time figuring out if it's going well for their use case. So we've been working on making it easier to do that.
+
+[00:56:03] Alessio: Does the eval product include structured output testing? Like, function calling and things?
+
+[00:56:08] Alessio: Yeah, you can
+
+[00:56:08] Michelle Pokrass: check if it matches your JSON schema yeah.
+
+[00:56:12] swyx: I mean, we have guaranteed structured output anyway, right? Well, but So we don't have to test it. Well,
+
+[00:56:18] Michelle Pokrass: not the schema, but like the See, these seem easy to tell apart. I think so. So I might call them a function,
+
+[00:56:24] Alessio: or Oh, I see. You're gonna write schema, wrong output.
+
+[00:56:27] Alessio: So you can do function
+
+[00:56:28] swyx: calling testing. Right.
+
+[00:56:29] Michelle Pokrass: I'm pretty sure. I'll have to check that for you, but I think
+
+[00:56:31] Alessio: so. Yeah, yeah, yeah. We'll make sure it's sent
+
+[00:56:33] swyx: out.
+
+[00:56:33] Alessio: How do you think about the evolution of, like, the API design? I think to me that's, like, the most important thing, so even with the OpenAI levels, like, chatbots, I can understand what the API design looks like. Reasoning, I can kind of understand it, even though, like, train of thought kind of changes things.
+
+[00:56:49] Alessio: As you think about real time voice, and then you think about agents, it's like, how do you think about how you design the API, and, like, what the shape of it is?
+
+[00:56:58] Michelle Pokrass: Yeah, so I think we're starting with the lowest level capabilities. And then we build on top of that, as we know that they're useful. So, a really good example of this is Realtime.
+
+[00:57:07] Michelle Pokrass: We're actually going to be shipping audio capabilities in chat completions. So this is like the lowest level capability. So you supply in audio, and you can get back raw audio, and it works at the request response layer. But, in through building advanced voice mode, we realized ourselves that like, it's not It's pretty hard to do with something like Chat Completions, and so that led us to building this WebSocket API.
+
+[00:57:28] Michelle Pokrass: So we really learned a lot from our own tools, and we think, you know, the Chat Completions thing is nice, and for certain use cases, or async stuff, but you're really gonna want a real time API? And then as we, you know, test more with developers, we might see that it makes sense to have like another layer of abstraction on top of that.
+
+[00:57:44] Michelle Pokrass: Something like closer to you know, more client side libraries. But, for now, you know, that's where we feel we have like a really good point of view.
+
+[00:57:52] Simon Willison: So that's a question I have is if I've got a half hour long audio recording, At the moment, the only way I can feed that in is if I call the WebSocket API and slice it up into little JSON basics for snippets and fire them all over.
+
+[00:58:04] Simon Willison: That's it. In that case, I'd rather just give you a, like an image in the chat completion API, give you a URL files and input. Is that something That's what we're
+
+[00:58:11] Michelle Pokrass: going to do.
+
+[00:58:12] Simon Willison: Oh, thank goodness for that.
+
+[00:58:13] Michelle Pokrass: Yes. It's in the blog post. I think it's a short one liner, but it's rolling out, I think, in the coming weeks.
+
+[00:58:17] Michelle Pokrass: Oh, wow.
+
+[00:58:18] Simon Willison: Oh, really soon then.
+
+[00:58:19] Michelle Pokrass: Yeah, the team has been sprinting we're just putting finishing touches on stuff. Do you
+
+[00:58:22] Simon Willison: have a feel for the length limit on that?
+
+[00:58:24] Michelle Pokrass: I don't have it off the top. Okay. Sorry.
+
+[00:58:26] Simon Willison: Because, yeah, often I want to do, I do a lot of work with, like, transcripts of hour long YouTube videos, which Yeah.
+
+[00:58:31] Simon Willison: Yeah. Currently, I run them through Whisper and then I do the transcript that way, but being able to do the multimodal thing with those would be really useful.
+
+[00:58:37] Michelle Pokrass: Totally, yeah. We're really jazzed about it. We want to basically give the lowest capabilities we have, lowest level capabilities, and, you know, the things that make it easier to use.
+
+[00:58:45] Michelle Pokrass: And so, you know, targeting kind of both. I
+
+[00:58:50] Simon Willison: just realized what I can do, though, is I do a lot of Unix utilities, little, like, Unix things. I want to be able to pipe the output of a command into something which streams that up to the WebSocket API and then speaks it out loud. So I can do streaming speech of the output of things.
+
+[00:59:06] Simon Willison: That should work. Like, I think you've given me everything I need for that. That's cool.
+
+[00:59:10] Michelle Pokrass: Yeah. Excited to see what you build. Is
+
+[00:59:14] swyx: there I heard there are, like, multiple competing solutions. And you guys evaluated before you picked WebSockets. Like server set events, polling, I don't, like, can you give, like, your thoughts on, like, the live updating paradigms that you guys looked at?
+
+[00:59:31] swyx: Because I think a lot of engineers have looked at stuff like this.
+
+[00:59:34] Michelle Pokrass: Well, I think WebSockets are just a natural fit for bi directional streaming. You know, other places I've worked, like, Coinbase, we had a WebSocket API for pricing data. I think it's just like a very natural format.
+
+[00:59:46] swyx: So it wasn't even really that controversial at all?
+
+[00:59:49] Michelle Pokrass: I don't think it was super controversial. I mean, we definitely explored the space a little bit, but I think we came to WebSockets pretty quickly.
+
+[00:59:56] swyx: Cool. Video?
+
+[00:59:58] Michelle Pokrass: Yeah. Not yet, but, you know.
+
+[01:00:03] swyx: I actually was hoping for the chat, GPT desktop app with video today. Yeah. Yeah.
+
+[01:00:09] Simon Willison: Oh,
+
+[01:00:10] Michelle Pokrass: my
+
+[01:00:11] Simon Willison: question is one frame a second.
+
+[01:00:16] Simon Willison: How frequently? Yeah.
+
+[01:00:19] swyx: Because Yeah, I mean sending a sending a whole video frame of like a 1080p screen. Maybe it might be too much What's the limitations on a on a WebSocket chunk going over? I don't know
+
+[01:00:33] Michelle Pokrass: I don't have that off the top
+
+[01:00:34] Simon Willison: Like Google Gemini you can do an hour's worth of video in their context window and just by slicing it up into one frame At ten frames a second and it does work so I Don't know.
+
+[01:00:46] Simon Willison: I'm I'm not sure But then that's the weird thing about Gemini is it's so good at you just giving it a flood of individual frames It'll be interesting to see if GPT 4. 0 can handle that or not
+
+[01:00:55] Alessio: Do you have any more feature requests? It's been a long day for everybody, but you got you got me show right here So my one
+
+[01:01:03] Simon Willison: is I want you to do all of the accounting for me I want my users to be able to run my app And I want them to call your APIs with their user ID and have you go, oh, they've spent 30 cents.
+
+[01:01:15] Simon Willison: Check, cut them off at a dollar. I can like, check how much they spent. All of that stuff, because I'm having to build that at the moment, and I really don't want to. I don't want to be a token accountant. I want you to do the token accounting for me.
+
+[01:01:26] Michelle Pokrass: Yeah, totally. I hear you. It's good feedback.
+
+[01:01:29] swyx: Well, like, how does that contrast with your actual priorities, right?
+
+[01:01:32] swyx: Like, I feel like you have a bunch of priorities. They showed some on stage with multi modality and all that.
+
+[01:01:37] Michelle Pokrass: Yeah.
+
+[01:01:37] swyx: Like
+
+[01:01:39] Michelle Pokrass: Yeah it's good feedback. It's hard to say. I would say things change really quickly. Things that are big adop big blockers for user adoption we find very important. And, yeah. It's a rolling prioritization.
+
+[01:01:53] Michelle Pokrass: Yeah.
+
+[01:01:54] swyx: No assistance API update.
+
+[01:01:56] Michelle Pokrass: Not at this time. Yeah. Yeah.
+
+[01:01:59] swyx: I was hoping for, like, an O1 native. Do thing in assistance? Yeah. I thought they would go well together. we're still
+
+[01:02:07] Michelle Pokrass: kind of iterating on the formats, I think there are some problems with the assistance API. Some things it does really well.
+
+[01:02:13] Michelle Pokrass: And I think we'll keep iterating and land on something really good. But just, you know, it wasn't quite ready yet. Some of the things that are good in the assistance API is hosted tools. People really like hosted tools and especially RAG. And then some things that are, you know, less intuitive is just how many API requests you need to get going with the assistance API.
+
+[01:02:30] Michelle Pokrass: It's
+
+[01:02:30] Simon Willison: quite.
+
+[01:02:30] Michelle Pokrass: It's quite a lot. Yeah, you gotta create an assistant, you gotta create a thread, you gotta, you know, do all this stuff. So yeah, it's something we're thinking about. It shouldn't be so hard.
+
+[01:02:39] Simon Willison: The only thing I've used it for so far is Code Interpreter. It's like it's an API to Code Interpreter.
+
+[01:02:43] Simon Willison: Crazy exciting. Yeah.
+
+[01:02:44] Michelle Pokrass: Yes, we want to fix, we want to fix that and make it easier to use, so. I
+
+[01:02:48] Simon Willison: want code intercepts over WebSockets, that would be wildly interesting.
+
+[01:02:53] swyx: Yeah, do you, do you want to bring your own code interpreter or you want to use OpenAI's one? I want to
+
+[01:02:57] Simon Willison: use theirs, because code intercepts is a hard problem, sandboxing and all of that stuff is Yeah, but there's a bunch
+
+[01:03:02] swyx: of code interpreter as a
+
+[01:03:03] Simon Willison: service
+
+[01:03:04] swyx: things out there.
+
+[01:03:04] swyx: There are a few now, yeah. Because there's, I think you don't Allow arbitrary installation of packages. Oh, they do. Unless
+
+[01:03:10] Simon Willison: they really do actually use your hack code. It, huh?
+
+[01:03:13] Michelle Pokrass: Yeah,
+
+[01:03:13] Simon Willison: and I do.
+
+[01:03:14] Michelle Pokrass: Yeah. You upload a pit package,
+
+[01:03:16] Simon Willison: you can run, you can compile C code and code interpreter. I know. You know, to do it.
+
+[01:03:20] Simon Willison: That's a hack. Oh, it's such a glorious hack though. Okay. I've had it Write me custom seql light extensions in C and compile them and run them inside of Python and it works.
+
+[01:03:31] swyx: I mean, yeah, there's, there's others. E two B is one of them, like, yeah. It'll be interesting to see what the real time version of that will be.
+
+[01:03:39] Alessio: Awesome, Michelle. Thank you for the update. We left the episode as, what will voice mode look like? Obviously, you knew what it looked like, but you didn't say it, so now you could share this.
+
+[01:03:50] Alessio: Yeah, here we are. Hope you
+
+[01:03:51] AI Charlie: guys
+
+[01:03:51] Alessio: like
+
+[01:03:52] swyx: it. Yeah, awesome. That's
+
+[01:03:53] Alessio: it.
+
+[01:03:53] AI Charlie: Our final guest today, and also a familiar, recent voice on the Latent Space pod, presented at one of the community talks at this year's Dev Day. Alistair Pullen of Cosene made a huge impression with all of you. Special shout out to listeners like Jesse from Morphlabs, when he came on to talk about how he created synthetic datasets to fine tune the largest LORAs that had ever been created for GPT 4.
+
+[01:04:20] AI Charlie: 0 to post the highest ever scores on SWEbench and SWEbench Verified. While not getting recognition for it, because he refused to disclose his reasoning traces to the SWEbench team. Now that OpenAI's R1 preview is announced, it is incredible to see the OpenAI team also obscure their chain of thought traces for competitive reasons, and still perform lower than Cozine's genie model.
+
+[01:04:45] Alistair Pullen, CEO, Cosine (Genie)
+
+[01:04:45] AI Charlie: We snagged some time with Ali to break down what has happened since his episode aired.
+
+[01:04:50] swyx: Welcome back, Ali. Thank you so much. Thanks for having me. So you just spoke at OpenAI Dev Day. What was the experience like? Did they reach out to you? You seem to have a very close relationship.
+
+[01:04:59] Alessio: Yeah, so off the back of, off the back of the work that we've done, that we spoke about last time we saw each other I think that OpenAI definitely felt that the work we've been doing around fine tuning was worth sharing.
+
+[01:05:10] Alessio: I would obviously tend to agree, but today today I spoke about some of the techniques that we learned. Obviously it was like a non linear path arriving to where we've arrived and the techniques that we've built to build Genie. So I definitely, I think I shared a few, a few extra pieces about some of the techniques and how it really works under the hood.
+
+[01:05:25] Alessio: How you generate a data set to show the model how to do what we show the model. And that was mainly what I spoke about today. I mean, yeah, they reached out and they were, I was, I was Super excited at the opportunity, obviously, like, it's not every day that you get to come and do this. Especially in San Francisco, so Yeah, they reached out and they were like, do you want to talk at Dev Day?
+
+[01:05:41] Alessio: You can speak about basically anything you want related to what you've built, and I was like, sure, that's amazing. I'll talk about fine tuning, how you build a model that does this software engineering, so yeah.
+
+[01:05:50] swyx: Yeah and the trick here is when we talked, O1 was not out. No, it wasn't. Did you know about O1, or?
+
+[01:05:57] Alessio: I didn't know. I knew some bits and pieces. No, not really. I knew a reasoning model was on the way. I didn't know what it was going to be called. I knew as much as everyone else. Strawberry was the name back then. Because,
+
+[01:06:08] swyx: you know, I'll fast forward. You were the first to hide your chain of thought, reasoning traces as IP.
+
+[01:06:14] swyx: Yes. Right? Famously, that got you in trouble with 3Bench or whatever. Yes. I feel slightly vindicated by that now. And now, obviously, O1 is doing it. Yeah, the
+
+[01:06:22] Alessio: fact that, yeah, I mean, like, I think it's, I think it's true to say right now that the reasoning of your model gives you the edge that you have. Unlike.
+
+[01:06:33] Alessio: The amount of effort that we put into our data pipeline to generate these human like reasoning traces was, I mean, that wasn't for nothing. We knew that this was the way that you'd unlock more performance, getting the model to think in a specific way. In our case, we wanted it to think like a software engineer.
+
+[01:06:46] Alessio: But, yeah, I think, I think that, The approach that other people have taken, like OpenAI, in terms of reasoning, has definitely showed us that we were going down the right path pretty early on. And even now, we've started replacing some of the reasoning traces in our genie model with reasoning traces generated by O1, or at least in tandem with O1.
+
+[01:07:09] Alessio: And we've already started seeing improvements in performance from that point. But no, like back to your point, in terms of like the, the whole like approach. Withholding them. I, I, I, I still think that that was the right decision to do because of the very reason that everyone else has decided to, to, to, to not share those things.
+
+[01:07:26] Alessio: It's, it is exactly, it shows exactly how we do what we do and that is our edge at the moment. So,
+
+[01:07:32] Alessio: yeah. As a founder, so, they also feature Cognition on, on stage, talk about that. How does that make you feel that like, you know, they're like, hey, 01 is so much better, makes us better. For you, it should be like.
+
+[01:07:45] Alessio: Oh, I'm so excited about it too, because now all of a sudden it's like, it kind of like, raises the floor for everybody, like, how should people, especially new founders, how should they think about, you know, worrying about the new model versus like, being excited about them just focusing on like, the core FP and maybe switching out some of the parts, like you mentioned.
+
+[01:08:00] Alessio: Yeah, I, I, I, I, speaking for us, I mean obviously like, we were extremely excited about O1 because, At that point, the process of reasoning is obviously very much baked into the model. We fundamentally, if you like, remove all distractions and everything, we are a reasoning company. Right? We want to reason in the way that a software engineer reasons.
+
+[01:08:18] Alessio: So when I saw that model announced, I thought immediately, well, I can improve the quality of my traces coming out of my pipeline, so like, my signal to noise ratio gets better. And then, not immediately, but down the line, I'm going to be able to train those traces into O1 itself. So I'm going to get even more performance that way as well.
+
+[01:08:35] Alessio: So it's For us, a really nice position to be in, to be able to take advantage of it, both on the prompted side and the fine tuned side. And also because, fundamentally, like, we are, I think, fairly clearly in a position now where we don't have to worry about what happens when O2 comes out, what happens when O3 comes out.
+
+[01:08:51] Alessio: This process continues, like, even going from You know, when we first started going from 3. 5 to 4, we saw this happen and then from 4 turbo to 4. 0 and then from 4. 0 to 0. 1, we've seen the performance get better every time and I think, I mean, like, the crude advice I'd give to any startup founder is try to put yourself in a position where you can take advantage of the same, you know, like, C level rise every time, essentially.
+
+[01:09:15] swyx: Do you make anything out of the fact that you were able to take 4. 0 and fine tune it higher than 0. 1 currently scores on SweeBench Verified? Yeah, I mean like,
+
+[01:09:25] Alessio: that was obviously, to be honest with you, you realized that before I did. Adding value. Yes, absolutely, that's a value add investor right there. No, obviously I think it's been, that in of itself is really vindicating to see because I think, I think we have, heard from some people, not a lot of people, but some people saying, well, okay, well, if I, one can reason, then what's the point of doing your reasoning, but it shows how much more signal is in, like the custom reasoning that we generate.
+
+[01:09:52] Alessio: And again, it's the, it's the very sort of obvious thing. If you take something that's made to be general and you make it specific, of course, it's going to be better at that thing. Right? So it was obviously great to see, like, we still are better than no one out of the box. You know, even with an older model, and I'm sure that that's, you know, That delta will continue to grow once we're able to train O1, and once we've done more work on our dataset using O1, like, that delta will grow as well.
+
+[01:10:13] swyx: It's not obvious to me that they will allow you to fine tune O1, but, you know, maybe they'll try. I think the, the, the core question that OpenAI really doesn't want you to figure out is can you use an open source model and beat O1?
+
+[01:10:28] Romain Huet: Interesting. Because, because
+
+[01:10:30] swyx: you basically have shown proof of concept that a non O1 model can beat O1.
+
+[01:10:35] swyx: And their whole L1 marketing is, don't bother trying. Like, don't bother stitching together multiple chain of thought calls. We did something special, secret sauce, you don't know anything about it. And somehow, you know, your 4. 0 chain of thought reasoning as a software engineer is still better. Maybe it doesn't last.
+
+[01:10:53] swyx: Maybe they're going to run L1 for five hours instead of five minutes, and then suddenly it works. So, I don't know.
+
+[01:10:59] Alessio: It's hard to know. I mean, one of the things that we just want to do out of sheer curiosity is do something like fine tune 405B on the same dataset. Like, same context window length, right? So, it should be fairly easy.
+
+[01:11:09] Alessio: We haven't done it yet. Truthfully, we have been so swamped with the waitlist, shipping product, you know, dev day, like, you know, onboarding customers from our waitlist. All these different things have gotten in the way, but it is definitely something out of more curiosity than anything else I'd like to try out.
+
+[01:11:23] Alessio: But also It opens up a new vector of like, if someone has a VPC where they can't deploy an OpenAI model, but they might be able to deploy an open source model, it opens that up for us as well from a customer perspective. So it'll probably be quite useful. I'd be very keen to see what the results are though.
+
+[01:11:38] Alessio: I suspect the answer is yes,
+
+[01:11:40] swyx: but it may be hard to do. So like Reflection70b was like a really crappy attempt at doing it. You guys were much better, and that's why we had you on the show. I, yeah, I'm interested to see if there's an OpenO1 basically. If people want OpenO1.
+
+[01:11:53] Alessio: Yeah, I'm sure they do. As soon as we, as soon as we do it, I'm like, Once we've wrapped up what we're doing in San Francisco, I'm sure we'll give it a go.
+
+[01:12:01] Alessio: I spoke to some guys today, actually, about fine tuning 405B, who might be able to allow us to do it very, like, very easily. I don't want to have to basically do all the setup myself. So, yeah, that might happen sooner rather than later.
+
+[01:12:15] Alessio: Anything from the releases today that you're super excited about? So prompt caching, I'm guessing when you're like dealing with a lot of codebases, that might be helpful.
+
+[01:12:22] Alessio: Is there anything with vision fine tuning related to
+
+[01:12:25] Alessio: like more like UI related development? Yeah, definitely. Yeah, I mean like we were talking, it's funny, like my co founder Sam, who you've met, and I were talking about the idea of doing vision fine tuning. Like, way back, like, well over a year ago, before Genie existed as it does now when we, when we collected our original dataset to do what we do now whenever there were image links and links to, like like, graphical resources and stuff, we also pulled that in as well.
+
+[01:12:50] Alessio: We never had the opportunity to use it, but it's something we have in storage. And, again, like, when we have the time, it's something that I'm super excited, particularly on the UI side. To be able to, like, leverage, particularly if you think about one of the things, I mean, not to sidetrack, but one of the things we've noticed is, I know Swebench is, like, the most commonly talked about thing, and honestly, it's a very, it's an amazing project, but, One of the things we've learned the most from actually shipping this product to users is, It's a pretty bad proxy at telling us how competent the model is, so, for example, When people are doing, like, React development using Genie, For us, it's impossible to know whether what it's written has actually done, you know, done what it wanted to.
+
+[01:13:26] Alessio: So at least even using, like, the fine tuning provision to be able to help eval, like, what we output is already something that's very useful. But also, in terms of being able to pair, here's a UI I want, here's the code that actually, like, represents that UI, is also going to be super useful as well, I think.
+
+[01:13:42] Alessio: In terms of generally, what have I been most impressed by? The distillation thing is awesome. I think we'll probably end up using it in places. But what it shows me more broadly about OpenAI's approach is they're going to be building a lot of the things that we've had to hack together internally, in terms from a tooling point of view, just to make our lives so much easier.
+
+[01:14:03] Alessio: And I've spoken to, you know, John, the head of fine tuning, extensively about this. But there's a bunch of tools that we've had to build internally for things like dealing with model lineage, dealing with dataset lineage, because it gets so messy so quickly, that we would love OpenAI to build. Like, absolutely would love them to build it.
+
+[01:14:19] Alessio: It's not, it's not what gives us our edge, but it certainly means that then we don't have to build it and maintain it afterwards. So, it's a really good first step, I think, in, like, the overall maturity of the fine tuning product and API in terms of where they're going to see those early products. And I think that they'll be continuing in that direction going on.
+
+[01:14:37] Alessio: Did you not, so there's a very
+
+[01:14:39] swyx: active ecosystem of LLLmaps tools. Mm hmm. Did you not evaluate those before building your own?
+
+[01:14:47] Alessio: We did, but I think fundamentally, like, No more. Yeah, like, I think, in a lot of places, it was never a big enough pain point to be like, oh, we absolutely must outsource this. It's definitely, in many places, something that you can hack a script together In a day or two, and then hook it up to our already existing internal tool UI, and then you have, you know, what you need, and whenever you need a new thing, you just tack it on.
+
+[01:15:14] Alessio: But for, like, all of these LLM Ops tools, I've never felt the pain point enough to really, like, bother, and that's not to deride them at all, I'm sure many people find them useful, but just for us as a company, we've never felt the need for them. So it's great that, it's great that OpenAI are going to build them in because it's really nice to have them there, for sure.
+
+[01:15:36] Alessio: But it's not something that, like, I'd ever consider really paying for externally or something like that, if that makes sense.
+
+[01:15:40] swyx: Yeah. Does voice mode factor into Genie?
+
+[01:15:44] Alessio: Maybe one day, that'd be sick, wouldn't it? I don't know. Yeah, I think so. You're
+
+[01:15:48] swyx: the first person, we've been asking this question to everybody.
+
+[01:15:50] swyx: Yeah, I think. You're the first person to not mention voice mode.
+
+[01:15:52] Alessio: Oh, well, it's, it's, it's currently so distant from what we do. But I definitely think, like, this whole talk, if we want it to be a full on AI software engineering colleague, like, there is definitely a vector in some way that you can build that in.
+
+[01:16:06] Alessio: Maybe even during the ideation stage, talking through a problem with Genius in terms of how we want to build something down the line. I think that might be useful, but honestly, like, that would be nice to have when we have the time. Yeah, amazing.
+
+[01:16:19] swyx: One last question. On your in your talk, you mentioned a lot about So you're curating your data and your distribution and all that, and before we sat down you talked a little bit about having to diversify your dataset.
+
+[01:16:30] swyx: Absolutely, yeah. What's driving that,
+
+[01:16:32] Alessio: what are you finding? So, we have been rolling people off the waitlist that we sort of amassed when we announced when I last saw you. And it's been really interesting because as I may have mentioned on the podcast, like we had to be very opinionated about the data mix and the data set that we put together for like sort of the V0 of Genie.
+
+[01:16:49] Alessio: Again, like, to your point, Javascript, Javascript, Javascript, Python, right? There's a lot of Javascripts in its various forms in there. But it turns out that when we've shipped it to the very early alpha users we rolled it out to for example, we had some guys using it with a C sharp codebase.
+
+[01:17:05] Alessio: And C sharp currently represents, I think, about 3 percent of the overall data mix. And they weren't getting the levels of performance that they saw when they tried it with a Python codebase. And It was obviously not great for them to have a bad experience, but it was nice to be able to correlate it with the actual, like, objective data mix that we saw.
+
+[01:17:25] Alessio: So we did what we've been doing is like little top up fine tunes where we take, like, the general genie model and do an incremental fine tune on top with just a bit more data for a given, you know, vertical language. And we've been seeing improvements coming from that. So. Again, this is one of the great things about sort of baptism by fire and letting people use it and giving you feedback and telling you where it sucks.
+
+[01:17:46] Alessio: Because that is not something that we could have just known ahead of time. So I want that data mix to, over time as we roll it out to more and more people, and we are trying to do that as fast as possible, but we're still a team of five for the time being. And so To be as general and as representative of what our users do as possible and not what we think they need.
+
+[01:18:02] swyx: Yeah, so every customer is going to have their own fine
+
+[01:18:05] Alessio: tune. There is going to be the option to, yeah, there is going to be the option to fine tune the model on your code base. It won't be in, like, the base pricing tier, but you will definitely be able to do that. It will go through All of your codebase history, learn how everything happened, and then you'll have an incrementally fine tuned genie just on your codebase.
+
+[01:18:23] Alessio: That's what enterprises really love the idea of. Perfect.
+
+[01:18:27] swyx: Anything else? Yeah, that's it. Thank you so much. Thank you so
+
+[01:18:29] Alessio: much, guys. Good to
+
+[01:18:30] swyx: see you.
+
+[01:18:31] Sam Altman + Kevin Weill Q&A
+
+[01:18:31] AI Charlie: Lastly, this year's Dev Day ended with an extended Q& A with Sam Altman and Kevin Weil. We think both the questions asked and answers given were particularly insightful, so we are posting what we could snag of the audio here from publicly available sources.
+
+[01:18:48] AI Charlie: Credited in the show notes, for you to pick through. If the poorer quality audio here is a problem, we recommend waiting for approximately 1 to 2 months until the final video is released on YouTube. In the meantime, we particularly recommend Sam's answers on the moderation policy, on the underappreciated importance of agents and AI employees beyond level 3.
+
+[01:19:11] AI Charlie: And his projections of the intelligence of O1, O2, and O3 models in future.
+
+[01:19:23] Speaker 17: Alright, I think everybody knows you. For those who don't know me, I'm Kevin Wheel, Chief Product Officer at OpenAI. I have the good fortune of getting to turn the amazing research that our research teams do into the products that you all use every day and the APIs that you all build on every day. I thought we'd start with some audience engagement here.
+
+[01:19:42] Speaker 17: So on the count of three, I want to count to three, and I want you all to say, of all the things that you saw launched here today, what's the first thing you're going to integrate? It's the thing you're most excited to build on. Alright? You gotta do it. Alright? One, two, three. Real time
+
+[01:20:01] Alex Volkov: API!
+
+[01:20:03] Speaker 17: I'll say personally, I'm super excited about our distillation products.
+
+[01:20:07] Speaker 17: I think that's going to be really, really interesting. I'm also excited to see what you all do with advanced voicemail with the real time API, and with vision fine tuning in particular. Okay, so I've got some questions for Sam, I've got my CEO here in the hot seat, let's see if I can't make a career limiting move.
+
+[01:20:30] Speaker 17: So we'll start this we'll start with an easy one, Sam. How close are we to AGI?
+
+[01:20:37] Sam Altman: You know, we used to, every time we finished a system, we would say like, in what way is this not an AGI? Okay. And it used to be like, very easy, you could like, make a little robotic hand that does a prefix cube, or a dotabot, and it's like, oh, it does some things, but definitely not an AGI.
+
+[01:20:54] Sam Altman: It's obviously harder to say now, and so we're trying to like, stop talking about AGI as this general thing. We have this levels framework, because the word AGI has become so overloaded. So like, real quickly, we use one for chatbots, two for reasoners, three for agents, four for innovators, five for organizations, like roughly.
+
+[01:21:15] Sam Altman: I think we clearly got to level two, or we clearly got to level two. With O1 and it, you know, can do really quite impressive Python tasks. It's a very smart model. It doesn't feel AGI like in a few important ways, but I think if you just do the one next step of making it, you know, very agent like, which is our level three, and which I think we will be able to do in the not distant future, It will feel surprisingly capable still probably not something that most of you would call an AGI, though maybe some of you would but it's going to feel like, all right, this is, this is like a significant thing.
+
+[01:21:52] Sam Altman: And then the, the leap, and I think we do that pretty quickly the, the leap from that to something that can really increase the rate of new scientific discovery, which for me is like a very important part. of having an AGI. I feel a little bit less certain on that, but not a long time. Like, I think all of this now is going to happen pretty quickly, and if you think about what happened from last decade to this one, in terms of model capabilities, and you're like, eh.
+
+[01:22:20] Sam Altman: I mean, if you go look at like, If you go from my 01 on a hard problem back to like 4Turbo that we launched 11 months ago, you'll be like, wow, this is happening pretty fast. And I think the next year will be very steep progress. Next two years will be very steep progress. Harder than that. Hard to say with a lot of certainty.
+
+[01:22:34] Sam Altman: But I would say like the math will vary. And at this point, the definitions really matter. And in fact, the fact that the definitions matter this much, Somehow means we're, like, getting pretty close. Yeah.
+
+[01:22:45] Speaker 17: And, you know, there used to be this sense of AGI where it was like, it was a binary thing, and you were gonna go to sleep one day, and there was no AGI, and wake up the next day and there was AGI.
+
+[01:22:56] Speaker 17: I don't think that's exactly how we think about it anymore, but how have your
+
+[01:23:00] Sam Altman: views on this evolved? You know, the one, I agree with that, I think we're, like, you know, in this, like, kind of period where it's It's gonna feel very blurry for a while, and the, you know, is this AGI yet, or is this not AGI, or kind of like, at what point?
+
+[01:23:16] Sam Altman: It's just gonna be this like, smooth exponential, and, you know, probably most people, looking back at history, won't agree, like, when that milestone was hit, and will just realize it was like, a silly thing. Even the Turing test, which I thought always was like, this very clear milestone, you know, there was this like, fuzzy period.
+
+[01:23:33] Sam Altman: It kind of like, went oosh and bye, no one cared But, but I think the right framework is just this one exponential. That said if we can make an AI system that is like materially better at all of open AI than doing, at doing AI research, that does feel to me like some sort of important discontinuity.
+
+[01:23:53] Sam Altman: It's probably still wrong to think about it that way. It probably still is the smooth exponential curve. Bye. That feels like a new milestone.
+
+[01:24:00] Alex Volkov: Is
+
+[01:24:03] Speaker 17: OpenAI still as committed to research as it was in the early days? Will research still drive the core of our advancements in our product development? Yeah,
+
+[01:24:12] Sam Altman: I mean, I think more than ever.
+
+[01:24:15] Sam Altman: The, there was like a time in our history when the right thing to do was just to scale up compute, and we saw that with conviction, and we had a spirit of like, We'll do whatever works, you know, like, we want to, we have this mission, we want to like, build, say, AGI, figure out how to share the benefits. If the answer is like, rack up GPUs, we'll do that.
+
+[01:24:33] Sam Altman: And right now, the answer is, again, really push on research. And I think you see this with O1, like, that is a giant research breakthrough that we were attacking from many vectors over a long period of time that came together in this really powerful way. We have many more giant research breakthroughs to come, but the thing that I think is most special about OpenAI is that we really deeply care about research and we understand how to do it.
+
+[01:25:02] Sam Altman: I think, it's easy to copy something you know works, and you know, I actually don't even mean that as a bad thing, like, when people copy OpenAI, I'm like, great, the world gets more AI? That's wonderful. But, to do something new for the first time, to like, really do research in the true sense of it, which is not like, you know, let's barely get soda out of this thing, or like, let's tweak this.
+
+[01:25:22] Sam Altman: But like, let's go find the new paradigm, and the one after that, and the one after that. That is what motivates us, and I think the thing that is special about us as an org. Besides the fact that we, you know, married product and research and all this other stuff together, is that we know how to run that kind of a culture that can go, that can go push back the frontier, and that's really hard.
+
+[01:25:43] Sam Altman: But we love it and that's, you know, I have to do that a few more times in a week at AGI.
+
+[01:25:49] Speaker 17: Yeah, I'll say like the litmus test for me coming from the outside, from, you know, sort of normal tech companies, of how critical research is to open AI, is that building product in open AI is fundamentally different than any other place that I have ever done it before.
+
+[01:26:05] Speaker 17: You know, normally you have, you have some sense of your tech stack, you have some sense of what you have to work with, and what capabilities computers have, and, and then you're trying to build the best product, right? You're figuring out who your users are, what problems they have, and how you can help solve those problems for them.
+
+[01:26:23] Speaker 17: There is that at OpenAI, but also, the state of, like, what computers can do just evolves every two months, three months, and suddenly computers have a new capability that they've never had in the history of the world. And we're trying to figure out how to build a great product and expose that for developers and our APIs and so on.
+
+[01:26:46] Speaker 17: And then, you know, you can't totally tell what's coming, they're coming through, it's coming through the mist a little bit at you and gradually taking shape. It's fundamentally different than any other company I've ever worked at, and it's, I think, Is that the thing that has
+
+[01:26:58] Sam Altman: most surprised you?
+
+[01:26:59] Speaker 17: Yes. Yeah, and it's interesting how, Even internally we don't always have a sense.
+
+[01:27:06] Speaker 17: You have like, okay, I think this capability is coming, but is it going to be, you know, 90 percent accurate or 99 percent accurate in the next model because the difference really changes what kind of product you can build. And you know that you're gonna get to 99, you don't quite know when, and figuring out how you put a roadmap together in that world is really interesting.
+
+[01:27:26] Sam Altman: Yeah, the degree to which we have to just, like, follow the science, and let that determine what we go work on next, and what products we build, and everything else, is, I think, hard to get across. Like, we have guesses about where things are gonna go. Sometimes we're right, often we're not. But, if something starts working, or if something doesn't work that you thought was gonna work, our willingness to just say, we're gonna like, pivot everything, and do what the science allows, and you don't get to like, pick what the science allows?
+
+[01:27:54] Sam Altman: Yeah. That's surprising.
+
+[01:27:55] Speaker 17: I was sitting with an Enterprise customer a couple weeks ago, and they said, you know, one of the things we really want, this is all working great, we love this, one of the things we really want is a notification 60 days in advance when you're gonna launch something. And I was like, I want that too.
+
+[01:28:14] Speaker 17: Alright, so I'm going through, these are a bunch of questions from the audience, by the way, and we're going to try and also leave some time at the end for people to ask audience questions. So we've got some folks with mics, and when we get there they'll be thinking. But next thing is So many in the alignment community are genuinely concerned that open AI is now only paying lib service to alignment.
+
+[01:28:34] Speaker 17: Can you reassure us?
+
+[01:28:35] Sam Altman: Yeah I think it's true we have a different take on alignment than, like, maybe what people write about on whatever that, like, internet forum is. But we really do care a lot about building safe systems. We have an approach to do it that has been informed by our experience so far.
+
+[01:28:55] Sam Altman: And touch on that other question, which is you don't get to pick where the science goes. Of, we want to figure out how to make capable models that get safer and safer over time. And, you know, a couple of years ago, we didn't think the whole strawberry or the O1 paradigm was gonna work in the way that it's worked.
+
+[01:29:13] Sam Altman: And that brought a whole new set of safety challenges, but also safety opportunities. And, rather than kind of, like, plan to make theoretical ones, You know, superintelligence gets here, here's the like, 17 principles. We have an approach of, figure out where the capabilities are going, and then work to make that system safe.
+
+[01:29:38] Sam Altman: And, O1 is obviously our most capable model ever, but it's also our most aligned model ever, by a lot. And as, as these models get better intelligence, better reasoning, whatever you want to call it, the things that we can do to align them the things we can do to build really safe systems across the entire stack our tool set keeps increasing as well.
+
+[01:30:00] Sam Altman: So,
+
+[01:30:01] Sam Altman: we, we have to build models that are generally accepted as safe and robust to be able to put them in the world. And when we started OpenAI, what the picture of alignment looked like, and what we thought the problems that we needed to solve were going to be, turned out to be nothing like the problems that actually are in front of us and that we had to solve now.
+
+[01:30:20] Sam Altman: And also, when we made the first GPT 3 if you ask me for the techniques that would have worked for us to be able to now deploy. all of current systems as generally expected to be safe and robust. They would not have been the ones that turned out to work. So, by this idea of iterative deployment, which I think has been one of our most important safety stances ever and sort of confronting reality as it sits in front of us, we've made a lot of progress, and we expect to make more, and we keep finding new problems to solve, but we also keep finding new techniques to solve them.
+
+[01:30:54] Sam Altman: All of that said, I
+
+[01:30:56] Sam Altman: I think worrying about the sci fi ways this all goes wrong is also very important. We have people thinking about that. It's a little bit less clear, kind of, what to do there, and sometimes you end up backtracking a lot, but,
+
+[01:31:09] Sam Altman: but I don't think it's I also think it's fair to say we're only gonna work on the thing in front of us. We do have to think about where this is going, and we do that too. And I think if we keep approaching the problem from both ends like that, most of our thrust on the, like, okay, here's the next thing, we're gonna deploy this.
+
+[01:31:22] Sam Altman: What it needs to happen to get there. But also like, what happens if this curve just keeps going? That's been, that's been an effective strategy for us.
+
+[01:31:30] Speaker 17: I'll say also, it's one of the places where I'm really, I really like our philosophy of iterative deployment. When I was at Twitter, back, I don't know, a hundred years ago now Ev said something that stuck with me, which is, So no matter how many smart people you have inside your walls, there are way more smart people outside your walls.
+
+[01:31:48] Speaker 17: And so, when we try and get our, you know, it'd be one thing if we just said we're gonna try and figure out everything that could possibly go wrong within our walls, and it'd be just us and the red teamers that we can hire and so on. And we do that, we work really hard at that. But also, Launching iteratively and launching carefully and learning from the ways that folks like you all use it, what can go right, what can go wrong, I think is a big way that we get these things right.
+
+[01:32:13] Speaker 17: I also think that as we head into this world of
+
+[01:32:18] Sam Altman: agents off doing things in the world, that is going to become really, really important. As these systems get more complex and are acting over longer horizons the pressure testing from the whole outside world, like, really,
+
+[01:32:30] Alex Volkov: really
+
+[01:32:31] Sam Altman: critical.
+
+[01:32:32] Speaker 17: Yeah. So. We'll go, actually, we'll go off of that and maybe talk to us a bit more about how you see agents fitting in with OpenAI's long term plans.
+
+[01:32:40] Speaker 17: What do you think? I think I'm a huge part of the I mean, I think the exciting thing is this This set of models, O1 in particular, and all of its successors, are going to be what makes this possible. Because you finally have the ability to reason, to take hard problems, break them into simpler problems, and act on them.
+
+[01:33:02] Speaker 17: I mean, I think 2025 is going to be the year that's really, that's big. Yeah, I,
+
+[01:33:09] Sam Altman: I mean, chat interfaces are great, and they all, I think, have an important place in the world, but I don't know. The,
+
+[01:33:16] Sam Altman: when you can like ask a model, when you can ask like ChatGT or some agent something, and it's not just like you get a kind of quick response, or even if you get like 15 seconds of thinking, and oh, one gives you like a nice piece of code back or whatever. But you can like really give something a multi term interaction with environments or other people or whatever, like think for the equivalent of multiple days of human effort, and, and like a really smart, really capable human, and like have stuff happen.
+
+[01:33:45] Sam Altman: We all say that, we're all like, oh yeah, this is the next thing, this is coming, this is gonna be another thing, and we just talk about it like, okay, you know, it's like the next model in evolution. I would bet, and we don't really know until we get to use these, that it's We'll of course get used to it quickly, people get used to any new technology quickly, but this will be like a very significant change to the way the world works.
+
+[01:34:07] Sam Altman: in a short period of time.
+
+[01:34:09] Speaker 17: Yeah, it's amazing. Somebody was talking about getting used to new capabilities and AI models and how quickly, actually I think it was about Waymo but they were talking about how in the first ten seconds of using Waymo, they were like, oh my god, is this thing that, like, there's like, let's watch out, and then ten minutes in, they were like, oh, this is really cool.
+
+[01:34:28] Speaker 17: And then twenty minutes in, they were like, checking their phone for, you know, it's amazing how much your, your sort of internal firmware updates. For this new stuff, right? Yeah, like,
+
+[01:34:39] Sam Altman: I think that people will ask an agent to do something for them that would have taken them a month, and they'll finish in an hour, and it'll be great, and then they'll have like ten of those at the same time, and then they'll have like a thousand of those at the same time, and by 2030 or whatever, we'll look back and be like, yeah, this is just like what a human is supposed to be capable of, what a human used to like, you know, grind at for years or whatever, many humans used to grind at for years.
+
+[01:35:07] Sam Altman: I just now I can ask a computer to do it and it's like done in an hour. That's, why is it not a minute? Yeah,
+
+[01:35:16] Speaker 17: it's also, it's one of the things that makes having an amazing development platform great too because, you know, we'll experiment and we'll build some agentic things of course and like we've already got, I think just like, we're just pushing the boundaries of what's possible today you've got groups like cognition doing amazing things and coding Like Harvey and case text, you guys speak doing cool things with language translation.
+
+[01:35:39] Speaker 17: Like, we're beginning to see this stuff work, and I think it's really gonna start working as we,
+
+[01:35:44] Sam Altman: as we continue to iterate these models. One of the very fun things for us about having this development platform is just getting to, like, watch the unbelievable speed and creativity of people that are building these experiences.
+
+[01:35:56] Sam Altman: Like, developers, very near and dear to our heart it's kind of like the first thing we watched. And it's brilliant. Many of us came building on platforms, but the, so much of the capability of these models and great experiences have been built by people building on the platform. We'll continue to try to offer, like, great first party products, but we know that will only ever be, like, a small, narrow slice of the apps or agents or whatever people build in the world, and seeing what has happened in the world in the last, you know, 18 24 months.
+
+[01:36:30] Sam Altman: It's been like quite amazing to watch.
+
+[01:36:33] Speaker 17: We'll keep going on the agent front here. What do you see as the current hurdles for computer
+
+[01:36:39] Sam Altman: controlling agents? Safety and alignment. Like, if you are really going to give an agent the ability to start clicking around your computer which you will. You are going to have a very high bar for The robustness and the reliability and the alignment of that system.
+
+[01:36:58] Sam Altman: So technically speaking, I think that, you know, we're getting, like, pretty close to the capability side. But the sort of agent safety and trust framework, that's gonna, I think, be the long haul.
+
+[01:37:11] Speaker 17: And now I'll kind of ask a question that's almost the opposite of one of the questions from earlier. Do you think safety could act as a false positive and actually limit public access to critical tools that would enable a more egalitarian world?
+
+[01:37:23] Sam Altman: The honest answer is yes, that will happen sometimes. Like, we'll try to get the balance right. But if we were fully alone and didn't care about, like, safety and alignment at all, could we have launched O1 faster? Yeah, we could have done that. It would have come at a cost. There would have been things that would have gone really wrong.
+
+[01:37:40] Sam Altman: I'm very proud that we didn't. The cost, you know, I think would have been manageable with O1, but by the time of O3 or whatever, like, immediately. Pretty unacceptable. And so, starting on the conservative side, like, you know, I don't think people are complaining, like, oh, voice mode, like, it won't say this offensive thing, and I really want it to, and, you know, formal comedy, and let it offend me.
+
+[01:38:03] Sam Altman: You know what? I actually mostly agree. If you are trying to get O1 to say something offensive, it should follow the instructions of its user most of the time. There's plenty of cases where it shouldn't. But, we have, like, a long history of when we put a new technology in. We change the world, we start on the conservative side.
+
+[01:38:20] Sam Altman: We try to give society time to adapt, we try to understand where the real harms are versus sort of like, kind of more theoretical ones. And that's like, part of our approach to safety. And, not everyone likes it all the time, I don't even like it all the time. But, but if we're right that these systems are, and we're gonna get it wrong too, like sometimes we won't be conservative enough in some area.
+
+[01:38:42] Sam Altman: But if we're right that these systems are going to get as powerful as we think they are. as quickly as we think they might, then I think starting that way makes sense. And, you know, we like to relax over time. Totally agree. What's
+
+[01:38:57] Speaker 17: the next big challenge for a startup that's using AI as a core feature?
+
+[01:39:01] Speaker 17: I'll say it. You first. I've got it. I've got one, which is, I think one of the challenges, and we face this too, because we're also building products on top of our own models, is trying to find the, kind of the frontier. You want to be building, these AI models are evolving so rapidly, and if you're building for something that the AI model does well today, it'll work well today, but it's going to feel, it's going to feel old tomorrow.
+
+[01:39:28] Speaker 17: And so you want to build for, for things that the AI model can just barely not do. You know, where maybe the early adopters will go for it and other people won't quite, but that just means that when the next model comes out, as we continue to make improvements, that use case that just barely didn't work, you're gonna be, you're gonna be the first to do it, and it's gonna be amazing.
+
+[01:39:47] Speaker 17: But figuring out that boundary is really hard. I think it's where the best products are gonna get built up.
+
+[01:39:53] Speaker 17: Totally agree with that. The other
+
+[01:39:54] Sam Altman: thing I'm gonna add is, I think it's like, very tempting to think that a technology makes a startup. And that is almost never true. No matter how cool a new technology or a new sort of like, tech title is, it doesn't excuse you from having to do all the hard work of building a great company that is going to have durability or like, accumulated advantage over time.
+
+[01:40:18] Sam Altman: And, we hear from a lot of startups that ORC is just like a very common thing, which is like, I can do this incredible thing, I can make this incredible service And that seems like a complete answer, but it doesn't excuse you from any of, like, the normal laws of business. You still have to, like, build a good business and a good strategic position.
+
+[01:40:35] Sam Altman: And I think a mistake is that in the unbelievable excitement and updraft of AI, people are very tempted to forget that.
+
+[01:40:45] Speaker 17: This is a, this is an interesting one. The mode of voice is like tapping directly into the human API. How do you ensure ethical use of such a powerful tool with obvious abilities and manipulation?
+
+[01:40:59] Speaker 17: Yeah, you
+
+[01:41:00] Sam Altman: know, voice mode was a really interesting one for me. It was like the first time that I felt like I sort of had gotten like really tricked by an AI, in that when I was playing with the first beta of it, I couldn't like, I couldn't stop myself. I mean, I kind of, like I still say like, please switch out GBT.
+
+[01:41:21] Sam Altman: But in voice code, I like, couldn't not kind of use the normal ICDs. I was like so convinced, like, ah, it might be a real per like, you know? And obviously it's just like hacking some circuit in my brain, but I really felt it with voice code. And I sort of still do The, I think this is a more, this is an example of like a more general thing that we're going to start facing, which is, as these systems become more and more capable, and as we try to make them as natural as possible to interact with they're gonna like, hit parts of our neural circuitry that would like evolve to deal with other people.
+
+[01:42:01] Sam Altman: And You know, there's like a bunch of clear lines about things we don't want to do, like, we don't. Like, there's a whole bunch of like weird personality growth hacking, like, I think vaguely socially manipulative stuff we could do. But then there's these like other things that are just not nearly as clear cut.
+
+[01:42:19] Sam Altman: Like, you want the voice mode to feel as natural as possible, but then you get across the uncanny valley, and it like, at least in me, triggers something. And and, you know, me saying, like, please and thank you to chat. gt, no problem. Probably the thing to do. You never know. But, but I think this like really points at the kinds of safety and alignment issues we have to start analyzing.
+
+[01:42:43] Speaker 17: Alright, back to brass tacks. Sam, when's O1 going to support function tools? Do you know? Before the end of the year. There are three things that we really want to get in for
+
+[01:42:53] Speaker 17: We're gonna record this, take this back to the research team, show them how badly we need to do this. There, I mean, there are a handful of things that we really wanted to get into O1, and we also, you know, it's a balance of should we get this out to the world earlier and begin, you know, learning from it, learning from how you all use it, or should we launch a fully complete thing that is, you know, in line with it, that has all the abilities that every other model that we've launched has.
+
+[01:43:18] Speaker 17: I'm really excited to see things like system properties. and structured outputs and function calling make it into O1, we will be there by the end of the year. It really matters to us too.
+
+[01:43:32] Sam Altman: In addition to that, just because I can't resist the opportunity to reinforce this, like, we will get all of those things in and a whole bunch more things you'll have asked for.
+
+[01:43:39] Sam Altman: The model is going to get so much better so fast. Like, we are so early, this is like, you know, maybe it's the GPT 2 scale moment, but like, we know how to get to GPT 4, we have the fundamental stuff in place now to 4. And, in addition to planning for us to build all of those things, Plan for the model to just get, like, rapidly smarter, like, you know, hope you all come back next year and plan for it to feel like way more of a year of improvement than from 4.
+
+[01:44:10] Sam Altman: 0. 1.
+
+[01:44:13] Speaker 17: What feature or capability of a competitor do you really admire? I
+
+[01:44:17] Sam Altman: think Google's notebook thing is super cool. What are they called? Notebook LL. Notebook LL, yeah. I was like, I woke up early this morning and I was like looking at examples on Twitter and I was just like, this is like, this is just cool.
+
+[01:44:28] Sam Altman: This is just a good, cool thing. And, like, I think not enough of, not enough of the world is like shipping new and different things, it's mostly like the same stuff. But that I think is like, that brought me a lot of joy this morning.
+
+[01:44:43] Speaker 17: Yeah. It was very, very well done. One of the things I really appreciate about that product is the, there's the, the, just the format itself is really interesting, but they also nailed the podcast style voices.
+
+[01:44:55] Speaker 17: They have really nice microphones. They have these sort of sonorant voices. As you guys see, somebody on Twitter was saying like, the cool thing to do is take your LinkedIn and put it, you know, gimme a hit, and give it to these give it to notebook. lm and you'll have two podcasters riffing back and forth about how amazing you are and all of your accomplishments over the years.
+
+[01:45:19] Speaker 17: I'll say mine is I think Anthropic did a really good job. On projects it's kind of a, a different take on what we did with GBTs and GBTs are a little bit more long lived. It's something you build and can use over and over again. Projects are kind of the same idea, but like more temporary, meant to be kind of stood up, used for a while, and then you can move on.
+
+[01:45:41] Speaker 17: And that, that the different mental model makes a difference. And I think they did a really nice job with that.
+
+[01:45:47] Speaker 17: Alright, we're getting close to audience questions, so be thinking of what you want to ask. So in OpenAI, how do you balance what you think users may need? Versus what they actually need today.
+
+[01:45:59] Sam Altman: Also a better question for you.
+
+[01:46:00] Speaker 17: Yeah, well, I think it does get back to a bit of what we were saying around trying to, trying to build for what the model can just, like, not quite do, but almost do.
+
+[01:46:09] Speaker 17: But it's a real balance, too, as we, as we, you know, we support over 200 million people every week on ChatGPT. You also can't say, Now it's cool, like, deal with this bug for three months, or this issue we've got something really cool coming. You've gotta solve for the needs of today. And there are some really interesting product problems.
+
+[01:46:29] Speaker 17: I mean, you think about, I'm speaking to a group of people who know AI really well. Think of all the people in the world who have never used any of these products. And that is the vast majority of the world still. You're basically giving them a text interface, and on the other side of the text interface is this like alien intelligence that's constantly evolving that they've never seen or interacted with, and you're trying to teach them all the crazy things that you can actually do it, all the ways it can help, can integrate into your life, can solve problems for you.
+
+[01:47:01] Speaker 17: And people don't know what to do with it. You know, like, you come in and you're just like, people type like, Hi. And in response, you know, hey! Great to see you, like, how can I help you today? And then, you're like, okay, I don't know what to say. And then you end up, you kind of walk away, and you're like, well, I didn't see the magic in that.
+
+[01:47:19] Speaker 17: And so it's a real challenge, figuring out how You, I mean, we all have a hundred different ways that we use chat GPT and AI tools in general, but teaching people what those can be, and then bringing them along as the model changes month by month by month, and suddenly gains these capabilities way faster than we as humans gain the capabilities, it's, it's a really interesting set of problems, and I'm I know it's one that you all solve in, in different ways as well.
+
+[01:47:47] Speaker 17: I,
+
+[01:47:47] Sam Altman: I
+
+[01:47:47] Speaker 17: have
+
+[01:47:47] Sam Altman: a question. Who feels like they, they spend a lot of time with O1, and they would say like, I feel definitively smarter than that thing?
+
+[01:47:58] Sam Altman: Do you think you still go by O2? No one, no one taking the bet of like being smarter than O2. So, One of the challenges that we face is, like, we know how to go do this thing that we think will be, like, at least probably smarter than all of us in, like, a broad array of tasks. And yet we have to, like, still like fixed bugs and do the, hey, how are you problem.
+
+[01:48:25] Sam Altman: And mostly what we believe in is that if we keep pushing on model intelligence people will do incredible things with that. You know, we want to build the smartest, most helpful models in the world, and And find all sorts of ways to use that and build on top of that. It has been definitely an evolution for us, to not just be entirely research focused, and we do have to fix all those bugs and make this super usable and I think we've gotten better at balancing that.
+
+[01:48:54] Sam Altman: But still, as part of our culture, I think, we trust that if we can keep pushing on intelligence, 6. 0. 4 if you run down here it'll, people will build this incredible thing. Yeah,
+
+[01:49:09] Speaker 17: I think it's a core part of the philosophy, and you do a good job of pushing us to always, well, basically incorporate the frontier of intelligence into our products, both in the APIs and into our first party products.
+
+[01:49:22] Speaker 17: Because it's, it's easy to kind of stick to the thing you know, the thing that works well, but you're always pushing us to like, get the frontier in, even if it only kind of works, because it's going to work really well soon. So I always find that a really helpful piece of advice. You kind of answered the next one.
+
+[01:49:38] Speaker 17: You do say, please and thank you to the models. I'm curious how many people say Please and thank you. Isn't that so interesting? I do too. . I kind of can't. I feel bad if I don't. And,
+
+[01:49:50] Speaker 17: okay, last question and then we'll go into audience questions for the last 10 or so minutes. Do you plan to build models specifically made for ag agent use cases, things that are better at reasoning and tool calling.
+
+[01:50:02] Sam Altman: Specific, we plan to make models that are great at agentive use cases, that'll be a key priority for us over the coming months.
+
+[01:50:08] Sam Altman: Specifically is a hard thing to ask for, because I think it's also just how we keep making smarter models. So yes, there's like some things like tool use, function calling that we need to build in that'll help, but mostly we just want to make the best reasoning models in the world. Those will also be the best agentive based models in the world.
+
+[01:50:25] Sam Altman: Cool, let's
+
+[01:50:25] Speaker 17: go to audience questions.
+
+[01:50:27] Unkown: How extensively do you dogfood your own technology in your company? Do you have any interesting examples that may not be obvious?
+
+[01:50:37] Sam Altman: Yeah I mean we put models up for internal use even before they're done training. We use checkpoints and try to have people use them for whatever they can, and try to sort of like build new ways to explore the capability of the model internally, and use them for our own development.
+
+[01:50:52] Sam Altman: Element or research or whatever else, as much as we can, we're still always surprised by the creativity of the outside world and what people do. But basically the way we have figured out every step along our way of how to, what to push on next, what we can productize, what, what, what, like, what the models are really good at is by internal dog food.
+
+[01:51:13] Sam Altman: That's like our whole, that's how we like, feel our way through this.
+
+[01:51:17] Sam Altman: We don't yet have like. Employees that are based off of O1, but, I, you know, as we like move into the world of agents, we will try that. Like, we'll try having like, you know, things that we deploy in our internal systems that help you with stuff. There are things that get
+
+[01:51:31] Speaker 17: closer to that, I mean, they're like, customer service, we have bots internally, that do a ton about answering external questions and fielding internal people's questions on Slack and so on.
+
+[01:51:43] Speaker 17: And our customer service team is probably I don't know, 20 percent the size it might otherwise need to be because of it. I know Matt Knight and our security team has talked extensively about all the different ways we use models internally for, to automate a bunch of security things and, you know, take what used to be a manual process where you might not have The number of humans to even, like, look at everything incoming, and have models taking, you know, separating signal from noise, and highlighting to humans what they need to go look at, things like that.
+
+[01:52:13] Speaker 17: So, I think internally there are tons of examples, and people maybe underestimate the You all probably will not be surprised by this, but a lot of folks that I talk to are. The extent to which it's not just using a model in a place, it's actually about using, like chains of models that are good at doing different things and connecting them all together to get one end to end process that is very good at the thing you're doing, even if the individual models have You know, flaws and make mistakes.
+
+[01:52:46] Unknown: Thank you. I'm wondering if you guys have any plans on sharing models for like offline usage? Because with this distillation thing, it's really cool that we can share our own models, but a lot of use cases you really want kind of like have a version of it.
+
+[01:53:02] Sam Altman: We're open to it. It's not on, it's not like high priority on the current roadmap. The, if we had, like, more resources and bandwidth, we would go to that. I think there's a lot of reasons you want a local model. But it's not like, it's not like a this year kind of thing.
+
+[01:53:21] Unknown: Hi. My question is, there are many agencies in the government, above the local, state, and national level, that could really greatly benefit from the tools that you guys are developing, but I have perhaps some hesitancy on deploying them because of, you know, security concerns, data concerns, privacy concerns.
+
+[01:53:38] Unknown: And, I guess, I'm curious to know if there are any sort of, you know, planned partnerships with governments, rural governments, once whatever AGI is achieved. Because obviously AGI can help. Solve problems like, you know, world hunger, poverty, climate change. Government's gonna have to get involved with that, right?
+
+[01:53:57] Unknown: And I'm just curious to know if there is some you know, plan that works when, and if that time comes.
+
+[01:54:04] Speaker 17: Yeah, I think, I actually think you don't want to wait until AGI. You want to start now, right? Because there's a learning process, and there's a lot of good that we can do with our current models. So we We've announced a handful of partnerships with government agencies, some states, I think Minnesota, and some others, Pennsylvania, Also with organizations like USAID.
+
+[01:54:22] Speaker 17: It's actually a huge priority of ours to be able to help governments around the world get acclimated, get benefit from the technology, And of all places, government feels like somewhere where you can automate a bunch of workflows and make things more efficient, reduce drudgery, and so on. So I think there's a huge amount of good we can do now.
+
+[01:54:40] Speaker 17: And if we do that now It just accrues over the long run as the models get better and we get closer to AGI. I've got
+
+[01:54:49] Vibhu Sapra: pretty open ended question. What are your thoughts on open source? So, whether that's open weights, just general discussion, where do you guys sit with open source?
+
+[01:55:01] Sam Altman: I think open source is awesome. Again, if we had more bandwidth, we would do that too. We've, like, gotten very close to making a big open source effort a few times.
+
+[01:55:09] Sam Altman: And then, you know, the really hard part is prioritization. And we have put other things ahead of it. Part of it is, like, there's such good open source models in the world now that I think that segment The thing we always end in motion A really great on device model. And I think that segment is fairly well served.
+
+[01:55:28] Sam Altman: I do hope we do something at some point, but we want to find something that we feel like, if we don't do it, then we'll just be the same as them and not make, like, another thing that's, like, a tiny bit better on benchmarks. Because we think there's, like, a lot of potential. A lot of good stuff out there now.
+
+[01:55:41] Sam Altman: But, but like, spiritually, philosophically, I'm very glad it exists. I would
+
+[01:55:46] Alex Volkov: like to
+
+[01:55:47] Sam Altman: contribute.
+
+[01:55:50] Alex Volkov: Hi Shane. Hi Kevin. Thanks for inviting us. Good dev day. It's been awesome. All the live demos work. It's incredible. Why can't advanced voice mode sing? And as a follow up to this, if it's a company, like, legal issue in terms of corporate, et cetera, Is there a daylight between how you think about safety in terms of your own products, on your own platform, Versus giving us developers kind of the I don't know, sign the right things off so we can, we can make our voice not sing.
+
+[01:56:15] Alex Volkov: Could you answer the question?
+
+[01:56:19] Speaker 17: Oh, you know the funny thing is Sam asked the same question. Why can't this thing sing? I want it to sing. I've seen it sing before. It's, actually, it's there are things, obviously, that we can't have it sing, right? We can't have it sing copyrighted songs, we don't have the licenses, etc.
+
+[01:56:35] Speaker 17: And then there are things that it can't sing, and you can have it sing Happy Birthday, and that would be just fine, right? And we want that too. It's a matter of, I think, once you, it, basically, it's easier in finite time to Say no, and then build it in, but it's nuanced to get it right, and we, you know, There are penalties to getting these kinds of things wrong.
+
+[01:56:55] Speaker 17: So it's really just where we are now. We really want the models to sync too.
+
+[01:57:03] Sam Altman: We waited for us to ship voice mode, which is like, very fair. We could've like, waited longer and kind of really got the classifications and filters on, you know, congregated music versus not, but we decided we'd just ship it and we'll have more. But I think Sam has asked me like, four or five times why we didn't have
+
+[01:57:19] Speaker 17: voice
+
+[01:57:20] Sam Altman: feature.
+
+[01:57:21] Sam Altman: I mean, we still can't like, offer something where we're gonna be in like, pretty badly. You know, hot water developers or first party or whatever. Yes, we can, like, maybe have some differences, but we like, comply with the law.
+
+[01:57:36] Unknown: Could you speak a little to the future of where you see context windows going? And kind of the timeline for when, how you see things balance between context window growth and RAG, basically, information retrieval.
+
+[01:57:49] Sam Altman: I think there's, like, two different Takes on that the better. One is like, when is it going to get to like, kind of normal long context?
+
+[01:57:56] Sam Altman: Like, context length 10 million or whatever, like long enough that you just throw stuff in there, and it's fast enough you're happy about it. And I expect everybody's going to make pretty fast progress there, and that'll just be a thing. Long context has gotten weirdly less usage than I would have expected so far.
+
+[01:58:11] Sam Altman: But I think, you know, there's a bunch of reasons for that, I don't want to go too much into it. And then there's this other question of, like, when do we get to context length? Not like 10 million, but 10 trillion. Like, when do we get to the point where you throw, like, every piece of data you've ever seen in your entire life in there?
+
+[01:58:26] Sam Altman: And you know, like, that's a whole different set of things. That obviously takes some research breakthroughs. But I assume that infinite context will happen at some point. And some point is, like, less than a decade. And that's going to be just a totally different way that we use these models. Even getting to the, like, 10 million tokens of very fast and accurate context, which I expect to measure in, like, months, something like that.
+
+[01:58:52] Sam Altman: You know, like, people will use that in all sorts of ways. And it'll be great. But yeah, the very, very long context, I think, is gonna happen, and it's really interesting. I think we maybe have time for one or two
+
+[01:59:08] Speaker 17: more.
+
+[01:59:10] Alex Volkov: Don't worry, this is gonna be your favorite question. So, with voice, and all the other changes that users have experienced since you all have launched your technology, what do you see is the vision?
+
+[01:59:25] Alex Volkov: for the new engagement layer, the form factor, and how we actually engage with this technology to make our lives so much better.
+
+[01:59:34] Speaker 17: I love that question. It's one that we ask ourselves a lot, frankly. There's this, and I think it's one where developers can play a really big part here because there's this trade off between generality and specificity here.
+
+[01:59:47] Speaker 17: I'll give you an example. I was in Seoul and, and Tokyo. A few weeks ago, and I was in a number of conversations with folks that, with whom I didn't have a common language, and we didn't have a translator around. Before, we would not have been able to have a conversation. We would have just sort of smiled at each other and continued on.
+
+[02:00:05] Speaker 17: I took out my phone, I said, JGPT, I want you to be Translator for me, when I speak in English, I want you to speak in Korean, you hear Korean, and I want you to repeat it in English. And I was able to have a full business conversation, and it was amazing. You think about the impact that could have, not just for business, but think about travel and tourism and people's willingness to go places where they might not have a word of the language.
+
+[02:00:28] Speaker 17: You can have these really amazing impacts, but inside ChetGBT, that was still a thing that I had to, like, ChetGBT is not optimized for that, right? Like, you want this sort of digital, you know, universal translator in your pocket that just knows that what you want to do is translate. Not that hard to build.
+
+[02:00:47] Speaker 17: But I think there's, we struggle with the, with trying to build an application that can do lots of things for lots of people. And it keeps up, like we've been talking about a few times, it keeps up with the pace of change and with the capabilities, you know, agentive capabilities and so on. I think there's also a huge opportunity for the creativity of an audience like this to come in and like, Solve problems that we're not thinking of, that we don't have the expertise to do, And ultimately the world is a much better place if we get more AI to more people, And it's why we are so proud to serve all of you.
+
+[02:01:23] Sam Altman: The only thing I would add is, if you just think about everything that's gonna come together, At some point, in not that many years in the future, you'll walk up to a piece of glass, You will say whatever you want they will have like, There'll be incredible reasoning models, agents connected to everything, there'll be a video model Streaming back to you like a custom interface just for you.
+
+[02:01:40] Sam Altman: This is one request. Whatever you need, it's just gonna get, like, rendered in real time, and you'll be able to interact with it, you'll be able to, like, click through the stream, or say different things, and it'll be off doing, like, again, the kinds of things that used to take, like, humans years to figure out.
+
+[02:01:54] Sam Altman: And, it'll just You know, dynamically render whatever you need, and it'll be a completely different way of using a computer. And also getting things to happen in the world. That, it's gonna be quite a while.
+
+[02:02:07] Speaker 17: Awesome. Thank you. That was a great question to end on. I think we're out of time. Thank you so much for coming.
+
+[02:02:12] Speaker 17: Applause
+
+[02:02:23] AI Charlie: That's all for our coverage of Dev Day 2024. We want to extend an extra special note of gratitude to Lindsay McCallum of the OpenAI Comms team, who helped us set up so many interviews at very short notice, and physically helped ensure the smooth continuity of the video recordings. We couldn't do this without you, Lindsay.
+
+[02:02:44] AI Charlie: If you have any feedback on the launches or for our guests, hop on over to our YouTube or Substack comments section and say hi. We're especially interested in your personal feedback and demos built with the new things launched this week. Feel the AGI.
+
+[02:03:07] Notebook LM Recap of Podcast
+
+[02:03:07] NotebookLM 2: Alright, so you wanted to know more about OpenAI's Dev Day and what stood out to us. We're diving into all the developer interviews and discussions and there's a lot to unpack.
+
+[02:03:16] NotebookLM: Yeah, it's interesting. OpenAI seems to be, like, transitioning, moving beyond just building these impressive AI models. One expert even called them, get this, the AWS of AI.
+
+[02:03:26] NotebookLM 2: EWS of AI.
+
+[02:03:28] NotebookLM: Yeah.
+
+[02:03:28] NotebookLM 2: Okay, so what does that even mean when we talk about AI?
+
+[02:03:31] NotebookLM: So it means, instead of just offering this raw power, they're building a whole ecosystem. The tools to fine tune those models. Distillation, you know, for efficiency. And a bunch of new evaluation tools. Oh, and a huge emphasis on real time capabilities.
+
+[02:03:46] NotebookLM: You
+
+[02:03:46] NotebookLM 2: know, instead of just giving us the ingredients, it's like they're providing the whole kitchen.
+
+[02:03:49] NotebookLM: Exactly. They're laying the groundwork for, well, they envision a future where you can build almost anything with AI.
+
+[02:03:56] NotebookLM 2: I see. And one of the tools that really caught my eye was this function calling. They used it in that travel agent demo, remember?
+
+[02:04:04] NotebookLM 2: How does that even work?
+
+[02:04:05] NotebookLM: So function calling, it's like giving the AI access to external tools and information. Imagine, instead of just having all this pre programmed knowledge, you can like, search the web for you, book flights, even order a pizza.
+
+[02:04:17] NotebookLM 2: So instead of a static encyclopedia, it's like giving the AI a smartphone with internet.
+
+[02:04:21] NotebookLM: Yeah, precisely. Yeah. And this ties into their focus on real time interaction, right? They see a future where AI can respond instantly, just like a human would.
+
+[02:04:31] NotebookLM 2: Which would be a game changer.
+
+[02:04:32] NotebookLM: Right! It's like, imagine voice assistants that actually understand you. Or, even seamless real time translation.
+
+[02:04:39] NotebookLM 2: No more language barriers.
+
+[02:04:40] NotebookLM: Exactly. That's just the tip of the iceberg, though. They really believe this real time capability is key to making AR truly mainstream.
+
+[02:04:48] NotebookLM 2: Okay, so OpenAI is building this AI platform, emphasizing real time interactions. How does this translate into, like, actual results?
+
+[02:04:56] NotebookLM: Yeah.
+
+[02:04:56] NotebookLM 2: You know, real world stuff.
+
+[02:04:58] NotebookLM: Well, that's where things get really interesting.
+
+[02:04:59] NotebookLM: Let's talk about the O1 model and how developers are using it to, like, really push the boundaries of what's possible.
+
+[02:05:06] NotebookLM 2: So this O1 model, everyone's talking about it. One developer even said they built an entire iPhone app just by describing it as O1. Is that just hype?
+
+[02:05:16] NotebookLM: I think there's definitely some substance behind all the hype.
+
+[02:05:19] NotebookLM: What's so fascinating about O1, it's not just about the code it generates, it's how it seems to understand, like, the logic. The
+
+[02:05:24] Alex Volkov: logic.
+
+[02:05:25] NotebookLM: Yeah. Like, this developer They didn't give O1 lines of code, they described the idea of the app. And O1, it actually designed the architecture, connected everything, the developer just took that code, put it right into Xcode, and it worked.
+
+[02:05:37] NotebookLM 2: Wow, so it's not just writing code, it's understanding the intent.
+
+[02:05:40] NotebookLM: Yeah, exactly. And this actually challenges how we measure these models, you know, even OpenAI admitted that these benchmarks, like what was it? Swebench.
+
+[02:05:49] NotebookLM 2: Swebench.
+
+[02:05:51] NotebookLM: Right, which looks at code accuracy. It doesn't always reflect how things work in the real world.
+
+[02:05:55] NotebookLM 2: Right, because in the real world, you don't just need code that compiles. It has to be, like, efficient, maintainable.
+
+[02:06:01] NotebookLM: Exactly. It all has to work together, and OpenAI is really working on this with developers. They're finding that UI development, especially in things like React, it needs better evaluation.
+
+[02:06:11] NotebookLM: It's one thing to code a button that works, and another to make it actually look good, you know, and be intuitive.
+
+[02:06:16] NotebookLM 2: Right, and it seems like this need for real world context, It goes beyond just, like, evaluating those models. There was a developer working with this code generating AI genie, I think it was called.
+
+[02:06:27] NotebookLM: Genie, yeah.
+
+[02:06:28] NotebookLM 2: And it's more focused on those specific coding tasks, but they found that its performance really changed between different programming languages, like JavaScript versus C Sharp, for example.
+
+[02:06:39] NotebookLM: And that just highlights how important the data is, right? Just like us, AI needs that variety to learn.
+
+[02:06:45] NotebookLM: If you train it on just one type of code, it'll be great at that. But anything new and It'll fall flat. Yeah. So it's about making sure these models have a broad diet of data to learn from. That way they're more adaptable and ready for whatever we throw at them.
+
+[02:06:59] NotebookLM 2: So we've got AI that can build apps, understand what we want, even write different kinds of code.
+
+[02:07:04] NotebookLM 2: It's a lot, and it feels like things are changing so fast. How can developers even keep up, let alone, like, build something successful with AI?
+
+[02:07:11] NotebookLM: Right. That's the question, isn't it? But it's interesting, you know, both OpenAI and the developers building with these tools, they kind of agree on one thing. You got to aim for what's just out of reach.
+
+[02:07:22] NotebookLM 2: So don't wait for the tech to catch up to your Like, wildest dreams. Focus on what's almost possible right now.
+
+[02:07:29] NotebookLM: Yeah. Build for where things are going, not where they are today. You wait for that perfect AI, you might miss the boat on shaping how it develops, and being the first one out there doing something new.
+
+[02:07:39] NotebookLM 2: Riding the wave, not chasing after it.
+
+[02:07:41] NotebookLM: Exactly. But, and OpenAI really emphasized this too, Even with all this amazing AI, you can't forget the basics of building a business.
+
+[02:07:50] NotebookLM 2: So just because it's got AI doesn't mean it's automatically going to be a success. Right.
+
+[02:07:54] NotebookLM: You need a good strategy, know who you're selling to, and it's got to actually solve a real problem.
+
+[02:07:59] NotebookLM: AI is a tool, not a magic wand.
+
+[02:08:01] NotebookLM 2: Like, having the best oven in the world won't help if you don't know how to cook.
+
+[02:08:05] NotebookLM: Perfect analogy. And then there's this other thing OpenAI talked about that's really interesting. Balancing safety with access for everyone.
+
+[02:08:14] NotebookLM 2: So making sure these AI tools are used responsibly, but also making them available to everyone who could benefit.
+
+[02:08:21] NotebookLM: Yeah, they're really aware that focusing on safety, while important, could limit access to some really powerful stuff. It's a tough balance.
+
+[02:08:30] NotebookLM 2: It's like that debate around, you know, life saving medications. How do you make sure they're used correctly, but also make sure people who need them can actually get them?
+
+[02:08:38] NotebookLM: It's complicated, no easy answers. But it's something they're thinking hard about.
+
+[02:08:42] NotebookLM 2: Well, it's clear that all this AI stuff, especially with these new models like O1, is changing how we think about tech, how we use it.
+
+[02:08:49] NotebookLM: Imagine walking up to a screen, and it just creates a personalized experience for you, right there, adapts to what you need.
+
+[02:08:57] NotebookLM: That's the potential.
+
+[02:08:57] NotebookLM 2: Like having a personal assistant in every device.
+
+[02:09:00] NotebookLM: It's exciting, but we got to be thoughtful about it, build responsibly.
+
+[02:09:03] NotebookLM 2: So there you have it. OpenAI isn't just building these cool AI models, they're building a whole world around them and it's changing everything. It's going to be a wild ride, that's for sure.
+
+[02:09:12] NotebookLM 2: And we're just at the beginning.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Simon Willison
+
+Writes Simon Willison’s Newsletter Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

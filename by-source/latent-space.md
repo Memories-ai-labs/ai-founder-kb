@@ -2,6 +2,8 @@
 
 **Entries**: 11
 
+**Local raw transcripts**: 240 posts in [`raw-transcripts/latent-space/`](../raw-transcripts/latent-space/) — RSS-derived from `latent.space`. Long-form transcripts with AI engineers (NotebookLM team, Cursor, OpenAI Realtime, Devday, Drew Houston, etc.) plus shorter announcements. See folder [README](../raw-transcripts/latent-space/README.md) for index.
+
 ---
 
 ## Sherwin Wu / Christina Huang (OpenAI) — 2025-10

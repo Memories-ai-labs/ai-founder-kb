@@ -2,6 +2,8 @@
 
 **Entries**: 23
 
+**Local raw transcripts**: 153 posts in [`raw-transcripts/dwarkesh/`](../raw-transcripts/dwarkesh/) — interviews + essays from `dwarkesh.com`. See [README](../raw-transcripts/dwarkesh/README.md) for index.
+
 ---
 
 ## Demis Hassabis (DeepMind) — 2024-02

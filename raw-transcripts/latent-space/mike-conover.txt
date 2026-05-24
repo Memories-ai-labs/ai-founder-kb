@@ -1,0 +1,889 @@
+# Mapping the future of *truly* Open Models and Training Dolly for $30 — with Mike Conover of Databricks
+# URL: https://www.latent.space/p/mike-conover
+# Date: 2023-04-29
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Mapping the future of *truly* Open Models and Training Dolly for $30 — with Mike Conover of Databricks
+
+8
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:15:59
+
+-1:15:59
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Mapping the future of *truly* Open Models and Training Dolly for $30 — with Mike Conover of Databricks
+
+Ep. 9: If you need a Foundation Model on your own infra, LLaMA and friends are great, but can't be used commercially. Mike tells us how you can clone Dolly! Plus: OpenAssistant, RedPajama, AI Drake!
+
+Mike Conover
+
+Apr 29, 2023
+
+8
+
+Share
+
+The race is on for the first fully GPT3/4-equivalent, truly open source Foundation Model! LLaMA’s release proved that a great model could be released and run on consumer-grade hardware (see llama.cpp), but its research license prohibits businesses from running it and all it’s variants (Alpaca, Vicuna, Koala, etc) for their own use at work. So there is great interest and desire for *truly* open source LLMs that are feasible for commercial use (with far better customization, finetuning, and privacy than the closed source LLM APIs).
+
+The previous leading contenders were Eleuther’s GPT-J and Neo on the small end (<6B parameters), and Google’s FLAN-T5 (137B), PaLM (540B), and BigScience’s BLOOM (176B) on the high end. But Databricks is to my knowledge the first to release not just a cleanly licensed, high quality LLM that can run on affordable devices, but also a simple Databricks notebook that can be customized to be finetuned for your data/desired style - for $30 in 30 minutes on one machine!
+
+Mike Conover tells the story of how a small team of Applied AI engineers got convinced Ali Ghodsi and 5,000 of their coworkers to join in the adventure of building the first open source, instruction-following LLM, fine-tuned on a human-generated instruction dataset licensed for research and commercial use. He also indulges our questions on other recent open source LLM projects, CerebasGPT and RedPajama, though we recorded this a week before Stability’s StableLM release. 
+
+Stick around to the end for some easter eggs featuring AI Drake!
+
+Recorded in-person at the beautiful StudioPod studios in San Francisco.
+
+Full transcript is below the fold.
+
+Show Notes
+
+Mike Conover LinkedIn and Twitter
+
+Dolly 1.0
+
+Dolly 2.0
+
+CICERO and Diplomacy
+
+Dolly and Deepspeed
+
+LLMops: 
+
+https://nat.dev/
+
+PromptLayer
+
+HumanLoop
+
+Spreadsheets??
+
+Quadratic
+
+Alessio’s Email GPT Drafter
+
+Open Models
+
+Open Assistant
+
+Cerebras GPT
+
+RedPajama
+
+Reflexion, Recursive Criticism and Improvement
+
+Lightning Round
+
+AI Product: Google Maps
+
+AI People: EleutherAI, Huggingface’s Stas Bekman
+
+AI Prediction: Open LLaMA reproduction, AI Twins of People (AI Drake), Valuing Perplexity 
+
+Request for Startups: LLMOps/Benchmarks, Trail Mapping
+
+Timestamps
+
+[00:00:21] Introducing Mike Conover
+
+[00:03:10] Dolly 1.0
+
+[00:04:18] Making Dolly
+
+[00:06:12] Dolly 2.0
+
+[00:09:28] Gamifying Instruction Tuning
+
+[00:11:36] Summarization - Thumbnails for Language
+
+[00:15:11] CICERO and Geopolitical AI Agents
+
+[00:17:09] Datasets vs Intentional Design
+
+[00:21:44] Biological Basis of AI
+
+[00:23:27] Training Your Own LLMs
+
+[00:28:21] You May Not Need a Large Model
+
+[00:29:59] Good LLM Use cases
+
+[00:31:33] Dolly Cost $30 on Databricks
+
+[00:36:06] Databricks Open Source
+
+[00:37:31] LLMOps and Prompt Tooling
+
+[00:42:26] "I'm a Sheets Maxi"
+
+[00:44:19] AI and Workplace Productivity
+
+[00:47:02] OpenAssistant
+
+[00:47:41] CerebrasGPT
+
+[00:51:35] RedPajama
+
+[00:54:07] Why Dolly > OpenAI GPT
+
+[00:56:19] Open Source Licensing for AI Models
+
+[00:57:09] Why Open Source Models?
+
+[00:58:05] Moving Models
+
+[01:00:34] Learning in a Simulation
+
+[01:01:28] Why Model Reflexion and Self Criticism Works
+
+[01:03:51] Lightning Round
+
+Transcripts
+
+[00:00:00] Hey everyone. Welcome to the Latent Space Podcast. This is Alessio Partner and CT and Residence and Decibel Partners. I'm Joan Bama, cohost swyx Brighter and Editor of Space. Welcome, Mike.
+
+[00:00:21] Introducing Mike Conover
+
+[00:00:21] Hey, pleasure to be here. Yeah, so
+
+[00:00:23] we tend to try to introduce you so that you don't have to introduce yourself. Yep.
+
+[00:00:27] But then we also ask you to fill in the blanks. So you are currently a, uh, staff software engineer at Databricks. Uh, but you got your PhD at Indiana on the University of Bloomington in Complex Systems analysis where you did some, uh, analysis of clusters on, on Twitter, which I found pretty interesting.
+
+[00:00:43] Yeah. Uh, I highly recommend people checking that out if you're interested in getting information from indirect sources or I, I don't know how you describe it. Yes. Yeah. And then you went to LinkedIn working on. Homepage News, relevance, and then SkipFlag, which is a smart enterprise knowledge graph, which was then acquired, uh, by Workday, where you became director of machine learning engineering and now your Databricks.
+
+[00:01:06] So that's the quick bio and we can kind of go over Yeah. Step by step. But, uh, what's not on your LinkedIn that people
+
+[00:01:12] should know about you? So, because I worked at LinkedIn, that's actually how new hires introduce themselves at LinkedIn is this question. So I, okay. I have a pat answer to it. Uhhuh. Um, I love getting off trail in the backcountry.
+
+[00:01:25] Okay. And I, you know, I think that the sort of like radical responsibility associated to that is clarifies the mind. And I think that the, the things that I really like about machine learning engineering and sort of the topology of high-dimensional spaces kind of manifest when you think about a topographic mat as a contour plot.
+
+[00:01:44] You know, it's a two-dimensional projection of a three-dimensional space and it's very much like looking at information visualizations and you're trying to relate your. Localized perception of the environment around you and the contours of, uh, ridges that you see, or basins that you might go into and you're like, there's that little creek down there.
+
+[00:02:04] And relate that to the projection that you see on the map. I think it's physically demanding. It's intellectually challenging. It's natural. Beauty is a big part of it, and you're generally spending time with friends, and so I just, I love that. I love that these are camping trips. Uh, multi-day. Yeah. Yeah.
+
+[00:02:21] Camping. I, I hunt too, you know, I, um, shoot archery, um, big game back country hunting, but yeah. You know, sometimes it's just, let's take a walk in the woods and see where it goes.
+
+[00:02:32] Oh yeah. You ever think about going on one of those, um, journeys in the, uh, the Australian Outbacks? Like where people find themselves?
+
+[00:02:40] I'm
+
+[00:02:40] a mountain. I'm a mountain guy. I like to You're mountain guy. I like to fly fish. I like to, you like to hill climb? Yeah. Like the outback seems beautiful. I think eight of the 10 most deadly snakes live in Australia. Like I'm, uh, yeah, you're good. You're good. Yeah. Yeah.
+
+[00:02:52] Yeah. Any lessons from like, Real hill climbing
+
+[00:02:55] versus machine learning, hill climbing.
+
+[00:02:56] Great Dude. It's a lot like gradient descent. Yeah, for sure, man. Um, yeah, I that I have remarked on that to myself before for sure. Yeah, I don't, I'm not sure. This is like least resistance, please.
+
+[00:03:10] Dolly 1.0
+
+[00:03:10] That's awesome. So Dolly, you know, it's kind of come up in the last three weeks you went from a brand new project at Databricks to one of the hottest open source things out there.
+
+[00:03:19] So March 24th you had Dolly 1.0. It was a 6 billion parameters model based on GPT-J 6 billion and you saw alpaca training set to train it. First question is, why did you start with GPT-J instead of LLaMA, which was what everybody else was kind of starting from
+
+[00:03:34] at the time. Yeah, well, I mean, so, you know, we had talked about this a little before the show, but LLaMA's hard to get.
+
+[00:03:40] We had requested the model weights and had just not heard back. And you know, I think our experience with the, um, The original email alias for Dolly, before it was available on hugging face, you get hundreds of people asking for it, and I think it's like, it's easy to just not be able to handle the inbound.
+
+[00:03:56] Mm-hmm. And so like, I mean, there was a practical consideration, which is that, you know, we did not have the LLaMA weights, but additionally I think it's like much more interesting if anybody can build it. Right. And so I think that was our, um, and I had worked with the GPT-J model in the past and, and knew it to be high quality from a grammatical ness standpoint.
+
+[00:04:15] And so I think it was a reasonable choice. Mm-hmm. Yeah.
+
+[00:04:18] Making Dolly
+
+[00:04:18] Yeah. Maybe we should, we can also go into the impetus of why you started work on Dolly. Uh, you had been at Databricks for about a year. Mm-hmm. Was there, was this like a top-down directive? Was this your idea? We'll see, uh,
+
+[00:04:31] what happened? I've been working in N L P and language understanding for a fair while now.
+
+[00:04:36] I mean certainly since Skip flag back in 20 16, 20 17, we can introduce Skip flag is that's, if that's, sorry. You know, we don't have to focus too much on it, but like, this is a, an area how information moves through networks of people is a longstanding interest of mine. And we built a hack day project and I just slacked it to our c e o and I was, you know, this was when ChatGPT came out and it was an integration into the developer experience.
+
+[00:05:02] And I was like, as a user, this should exist. I want this. Mm-hmm. We should build this. It doesn't have to be us. And I mean, to our, uh, our leadership team is like 10 years into this journey, probably more than that at Databricks. And they are still. So hungry. It's wild. It's just wild to see these, these people in action, you know, this like this far into the marathon.
+
+[00:05:23] And, um, he's like, great, build it. Do make it. So, you know, and I, we had have, uh, full-time responsibilities and infrastructure forecasting and infrastructure optimization. And so we did, you know, and, um, we just started building and, you know, so we'd been working on this class of technologies for, um, several months.
+
+[00:05:46] And we had a stack that in part how we were able to kind of pivot on the balls of our feet. Uh, we repurposed a lot of existing code that we had built up, you know, in the past several quarters, um, to, to create Dolly and, and just to
+
+[00:05:58] be clear, like is this an internal stack or is this, uh, externally available as data?
+
+[00:06:02] Much of what we open sourced what, you know, like that that is a, that is the, the, it's, I mean, no, it's not the exhaustive stack by any account, but it's, it's some of the core components. Okay. Yeah.
+
+[00:06:12] Dolly 2.0
+
+[00:06:12] It only took 19 days to go from 1.0 to 2.0. Yeah. So 2.0 is 12 billion. So twist the number of parameters. You base this on the model family from Elu.
+
+[00:06:23] I instead, and I think the, the biggest change is like instead of using the alpaca turning set, which is change generated, so it has its own limitations, you created a brand new, uh, training data set created by the Databricks employees. So I would love to talk about how you actually made that happen. You know, did you just go around and say, Hey guys, I just need to like today, spend your day coming up with the instruction set?
+
+[00:06:47] Or like, did people volunteer to be a part of this?
+
+[00:06:50] Yeah, I mean, so again, like a lot of credit to our founding team, they see it, I think as much as anybody you'll talk to who is a new founder or somebody trying to work in this space, like our executives have the fire and will see a, a bright neon meta future that, uh, Databricks will confidently lead.
+
+[00:07:12] The world into. And so Ali just sent emails twice a day. Do it, do it. You know, we put together, you know, we, we use the InstructGPT sort of task families, you know, gen content generation, brainstorming close qa, open qa, paraphrasing, things like this, and basically put together these Google forms.
+
+[00:07:34] You know, just like, how can we build this as quickly as possible? We see this need, you know, the alpaca trick is amazing that it works. It's amazing that we're highly non-obvious that, you know, for GPT-J or even lLLaMA, you know, hundreds of billions of tokens into the train, this whisper of new data, you know, sort of moves it in, moves the parameter, uh, tensors into a new part of the state space.
+
+[00:08:02] I think, you know, my background is roughly in statistical physics related areas, and I think kind of like a phase transition. Mm-hmm. Like ice and water. It's like they're. Very, very little separates the two, but they could not be more different. And so Ali just kept haranging, like a huge email list of people.
+
+[00:08:21] Um, thousands and thousands of people. And, um, it worked. The other thing is, you know, to our employees credit, people see the moment and they wanna be part of something. And I think there's just passion and enthusiasm for. Doing this. So it was easier than you would expect
+
+[00:08:37] The answer is, so you put some answers in the blog post.
+
+[00:08:40] Yeah. And they're pretty comprehensive. Cuz one of the questions was like, how do I build a campfire? Yeah. And then the response was four paragraphs
+
+[00:08:46] of actual Truly, and I think Yeah, true. Yeah. And I think part of it is that because of the rapid adoption of these technologies like that, you have hundreds of millions of people, you know, who knows what the numbers are.
+
+[00:08:58] But on ChatGPT. People have become educated in terms of, and opinionated about what they expect from these tools. And so I think, you know, a lot of the answers are like, written in the style of what you would want from one of these assistants. And I think just to kind of like riff on how this question of like how the composition, cuz this is really re relevant to our enterprise customers, how the composition of the dataset qualitatively shapes the resulting behaviors of the fine-tuned models that are exposed to that stimulus.
+
+[00:09:28] Gamifying Instruction Tuning
+
+[00:09:28] You know, you look at a dataset like flan, which is a really, really large dataset that is, I think thousand plus tasks. Um, that's, you know, kind of this. Gold standard instruction data set, and a lot of it's synthesized the responses and we'll talk about evaluation, but the responses are very brief. You know, it's like emit the word positive or negative in relation to the, you know, as a judgment of the sentiment of this utterance.
+
+[00:09:52] And so it's, it's very multitask and I think like having thousands of different task types perform sort of irregular, you can't overfit to one specific behavior and so you have to compress and like do many things reasonably well. And so that I think you, you have to kind of wind up in interpolating between different types of behaviors that way.
+
+[00:10:12] But there's also like the question of like, when do you predict the end of sequence token? And if your completions, particularly for instruction tuning are short. Our empirical observation is that the fine tune model emits shorter results. And so having how to build a campfire. And like a narrative thoughtful human-like description.
+
+[00:10:36] I think it requires that demonstration to get that behavior from the model. And you had a, you had a leaderboard, um, who did
+
+[00:10:43] what, uh, any fun shenanigans that came out of, uh, the gamification?
+
+[00:10:46] Well, so the thing is like, you know, I think you can just ask people like be helpful. Uh, you know, like, like some people always take it too far and then Sure.
+
+[00:10:55] Yeah. Well, so you definitely see a long tail distribution. I think I was looking at the open assistant paper last night, and I think, I mean, don't quote me on this, but something like 12 people accounted for 10% of the total responses, which is super, that's just human systems have that long tail distribution terms of activity thing.
+
+[00:11:12] Yeah, yeah, exactly. So it's not surprising. And we see that to a some degree in our data set as well, but, um, not in the way that you would if you opened it up to the, like internet at large. So I, I think people are incentivized coworkers. Yeah. Do the right thing and you know, it's, you know, and also it's our company.
+
+[00:11:29] Like we. Want it to actually be useful, not just a performance of usefulness. And I think people got that.
+
+[00:11:36] Summarization - Thumbnails for Language
+
+[00:11:36] Is there a task
+
+[00:11:37] that you found like particularly hard to get data on? Like good data summarization?
+
+[00:11:41] Oh, because it's like a, it's both like long, uh, it's long and requires thought, you know, you have to synthesize and as opposed to name all the people in places in this passage from Wikipedia that's like, I can kind of do that while I'm watching television, but like writing an essay.
+
+[00:11:59] Yeah, it's a compare is hard. Yeah, there's probably more structure and like in terms of um, like an information theoretic standpoint, how much new signal each record introduces into the model. I expect that summarization is actually. A very demanding task and would not soon become overfit. We're developing our, our, I don't have like definitive answers to how that works because we're still, it's an open research project for the, for the business.
+
+[00:12:27] Yeah. Well, I, you know, just categorically, I think sum summarization is becoming more important, the more generative ai. For freights because we kind of need to expand and we see the contract again, in terms of what, uh, what we consume in terms of, uh,
+
+[00:12:41] information. Truly. I mean, like, to kind of riff on that, I think the, there's just so much material at your business.
+
+[00:12:48] You think about like, uh, PRDs, like, or, you know, product requirement stocks, you know, reasonable people. You kind of want like a zoom lens on language and you want the ability to see the high level structure of something and then be able to get details on demand like you would pan or like, you know, zoom into an information visualization.
+
+[00:13:09] I was talking with. Um, The head of AI at Notion about this and who, you know, you guys probably know and as a really remarkable person, and this idea of like, what does a thumbnail for language look like? Because like your visual cortex is structured such that like it's highly evolutionarily conserved to be able to glance at something and perceive its essence.
+
+[00:13:28] And that makes seeing a field of thumbnails. Like you guys I think are gonna speak with, um, Lexi folks here shortly. And you can see us like the field of images in response to a query and get a sense for like, oh, these are all like moody cyber punk scenes. Mm-hmm. What is that for language? And maybe it's like, maybe it doesn't exist.
+
+[00:13:52] Maybe it's the case. Stop me if I'm getting too far afield here. But you think about clothes as a technology that has shaped our physiology. Right. Like, and our, our phen, our phenotypic expression, we used to be covered in hair. We evolved this technology fire would also be in this class, and our bodies changed in response to it on the very long time scale of human history.
+
+[00:14:15] Mm-hmm. It may be the case that AI in the way that the visual cortex has been evolutionarily conserved to be able to rapidly perceive things, shapes how we process information. I don't know. What to do about language right now. It looks like reading a lot of samples from different models and seeing how they perform as we move through the loss curve.
+
+[00:14:34] That makes
+
+[00:14:34] sense. I mean, if you think about images in text, you don't really have like peripheral vision. You know, when you're like seeing something, you focus on the main thing and then you kind of like start to expand to see the rest. Yes. Like text is kind of like a, the density is like the same across the tax.
+
+[00:14:49] Like nothing jumps out when you see a wall of tax versus when you see an NI image. Just like something usually jumps out first. Yes. So I don't have the answer either. Was gonna say, I'm really curious word
+
+[00:14:58] clouds, which, but that, that's the thing is like, that's such a joke, right? Wait for me. Yeah, it's like punchline.
+
+[00:15:06] You must have
+
+[00:15:06] done, you know, your, your Twitter
+
+[00:15:08] work. I've cut a few word clouds in my day.
+
+[00:15:11] CICERO and Geopolitical AI Agents
+
+[00:15:11] Um, you know, I also think like this question of like, what are you most excited about in ai? Like what do you see as the sort of like grandest potential? And one of the things that I reflect on is, is the. Possibility of having agents that are able to, to negotiate intractable geopolitical problems.
+
+[00:15:31] So like if you look at like, the Cicero paper from, from Meta, can you recap for those who are making Yeah. So I mean it's, you know, I don't wanna like represent somebody else's work as like you're just talking Yeah, exactly. But like, um, my understanding is that diplomacy is a, um, turn-based negotiating game, like risk where you are all making the decision in simultaneously and you're trying to convince people that you're going to do or not do something.
+
+[00:15:56] And, uh, this paper was co-authored with one of the top diplomacy players and Meta built a system that was very, very capable at this negotiating game. I. Can envision nation states operating ais that find game theoretically optimal and sort of non exploitable steady states basically. Mm-hmm. That, you know, if you think about a lot of the large scale geopolitical disputes where it's just like human mediators are unable to find a compromise, ais may be able to satisfying conditions that you're like, yeah, actually I don't, that works for me.
+
+[00:16:36] Mm-hmm. And to your point about like how the phobia and attention generally, but like how the actual visual cortex works, the idea that like a great writer says something in a way and it hits unique structures in your brain and you have that chemical cascade, which is understanding, we may be able to design systems that compress very long documents on a per person basis so as to maximize information transfer, and maybe that's what the thumbnail looks like.
+
+[00:17:03] Mm-hmm.
+
+[00:17:04] Yeah, maybe it's emojis all the way down. I dunno.
+
+[00:17:08] Yeah.
+
+[00:17:09] Datasets vs Intentional Design
+
+[00:17:09] Obviously the dataset is like one of the, the big things in Dolly. Yeah. But you talked about some of these technologies being like discover, not designed, like maybe talk a bit about the process that took it to Dolly and like the experimentation
+
+[00:17:21] there.
+
+[00:17:22] So it's not my, my friend, my dear friend, Jacob Burk kind of had this insight, which is that AI is you, you design a jet turbine, like for sure you make a plan. Mm-hmm. And you, you know, have some working model of aerodynamics and you execute on the jet turbine. I think that with ai, generally we see. You know, this instruction following behavior that we saw in Dolly was not present in the, the base model.
+
+[00:17:53] It, you know, effectively will, it's a, you know, very powerful base model, but it will just complete the prefix as though it's random page on the internet. We had Databricks, but also the community with Alpaca discovered that you can perturb them just, just so, and get quite different behavior. That was not really a design.
+
+[00:18:13] I mean, it's designed in the sense that you had an intent and then you saw it happen. But we do not like choose the parameters they are arrived upon. And the question that I have is, what other capabilities are latent in these models, right? GPT-J was two years old. Can it do anything else? That's surprising?
+
+[00:18:36] Probably so, and I think you look at, you know, particularly, and this is why the Pithia Suite is so cool, is that, and you know, a ton of credit to, for. Having this vision, and I think it will probably take some time for the research community to, to understand what to do with these artifacts that they've created.
+
+[00:18:54] But it's effectively like this matrix of model checkpoints and sizes where you say, I'm gonna take from I think 110 million all the way up to 12 billion, which is what Dolly two is based on. And then at every checkpoint through the training run under, I think it's 2 million. Yeah. Tokens. Yeah. Well, so the, I think the Pithia suite is just trained on the pile, so it's like three, 400 million, which is probably undertrained.
+
+[00:19:18] And did you guys see this red? I think it's red Pajama released this morning. They've reproduced the lLLaMA training data set. So, so it's 1.2 trillion tokens and it's, um, I mean, you know, a separate topic, but we looked pretty hard at what it would take to reproduce the LLaMA data set. And it's like, Non-trivial.
+
+[00:19:35] I mean, bringing Common Crawl online and then d near de-duping it and you know, filtering it for quality. So the, the Common Crawl data set in LLLaMA is they fit a model to predict whether a page in common crawl is likely to be a reference on Wikipedia. And so that's like a way to like, I don't want lists of phone numbers, for example, or like ads.
+
+[00:19:58] All of that is a lot of work. And so anyway, with Pit, I think we can start to ask questions like through this, this matrix with size and like checkpoint depth. We have these different model parameters. How do behaviors emerge through that training process? And at different scales, you know, maybe it will be less of a discovery process.
+
+[00:20:22] Maybe we will get more intentional about, like, I want to elicit the fol, I want summarization, I want closed form, question answering. Those are the only things that matter to me. How much data do I need to. Generate or buy, how many parameters do I need to solve that compression problem? And maybe it will become much more deterministic, but right now it feels a lot like we're just trying things and seeing if it works, which is quite different from a lot of engineering disciplines.
+
+[00:20:51] I'm curious, does that reflect your experiences? Like Yeah, I
+
+[00:20:54] think like we had a whole episode on, um, kind of like scaling loss and everything with Varun from Exafunction. And I feel like the, when the Chinch paper came out, a lot of teams look at their work and they were like, we're just kind of throwing darts.
+
+[00:21:07] Exactly. That's now one,
+
+[00:21:10] 1.2 to, uh, 1.7 tokens, uh, you know, per, uh, per parameter. And, uh, now we're redoing everything with
+
+[00:21:16] 20 tokens. It's exciting, but also as like, you know, I'm, I'm a, an engineer and a hacker, like I'm not a scientist, but I, you know, used to pretend to be a scientist. Not, you know, not really pretend, but like I respect the, I respect the craft and like, It's also very exciting to have something you really don't understand that well, because that's an opportunity to create knowledge.
+
+[00:21:41] So that's part of why it's such an exciting time in the field. There's some work
+
+[00:21:44] Biological Basis of AI
+
+[00:21:44] on with, um, understanding the development of AI progress, uh, using biological basis. Mm-hmm. So in, in some sense, we're a speed running evolution Yeah. With training. Yeah. So in a sense that of just natural discovery of things and, and just kind of throwing epox at it Yeah.
+
+[00:22:02] Is, makes intuitive sense to me. But, uh, I do think that it is unintuitive to estimate how different artificial life might evolve differently
+
+[00:22:12] from biological life. Yeah. I, so like Richard Dawkins had, um, this sort of toy model called bio morphs. Which, uh, no, I haven't heard of it. Yeah, it's, I think it was dates to the eighties.
+
+[00:22:25] So it's a pretty old school demonstration of capabilities. But the idea is that you have, imagine they look, they're little insects that look like vector art. And the parameters of how they are rendered are governed by, you know, it's parametric, right? So some of them have long antennas and some of them have wide bodies and some of them have 10 legs, some of them have four legs.
+
+[00:22:46] And the underlying method is, is genetic algorithms where you take subsets of the parameters and kind of recombine them. And you're presented as a user with a three by three grid, and you click based on what you find subjectively beautiful. And so the fitness function, then they're re combined and you render a new set of nine by nine, some of which are mutated.
+
+[00:23:05] And so the fitness function is your perception of aesthetic beauty. That is the pressure from the environment. And I think like with things like RLHF where you're having this preference learning task, that is a little different from next token prediction in terms of like what is synthetic life and how are our preferences reflected there?
+
+[00:23:23] I think it's a very sort of interesting, yeah, interesting area. Okay. So a
+
+[00:23:27] Training Your Own LLMs
+
+[00:23:27] lot of people are very inspired by work with Dolly. Obviously Databricks, uh, is doing it. Partially out of the kindness of your hearts, but also to advertise Databricks capabilities. Uh, how should businesses who want to do the similar things for their own data sets and companies, uh, how, how should they think about
+
+[00:23:43] going about this?
+
+[00:23:44] I really would actually say that it's probably less about advertising our capabilities. I mean, that, you know, we're exercising our capabilities, but I, I really think that to the extent that we can help define some of the moves that reasonable teams would make in creating technologies like this, it, it helps everybody understand more clearly what needs to be done to make it useful and not just interesting.
+
+[00:24:08] And so, one, you know, one of the canonical examples that we had in the original Dolly was write a love letter, ed Growlin Poe. Yep. Which is super cool and like very moody. You know, I, I dunno if you guys remember the particulars of it, but it was like, I. The person, the imagined person writing this letter was like, I, I basically couldn't, like, I couldn't stand you, but I can't stop thinking about you, you know, which is a very like, gothic, uh, kinda, uh, mood in, in a letter like that not relevant to the enterprise context.
+
+[00:24:39] Right. So, you know, like it's neat that it does it, but if I don't have to buy training data that gets it to write moody, gothic letters to Edgar and Poe, and if I can be choosy about how I invest my token budget, that is useful to many businesses. And so, you know, one of the things that. We're trying to understand more clearly is I, we talked a little bit about like different tasks require that you compress in a way that generalizes, you know, if you think about it, the, the parameters as compressing language and also world knowledge.
+
+[00:25:15] The question is like, for a given model size, how many demonstrations of summarization, for example, are required in order to get a really useful, grounded QA bot? And so I think in building these kinds of solutions and sort of seeing how the. Categories of behaviors in the instruction tuning or sort of fine tuning data sets are related to those behaviors, I think will develop a playbook for startups in the enterprise that makes it, um, so that you can move with an economy of motion.
+
+[00:25:44] And this is related to evaluations as well. So one of the things that we had talked about sort of before we started recording was the using the EleutherAI evaluation benchmarks, and I think helm and the, you know, there's a bunch of other batteries that you can push your models through. But the metrics that we looked at first when we built the first version of Dolly, and this is on our hanging face page, you can go see this yourself.
+
+[00:26:08] The GPT-J model. And the fine-tuned dolly model have almost identical benchmark scores, but the qualitative character of the model just couldn't be any more different. And so I think that it requires better ways to measure the desired behavior, and especially in these enterprise contexts where it's like, is this a good summary and how can I determine that without asking a person?
+
+[00:26:37] And maybe it's kind of like you train reward bottles where you, you know, you have sort of a learned preferences and then you show, you know, you take kind of an active learning approach where you show the ones that it's most uncertain about to crowd workers and it's kind of like human in the loop.
+
+[00:26:52] Would this be p p o ish?
+
+[00:26:54] I mean, potential. That's, so this, that's not an area of expertise in mine yet. You know, this is something that we're also trying to, uh, more deeply understand kind of what the applicability of that stack is to, like, I'm just trying to ship. Mm-hmm. You know, my understanding is that that's somewhat challenging to bring online and also requires a fair number of labels.
+
+[00:27:14] And so it's like from an active learning standpoint, uh, my thinking would be more like, You have a reward model that you've trained and you said like, this is based on human judgments from my employees or some crowd workers, what I want from a summarization or a close, close form question answering. And then you basically, you choose new examples to show to humans that are close to the decision boundary and that are like maximally confusing.
+
+[00:27:38] It's like, I'm just really not sure rather than things that are far from the decision boundary. And it's, it's kind of like, I actually think there's gonna be, in terms of value creation in the next, let's say 18 to 36 months, there's still room for like old tricks. You know, like not everything has to be generative AI for it to be very valuable and very useful.
+
+[00:27:56] And maybe, maybe these models and, and zero shot prompting just eats everything. But it's probably the case that like an ensemble of techniques will be valuable and that you don't have to, you know, establish like room temperature fusion to like, you know, create value in the world, at least for, you know, another year and a half.
+
+[00:28:20] You know, like
+
+[00:28:21] You May Not Need a Large Model
+
+[00:28:21] just, just to spell it out for people trying to, uh, go deep on stuff. Um, maybe leave breadcrumbs. Um, sure. When you say techniques, you don't just mean prompting.
+
+[00:28:29] Oh, I mean even like named entity recognition, like Yeah, there's just like classic NLP stuff, you know, like supervised learning. I mean, multi-class classifi.
+
+[00:28:37] I have customer support tickets. I want to know whether this is going to be flagged as. P zero. Like that's just, it's not a complicated problem to solve, but it's still very valuable in these models that can deeply understand the essence of something and not necessarily generate language. But understand, I expect that you will see like s because, so for example, inference right now is time consuming.
+
+[00:29:04] Mm-hmm. Just, you know, it's like, unless you are really rigorous, and I think it, one of the things I'm excited about at Databricks is that we're, our inference stack is very, very fast. Like orders of magnitude faster than you would get if you took the naive approach. And that leads to very qualitative, like a very different way that you interact with these models.
+
+[00:29:22] You can explore more and understand their behavior more when it doesn't take 30 or 40 seconds to generate a sample and it's instead 1800 milliseconds. You know, that's something that's very exciting. But if you need to spend your compute budget, Efficiently and you have tens of thousands of possible things that you could summarize, but you can really only, you know, in a day do so many.
+
+[00:29:45] Having some stack ranking of them with a classical machine learning model is just valuable. And I, I expect that you'll see like an ecosystem of tools and that it's not all going to be necessarily agents talking to agents. I could be proven wrong on that. Like, I, I don't know. We'll see. Hey,
+
+[00:29:59] Good LLM Use cases
+
+[00:29:59] going back to the evolutionary point, I feel like people think that the generative AI piece is like the one with the most like, uh, possible branches of the tree still to explore.
+
+[00:30:09] So they're all focusing on that. But like you said, we're probably gonna stop at some point and be like, oh. That thing we were doing is just as good. Let's pair them together and like use that instead of just like trying to make this model do everything.
+
+[00:30:22] Yeah. And there, yeah, there are things like categorically that only generative models can accomplish.
+
+[00:30:28] And I do think, I mean, one of the reasons that at Databricks we see so much value for companies is that you can, with zero shot prompting, you can say, given this customer support ticket, for example, give me a summary of the key issues represented in it. And then simply by changing that prefix, say, write a thoughtfully composed reply that addresses these issues in the tone and voice of our company.
+
+[00:30:53] And imagine you have a model that's been fine tuned on the tone voice that's in your, in your, uh, from your support team. Both of those problems historically would've taken like a reasonable machine learning team, six to eight weeks to build. And frankly, the right, the response, I'm not sure you can do it without generative techniques.
+
+[00:31:13] And now your director of sales can do that. You know, and it's like, the thing that might make me look foolish in retrospect is that. Orders of magnitudes cheaper to do it with prompting. And maybe it's like, well, sure the inference costs are non-trivial, but it's just we've saved all of that in time. I don't know.
+
+[00:31:33] Dolly Cost $30 on Databricks
+
+[00:31:33] We'll see. I'm
+
+[00:31:34] always interested in, uh, more economics of, um, of these things. Uh, and one of the headline figures that you guys put out for Dolly was the $30 training cost. Yes. How did you get that number? Was it. Much lower than you expected and just let's just go as deep
+
+[00:31:50] as you want. Well, you just think about, so you know, we trained the original dolly on a 100 s and so one of the cool things about this is we're doing this all on Databricks clusters, right?
+
+[00:32:00] So this like, this works out of the box on Databricks and like turns out, you know, I think you would probably need slightly different configurations if you were going to do your own full pre-training run on, you know, trillions of tokens. You have to think about things like network interconnect and like placement groups in the data center in a more like opinionated way than you might for spark clusters.
+
+[00:32:23] But for multi-node distributed fine tuning, the Databricks stack is great out of the box. That was wonderful to find.
+
+[00:32:32] You've been building the perfect fine tuning architecture the whole
+
+[00:32:34] time. Yeah. You know, may, maybe it's not perfect yet, but like, It's pretty good. And I think, so for the original Dolly, it was just a single node, and so you can bring up an eight node, a 100 machine, and I'm, you know, I thinking of just the off the rack pricing from the cloud providers, it's about 30 bucks.
+
+[00:32:55] I think the actual number's probably less than $30. For How long are you for? It was less than an hour to train the thing. It's 50, I mean it's 50 thou alpacas, 50,000 records. Right.
+
+[00:33:04] And you've open sourced the, the notebook, which people can check out what
+
+[00:33:07] gonna show notes. There's. The risk that I am making this up is zero.
+
+[00:33:11] Yeah. No, no, no. I'm not, I'm
+
+[00:33:12] not saying the I know you're not. I'm just saying I'm, I'm, I'm leaving break rooms for people to say, Hey, it, it's 30
+
+[00:33:17] bucks, takes an hour. Go do it. It's, it's crazy. And, and that's like the, I mean, you think about, I yeah, I, I, I know for a fact that you're not suggesting that, but it's just like, what's nuts is that you can just try it.
+
+[00:33:28] You know, you can, if you have 30 bucks, you can stand this thing up and, um, on a single machine, execute this training run. And I think I talked about like this idea that it's kind of like a phase transition. What's surprising about it, if you were to say, Hey, given a corpus of millions of instruction pairs, you can for.
+
+[00:33:50] $10,000, which is still an order of magnitude less than it cost to train the thing, get this qualitatively different behavior. I'd be like, yeah, that that sounds about right. And it's like, yeah, if you have an afternoon, like you can do this. That was not certainly, it was not obvious to me that that was true.
+
+[00:34:08] I think especially like, you know, like with libraries, like deep speed that, you know, so deep speed is a, is a library that gives you many different options for dealing with models that don't fit in memory and helping increase the effective batch size by, you know, for example, putting the entire model on a GP on several different GPUs and then having device local batches that are then the gradients are, are accumulated, are sort of aggregated for those, those from those different devices to get an effective batch or sharding the actual different model submodules across GPUs.
+
+[00:34:43] And this is all available in the notebook and the, the model that we train does not fit on a single device. And so you have to shard the model across the GPUs to run the training, you know, an incredible time that like this technology is just like free and open source and it's like the Microsoft team and the, you know, the hugging face team have made it so easy.
+
+[00:35:04] To accomplish things that even just two years ago really required a PhD. And so it's like level of effort, capital expenditure, substantially less than I would've expected. Yeah.
+
+[00:35:17] And you, you sort of co-evolve this cuz you also happen to work on the infrastructure optimization
+
+[00:35:21] team. Yeah, I mean that's kind of, um, like, you know, this is really kind of a separate project at Databricks, which is like making sure that we have a great customer experience and that we have the resources that are required for all of our customers.
+
+[00:35:37] You can push a button, get a computer, uh, get a Spark cluster. And I think when you look to a world where everybody is using GPUs on Databricks, making sure that we are running as efficiently as possible so that we can make Databricks a place that is extremely cost effective to train and operate these models.
+
+[00:35:55] I think you have to solve both problems simultaneously. And I think the company that does that effectively is, um, is gonna create a lot of value for the market.
+
+[00:36:06] Databricks Open Source
+
+[00:36:06] Yeah. You mentioned Spark, obviously Databricks, you know, Started, like the founders of Databricks created a spark. Yeah. At Berkeley. Then, you know, from an open source project, you start thinking about the enterprise use cases.
+
+[00:36:18] You end up building a whole platform. Yeah. You still had a lot of great open source projects like uh, ML Flow, Delta Lakes. Yeah. Um, yeah. Things like that. How are you thinking about that was kind of the ML ops phase. Yeah. Right. As you think about the l lm ops, like needs, you know, like obviously. We can think of some of these models as the spark, so to speak, of this new generation.
+
+[00:36:39] Like what are some of the things that you see needed in infrastructure and that maybe you're thinking about building?
+
+[00:36:44] Yeah, I mean, um, so kind of first to address this, this matter of open source. I think, you know, Databricks has done a lot of things that, and has released into the public domain a lot of technologies where a reasonable person could have said, you should.
+
+[00:37:00] Treat that as IP that you and no one else has. And I think time and again, the story has been more, is better and we all succeed together. And when you create a new class, people rush in to fill it with ideas and use cases and that it's, it's really powerful. It's both good business and it's good for the community.
+
+[00:37:21] And Dolly I think is very much a natural extension of that urge, which just, I think reflects our founders tastes and beliefs about markets and, and technology
+
+[00:37:31] LLMOps and Prompt Tooling
+
+[00:37:31] when it comes to LM ops, which is not a phrase that rolls off the tongue. We'll, we're gonna need something better than that. We, this kinda gets back to like what is a thumbnail for text.
+
+[00:37:43] Mm-hmm. One of the things that my team winds up doing a fair amount of right now is like slacking back and forth examples of like generated samples. Okay. Because like these evaluation benchmarks do not capture the behaviors of interest. And so we often have like a reference battery of prompts. Let's say 50 to a hundred.
+
+[00:38:03] Write a love letter to Edgar and Poe. Yeah. Give me a list of ins. Like what are, what are one of our things is what are considerations? Like it should keep in mind when planning for a backcountry backpacking trip can you generate a list of reasonable suggestions for a backpacking trip. And you see, as you kind of move the model through the loss curve under instruction tuning that um, that behavior emerges and that like you kind of wind up qualitatively evaluating is the model doing what I want in respect to these prompts that I've seen many different models answer this model or this, this instruction tuning data set is generating shorter completions.
+
+[00:38:40] This one is generating the. Wackier completions, you know, this one is much likelier to produce lists all of these things. I don't know if you've seen Nat Devrel. Mm-hmm. I'm sure, of course you have that idea of the grid of like, I want to run inference in parallel on arbitrary prompts and compare and contrast, like tooling like that is going to make it, and especially with a fast inference layer, and this is where I think Databricks has a lot of opportunity to create value for people is being able to serve, interact, and measure the behavior of the model as it changes over time and subject it not only to quantitative.
+
+[00:39:19] Benchmarks, but also qualitative subjective benchmarks plus human in the loop feedback where imagine that I burn a model checkpoint and every thousand steps, I send it off to an annotation team and I get a hundred pieces of human feedback on the results. And it's like there's kind of like what is the right volume of human feedback to get to statistical significance?
+
+[00:39:43] But I think there is. An ensemble, you know, each of these is like a different perspective on the behavior of the model. A quantitative, qualitative, and then human, uh, feedback at scale. Somebody's going to build a product that does these things well in a delightful user form factor. And that is fast and um, addresses the specific needs of AI developers.
+
+[00:40:04] And I think that business will be very successful and I would like for it to be Databricks. Ah, okay.
+
+[00:40:10] Teasing what you might be
+
+[00:40:11] building. Interesting. You know, and this, not to make forward-looking statements, but it's just like, make sense as obvious as a person, you wanna do it? Mm-hmm. I need that. Yeah.
+
+[00:40:19] Yeah. I need that. Yeah. I happen to work at a company.
+
+[00:40:21] Yeah. So just to push on, uh, uh, this one a little bit, cuz I have spent some time looking into this. Sure. Have you come across prompt layer? That would be one of the leading tools. And then I think Human Loop has a little bit of it, but yes, it's not a course focus of theirs, is it?
+
+[00:40:34] Prompt layer? Yeah. I'll, okay. Send And happy to drop that reference cuz uh, he has reached out to me and I, I looked at his demo video and it, yeah, it kind of is, isn't that in the ballpark? And I think there are a lot of people, uh, zeroing in on it. But the reason I have not done anything in, in, in this area at all is because I could just do it in a spreadsheet.
+
+[00:40:51] Like all you need to do is Yeah.
+
+[00:40:53] Spreadsheet function that you can, but I mean like editing text and Google Sheets is a drag. Is it? Yeah. I, I mean mm-hmm. What's missing? You know? Oh, so a, like the text editing experience in it, like you're trying to wrap these cells. Okay. And so now you gotta like double click to get into the editing mode.
+
+[00:41:12] I think they struggle with large record sets. So like the spreadsheets slow down, you kind of want, this is not some, like a, this specific question of like, how does Google Sheets fail to meet the need is something that, you know, I don't have a talk track around Sure. But like linking it to an underlying data source where it's sort of like persisted.
+
+[00:41:34] Cuz now I'm, now I have a bunch of spreadsheets that I'm managing and it's like, those live on in Google Drive, which has kind of a garbage ui. Or is it on my local machine? Am I sending those around? Like, if, can I lock the records so that they can't be annotated later? How do I collect multiple evaluations from different people?
+
+[00:41:50] How do I compute summary statistics across those evaluations? Listen, I'm the first person to like, fire up sublime. Yeah. You know, like, keep it simple, right? Yeah. Just for sure. I feel like the, the way that I have talked with colleagues about it is it's like we are emailing around. Photocopies of signed printouts of PDFs and DocuSign doesn't exist yet, and nobody realizes that they're doing this like ridiculous dance.
+
+[00:42:16] And I get it. I too have used Google Sheets to solve this problem, and I believe that they're, there's maybe something better. I've Stockholm Syndrome.
+
+[00:42:26] "I'm a Sheets Maxi"
+
+[00:42:26] So there's a couple more that I would highlight, uh, which is Quadra. Uh, okay. Uh, full disclosure, an investment of mine, but basically Google Sheets implement, implemented a web assembly.
+
+[00:42:35] Yeah. And a, and a canvas. Okay. And it speaks Python and sql. Yeah. Yeah. And, uh, and Scala. Yeah. Uh, so I, I think, I think, yeah, there, there's some people working on interesting hearings
+
+[00:42:46] at those. And what you could do is like, like imagine that you have a Google Sheets type ui, the ability to select like a column or a range and subject all of those values to a prompt.
+
+[00:42:59] Yes. And like say like, I have template filling and I want, that's what I want. My problem
+
+[00:43:04] with most other SaaS attempts is people tend to build UIs that get in your way of just free range experimentation. Yes. And I'm a sheet's, uh, maxi. Like if I can do it in a sheet, I'll do
+
+[00:43:16] in a sheet, you know? Yeah. Well, and I mean, kind of to continue, like on the sheets, sort of mining that vein, you know, on the, sort of like how does AI impact the workplace and like human productivity?
+
+[00:43:29] I think like a, I really like the metaphor, which is comparing, uh, AI technologies to the development, the advent of spreadsheets in the eighties, and this idea that like you had a lot of professionals who were like well educated, like serious people doing serious accounting and finance work, who saw as their kind of core job function manually calculating.
+
+[00:43:53] Values in forecasts on paper as like, this is how I create value for the business. And spreadsheets came along and I think. There was a lot of concern that like, what am I gonna do? Yeah. With my days? And it turns out that like I think of it sometimes, like being in a warm bath and you don't notice how nice the water is until you wiggle your toes a little bit.
+
+[00:44:14] You kind of get used to your circumstances and you stop noticing the things that would stand out.
+
+[00:44:19] AI and Workplace Productivity
+
+[00:44:19] So on the subject of how artificial intelligence technologies will shape productivity in the workplace, you have, I think, a good metaphor in comparing this to spreadsheets and the Adventist spreadsheets In the eighties, I think you had a lot of really serious people who were taking, making an earnest effort to be as productive and effective as possible in their lives, who were not making it their business to waste time.
+
+[00:44:42] Saw spreadsheet technology come out and it's like, man, well what am I gonna do? I'm the person that calculates things. Like I write it all down and that's how I create value. And then like you start using this new tool and it's like, oh, it turns out that was the Ted most tedious and least rewarding part of my job.
+
+[00:44:58] And I'm just so, you know, like I have, like, I still have that human drive to create. You just kind of point it at like more pressing and important problems. And I think that, that we probably don't, especially, and even when it comes to writing, which feels like a very like quintessentially human and creative act, there's a lot of just formulaic writing that you have to do.
+
+[00:45:22] Oh yeah. And it's like, maybe I shouldn't be spending my time on all of that kind of boiler plate. And, you know, there's a question of like, should we be spending our time reading boilerplate? And if so, why is there so much boiler plate? But I, I think that humans are incredibly resourceful and incredibly perceptive as to how they can be effective.
+
+[00:45:43] And that, you know, the, I think it will free us up to do much more useful things with our time. I think right now
+
+[00:45:50] there's still a, a bit of a stigma around, you know, you're using the model mm-hmm. To generate some of the text. But I built a open source, like a email drafter. Yeah. So for all of my emails, I get a G PT four pre-draft response.
+
+[00:46:04] And a lot of them I just sent, but now I'm still pretending to be me.
+
+[00:46:07] Okay. So that's why I'm talking to you
+
+[00:46:09] When I talk to you, you need to fine tune it. Right.
+
+[00:46:12] But in the future, maybe it's just gonna be acceptable that it's like, Hey, we don't actually need to spend this time, you and I talking. Yes. It's like, let the agents like cash it out and then come back to us and say, this
+
+[00:46:22] is what you're gonna do next.
+
+[00:46:23] Articulate your preferences and then you, I think this like trustworthiness is a piece of this here where like hallucinations, T b D, whether it is like actually attractable problem or whether you need other affordances like grounded methods to, to sort of. Is a hallucination, just a form of creativity, like, we'll see.
+
+[00:46:42] But um, I do think eventually we'll get to a point where we can, we trust these things to act on our behalf. And that scenario of like calendaring, for example, or just like, you know, even working out contract details, it's like, Just let me tell you exactly what I want and you make sure that you faithfully represent my interests.
+
+[00:47:00] That'll be really powerful.
+
+[00:47:02] OpenAssistant
+
+[00:47:02] So we haven't run this by you, but uh, I think you have a lot of opinions about, you know, the projects that are out there, uh mm-hmm. And three that are, are on mine. For one, you've already mentioned Open Assistant two, cereus, G B T also came out roughly in the same timeframe. I'm not sure if you want to comment on it, I'd like to compare because they, they also had a similar starting point as as you guys, and then three Red Pajama, which, uh, was just out this morning.
+
+[00:47:24] Yeah. We might, as might as well get a soundbite from you on your thoughts. So yeah, if you want to pick one, what was the first one? Uh, open Assistant.
+
+[00:47:30] Yeah. So, I mean, open Assistant is awesome. I love what they've done. I will be eager to use their free and open data set, uh, to improve the quality of Dolly three.
+
+[00:47:41] CerebrasGPT
+
+[00:47:41] Yeah, but also just like we're seeing the, the training is, so Cerus is a good example of, you know, I think they were, my understanding, and I don't know that team or really, you know, I haven't looked too closely at the technology, but I have worked with the model is that it's a demonstration of their capabilities on this unique chip that they've designed where they don't have to federate the models out to multiple cards.
+
+[00:48:04] But I think if you look at some of the benchmarks, it is on par or maybe a little shy of some of the Ethe I models. And I think that one of the things that you may see here is that the market for foundation models and like the importance of having your own foundation model is actually not that great.
+
+[00:48:27] That like you have a few. Core trains that people, I think of these kind of like stem cells where, you know, a stem cell is a piece of is, is a cell that can become more like its surrounding context. It can become anything upon differentiation when it's exposed to eye tissue or kidney tissue. These foundation models sort of are archetypal and then under fine tuning become the specific agent that you have a desire for.
+
+[00:48:53] And so I think they're expensive to train. They take a long time to train. Even with thousands of GPUs, I think you're still looking at like a month to stand up some of these really big models, and that's assuming everything goes correctly. And so what Open Assistant is doing is. I think representative of the next stage, which is like open data sets, and that's what the Dolly release is also about, is, I kind of think of it like an upgrade in a video game.
+
+[00:49:21] I don't play a ton of video games, but I, you know, I, I used to, and I'm familiar with the concept of like, your character can now double jump. Mm-hmm. Right. Great. You know, it's like, here's a data set that gives it the ability to talk to you. Hmm. Here's a data set that gives it the ability to answer questions over passages from a vector index.
+
+[00:49:38] I think anybody who's listening, I think there's a tremendous opportunity to create a lot of value for people by going through this exercise of the unsexy work, of just writing it down and figuring out ways to do that at scale. Some of that looks like semi-synthetic methods, so something I would love to see from the Dolly data set.
+
+[00:49:58] Is paraphrasing of all the prompts. So basically you now have multiple different ways of saying the same thing and you have the completions which are correct answers to different variants of the question. I think that will act as like a regular, it's kind of like image augmentation. I was gonna say, you flip it.
+
+[00:50:13] Yeah. Yeah. I believe that that will work for language. Like one of the things you could do. Cause we, we saw that within 24 hours the dataset had been translated into Spanish and Japanese. The dolly dataset. Yeah, it was, I mean, you know, it's maybe, yeah. Yeah. Right. Yeah. So that's super cool. Um, and also something that is only possible with open data.
+
+[00:50:31] Well, it's only useful with open data, but I just last night was thinking like, I wonder if you could to paraphrase, cuz it's not obvious to me like what the best and state of the most state-of-the-art paraphrasing model is. You could use Google Translate potentially and take the prompt. Translate it to Spanish and then translate it back to English, you get a slightly different way of saying the same thing.
+
+[00:50:54] Ah, right. So I think the self instruct paper is really about like few shot prompting to get more prompts and then using large models to get completions and then using human annotators to judge or train a reward model. I think that bootstrapping loop on the back of these open data sets is going to create multimillion scale training corpuses.
+
+[00:51:14] And so I, what Open Assistant has done is a, it's a great model. I don't know if you've tried their interactive chat, but it's just really quite an impressive accomplishment. But that the gesture towards open data that you know, the Dolly dataset and the open assistant dataset represent, I think is probably gonna define the next six to nine months of.
+
+[00:51:35] RedPajama
+
+[00:51:35] Work in this space. Um, and then the red, a red pajama. Red pajama, I mean, yeah, it's like I said, you can do a close read of the LLaMA paper. There's the dataset section and I think they use seven distinct data sets, archive, and I think maybe Stack exchange and common crawl.
+
+[00:51:50] Okay. So they have common crawl.
+
+[00:51:52] Yep. C4, which is Common crawl, but filtered subset. Yeah. Uh, GitHub archive books. Wikipedia Stack Exchange.
+
+[00:51:59] Yes. So, you know, take Common Crawl, for example, when you read the lLLaMA paper. So a common crawl I think is three terabytes in the lLLaMA paper. It's not something you just download from, like it's, you have to produce this data set, or at least the CC net, um, implementation that they reference there.
+
+[00:52:18] And you have like a single paragraph in this research paper dedicated to how they produce Common Crawl and they do near de-duplication. They train a model to predict whether something is likely to be a link, a reference link on Wikipedia. And there's just a bunch of other stuff that. Not only from like a, where do you get the model to predict whether something is a link as a reference on Wikipedia when you train it and then like where's your cut point?
+
+[00:52:41] You know, now you have kinda this precision recall trade off and it's like those decisions have material impacts on the quality and the character of the model that you learn. But also just from a scale standpoint, like building Common Crawl locally requires like a non-trivial distributed systems left.
+
+[00:52:59] And so I think Red Pajama is, and I think it's Mila and Chris Ray's lab hazy research, I think, or at least he's attached and together and I think together is kind of leading. There's a bunch of great teams behind that and so I have no reason to think they didn't do. The hard, difficult work correctly.
+
+[00:53:21] Yeah. And now is this major piece of the lift if you're wanting to do a lLLaMA repro in public. And I think that's would very naturally be the next step. And I would be kind of surprised if a train was not currently underway. Everybody agrees. LLLaMA is very, very strong. Also, we agree that it is not open incentives for somebody to spend a couple million bucks and produce it and then be the team that opened this architecture is, are quite high.
+
+[00:53:50] Mm-hmm. So I, I think in the next, you know, you asked for like predictions. I think we're five months at most away from a open LLaMA clone that is as high quality as, as what meta is produced. I will be disappointed if that's not the case.
+
+[00:54:07] Why Dolly > OpenAI GPT
+
+[00:54:07] And I think like there's the big distinction between what is open and what is like, Open in a way that is commercially usable.
+
+[00:54:13] Yeah. After that, I know the Dolly two post, you mentioned that you had a lot of inbound with Dolly. Yeah. 1.0. But a lot of businesses could not use it. Yeah. Because of where the data training data came from. Yes. What are some of the use cases that people have? There is, uh, a lot of it kind of like talking to your data.
+
+[00:54:30] Are there like, uh, other things that are maybe people are not thinking about using it for?
+
+[00:54:34] Yeah, so I mean, we have a number of customers who have reached out with really concrete use cases around customer support ticket resolution. One of the things that a lot of business open AI's models are incredibly powerful, and Databricks wants to be a business where you can use the right tool for the job.
+
+[00:54:55] Like if you have information from the public web, let's say you have forum posts, right, that you need to synthesize and process, that's just not sensitive information. You should be able to use truly whatever model. That might be a fine-tuned model that is like laser focused on your problem. It might be a general instruction following model and, and sort of whatever kind of intelligence GPT4 is, it's, you know, it's quite powerful.
+
+[00:55:20] You should be able to use those tools. There are definitely use cases in the enterprise where it's like, I either just, I'm not interested in sharing this ip. You know, these are effectively our state secrets. Or from a regulatory and compliance standpoint. I just can't send this data to a third party sub-process or something.
+
+[00:55:38] Even as quotidian is like, I just really don't want to go through procurement on this. You know, like it's kind of around those, um, I have some reasons to keep this in house. A lot of use cases like that and that, you know, I'm not a lawyer and so I won't speculate on the sort of actual licensing considerations or the actual obligations, but it's just like people like to be able to move confidently and what we've done with Dolly is make it super clear.
+
+[00:56:09] This model and this data set are licensed for commercial use. You can build a business on the back of this. And that, I think is a big part of why the response has been so positive.
+
+[00:56:19] Open Source Licensing for AI Models
+
+[00:56:19] Hugging face has, uh, the rail license responsible, um mm-hmm. AI license, which isn't recognized as open source yet. So that was the whole problem with stable diffusion, that it's just unclear cuz this, this is completely new license that is, uh, unproven.
+
+[00:56:32] But I just find it interesting that the existing open source licensing regime is mostly around code. And right now, you know, the, the value has shifted from code to the waits.
+
+[00:56:43] Yes. I think we can go on a three hour rant about the open source initiative and like who decides what an open source license is.
+
+[00:56:51] But I think there's a, I think the approach of like, hey, We know what commercial uses. Like this is good for it. Yes, it's good. You're not gonna have to worry about us suing you. It's like, you know, the semantics of it. Clear is always better. Exactly. It's like we don't need to be approved by the osi. Yeah.
+
+[00:57:07] You're gonna be okay. Just
+
+[00:57:09] Why Open Source Models?
+
+[00:57:09] to kind of like continue, like why open source? Yeah. I think that like it is with many eyes, all bugs are shallow. I think the reality is that like we do not know what the challenges we face with AI systems will be. Mm-hmm. And that the likelihood that we can get it a representative and comprehensive solution to the challenges they present by putting it in public and creating research artifacts that people who deal with ethics bias, ai, safety, security, these really sort of thorny issues, that they can take a hard look at how the actual thing is built and how it works and study it comprehensively rather than, Hey, we've got a team for that.
+
+[00:57:50] You're gonna mm-hmm. Just, you're just, we're just gonna need you to trust our work. I think I wanna be in that the former future rather than sort of like, I, I hope that people have done this correctly. I hope that this is somebody is taking care of this.
+
+[00:58:05] Moving Models
+
+[00:58:05] When people
+
+[00:58:06] evaluate this, how do you think about moving between models?
+
+[00:58:10] You know, obviously we talked about how the data set kind of shapes how the model behaves. Hmm. There's obviously people that might start on open AI and now they wanna try dollies. Yeah. Like what are some of the infrastructure there that maybe needs to be built to allow people to move their prompts from model to model?
+
+[00:58:26] Like to figure out, uh, how that works.
+
+[00:58:28] That's really interesting. Um, because you see even like moving between GPT3.5 and GPT4 that the behavior, like some things that were not possible on three five are No, I mean, many, many things that were not possible on three five are not possible on four, but you kind of want like slightly different problem formula, like slightly different prompt formulations or.
+
+[00:58:51] It's kind of like you want regression tests for prompts, and you could see like an automated system, which is uh, helps design a prompt such that the output of this new model is isomorphic to the outputs of the previous model. And sort of like using a language model to iterate on the prompt. So it just kind of evolves it to like adapt to the new model.
+
+[00:59:13] I have two beautiful boys who are, they're just incredible humans and my friend Ben and I built them a, an interactive choose your own adventure storytelling book that uses ChatGPT to generate stories and then options within those stories, and then uses open AI's image generation model Dolly to illustrate.
+
+[00:59:36] Those options. And then the kids can kind of choose their way through these stories. And the thing that you really like when you start to really push these things for more than just like single turn prompt response and I'm, I'm, you know, it's fine if it's language and you really need it to be like an api.
+
+[00:59:52] Is that like 19 times out, 20 it's like an p i and then the 20th generation. It's like just a totally different format. And he just like, you really like try to in the system prompt really seriously. I just only want you to give me three options. Yeah. And letter A, B, C, you know, I think that from a regression test standpoint, how do you know, like if I run this prompt a hundred times does a hundred out of a hun, does it come back a hundred out of a hundred in the format and sort of character that I require?
+
+[01:00:21] That's not something a person can really do effectively, and so I think you do need sort of model meta models that judge the outputs and that manage those migrations. Mm-hmm. Yeah, so I had, that's an interesting. Product class. I hadn't thought about it too much. Yeah.
+
+[01:00:34] Learning in a Simulation
+
+[01:00:34] When you mentioned before the example of the, you know, back country trip, I was like, yeah, it would be so cool if you had a, like a simulation where like, okay, this is the list you had.
+
+[01:00:44] Now I have this game where like I'm putting a character with that inventory and see if they survive in the back country. Cause you can like, you know, the first time I went to Yellowstone to camp, I forgot to pack like a fly for my tent and obviously it rained. That's because, you know, you get punished
+
+[01:00:58] right away.
+
+[01:00:59] Yeah. That's the environment providing you with a gradient. Exactly. Update your model eight. You should be grateful to have such an excellent Yeah. Mini
+
+[01:01:06] these models like the, the evolutionary piece that is missing is like, these models cannot. Die. They cannot break a arm. They cannot, when they make suggestions, like they don't actually Yeah.
+
+[01:01:16] Have any repercussion on them. Um, so I'm really curious if in the future, you know, okay, you wanna make a poem, uh, you know, I love poem. Now we're gonna send this structural people. Yeah. And if you get rejected, your model's gonna
+
+[01:01:28] Why Model Reflexion and Self Criticism Works
+
+[01:01:28] die. So I think like one of the things that's cool about Lang Chain, for example, we all know they're doing awesome work and building useful tools, but these models can tell if they're wrong.
+
+[01:01:38] So you can, like, you can ask a model to generate an utterance. And that next token prediction loss function may not capture. You may hallucinate something, you may make something up, but then you can show that generation to the same model. And ask it to tell you if it's correct or not. And it can, it can recognize that it's not, and I think that is a directly a function of the attention weights and that you can attend to the entire.
+
+[01:02:03] Whereas like for next token prediction, all I can see is the prefix and I'm just trying to choose and choosing sarcastically. Right. You're f frequently, like it's a weighted sample from the distribution over that soft softmax output vector, which does not have any. Reference to factuality, but when you resubmit to the model and you give it like, here's the entire generated passage, judge it in its completeness.
+
+[01:02:25] Well now I can attend to all of the token simultaneously, and it's just a much, much easier problem to solve. And so I think that like, oh, that's a cool insight. Yeah. Yeah. I mean it's, yeah. It's just, this is reflection. Yeah. You, you can just see what you said and like the model may contain enough information to judge it.
+
+[01:02:41] And so it's kind of like subject your plan mm-hmm. To an environment and see how it performs. I think like you could probably ask the model, I mean, we can try this today. Here's my plan for a trip. Critique it. Mm-hmm. Right? Like, what are, what are the things that could go wrong with this inventory? And I think that there's one scenario, there's one trajectory for this class of technologies, which would be like self-reflexive models where it is not super linear.
+
+[01:03:10] You don't get anything more than what is already contained in the models, and you just kind of saturate and it's like, okay, you need human feedback. There's another scenario, which is the alpha go scenario where models can play themselves and in observing their behavior and interactions they. Get stronger and better and more capable.
+
+[01:03:31] That's a much more interesting scenario and this idea that like in considering the entire generated sample, I have more insight than just when I'm sampling the next token. Mm-hmm. Suggests that there may. Be that escape potential in terms of getting super, you know, unsaturated returns on quality.
+
+[01:03:51] Lightning Round
+
+[01:03:51] Yeah, this was great, Mike kind of we're where a time, maybe we can jump into landing ground next.
+
+[01:03:55] We'll read you the questions again. Okay. If you wanna think about it. So, okay. Favorite AI
+
+[01:04:00] product? This is a boring answer, but it's true. Google Maps. Ah. And it's, how is it AI A, they're recently doing stuff with Nerf so that you can using Yeah. Multiple different photos. You can explore the interior of a business.
+
+[01:04:15] They are also undoubtedly, I mean like, I don't know the team at Google doing this, but digesting the sum total of human knowledge about each entity in their graph to like process that language and make judgements about what is this business? And listen, it's not an AI product, but it is a machine learning product categorically, and it's also an amazing product.
+
+[01:04:37] You forget how much you use it. I was at the coffee shop around the corner. I used it to figure out where to come. It was literally 150 meter walk, you know, it's just like that reflexive, but it's also from a, an information visualization. So I love maps. Mm-hmm. I opened our conversation saying that I think a lot about maps, that it is adaptive at multiple scales and will corson and refine the, the information that's displayed requires many, many judgements to be made and sim simultaneously about what is relevant and it's personalized.
+
+[01:05:08] It will take your intent. Are you driving? Okay, well show me parking garages preferentially. So it's very adaptive in such subtle ways that we don't notice it. And I think that's like great product design is like good editing. You don't notice it when it's good. Mm-hmm. And so I think Google Maps is an incredible AI ml.
+
+[01:05:28] Product accomplishment. Google Maps. Yeah. It's a great pick. Great. Well, and they need the help. Yeah.
+
+[01:05:36] It is actually the best ad uh, real estate, right? Like, there should be a ton of people buying ads specifically on Google Maps. Yeah. So they just show up and I, I don't know how big that business is, but it's gotta be huge.
+
+[01:05:45] Yeah. And, and then my subsequent thing is like, there should be Google Maps optimization, where you would name your business like Best Barbershop and it would show up as Best Barbershop when you look at it. Yeah,
+
+[01:05:55] of course. Right? Yeah. It's like AAA lock picks. Yeah. Right at the front of the Yellow Pages.
+
+[01:06:01] Favorite
+
+[01:06:01] AI people and communities you wanna shout out?
+
+[01:06:03] You know, I don't think that I have necessarily anything super original to say on this front. Um, The best of my understanding, this is an all volunteer effort and it's, you know, incredible what they have been able to accomplish. And it's like kind of in the constellation of projects.
+
+[01:06:20] You know, the additionally, I think these are what you would say and answer in response to this question, I think like the hugging face group is, it's kind of like Google Maps in a way, in the sense that you like, forget how complicated the thing that it's doing is, and I think they have. You see like specific people, I was thinking of STAs STAs, who works on the, works on a lot of the deep speed stuff, just super conscientious and like engaged with the community and like that the entire team at Hugging face is incredible and you know, they, you know, have made a lot of what is happening possible in the industry at large.
+
+[01:06:53] And so, um, and I think, yeah, this is like the power of open source ultimately Transformers, library, diffusers, all of it. It's just great. It's a great, it's a delightful product experience.
+
+[01:07:03] I think a lot of people, like I had, I once had hugging Face explained to me as Free, get LFS hosting. And I think they've, uh, they've moved beyond that in, in
+
+[01:07:11] recent years.
+
+[01:07:11] Yeah. A bit. Yeah. It's, it's quite strong work. Yeah.
+
+[01:07:14] Yeah. A year from now, what will people be the most surprised by in ai? You already
+
+[01:07:19] hinted
+
+[01:07:19] at? Uh, yeah, but I think that's not, like, I think that won't be surprising, I think as we're on a ballistic trajectory to having like a, an open lLLaMA reproduction. So here's something I think that will happen that we are not, like socially, we don't have a lot of priors for how to deal with, so this ghost writer track just came out this Kanye West Weekend.
+
+[01:07:40] Mm-hmm. AI collaboration. He has thoughts, Drake? Yeah. His thoughts. It's not really, Dave has thoughts. It's not really like, I, I like a different breed of hiphop, but like, it's. For an example of the class, it's like that does sound like a thing I might hear on the radio. So there's a world in, so skip flag was this knowledge graph that's builds itself from your workplace communication.
+
+[01:08:02] Think about all of the times that you have expressed your position and intent around a given topic in workplace communication or on the internet at large. I think like character AI is going in this direction where you're going to be able to talk to high fidelity avatars that represent the beliefs and intents of people around you, and that it will be both useful and convincing.
+
+[01:08:27] I don't know that like society has good models for how to sort of adapt to that existing and that it will, I suspect just on the basis of like what people are doing. Happened rather quickly at first.
+
+[01:08:41] Listen, you can definitely tell it's really good. Mm-hmm. I'm really curious what the long-term results are gonna be, because once you listen it once or twice, you can tell that it's like, it's not really like a coherent song kind of written.
+
+[01:08:55] But to me that the funniest thing is that actually, so Drake and the Weekend that never made a song together again because they kinda had a, a follow up between then and, and the Weekend at One song where he said, if you made me then replace me. Because Drake basically hinting that like if he didn't put the weekend on his album, he would've never become popular.
+
+[01:09:13] Okay. So it's funny that now there's like this AI generated song from the weekend. It just kind of puts the, you know, if you made me then replace me line in in a different context. But I think this will be super interesting for the labels, you know, like a lot of them do on the Masters to a lot of this music they do on, yeah.
+
+[01:09:31] A lot of rides. So, At some point, it's much easier to generate music this way than to do it in person. But I still think you need the artist touch.
+
+[01:09:39] Just like what is it that is unique and what, you know. I think artists frequently, you know, I, I know in my own writing and sort of like creative process, you sometimes feel like you're just going through the motions.
+
+[01:09:50] And it's funny how we have ways of talking about a phrase rolls off the tongue. That's very much like a causal language model. Mm-hmm. Where like we talk about talk tracks. I have a whole spiel, you know, you talk to a startup founder and you're like, oh my God, how many times have you said like, very close, like very tight variance on this Three minutes sometimes.
+
+[01:10:10] That's good. Yeah. It's, it's fine. It's just, it's a thing that we do. And so touching on this idea that like some of what we consider creative acts may not actually be creative acts and sort of, is there a pr, is there a market pressure to favor things that are truly creative versus just like formulaic and like re like rehashing kind of the same essence?
+
+[01:10:29] I think like art. Transcends boundaries is often the most interesting art to engage with, where it, it truly does confront you with something you haven't considered before. I hope that that's the place where humans play. And that they're kind of like, oh, I just need some lo-fi study beats. It's like, just gimme an infinite stream.
+
+[01:10:49] I'm fine. Because I'm just like,
+
+[01:10:52] you've seen that chart of like pop uh, songs, declining interns of the key changes, key changes in
+
+[01:10:58] Octa ranges. Completely. Completely. And like, I mean, we used to have
+
+[01:11:02] Bohemian Rhapsody and, and
+
+[01:11:03] yeah, it's a great example of something that would not be priced appropriately.
+
+[01:11:08] This is why I, I think perplexity AI is just very well named because we want more perplexity in our lives. Yes, by the way, shout out for replica ai. I don't know if you've come across them, but Absolutely. They are working on the digital twin stuff. Okay. Ai, uh, request for startups. AI thing you would pay for if someone
+
+[01:11:21] built it.
+
+[01:11:22] Well, so the LM op stuff for sure. Just like make it easy to generate and evaluate samples using multimodal, multimodal, I mean multiple modalities, not images and texts, but rather like humans, quantitative benchmarks and qualitative Oh, samples that I, I am able to evaluate myself, but other AI startups. I think that we have your sister, your wife, your wife has family that works in the park system.
+
+[01:11:49] Mm-hmm. Because it is so everybody has access to effectively the same information about what's interesting in the outdoors. I think you get to a lot of trail heads and you have very, very tight parking lots and it's difficult to get to a lot of these beautiful places. And like, um, mere Woods is another example of like, you gotta reserve a parking spot in the woods that's a plumber.
+
+[01:12:12] But I think that the US in particular is so unique in that we have such an expansive public lands, and I think that there are a lot of really majestic and beautiful places in the world that are not written about. And so I think from a geospatial standpoint, you could imagine representing each tile on a map like a word deve.
+
+[01:12:39] Embedding where you look at the context in which a location exists and the things people have said about it, and you, you kind of distill the essence of a place and you can given a statement about how I wanna spend my day route traffic more evenly. On the surface of the earth so that we are not all competing for the same fixed pool of resources.
+
+[01:13:03] I don't know that that's something really that's monetizable in like a, you know, is this gonna be the next 10 billion business sort of way. But like there's so much public land and there's so many back roads and like the days where I have, you know, rumbling down a dirt road, my brother are just the best days of my life.
+
+[01:13:22] And, uh, I want more of those. I want systems that help us live as fully as possible as humans. Yeah, there's definitely
+
+[01:13:29] a lot of, you know, you got the. The most popular trails. Everybody wants to be there. Yeah. And then there's the less known ones. And I feel like a lot of people back to the text to back is like, they don't know what they're gonna find, you know?
+
+[01:13:41] Mm-hmm. There's not like YouTube reviews of all these trails. Totally. But like you can see it. So I think a way to, to better understand that would be, would be cool.
+
+[01:13:49] I mean, just to kind of like riff on this just a little more and we can wrap, like I do think there's a AI technology as a swarm management.
+
+[01:13:59] Tool, you know, being able to perceive sensor and camera inputs from multiple different agents in a system. And I think about like ultra low powered gliders as an example of like, I would like to be able to get, I mean, there, there are tools now where you can, uh, for 180 bucks get a satellite to take a da a picture today of like a five by five kilometer area.
+
+[01:14:21] I just wanna be able to run recon fleets on the back country and get like up to date trail conditions. I don't know that anybody's gonna make any real money doing this, but if it existed, I would use it. So maybe I should build it maybe. Yeah, exactly. Open source. It's part of Databricks longstanding commitment to open source for diversifying new markets.
+
+[01:14:44] Awesome. Mike, it was, it was great
+
+[01:14:45] to have you. Oh, this was a, yeah.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Mike Conover
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

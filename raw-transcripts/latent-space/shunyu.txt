@@ -1,0 +1,1083 @@
+# Language Agents: From Reasoning to Acting
+# URL: https://www.latent.space/p/shunyu
+# Date: 2024-09-27
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Language Agents: From Reasoning to Acting
+
+31
+
+2
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:29:43
+
+-1:29:43
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Language Agents: From Reasoning to Acting
+
+Shunyu Yao on ReAct, Tree of Thought, CoALA, and the emerging importance of AI-Computer Interfaces, ft. returning guest + guest host Harrison Chase of LangChain/LangGraph!
+
+Sep 27, 2024
+
+31
+
+2
+
+1
+
+Share
+
+Transcript
+
+OpenAI DevDay is almost here! Per tradition, we are hosting a DevDay pregame event for everyone coming to town! Join us with demos and gossip!
+
+Also sign up for related events across San Francisco: the AI DevTools Night, the xAI open house, the Replicate art show, the DevDay Watch Party (for non-attendees), Hack Night with OpenAI at Cloudflare. For everyone else, join the Latent Space Discord for our online watch party and find fellow AI Engineers in your city.
+
+OpenAI’s recent o1 release (and Reflection 70b debacle) has reignited broad interest in agentic general reasoning and tree search methods1.
+
+While we have covered some of the self-taught reasoning literature on the Latent Space Paper Club, it is notable that the Eric Zelikman ended up at xAI, whereas OpenAI’s hiring of Noam Brown and now Shunyu suggests more interest in tool-using chain of thought/tree of thought/generator-verifier architectures for Level 3 Agents.
+
+We were more than delighted to learn that Shunyu is a fellow Latent Space enjoyer, and invited him back (after his first appearance on our NeurIPS 2023 pod) for a look through his academic career with Harrison Chase (one year after his first LS show).
+
+ReAct: Synergizing Reasoning and Acting in Language Models
+
+paper link
+
+Following seminal Chain of Thought papers from Wei et al and Kojima et al, and reflecting on lessons from building the WebShop human ecommerce trajectory benchmark, Shunyu’s first big hit, the ReAct paper showed that using LLMs to “generate both reasoning traces and task-specific actions in an interleaved manner” achieved remarkably greater performance (less hallucination/error propagation, higher ALFWorld/WebShop benchmark success) than CoT alone. 
+
+Image via Donato Capitella
+
+In even better news, ReAct scales fabulously with finetuning:
+
+As a member of the elite Princeton NLP group, Shunyu was also a coauthor of the Reflexion paper, which we discuss in this pod.
+
+Tree of Thoughts
+
+paper link here
+
+Shunyu’s next major improvement on the CoT literature was Tree of Thoughts:
+
+Language models are increasingly being deployed for general problem solving across a wide range of tasks, but are still confined to token-level, left-to-right decision-making processes during inference. This means they can fall short in tasks that require exploration, strategic lookahead, or where initial decisions play a pivotal role…
+
+ToT allows LMs to perform deliberate decision making by considering multiple different reasoning paths and self-evaluating choices to decide the next course of action, as well as looking ahead or backtracking when necessary to make global choices.
+
+The beauty of ToT is it doesnt require pretraining with exotic methods like backspace tokens or other MCTS architectures. You can listen to Shunyu explain ToT in his own words on our NeurIPS pod, but also the ineffable Yannic Kilcher:
+
+Other Work
+
+We don’t have the space to summarize the rest of Shunyu’s work, you can listen to our pod with him now, and recommend the CoALA paper and his initial hit webinar with Harrison, today’s guest cohost:
+
+as well as Shunyu’s PhD Defense Lecture:
+
+as well as Shunyu’s latest lecture covering a Brief History of LLM Agents:
+
+As usual, we are live on YouTube! 
+
+Show Notes
+
+Harrison Chase
+
+LangChain, LangSmith, LangGraph
+
+Shunyu Yao
+
+Alec Radford
+
+ReAct Paper
+
+Hotpot QA
+
+Tau Bench
+
+WebShop
+
+SWE-Agent
+
+SWE-Bench
+
+Trees of Thought
+
+CoALA Paper
+
+Related Episodes
+
+Our Thomas Scialom (Meta) episode
+
+Shunyu on our NeurIPS 2023 Best Papers episode
+
+Harrison on our LangChain episode
+
+Mentions
+
+Sierra
+
+Voyager
+
+Jason Wei
+
+Tavily
+
+SERP API
+
+Exa
+
+Timestamps
+
+[00:00:00] Opening Song by Suno
+
+[00:03:00] Introductions
+
+[00:06:16] The ReAct paper
+
+[00:12:09] Early applications of ReAct in LangChain
+
+[00:17:15] Discussion of the Reflection paper
+
+[00:22:35] Tree of Thoughts paper and search algorithms in language models
+
+[00:27:21] SWE-Agent and SWE-Bench for coding benchmarks
+
+[00:39:21] CoALA: Cognitive Architectures for Language Agents
+
+[00:45:24] Agent-Computer Interfaces (ACI) and tool design for agents
+
+[00:49:24] Designing frameworks for agents vs humans
+
+[00:53:52] UX design for AI applications and agents
+
+[00:59:53] Data and model improvements for agent capabilities
+
+[01:19:10] TauBench
+
+[01:23:09] Promising areas for AI
+
+Transcript
+
+Alessio [00:00:01]: Hey, everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO of Residence at Decibel Partners, and I'm joined by my co-host Swyx, founder of Small AI.
+
+Swyx [00:00:12]: Hey, and today we have a super special episode. I actually always wanted to take like a selfie and go like, you know, POV, you're about to revolutionize the world of agents because we have two of the most awesome hiring agents in the house. So first, we're going to welcome back Harrison Chase. Welcome. Excited to be here. What's new with you recently in sort of like the 10, 20 second recap?
+
+Harrison [00:00:34]: Linkchain, Linksmith, Lingraph, pushing on all of them. Lots of cool stuff related to a lot of the stuff that we're going to talk about today, probably.
+
+Swyx [00:00:42]: Yeah.
+
+Alessio [00:00:43]: We'll mention it in there. And the Celtics won the title.
+
+Swyx [00:00:45]: And the Celtics won the title. You got that going on for you. I don't know. Is that like floorball? Handball? Baseball? Basketball.
+
+Alessio [00:00:52]: Basketball, basketball.
+
+Harrison [00:00:53]: Patriots aren't looking good though, so that's...
+
+Swyx [00:00:56]: And then Xun Yu, you've also been on the pod, but only in like a sort of oral paper presentation capacity. But welcome officially to the LinkedSpace pod.
+
+Shunyu [00:01:03]: Yeah, I've been a huge fan. So thanks for the invitation. Thanks.
+
+Swyx [00:01:07]: Well, it's an honor to have you on. You're one of like, you're maybe the first PhD thesis defense I've ever watched in like this AI world, because most people just publish single papers, but every paper of yours is a banger. So congrats.
+
+Shunyu [00:01:22]: Thanks.
+
+Swyx [00:01:24]: Yeah, maybe we'll just kick it off with, you know, what was your journey into using language models for agents? I like that your thesis advisor, I didn't catch his name, but he was like, you know... Karthik. Yeah. It's like, this guy just wanted to use language models and it was such a controversial pick at the time. Right.
+
+Shunyu [00:01:39]: The full story is that in undergrad, I did some computer vision research and that's how I got into AI. But at the time, I feel like, you know, you're just composing all the GAN or 3D perception or whatever together and it's not exciting anymore. And one day I just see this transformer paper and that's really cool. But I really got into language model only when I entered my PhD and met my advisor Karthik. So he was actually the second author of GPT-1 when he was like a visiting scientist at OpenAI. With Alec Redford?
+
+Swyx [00:02:10]: Yes.
+
+Shunyu [00:02:11]: Wow. That's what he told me. It's like back in OpenAI, they did this GPT-1 together and Ilya just said, Karthik, you should stay because we just solved the language. But apparently Karthik is not fully convinced. So he went to Princeton, started his professorship and I'm really grateful. So he accepted me as a student, even though I have no prior knowledge in NLP. And you know, we just met for the first time and he's like, you know, what do you want to do? And I'm like, you know, you have done those test game scenes. That's really cool. I wonder if we can just redo them with language models. And that's how the whole journey began. Awesome.
+
+Alessio [00:02:46]: So GPT-2 was out at the time? Yes, that was 2019.
+
+Shunyu [00:02:48]: Yeah.
+
+Alessio [00:02:49]: Way too dangerous to release. And then I guess the first work of yours that I came across was React, which was a big part of your defense. But also Harrison, when you came on The Pockets last year, you said that was one of the first papers that you saw when you were getting inspired for BlankChain. So maybe give a recap of why you thought it was cool, because you were already working in AI and machine learning. And then, yeah, you can kind of like intro the paper formally. What was that interesting to you specifically?
+
+Harrison [00:03:16]: Yeah, I mean, I think the interesting part was using these language models to interact with the outside world in some form. And I think in the paper, you mostly deal with Wikipedia. And I think there's some other data sets as well. But the outside world is the outside world. And so interacting with things that weren't present in the LLM and APIs and calling into them and thinking about the React reasoning and acting and kind of like combining those together and getting better results. I'd been playing around with LLMs, been talking with people who were playing around with LLMs. People were trying to get LLMs to call into APIs, do things, and it was always, how can they do it more reliably and better? And so this paper was basically a step in that direction. And I think really interesting and also really general as well. Like I think that's part of the appeal is just how general and simple in a good way, I think the idea was. So that it was really appealing for all those reasons.
+
+Shunyu [00:04:07]: Simple is always good. Yeah.
+
+Alessio [00:04:09]: Do you have a favorite part? Because I have one favorite part from your PhD defense, which I didn't understand when I read the paper, but you said something along the lines, React doesn't change the outside or the environment, but it does change the insight through the context, putting more things in the context. You're not actually changing any of the tools around you to work for you, but you're changing how the model thinks. And I think that was like a very profound thing when I, not that I've been using these tools for like 18 months. I'm like, I understand what you meant, but like to say that at the time you did the PhD defense was not trivial. Yeah.
+
+Shunyu [00:04:41]: Another way to put it is like thinking can be an extra tool that's useful.
+
+Alessio [00:04:47]: Makes sense. Checks out.
+
+Swyx [00:04:49]: Who would have thought? I think it's also more controversial within his world because everyone was trying to use RL for agents. And this is like the first kind of zero gradient type approach. Yeah.
+
+Shunyu [00:05:01]: I think the bigger kind of historical context is that we have this two big branches of AI. So if you think about RL, right, that's pretty much the equivalent of agent at a time. And it's like agent is equivalent to reinforcement learning and reinforcement learning is equivalent to whatever game environment they're using, right? Atari game or go or whatever. So you have like a pretty much, you know, you have a biased kind of like set of methodologies in terms of reinforcement learning and represents agents. On the other hand, I think NLP is like a historical kind of subject. It's not really into agents, right? It's more about reasoning. It's more about solving those concrete tasks. And if you look at SEL, right, like each task has its own track, right? Summarization has a track, question answering has a track. So I think really it's about rethinking agents in terms of what could be the new environments that we came to have is not just Atari games or whatever video games, but also those text games or language games. And also thinking about, could there be like a more general kind of methodology beyond just designing specific pipelines for each NLP task? That's like the bigger kind of context, I would say.
+
+Alessio [00:06:14]: Is there an inspiration spark moment that you remember or how did you come to this? We had Trida on the podcast and he mentioned he was really inspired working with like systems people to think about Flash Attention. What was your inspiration journey?
+
+Shunyu [00:06:27]: So actually before React, I spent the first two years of my PhD focusing on text-based games, or in other words, text adventure games. It's a very kind of small kind of research area and quite ad hoc, I would say. And there are like, I don't know, like 10 people working on that at the time. And have you guys heard of Zork 1, for example? So basically the idea is you have this game and you have text observations, like you see a monster, you see a dragon.
+
+Swyx [00:06:57]: You're eaten by a grue.
+
+Shunyu [00:06:58]: Yeah, you're eaten by a grue. And you have actions like kill the grue with a sword or whatever. And that's like a very typical setup of a text game. So I think one day after I've seen all the GPT-3 stuff, I just think about, you know, how can I solve the game? Like why those AI, you know, machine learning methods are pretty stupid, but we are pretty good at solving the game relatively, right? So for the context, the predominant method to solve this text game is obviously reinforcement learning. And the idea is you just try out an arrow in those games for like millions of steps and you kind of just overfit to the game. But there's no language understanding at all. And I'm like, why can't I solve the game better? And it's kind of like, because we think about the game, right? Like when we see this very complex text observation, like you see a grue and you might see a sword, you know, in the right of the room and you have to go through the wooden door to go to that room. You will think, you know, oh, I have to kill the monster and to kill that monster, I have to get the sword, I have to get the sword, I have to go, right? And this kind of thinking actually helps us kind of throw shots off the game. And it's like, why don't we also enable the text agents to think? And that's kind of the prototype of React. And I think that's actually very interesting because the prototype, I think, was around November of 2021. So that's even before like chain of thought or whatever came up. So we did a bunch of experiments in the text game, but it was not really working that well. Like those text games are just too hard. I think today it's still very hard. Like if you use GPD 4 to solve it, it's still very hard. So the change came when I started the internship in Google. And apparently Google care less about text game, they care more about what's more practical. So pretty much I just reapplied the idea, but to more practical kind of environments like Wikipedia or simpler text games like Alphard, and it just worked. It's kind of like you first have the idea and then you try to find the domains and the problems to demonstrate the idea, which is, I would say, different from most of the AI research, but it kind of worked out for me in that case.
+
+Swyx [00:09:09]: For Harrison, when you were implementing React, what were people applying React to in the early days?
+
+Harrison [00:09:14]: I think the first demo we did probably had like a calculator tool and a search tool. So like general things, we tried to make it pretty easy to write your own tools and plug in your own things. And so this is one of the things that we've seen in LangChain is people who build their own applications generally write their own tools. Like there are a few common ones. I'd say like the three common ones might be like a browser, a search tool, and a code interpreter. But then other than that-
+
+Swyx [00:09:37]: The LMS. Yep.
+
+Harrison [00:09:39]: Yeah, exactly. It matches up very nice with that. And we actually just redid like our integrations docs page, and if you go to the tool section, they like highlight those three, and then there's a bunch of like other ones. And there's such a long tail of other ones. But in practice, like when people go to production, they generally have their own tools or maybe one of those three, maybe some other ones, but like very, very few other ones. So yeah, I think the first demos was a search and a calculator one. And there's- What's the data set?
+
+Shunyu [00:10:04]: Hotpot QA.
+
+Harrison [00:10:05]: Yeah. Oh, so there's that one. And then there's like the celebrity one by the same author, I think.
+
+Swyx [00:10:09]: Olivier Wilde's boyfriend squared. Yeah. 0.23. Yeah. Right, right, right.
+
+Harrison [00:10:16]: I'm forgetting the name of the author, but there's-
+
+Swyx [00:10:17]: I was like, we're going to over-optimize for Olivier Wilde's boyfriend, and it's going to change next year or something.
+
+Harrison [00:10:21]: There's a few data sets kind of like in that vein that require multi-step kind of like reasoning and thinking. So one of the questions I actually had for you in this vein, like the React paper, there's a few things in there, or at least when I think of that, there's a few things that I think of. There's kind of like the specific prompting strategy. Then there's like this general idea of kind of like thinking and then taking an action. And then there's just even more general idea of just like taking actions in a loop. Today, like obviously language models have changed a lot. We have tool calling. The specific prompting strategy probably isn't used super heavily anymore. Would you say that like the concept of React is still used though? Or like do you think that tool calling and running tool calling in a loop, is that React
+
+Swyx [00:11:02]: in your mind?
+
+Shunyu [00:11:03]: I would say like it's like more implicitly used than explicitly used. To be fair, I think the contribution of React is actually twofold. So first is this idea of, you know, we should be able to use calls in a very general way. Like there should be a single kind of general method to handle interaction with various environments. I think React is the first paper to demonstrate the idea. But then I think later there are two form or whatever, and this becomes like a trivial idea. But I think at the time, that's like a pretty non-trivial thing. And I think the second contribution is this idea of what people call like inner monologue or thinking or reasoning or whatever, to be paired with tool use. I think that's still non-trivial because if you look at the default function calling or whatever, like there's no inner monologue. And in practice, that actually is important, especially if the tool that you use is pretty different from the training distribution of the language model. I think those are the two main things that are kind of inherited.
+
+Harrison [00:12:10]: On that note, I think OpenAI even recommended when you're doing tool calling, it's sometimes helpful to put a thought field in the tool, along with all the actual acquired arguments,
+
+Swyx [00:12:19]: and then have that one first.
+
+Harrison [00:12:20]: So it fills out that first, and they've shown that that's yielded better results. The reason I ask is just like this same concept is still alive, and I don't know whether to call it a React agent or not. I don't know what to call it. I think of it as React, like it's the same ideas that were in the paper, but it's obviously a very different implementation at this point in time. And so I just don't know what to call it.
+
+Shunyu [00:12:40]: I feel like people will sometimes think more in terms of different tools, right? Because if you think about a web agent versus, you know, like a function calling agent, calling a Python API, you would think of them as very different. But in some sense, the methodology is the same. It depends on how you view them, right? I think people will tend to think more in terms of the environment and the tools rather than the methodology. Or, in other words, I think the methodology is kind of trivial and simple, so people will try to focus more on the different tools. But I think it's good to have a single underlying principle of those things.
+
+Alessio [00:13:17]: How do you see the surface of React getting molded into the model? So a function calling is a good example of like, now the model does it. What about the thinking? Now most models that you use kind of do chain of thought on their own, they kind of produce steps. Do you think that more and more of this logic will be in the model? Or do you think the context window will still be the main driver of reasoning and thinking?
+
+Shunyu [00:13:39]: I think it's already default, right? You do some chain of thought and you do some tool call, the cost of adding the chain of thought is kind of relatively low compared to other things. So it's not hurting to do that. And I think it's already kind of common practice, I would say.
+
+Swyx [00:13:56]: This is a good place to bring in either Tree of Thought or Reflection, your pick.
+
+Shunyu [00:14:01]: Maybe Reflection, to respect the time order, I would say.
+
+Swyx [00:14:05]: Any backstory as well, like the people involved with NOAA and the Princeton group. We talked about this offline, but people don't understand how these research pieces come together and this ideation.
+
+Shunyu [00:14:15]: I think Reflection is mostly NOAA's work, I'm more like advising kind of role. The story is, I don't remember the time, but one day we just see this pre-print that's like Reflection and Autonomous Agent with memory or whatever. And it's kind of like an extension to React, which uses this self-reflection. I'm like, oh, somehow you've become very popular. And NOAA reached out to me, it's like, do you want to collaborate on this and make this from an archive pre-print to something more solid, like a conference submission? I'm like, sure. We started collaborating and we remain good friends today. And I think another interesting backstory is NOAA was contacted by OpenAI at the time. It's like, this is pretty cool, do you want to just work at OpenAI? And I think Sierra also reached out at the same time. It's like, this is pretty cool, do you want to work at Sierra? And I think NOAA chose Sierra, but it's pretty cool because he was still like a second year undergrad and he's a very smart kid.
+
+Swyx [00:15:16]: Based on one paper. Oh my god.
+
+Shunyu [00:15:19]: He's done some other research based on programming language or chemistry or whatever, but I think that's the paper that got the attention of OpenAI and Sierra.
+
+Swyx [00:15:28]: For those who haven't gone too deep on it, the way that you present the inside of React, can you do that also for reflection? Yeah.
+
+Shunyu [00:15:35]: I think one way to think of reflection is that the traditional idea of reinforcement learning is you have a scalar reward and then you somehow back-propagate the signal of the scalar reward to the rest of your neural network through whatever algorithm, like policy grading or A2C or whatever. And if you think about the real life, most of the reward signal is not scalar. It's like your boss told you, you should have done a better job in this, but you could jump on that or whatever. It's not like a scalar reward, like 29 or something. I think in general, humans deal more with long scalar reward, or you can say language feedback. And the way that they deal with language feedback also has this back-propagation process, right? Because you start from this, you did a good job on job B, and then you reflect what could have been done differently to change to make it better. And you kind of change your prompt, right? Basically, you change your prompt on how to do job A and how to do job B, and then you do the whole thing again. So it's really like a pipeline of language where in self-graded descent, you have something like text reasoning to replace those gradient descent algorithms. I think that's one way to think of reflection.
+
+Harrison [00:16:47]: One question I have about reflection is how general do you think the algorithm there is? And so for context, I think at LangChain and at other places as well, we found it pretty easy to implement React in a standard way. You plug in any tools and it kind of works off the shelf, can get it up and running. I don't think we have an off-the-shelf kind of implementation of reflection and kind of the general sense. I think the concepts, absolutely, we see used in different kind of specific cognitive architectures, but I don't think we have one that comes off the shelf. I don't think any of the other frameworks have one that comes off the shelf. And I'm curious whether that's because it's not general enough or it's complex as well, because it also requires running it more times.
+
+Swyx [00:17:28]: Maybe that's not feasible.
+
+Harrison [00:17:30]: I'm curious how you think about the generality, complexity. Should we have one that comes off the shelf?
+
+Shunyu [00:17:36]: I think the algorithm is general in the sense that it's just as general as other algorithms, if you think about policy grading or whatever, but it's not applicable to all tasks, just like other algorithms. So you can argue PPO is also general, but it works better for those set of tasks, but not on those set of tasks. I think it's the same situation for reflection. And I think a key bottleneck is the evaluator, right? Basically, you need to have a good sense of the signal. So for example, if you are trying to do a very hard reasoning task, say mathematics, for example, and you don't have any tools, you're operating in this chain of thought setup, then reflection will be pretty hard because in order to reflect upon your thoughts, you have to have a very good evaluator to judge whether your thought is good or not. But that might be as hard as solving the problem itself or even harder. The principle of self-reflection is probably more applicable if you have a good evaluator, for example, in the case of coding. If you have those arrows, then you can just reflect on that and how to solve the bug and
+
+Swyx [00:18:37]: stuff.
+
+Shunyu [00:18:38]: So I think another criteria is that it depends on the application, right? If you have this latency or whatever need for an actual application with an end-user, the end-user wouldn't let you do two hours of tree-of-thought or reflection, right? You need something as soon as possible. So in that case, maybe this is better to be used as a training time technique, right? You do those reflection or tree-of-thought or whatever, you get a lot of data, and then you try to use the data to train your model better. And then in test time, you still use something as simple as React, but that's already improved.
+
+Alessio [00:19:11]: And if you think of the Voyager paper as a way to store skills and then reuse them, how would you compare this reflective memory and at what point it's just ragging on the memory versus you want to start to fine-tune some of them or what's the next step once you get a very long reflective corpus? Yeah.
+
+Shunyu [00:19:30]: So I think there are two questions here. The first question is, what type of information or memory are you considering, right? Is it like semantic memory that stores knowledge about the word, or is it the episodic memory that stores trajectories or behaviors, or is it more of a procedural memory like in Voyager's case, like skills or code snippets that you can use to do actions, right?
+
+Swyx [00:19:54]: That's one dimension.
+
+Shunyu [00:19:55]: And the second dimension is obviously how you use the memory, either retrieving from it, using it in the context, or fine-tuning it. I think the Cognitive Architecture for Language Agents paper has a good categorization of all the different combinations. And of course, which way you use depends on the concrete application and the concrete need and the concrete task. But I think in general, it's good to think of those systematic dimensions and all the possible options there.
+
+Swyx [00:20:25]: Harrison also has in LangMEM, I think you did a presentation in my meetup, and I think you've done it at a couple other venues as well. User state, semantic memory, and append-only state, I think kind of maps to what you just said.
+
+Shunyu [00:20:38]: What is LangMEM? Can I give it like a quick...
+
+Harrison [00:20:40]: One of the modules of LangChain for a long time has been something around memory. And I think we're still obviously figuring out what that means, as is everyone kind of in the space. But one of the experiments that we did, and one of the proof of concepts that we did was, technically what it was is you would basically create threads, you'd push messages to those threads in the background, we process the data in a few ways. One, we put it into some semantic store, that's the semantic memory. And then two, we do some extraction and reasoning over the memories to extract. And we let the user define this, but extract key facts or anything that's of interest to the user. Those aren't exactly trajectories, they're maybe more closer to the procedural memory. Is that how you'd think about it or classify it?
+
+Shunyu [00:21:22]: Is it like about knowledge about the word, or is it more like how to do something?
+
+Swyx [00:21:27]: It's reflections, basically.
+
+Harrison [00:21:28]: So in generative worlds.
+
+Shunyu [00:21:30]: Generative agents.
+
+Swyx [00:21:31]: The Smallville. Yeah, the Smallville one.
+
+Harrison [00:21:33]: So the way that they had their memory there was they had the sequence of events, and that's kind of like the raw events that happened. But then every N events, they'd run some synthesis over those events for the LLM to insert its own memory, basically. It's that type of memory.
+
+Swyx [00:21:49]: I don't know how that would be classified.
+
+Shunyu [00:21:50]: I think of that as more of the semantic memory, but to be fair, I think it's just one way to think of that. But whether it's semantic memory or procedural memory or whatever memory, that's like an abstraction layer. But in terms of implementation, you can choose whatever implementation for whatever memory. So they're totally kind of orthogonal. I think it's more of a good way to think of the things, because from the history of cognitive science and cognitive architecture and how people study even neuroscience, that's the way people think of how the human brain organizes memory. And I think it's more useful as a way to think of things. But it's not like for semantic memory, you have to do this kind of way to retrieve or fine-tune, and for procedural memory, you have to do that. I think those are totally orthogonal kind of dimensions.
+
+Harrison [00:22:34]: How much background do you have in cognitive sciences, and how much do you model some of your thoughts on?
+
+Shunyu [00:22:40]: That's a great question, actually. I think one of the undergrad influences for my follow-up research is I was doing an internship at MIT's Computational Cognitive Science Lab with Josh Tannenbaum, and he's a very famous cognitive scientist. And I think a lot of his ideas still influence me today, like thinking of things in computational terms and getting interested in language and a lot of stuff, or even developing psychology kind of stuff. So I think it still influences me today.
+
+Swyx [00:23:14]: As a developer that tried out LangMEM, the way I view it is just it's a materialized view of a stream of logs. And if anything, that's just useful for context compression. I don't have to use the full context to run it over everything. But also it's kind of debuggable. If it's wrong, I can show it to the user, the user can manually fix it, and I can carry on. That's a really good analogy. I like that. I'm going to steal that. Sure. Please, please. You know I'm bullish on memory databases. I guess, Tree of Thoughts? Yeah, Tree of Thoughts.
+
+Shunyu [00:23:39]: I feel like I'm relieving the defense in like a podcast format. Yeah, no.
+
+Alessio [00:23:45]: I mean, you had a banger. Well, this is the one where you're already successful and we just highlight the glory. It was really good. You mentioned that since thinking is kind of like taking an action, you can use action searching algorithms to think of thinking. So just like you will use Tree Search to find the next thing. And the idea behind Tree of Thought is that you generate all these possible outcomes and then find the best tree to get to the end. Maybe back to the latency question, you can't really do that if you have to respond in real time. So what are maybe some of the most helpful use cases for things like this? Where have you seen people adopt it where the high latency is actually worth the wait?
+
+Shunyu [00:24:21]: For things that you don't care about latency, obviously. For example, if you're trying to do math, if you're just trying to come up with a proof. But I feel like one type of task is more about searching for a solution. You can try a hundred times, but if you find one solution, that's good. For example, if you're finding a math proof or if you're finding a good code to solve a problem or whatever, I think another type of task is more like reacting. For example, if you're doing customer service, you're like a web agent booking a ticket for an end user. Those are more reactive kind of tasks, or more real-time tasks. You have to do things fast. They might be easy, but you have to do it reliably. And you care more about can you solve 99% of the time out of a hundred. But for the type of search type of tasks, then you care more about can I find one solution out of a hundred. So it's kind of symmetric and different.
+
+Alessio [00:25:11]: Do you have any data or intuition from your user base? What's the split of these type of use cases? How many people are doing more reactive things and how many people are experimenting with deep, long search?
+
+Harrison [00:25:23]: I would say React's probably the most popular. I think there's aspects of reflection that get used. Tree of thought, probably the least so. There's a great tweet from Jason Wei, I think you're now a colleague, and he was talking about prompting strategies and how he thinks about them. And I think the four things that he had was, one, how easy is it to implement? How much compute does it take? How many tasks does it solve? And how much does it improve on those tasks? And I'd add a fifth, which is how likely is it to be relevant when the next generation of models come out? And I think if you look at those axes and then you look at React, reflection, tree of thought, it tracks that the ones that score better are used more. React is pretty easy to implement. Tree of thought's pretty hard to implement. The amount of compute, yeah, a lot more for tree of thought. The tasks and how much it improves, I don't have amazing visibility there. But I think if we're comparing React versus tree of thought, React just dominates the first two axes so much that my question around that was going to be like, how do you think about these prompting strategies, cognitive architectures, whatever you want to call them? When you're thinking of them, what are the axes that you're judging them on in your head when you're thinking whether it's a good one or a less good one?
+
+Swyx [00:26:38]: Right.
+
+Shunyu [00:26:39]: Right. I think there is a difference between a prompting method versus research, in the sense that for research, you don't really even care about does it actually work on practical tasks or does it help? Whatever. I think it's more about the idea or the principle, right? What is the direction that you're unblocking and whatever. And I think for an actual prompting method to solve a concrete problem, I would say simplicity is very important because the simpler it is, the less decision you have to make about it. And it's easier to design. It's easier to propagate. And it's easier to do stuff. So always try to be as simple as possible. And I think latency obviously is important. If you can do things fast and you don't want to do things slow. And I think in terms of the actual prompting method to use for a particular problem, I think we should all be in the minimalist kind of camp, right? You should try the minimum thing and see if it works. And if it doesn't work and there's absolute reason to add something, then you add something, right? If there's absolute reason that you need some tool, then you should add the tool thing. If there's absolute reason to add reflection or whatever, you should add that. Otherwise, if a chain of thought can already solve something, then you don't even need to use any of that.
+
+Harrison [00:27:57]: Yeah. Or if it's just better prompting can solve it. Like, you know, you could add a reflection step or you could make your instructions a little bit clearer.
+
+Swyx [00:28:03]: And it's a lot easier to do that.
+
+Shunyu [00:28:04]: I think another interesting thing is like, I personally have never done those kind of like weird tricks. I think all the prompts that I write are kind of like just talking to a human, right? It's like, I don't know. I never say something like, your grandma is dying and you have to solve it. I mean, those are cool, but I feel like we should all try to solve things in a very intuitive way. Just like talking to your co-worker. That should work 99% of the time. That's my personal take.
+
+Swyx [00:28:29]: The problem with how language models, at least in the GPC 3 era, was that they over-optimized to some sets of tokens in sequence. So like reading the Kojima et al. paper that was listing step-by-step, like he tried a bunch of them and they had wildly different results. It should not be the case, but it is the case. And hopefully we're getting better there.
+
+Shunyu [00:28:51]: Yeah. I think it's also like a timing thing in the sense that if you think about this whole line of language model, right? Like at the time it was just like a text generator. We don't have any idea how it's going to be used, right? And obviously at the time you will find all kinds of weird issues because it's not trained to do any of that, right? But then I think we have this loop where once we realize chain of thought is important or agent is important or tool using is important, what we see is today's language models are heavily optimized towards those things. So I think in some sense they become more reliable and robust over those use cases. And you don't need to do as much prompt engineering tricks anymore to solve those things. I feel like in some sense, I feel like prompt engineering even is like a slightly negative word at the time because it refers to all those kind of weird tricks that you have to apply. But I think we don't have to do that anymore. Like given today's progress, you should just be able to talk to like a coworker. And if you're clear and concrete and being reasonable, then it should do reasonable things for you.
+
+Swyx [00:29:51]: Yeah. The way I put this is you should not be a prompt engineer because it is the goal of the big labs to put you out of a job.
+
+Shunyu [00:29:58]: You should just be a good communicator. Like if you're a good communicator to humans, you should be a good communicator to language
+
+Swyx [00:30:02]: models.
+
+Harrison [00:30:03]: That's the key though, because oftentimes people aren't good communicators to these language models and that is a very important skill and that's still messing around with the prompt. And so it depends what you're talking about when you're saying prompt engineer.
+
+Shunyu [00:30:14]: But do you think it's like very correlated with like, are they like a good communicator to humans? You know, it's like.
+
+Harrison [00:30:20]: It may be, but I also think I would say on average, people are probably worse at communicating with language models than to humans right now, at least, because I think we're still figuring out how to do it. You kind of expect it to be magical and there's probably some correlation, but I'd say there's also just like, people are worse at it right now than talking to humans.
+
+Shunyu [00:30:36]: We should make it like a, you know, like an elementary school class or whatever, how to
+
+Swyx [00:30:41]: talk to language models. Yeah. I don't know. Very pro that. Yeah. Before we leave the topic of trees and searching, not specific about QSTAR, but there's a lot of questions about MCTS and this combination of tree search and language models. And I just had to get in a question there about how seriously should people take this?
+
+Shunyu [00:30:59]: Again, I think it depends on the tasks, right? So MCTS was magical for Go, but it's probably not as magical for robotics, right? So I think right now the problem is not even that we don't have good methodologies, it's more about we don't have good tasks. It's also very interesting, right? Because if you look at my citation, it's like, obviously the most cited are React, Refraction and Tree of Thought. Those are methodologies. But I think like equally important, if not more important line of my work is like benchmarks and environments, right? Like WebShop or SuiteVenture or whatever. And I think in general, what people do in academia that I think is not good is they choose a very simple task, like Alford, and then they apply overly complex methods to show they improve 2%. I think you should probably match the level of complexity of your task and your method. I feel like where tasks are kind of far behind the method in some sense, right? Because we have some good test-time approaches, like whatever, React or Refraction or Tree of Thought, or like there are many, many more complicated test-time methods afterwards. But on the benchmark side, we have made a lot of good progress this year, last year. But I think we still need more progress towards that, like better coding benchmark, better web agent benchmark, better agent benchmark, not even for web or code. I think in general, we need to catch up with tasks.
+
+Harrison [00:32:27]: What are the biggest reasons in your mind why it lags behind?
+
+Shunyu [00:32:31]: I think incentive is one big reason. Like if you see, you know, all the master paper are cited like a hundred times more than the task paper. And also making a good benchmark is actually quite hard. It's almost like a different set of skills in some sense, right? I feel like if you want to build a good benchmark, you need to be like a good kind of product manager kind of mindset, right? You need to think about why people should use your benchmark, why it's challenging, why it's useful. If you think about like a PhD going into like a school, right? The prior skill that expected to have is more about, you know, can they code this method and can they just run experiments and can solve that? I think building a benchmark is not the typical prior skill that we have, but I think things are getting better. I think more and more people are starting to build benchmarks and people are saying that it's like a way to get more impact in some sense, right? Because like if you have a really good benchmark, a lot of people are going to use it. But if you have a super complicated test time method, like it's very hard for people to use it.
+
+Harrison [00:33:35]: Are evaluation metrics also part of the reason? Like for some of these tasks that we might want to ask these agents or language models to do, is it hard to evaluate them? And so it's hard to get an automated benchmark. Obviously with SweetBench you can, and with coding, it's easier, but.
+
+Shunyu [00:33:50]: I think that's part of the skillset thing that I mentioned, because I feel like it's like a product manager because there are many dimensions and you need to strike a balance and it's really hard, right? If you want to make sense, very easy to autogradable, like automatically gradable, like either to grade or either to evaluate, then you might lose some of the realness or practicality. Or like it might be practical, but it might not be as scalable, right? For example, if you think about text game, human have pre-annotated all the rewards and all the language are real. So it's pretty good on autogradable dimension and the practical dimension. If you think about, you know, practical, like actual English being practical, but it's not scalable, right? It takes like a year for experts to build that game. So it's not really that scalable. And I think part of the reason that SweetBench is so popular now is it kind of hits the balance between these three dimensions, right? Easy to evaluate and being actually practical and being scalable. Like if I were to criticize upon some of my prior work, I think webshop, like it's my initial attempt to get into benchmark world and I'm trying to do a good job striking the balance. But obviously we make it all gradable and it's really scalable, but then I think the practicality is not as high as actually just using GitHub issues, right? Because you're just creating those like synthetic tasks.
+
+Harrison [00:35:13]: Are there other areas besides coding that jump to mind as being really good for being autogradable?
+
+Shunyu [00:35:20]: Maybe mathematics.
+
+Swyx [00:35:21]: Classic. Yeah. Do you have thoughts on alpha proof, the new DeepMind paper? I think it's pretty cool.
+
+Shunyu [00:35:29]: I think it's more of a, you know, it's more of like a confidence boost or like sometimes, you know, the work is not even about, you know, the technical details or the methodology that it chooses or the concrete results. I think it's more about a signal, right?
+
+Swyx [00:35:47]: Yeah. Existence proof. Yeah.
+
+Shunyu [00:35:50]: Yeah. It can be done. This direction is exciting. It kind of encourages people to work more towards that direction. I think it's more like a boost of confidence, I would say.
+
+Swyx [00:35:59]: Yeah. So we're going to focus more on agents now and, you know, all of us have a special interest in coding agents. I would consider Devin to be the sort of biggest launch of the year as far as AI startups go. And you guys in the Princeton group worked on Suiagents alongside of Suibench. Tell us the story about Suiagent. Sure.
+
+Shunyu [00:36:21]: I think it's kind of like a triology, it's actually a series of three works now. So actually the first work is called Intercode, but it's not as famous, I know. And the second work is called Suibench and the third work is called Suiagent. And I'm just really confused why nobody is working on coding. You know, it's like a year ago, but I mean, not everybody's working on coding, obviously, but a year ago, like literally nobody was working on coding. I was really confused. And the people that were working on coding are, you know, trying to solve human evil in like a sick-to-sick way. There's no agent, there's no chain of thought, there's no anything, they're just, you know, fine tuning the model and improve some points and whatever, like, I was really confused because obviously coding is the best application for agents because it's autogradable, it's super important, you can make everything like API or code action, right? So I was confused and I collaborated with some of the students in Princeton and we have this work called Intercode and the idea is, first, if you care about coding, then you should solve coding in an interactive way, meaning more like a Jupyter Notebook kind of way than just writing a program and seeing if it fails or succeeds and stop, right? You should solve it in an interactive way because that's exactly how humans solve it, right? You don't have to, you know, write a program like next token, next token, next token and stop and never do any edits and you cannot really use any terminal or whatever tool. It doesn't make sense, right? And that's the way people are solving coding at the time, basically like sampling a program from a language model without chain of thought, without tool call, without refactoring, without anything. So the first point is we should solve coding in a very interactive way and that's a very general principle that applies for various coding benchmarks. And also, I think you can make a lot of the agent task kind of like interactive coding. If you have Python and you can call any package, then you can literally also browse internet or do whatever you want, like control a robot or whatever. So that seems to be a very general paradigm. But obviously I think a bottleneck is at the time we're still doing, you know, very simple tasks like human eval or whatever coding benchmark people proposed. They were super hard in 2021, like 20%, but they're like 95% already in 2023. So obviously the next step is we need a better benchmark. And Carlos and John, which are the first authors of Swaybench, I think they come up with this great idea that we should just script GitHub and solve whatever human engineers are solving. And I think it's actually pretty easy to come up with the idea. And I think in the first week, they already made a lot of progress. They script the GitHub and they make all the same, but then there's a lot of painful info work and whatever, you know. I think the idea is super easy, but the engineering is super hard. And I feel like that's a very typical signal of a good work in the AI era now.
+
+Swyx [00:39:17]: I think also, I think the filtering was challenging, because if you look at open source PRs, a lot of them are just like, you know, fixing typos. I think it's challenging.
+
+Shunyu [00:39:27]: And to be honest, we didn't do a perfect job at the time. So if you look at the recent blog post with OpenAI, we improved the filtering so that it's more solvable.
+
+Swyx [00:39:36]: I think OpenAI was just like, look, this is a thing now. We have to fix this. These students just rushed it.
+
+Shunyu [00:39:45]: It's a good convergence of interests for me.
+
+Alessio [00:39:48]: Was that tied to you joining OpenAI? Or was that just unrelated?
+
+Shunyu [00:39:52]: It's a coincidence for me, but it's a good coincidence.
+
+Swyx [00:39:55]: There is a history of anytime a big lab adopts a benchmark, they fix it. Otherwise, it's a broken benchmark.
+
+Shunyu [00:40:03]: So naturally, once we propose swimmage, the next step is to solve it. But I think the typical way you solve something now is you collect some training samples, or you design some complicated agent method, and then you try to solve it. Either super complicated prompt, or you build a better model with more training data. But I think at the time, we realized that even before those things, there's a fundamental problem with the interface or the tool that you're supposed to use. Because that's like an ignored problem in some sense. What your tool is, or how that matters for your task. So what we found concretely is that if you just use the text terminal off the shelf as a tool for those agents, there's a lot of problems. For example, if you edit something, there's no feedback. So you don't know whether your edit is good or not. That makes the agent very confused and makes a lot of mistakes. There are a lot of small problems, you would say. Well, you can try to do prompt engineering and improve that, but it turns out to be actually very hard. We realized that the interface design is actually a very omitted part of agent design. So we did this switch agent work. And the key idea is just, even before you talk about what the agent is, you should talk about what the environment is. You should make sure that the environment is actually friendly to whatever agent you're trying to apply. That's the same idea for humans. Text terminal is good for some tasks, like git, pool, or whatever. But it's not good if you want to look at browser and whatever. Also, browser is a good tool for some tasks, but it's not a good tool for other tasks. We need to talk about how design interface, in some sense, where we should treat agents as our customers. It's like when we treat humans as a customer, we design human computer interfaces. We design those beautiful desktops or browsers or whatever, so that it's very intuitive and easy for humans to use. And this whole great subject of HCI is all about that. I think now the research idea of switch agent is just, we should treat agents as our customers. And we should do like, you know… AICI.
+
+Swyx [00:42:16]: AICI, exactly.
+
+Harrison [00:42:18]: So what are the tools that a suite agent should have, or a coding agent in general should have?
+
+Shunyu [00:42:24]: For suite agent, it's like a modified text terminal, which kind of adapts to a lot of the patterns of language models to make it easier for language models to use. For example, now for edit, instead of having no feedback, it will actually have a feedback of, you know, actually here you introduced like a syntax error, and you should probably want to fix that, and there's an ended error there. And that makes it super easy for the model to actually do that. And there's other small things, like how exactly you write arguments, right? Like, do you want to write like a multi-line edit, or do you want to write a single line edit? I think it's more interesting to think about the way of the development process of an ACI rather than the actual ACI for like a concrete application. Because I think the general paradigm is very similar to HCI and psychology, right? Basically, for how people develop HCIs, they do behavior experiments on humans, right? I do every test, right? Like, which interface is actually better? And I do those behavior experiments, kind of like psychology experiments to humans, and I change things. And I think what's really interesting for me, for this three-agent paper, is we can probably do the same thing for agents, right? We can do every test for those agents and do behavior tests. And through the process, we not only invent better interfaces for those agents, that's the practical value, but we also better understand agents. Just like when we do those A-B tests, we do those HCI, we better understand humans. Doing those ACI experiments, we actually better understand agents. And that's pretty cool.
+
+Harrison [00:43:51]: Besides that A-B testing, what are other processes that people can use to think about this in a good way?
+
+Swyx [00:43:57]: That's a great question.
+
+Shunyu [00:43:58]: And I think three-agent is an initial work. And what we do is the kind of the naive approach, right? You just try some interface, and you see what's going wrong, and then you try to fix that. We do this kind of iterative fixing. But I think what's really interesting is there'll be a lot of future directions that's very promising if we can apply some of the HCI principles more systematically into the interface design. I think that would be a very cool interdisciplinary research opportunity.
+
+Harrison [00:44:26]: You talked a lot about agent-computer interfaces and interactions. What about human-to-agent UX patterns? Curious for any thoughts there that you might have.
+
+Swyx [00:44:38]: That's a great question.
+
+Shunyu [00:44:39]: And in some sense, I feel like prompt engineering is about human-to-agent interface. But I think there can be a lot of interesting research done about... So prompting is about how humans can better communicate with the agent. But I think there could be interesting research on how agents can better communicate with humans, right? When to ask questions, how to ask questions, what's the frequency of asking questions. And I think those kinds of stuff could be very cool research.
+
+Harrison [00:45:07]: Yeah, I think some of the most interesting stuff that I saw here was also related to coding with Devin from Cognition. And they had the three or four different panels where you had the chat, the browser, the terminal, and I guess the code editor as well.
+
+Swyx [00:45:19]: There's more now.
+
+Harrison [00:45:19]: There's more. Okay, I'm not up to date. Yeah, I think they also did a good job on ACI.
+
+Swyx [00:45:25]: I think that's the main learning I have from Devin. They cracked that. Actually, there was no foundational planning breakthrough. The planner is actually pretty simple, but ACI that they broke through on.
+
+Shunyu [00:45:35]: I think making the tool good and reliable is probably like 90% of the whole agent. Once the tool is actually good, then the agent design can be much, much simpler. On the other hand, if the tool is bad, then no matter how much you put into the agent design, planning or search or whatever, it's still going to be trash.
+
+Harrison [00:45:53]: Yeah, I'd argue the same. Same with like context and instructions. Like, yeah, go hand in hand.
+
+Alessio [00:46:00]: On the tool, how do you think about the tension of like, for both of you, I mean, you're building a library, so even more for you. The tension between making now a language or a library that is like easy for the agent to grasp and write versus one that is easy for like the human to grasp and write. Because, you know, the trend is like more and more code gets written by the agent. So why wouldn't you optimize the framework to be as easy as possible for the model versus for the person?
+
+Swyx [00:46:24]: I think it's possible to design an interface
+
+Shunyu [00:46:25]: that's both friendly to humans and agents. But what do you think?
+
+Harrison [00:46:29]: We haven't thought about that from the perspective, like we're not trying to design LangChain or LangGraph to be friendly. But I mean, I think to be friendly for agents to write.
+
+Swyx [00:46:42]: But I mean, I think we see this with like,
+
+Harrison [00:46:43]: I saw some paper that used TypeScript notation instead of JSON notation for tool calling and it got a lot better performance. So it's definitely a thing. I haven't really heard of anyone designing like a syntax or a language explicitly for agents, but there's clearly syntaxes that are better.
+
+Shunyu [00:46:59]: I think function calling is a good example where it's like a good interface for both human programmers and for agents, right? Like for developers, it's actually a very friendly interface because it's very concrete and you don't have to do prompt engineering anymore. You can be very systematic. And for models, it's also pretty good, right? Like it can use all the existing coding content. So I think we need more of those kinds of designs.
+
+Swyx [00:47:21]: I will mostly agree and I'll slightly disagree in terms of this, which is like, whether designing for humans also overlaps with designing for AI. So Malte Ubo, who's the CTO of Vercel, who is creating basically JavaScript's competitor to LangChain, they're observing that basically, like if the API is easy to understand for humans, it's actually much easier to understand for LLMs, for example, because they're not overloaded functions. They don't behave differently under different contexts. They do one thing and they always work the same way. It's easy for humans, it's easy for LLMs. And like that makes a lot of sense. And obviously adding types is another one. Like type annotations only help give extra context, which is really great. So that's the agreement. And then a disagreement is that when I use structured output to do my chain of thought, I have found that I change my field names to hint to the LLM of what the field is supposed to do. So instead of saying topics, I'll say candidate topics. And that gives me a better result because the LLM was like, ah, this is just a draft thing I can use for chain of thought. And instead of like summaries, I'll say topic summaries to link the previous field to the current field. So like little stuff like that, I find myself optimizing for the LLM where I, as a human, would never do that. Interesting.
+
+Shunyu [00:48:32]: It's kind of like the way you optimize the prompt, it might be different for humans and for machines. You can have a common ground that's both clear for humans and agents, but to improve the human performance versus improving the agent performance, they might move to different directions.
+
+Swyx [00:48:48]: Might move different directions. There's a lot more use of metadata as well, like descriptions, comments, code comments, annotations and stuff like that. Yeah.
+
+Harrison [00:48:56]: I would argue that's just you communicating
+
+Swyx [00:48:58]: to the agent what it should do.
+
+Harrison [00:49:00]: And maybe you need to communicate a little bit more than to humans because models aren't quite good enough yet.
+
+Swyx [00:49:06]: But like, I don't think that's crazy.
+
+Harrison [00:49:07]: I don't think that's like- It's not crazy.
+
+Swyx [00:49:09]: I will bring this in because it just happened to me yesterday. I was at the cursor office. They held their first user meetup and I was telling them about the LLM OS concept and why basically every interface, every tool was being redesigned for AIs to use rather than humans. And they're like, why? Like, can we just use Bing and Google for LLM search? Why must I use Exa? Or what's the other one that you guys work with?
+
+Harrison [00:49:32]: Tavilli.
+
+Swyx [00:49:33]: Tavilli. Web Search API dedicated for LLMs. What's the difference?
+
+Shunyu [00:49:36]: Exactly. To Bing API.
+
+Swyx [00:49:38]: Exactly.
+
+Harrison [00:49:38]: There weren't great APIs for search. Like the best one, like the one that we used initially in LangChain was SERP API, which is like maybe illegal. I'm not sure.
+
+Swyx [00:49:49]: And like, you know,
+
+Harrison [00:49:52]: and now there are like venture-backed companies.
+
+Swyx [00:49:53]: Shout out to DuckDuckGo, which is free.
+
+Harrison [00:49:55]: Yes, yes.
+
+Swyx [00:49:56]: Yeah.
+
+Harrison [00:49:56]: I do think there are some differences though. I think you want, like, I think generally these APIs try to return small amounts of text information, clear legible field. It's not a massive JSON blob. And I think that matters. I think like when you talk about designing tools, it's not only the, it's the interface in the entirety, not only the inputs, but also the outputs that really matter. And so I think they try to make the outputs.
+
+Shunyu [00:50:18]: They're doing ACI.
+
+Swyx [00:50:19]: Yeah, yeah, absolutely.
+
+Harrison [00:50:20]: Really?
+
+Swyx [00:50:21]: Like there's a whole set of industries that are just being redone for ACI. It's weird. And so my simple answer to them was like the error messages. When you give error messages, they should be basically prompts for the LLM to take and then self-correct. Then your error messages get more verbose, actually, than you normally would with a human. Stuff like that. Like a little, honestly, it's not that big. Again, like, is this worth a venture-backed industry? Unless you can tell us. But like, I think Code Interpreter, I think is a new thing. I hope so.
+
+Alessio [00:50:52]: We invested in it to be so.
+
+Shunyu [00:50:53]: I think that's a very interesting point. You're trying to optimize to the extreme, then obviously they're going to be different. For example, the error—
+
+Swyx [00:51:00]: Because we take it very seriously. Right.
+
+Shunyu [00:51:01]: The error for like language model, the longer the better. But for humans, that will make them very nervous and very tired, right? But I guess the point is more like, maybe we should try to find a co-optimized common ground as much as possible. And then if we have divergence, then we should try to diverge. But it's more philosophical now.
+
+Alessio [00:51:19]: But I think like part of it is like how you use it. So Google invented the PageRank because ideally you only click on one link, you know, like the top three should have the answer. But with models, it's like, well, you can get 20. So those searches are more like semantic grouping in a way. It's like for this query, I'll return you like 20, 30 things that are kind of good, you know? So it's less about ranking and it's more about grouping.
+
+Shunyu [00:51:42]: Another fundamental thing about HCI is the difference between human and machine's kind of memory limit, right? So I think what's really interesting about this concept HCI versus HCI is interfaces that's optimized for them. You can kind of understand some of the fundamental characteristics, differences of humans and machines, right? Why, you know, if you look at find or whatever terminal command, you know, you can only look at one thing at a time or that's because we have a very small working memory. You can only deal with one thing at a time. You can only look at one paragraph of text at the same time. So the interface for us is by design, you know, a small piece of information, but more temporal steps. But for machines, that should be the opposite, right? You should just give them a hundred different results and they should just decide in context what's the most relevant stuff and trade off the context for temporal steps. That's actually also better for language models because like the cost is smaller or whatever. So it's interesting to connect those interfaces to the fundamental kind of differences of those.
+
+Harrison [00:52:43]: When you said earlier, you know, we should try to design these to maybe be similar as possible and diverge if we need to.
+
+Swyx [00:52:49]: I actually don't have a problem with them diverging now
+
+Harrison [00:52:51]: and seeing venture-backed startups emerging now because we are different from machines code AI. And it's just so early on, like they may still look kind of similar and they may still be small differences, but it's still just so early. And I think we'll only discover more ways that they differ. And so I'm totally fine with them kind of like diverging early
+
+Swyx [00:53:10]: and optimizing for the...
+
+Harrison [00:53:11]: I agree. I think it's more like, you know,
+
+Shunyu [00:53:14]: we should obviously try to optimize human interface just for humans. We're already doing that for 50 years. We should optimize agent interface just for agents, but we might also try to co-optimize both and see how far we can get. There's enough people to try all three directions. Yeah.
+
+Swyx [00:53:31]: There's a thesis I sometimes push, which is the sour lesson as opposed to the bitter lesson, which we're always inspired by human development, but actually AI develops its own path.
+
+Shunyu [00:53:40]: Right. We need to understand better, you know, what are the fundamental differences between those creatures.
+
+Swyx [00:53:45]: It's funny when really early on this pod, you were like, how much grounding do you have in cognitive development and human brain stuff? And I'm like, maybe that doesn't matter. And actually, so in my original agents blog posts, I had a picture of the human brain, and now it looks a lot more like a CPU. Canonical picture of the LLMOS is kind of like a CPU with all the input and output going into it. And I think that that's probably the more scalable system.
+
+Shunyu [00:54:10]: I think the problem with a lot of cognitive scientists is that... They think by analogy, right? They think, you know, the only way to solve intelligence is through the human way. And therefore they like have a lot of critics for whatever things that are not cognitive or human. But I think a more useful way to use those knowledge is to think of that as just a reference point. I don't think we should copy exactly what's going on with humans all the way, but I think it's good to have a reference point because this is a working example of how intelligence works. Yeah. And if you know all the knowledge and you compare them, I think that actually establishes more interesting insights as opposed to just copying that, or not copying that, or opposing that. I think comparing is the way to go.
+
+Swyx [00:54:53]: I feel like this is an unanswerable question, but I'll just put it out there anyway. If we can answer this, I think it'll be worth a lot, which is, can we separate intelligence from knowledge?
+
+Shunyu [00:55:01]: That's a very deep question, actually. And to have a little history background, I think that's really the key thesis at the beginning of AI. If you think about Neville and Simon and all those symbolic AI people, basically, they're trying to create intelligence by writing down all the knowledge. For example, they write a checker program, basically, how you will solve the checker. You write down all the knowledge and then implement that. I think the whole thesis of symbolic AI is, we should just be able to write down all the knowledge, and that just creates intelligence, but that kind of fails. And I think, really, a great quote from Hinton is, I think there are two approaches to intelligence. One approach is, let's deal with reasoning or thinking or knowledge, whatever you call that, and then let's worry about learning later. The other approach is, let's deal with learning first, and then let's worry about whatever, knowledge or reasoning or thinking later. And it turns out, right now, at least, the second approach works, and the first approach doesn't work. And I think there might be something deep about it. Does that answer your question?
+
+Swyx [00:56:08]: Partially. I think Apple Intelligence might change that. Can you explain? If this year is the year of multi-modal models, next year is on-device year, and Apple Intelligence basically has hot-swappable capabilities, right? They have 50 Loras that they swap onto a base model that does different tasks. And that's the first instance that we have of the separation of intelligence and knowledge. And I think that's a really interesting approach. Obviously, it's not exactly knowledge. It's just more styles. Context.
+
+Shunyu [00:56:37]: Yeah, it's more about context.
+
+Swyx [00:56:38]: So it's like, you can have the same model
+
+Shunyu [00:56:40]: deployed to 10 million phones with 10 million contacts, and see if...
+
+Swyx [00:56:44]: For on-device deployment, I think it's super important. Like, if you can boil out... Like, I actually have most of my problems with AI news when the model thinks it knows more than it knows because it combines knowledge with intelligence. I want it to have zero knowledge whatsoever, and it only has the ability to parse the things I tell it.
+
+Shunyu [00:57:00]: I kind of get what you mean. I feel like it's more like memorization versus kind of just generalization in some sense. Yeah, raw ability to understand things. You don't want it to know facts like who is the president of the United States. They should be able to just call the internet and use a tool to solve it.
+
+Swyx [00:57:15]: Yes, right. Because otherwise, it's not going to call the tool if it thinks it knows.
+
+Shunyu [00:57:19]: I kind of get what you mean. I think it's... That's why it's valuable. Okay, so if that's the case, I guess my point is, I don't think it's possible to fully separate them because those kinds of intelligence kind of emerges. Even for humans, you can't just operate in an intelligent mode without knowledge, right? Throughout the years, you learn how to do things and what things are, and it's very hard to separate those things. I would say, yeah.
+
+Swyx [00:57:45]: But what if we could? As a meta strategy, I'm trying to keep a stack-ranked list of what are the 10 most valuable questions.
+
+Shunyu [00:57:55]: You can think of knowledge as a cache of intelligence in some sense. Like if you have like wikihow.com saying that you should tie a shoelace using the following stuff, you can think of that piece of text as like a cache to intelligence. Right.
+
+Alessio [00:58:13]: I guess that's kind of like reflection anyway, right? It's like you're storing these things as memory and then you put them back. So without the knowledge, you wouldn't have the intelligence to do it better. Right.
+
+Swyx [00:58:23]: I had a couple of things.
+
+Alessio [00:58:24]: So we had Thomas Shalom from Meta to talk about Llama 3.1. Then he started talking about Llama 4.
+
+Swyx [00:58:30]: Yeah, he was like, whoa, okay.
+
+Alessio [00:58:33]: And he said it's going to be like really focused on agents. I know you talked before about, you know, it's next token prediction enough to get to like problem solving. If you say you got the perfect environment, they got the terminal, they got everything. And if you were to now move down to the model level and say, I need to make a model that is better for like a genetic workflow,
+
+Swyx [00:58:52]: where would you start?
+
+Shunyu [00:58:53]: I think it's data. I think it's data because like changing architecture now is too hard and we don't have a good, better alternative solution now. I think it's mostly about data and agent data is obviously hard because people just write down the final result on the internet. They don't write down how they, like step by step, how they do this thing on the internet, right? So naturally it's easier for models to learn chain of thought than tool call or whatever, agent self-reflection or search, right? Like even if you do a search, you won't write down all the search processes
+
+Swyx [00:59:24]: on the internet.
+
+Shunyu [00:59:24]: You would just write down the final result. And I think it's a great thing that Llama4 is going to be more towards agents. That means, I mean, that should mean a lot for a lot of people.
+
+Swyx [00:59:35]: In terms of data,
+
+Harrison [00:59:36]: you think the right data looks like trajectories basically of a React agent or of...
+
+Swyx [00:59:43]: Yeah, I mean,
+
+Shunyu [00:59:44]: I have a paper called FireAct. Do you still remember?
+
+Swyx [00:59:47]: No. Okay. Tell us. Okay.
+
+Shunyu [00:59:49]: That's one of the not famous paper, I guess.
+
+Swyx [00:59:52]: It's not even on your website.
+
+Alessio [00:59:53]: How are we supposed to find it?
+
+Swyx [00:59:55]: It's on this Google Scholar. I've got it pulled up. Okay.
+
+Shunyu [00:59:58]: It's not... It's been rejected for like a couple of times.
+
+Alessio [01:00:03]: But now it's online in space. Yeah, everybody will find it.
+
+Shunyu [01:00:05]: Anyway, I think the idea is very simple. Like you can try a lot of different agent methods, right? React, chain of thought, reflection, whatever. And the idea is very simple. You just have very diverse data, like tasks, and you try very diverse agent methods, and you filter all the correct solutions and you train a model on all of that. And then the benefit is that you should somehow learn, you know, how to use simpler methods for simpler tasks and harder methods for harder tasks. I guess the problem is we don't have diverse high quality tasks. That's the bottleneck for it.
+
+Harrison [01:00:35]: So it's going to be trained on all code.
+
+Shunyu [01:00:36]: Yeah, let's hope we have more better benchmarks.
+
+Alessio [01:00:39]: In school, that kind of pissed me off a little bit. When you're doing like a homework exercises for like calculus, like they give you the problem, then they give you the solution. But there's no way without the professor or the TA to get like the steps to actually how you got there. And so I feel like because of how schools are structured, we never brought this thing down. But I feel like if you went to every university and it's like, write down step-by-step the solution to every single problem in the set and make it available online, that's a start to make this dataset better.
+
+Shunyu [01:01:06]: I think it's also because,
+
+Swyx [01:01:08]: you know,
+
+Shunyu [01:01:08]: it might be hard for you to write down your chain of thought, even when you're solving the same, because part of that is conscious in language, but maybe even part of that is not in language. And okay, so a funny side story. So when I wrote down the React thing, I was telling to my Google manager, like, you know what we should do? We should just hire, you know, as many people as possible and let them use Google and write down exactly what they think, what they search on the internet. And we train them all on that. But I think it's non-trivial to write down your thoughts. Like if you're not trained to do that, if I tell you like, okay, write down what you're thinking right now, it's actually not as trivial a task as you might imagine.
+
+Swyx [01:01:48]: It might be more of a diffusion process than the autoregressive process.
+
+Alessio [01:01:52]: But I think the problem is starting with the experts, you know, because there's so much like muscle memory and what you do once you've done it for so long. That's why we need to like get everybody to do it. And then you can see like- Separate knowledge and intelligence.
+
+Shunyu [01:02:06]: The simplest way to achieve AGI is literally just record the reaction of every human being and just put them together, you know? Like, what do you have thought about?
+
+Swyx [01:02:16]: Yeah.
+
+Shunyu [01:02:16]: What do you have done? Let's say on the computer, right? Imagine like a thought experiment. Like you write down literally everything you think about and everything you do on the computer and you record them and you train on all the successful trajectories by some metric of success. I think that should just lead us to AGI.
+
+Swyx [01:02:33]: My first work of fiction in like 10 years was exploring that idea. What if you recorded everything and uploaded yourself? I'm pretty science-based, like, you know, but probably the most like spiritual woo-woo thing about me is I don't think that would lead to consciousness or AGI just because like there's something in- there's a soul, you know? That is the unspeakable quality of- Let's say it emerges through skill. We can simulate that for sure.
+
+Harrison [01:02:58]: What do you think about the role of few-shot prompting for some of these like agent trajectories? That was a big part of the original React paper, I think. And as we talk about showing your work
+
+Swyx [01:03:09]: and how you think like-
+
+Harrison [01:03:09]: I feel like it's becoming less used
+
+Shunyu [01:03:12]: than zero-shot prompting. What's your observation?
+
+Harrison [01:03:15]: I'm pretty bullish on it, to be honest. For a few reasons, like one, I think it can maybe help for more complex things. But then also two, like, it's a form of prompting and prompting is just communicating with the model what you want it to do. And sometimes it's easier to just show the model what you want it to do than write out detailed kind of like instructions.
+
+Shunyu [01:03:31]: I think the practical reason it has become less used is because the agent kind of scaffold become more complex or the task you're trying to solve is becoming more complex. It's harder to annotate a few-shot examples, right? Like in the Chain of Thought era, she just write down three lines of things. It's very easy to write down a few-shot or whatever. But I feel like annotation difficulty has become harder.
+
+Harrison [01:03:53]: I think also one of the reasons that I'm bullish on it is because I think it's a really good way to achieve kind of like personalization. Like if you can collect this through feedback automatically, you can then use that in the system at a user level or something like that. Again, the issue with that is more complex things that doesn't really work.
+
+Shunyu [01:04:08]: It's probably more useful as like an automatic prompt, right? If you have some way to retrieve examples and put it in like automatic pipeline to prompt. But I feel like if you're manually writing now, I feel like more people will try to use zero-shot.
+
+Swyx [01:04:22]: Yeah, but if you're doing a consumer product,
+
+Harrison [01:04:24]: you're probably not going to ask user-facing people to write a prompt or something like that. But I think the thing that you brought up is also really relevant here where you can collect feedback from a user, but it's usually at the top level. And so then if you have three or four or five or however many LLM calls down below, how do you disperse that feedback to those? And I don't have an answer for that.
+
+Alessio [01:04:45]: There's another super popular paper that you authored called Koala, Cognitive Architectures for Language Agents. I'm not sure if it's super popular.
+
+Shunyu [01:04:52]: Well, I think I hear it.
+
+Swyx [01:04:54]: People speak highly of it here within my circles. So shout out to Charles Fry who told me about it.
+
+Harrison [01:04:59]: I think that was our most popular webinar we did on LinkedIn.
+
+Shunyu [01:05:02]: I think Harrison promoted the paper a lot, thanks to him.
+
+Swyx [01:05:06]: I'll read what you wrote in here and then you can just kind of go take it wherever. Koala organizes agents along three key dimensions. They're information storage, divided into working and long-term memories. They're action space, divided into internal and external actions. And they're decision-making procedure, which is structured as an interactive loop with planning and execution. By the way, I think your communication is very clear. So kudos on how you do these things. Take us through the sort of three components. And you also have like this development diagram, which I think is really cool. I think it's figure one on your paper for people reading along. Normally people have input, LLM, output. Then they develop into, all right, language agents that takes an action into environments and has observations. And then they go into this Koala architecture.
+
+Shunyu [01:05:46]: Shout out to my co-first author, Ted, who made figure one.
+
+Swyx [01:05:51]: Yeah.
+
+Shunyu [01:05:51]: It's like, you know, figure is really good. You don't even need a color. You just, exactly. One of the motivation of Koala is we're seeing those agents become really complicated.
+
+Swyx [01:06:01]: I think my personal philosophy
+
+Shunyu [01:06:02]: is try to make things as simple as possible. But obviously this field has become more complex as a whole. And it's very hard to understand what's going on. And I think Koala provides a very good way to understand things in terms of those three dimensions. And I think they're pretty first principle because I think this idea of memory is pretty first principle. If you think about where memory, where information is stored. And you can even think of the ways of neural network as some kind of non-memory because that's also part of the information is stored. I think a very first principle way of thinking of agents is pretty much just a neural network plus the code to call and use the neural network. Obviously also maybe plus some vector store or whatever other memory modules, right? And thinking through that, then you immediately realize is that the kind of the non-term memory or the persistent information is first the neural network. And second, the code associated with the agent that calls the neural network and maybe also some other vector stores. But then there's obviously another kind of storage of information that's shorter horizon, right? Which is the context window or whatever episode that people are using. Like you're trying to solve this task, the information happens there. But once this task is solved, the information is gone, right? So I think it's very systematic and first principle to think about where information is and thinking, organizing them through categories and time horizon, right? So once you have those information stores, then obviously for agent, the next thing is what kind of action can you do? And that leads to the concept of action space, right? And I think one of the fundamental difference between language agents and the previous agents is that for traditional agents, if you think about Atari or video game, they only have like a predefined action space
+
+Swyx [01:07:49]: by the environment.
+
+Shunyu [01:07:49]: They only have external actions, right? Because they don't have complicated memory or information and kind of devices to do internal thinking. I think the contribution of React is just to point out that we can also have internal actions called thinking. And obviously if you have long-term memory, then you also have retrieval or writing or whatever. And then third, once you have those actions, which action should you do? That's the problem of decision-making. And the three parts should just fully describe an agent.
+
+Swyx [01:08:17]: We solved it. We have defined agents. Yeah, it's done. Does anything that you normally say about agents not fit in that framework? Because you also get asked this question a lot.
+
+Harrison [01:08:28]: I think it's very aligned. If we think about a lot of the stuff we do, I'm just thinking out loud now, but a lot of the stuff we do on agents now is through Langraff. Langraff, we would view as kind of the code part of what defines some of these things.
+
+Shunyu [01:08:41]: It also defines part of the decision-making. Decision procedure.
+
+Swyx [01:08:44]: That's what I was thinking, actually.
+
+Harrison [01:08:46]: And actually one analogy that I like there is some of the code and part of Langraff. And I'm actually curious what you think about this. But sometimes I say that the LLMs aren't great at planning yet, so we can help them plan by telling them how to plan and code, because that's very explicit. And that's a good way of communicating how they should plan and stuff like that.
+
+Shunyu [01:09:05]: What do you mean by that? Give them a DFS algorithm?
+
+Harrison [01:09:08]: No, something much simpler. You could tell an agent in a prompt, hey, every time you do this, you need to also do this and make sure to check this. Or you could just put those as explicit checks in the decision-making procedure
+
+Swyx [01:09:19]: or something like that.
+
+Harrison [01:09:21]: And the more complex it gets, I think the more we see people encoding that in code. And another way that I say this is, all of life really is communication, right? So you can do that through prompts or you can do that through code. And code's great at communicating things.
+
+Swyx [01:09:34]: It really is.
+
+Shunyu [01:09:35]: Is this the most philosophical solution that we've ever had?
+
+Swyx [01:09:37]: Okay, this is great.
+
+Shunyu [01:09:38]: That's good, that's good.
+
+Swyx [01:09:40]: We're talking about agents, you know?
+
+Harrison [01:09:42]: I think the biggest thing that we're thinking a lot about is just the memory component. And we touched on it a little bit earlier in the episode, but I think it's still very unsolved. I think clearly semantic memory, episodic memory, or types of memory, I think, but where the boundaries are,
+
+Swyx [01:09:57]: are there other types,
+
+Harrison [01:09:58]: how to think about that. I think that to me is maybe one of the bigger unsolved things in terms of agents is just memory. Like what does memory even mean? That's another top high value question.
+
+Swyx [01:10:08]: Is it a knowledge graph?
+
+Shunyu [01:10:12]: I think that's one type of memory.
+
+Swyx [01:10:14]: Yeah.
+
+Harrison [01:10:15]: If you're using a knowledge graph as a hammer to hit a nail, it's not that. But I think practically what we see is it's still so application specific what relevant memory is. And that also makes it really tough to answer generically, like what is memory? So it could be a knowledge graph. It could also be, I don't know,
+
+Swyx [01:10:33]: a list of instructions
+
+Harrison [01:10:34]: that you just keep in a list.
+
+Swyx [01:10:36]: Yeah.
+
+Shunyu [01:10:36]: A meta point is I feel sometimes we underestimate some aspects where humans and agents are actually similar, and we overestimate sometimes. The difference is, I feel like, I mean, one point I think that's shared by agents and humans is we all have very different types of memories, right? Some people use Google Docs. Some people use Notion. Some people use paper and pen. You can argue those are different types of long-term memories for people, right? And each person develops its own way to maintain their long-term memory and diary or whatever. It's a very kind of individual kind of thing. And I feel like for agents, probably there's no single best solution. But what we can do is we can create as many good tools as possible, like Google Docs or Notion, equivalent of agent memory. And we should just give the choice to the agent, like what do you want to use? And through learning, they should be able to come up with their own way to use the memory.
+
+Harrison [01:11:29]: Or give the choice to the developer who's building the agents. Because I think it also, that it might, it depends on the task. I think we want to control that one. Right now, I would agree with that for sure, because I think you need that level of control. I use linear for planning for code. I don't use that for my grocery list, right? Like depending on what I'm trying to do, I have different types of long-form memory.
+
+Swyx [01:11:49]: Maybe if you tried, you would have a gorgeous kitchen.
+
+Shunyu [01:11:52]: Do you think our tool making kind of progress is good or not good enough in terms of, you know, we have all sorts of different memory stores or retrieval methods or whatever?
+
+Swyx [01:12:03]: On the memory front in particular,
+
+Harrison [01:12:04]: I don't think it's very good. I think there's a lot to still be done.
+
+Shunyu [01:12:07]: What do you think are lacking?
+
+Swyx [01:12:09]: Yeah, you have a memory service. What's missing? The memory service we launched,
+
+Harrison [01:12:12]: I don't think really found product market fit. I think like, I mean,
+
+Swyx [01:12:16]: I think there's a bunch
+
+Harrison [01:12:16]: of different types of memory. I'll probably write a blog. I mean, I have a blog that I published at some point on this. But I think like right off the bat, there's like procedural memory, which is like how you do things. I think this is basically episodic memory, like trajectories of correct things.
+
+Swyx [01:12:30]: But there's also,
+
+Harrison [01:12:31]: then I think a very different type is like personalization. Like I like Italian food.
+
+Swyx [01:12:35]: It's kind of a semantic memory. That's kind of maybe like a system prompt. Yeah, exactly. Yeah, exactly.
+
+Harrison [01:12:40]: It could be a semantic. It depends if it's semantic over like raw events or over reflections over events.
+
+Shunyu [01:12:46]: Right. Again, a semantic procedure, whatever, is just like a categorization. What really matters is the implementation. And so one of the things
+
+Harrison [01:12:51]: that we'll probably have released by the time this podcast comes out is right now in LineGraph, LineGraph is very stateful. You define a state for your graph. And basically a run of an agent operates on a thread. It's very similar to threads in OpenAI's Assistant API. But you can define the state however you want.
+
+Swyx [01:13:07]: You can define whatever keys,
+
+Harrison [01:13:08]: whatever values you want. Right now, they're all persistent for a single thread. We're going to add the ability to persist that between threads. So then if you basically want to scope a memory to a user ID or to an assistant or to an organization,
+
+Swyx [01:13:21]: then you can do that.
+
+Harrison [01:13:22]: And practically what that means is you can write to that channel
+
+Swyx [01:13:25]: whatever you want,
+
+Harrison [01:13:25]: and then that can be read in other threads. We're not making any kind of claims around what the shape of memory is, right? You can write what you want there. I still think it's so early on
+
+Swyx [01:13:35]: and we see people needing
+
+Harrison [01:13:36]: a lot of control over that. And so I think this is our current best thought.
+
+Swyx [01:13:41]: This is what we're doing
+
+Harrison [01:13:41]: around memory at the moment
+
+Swyx [01:13:43]: is basically extending the state
+
+Harrison [01:13:45]: to beyond a thread level. I feel like there's a trade-off
+
+Shunyu [01:13:47]: between complexity and control, right? For example, Notion is more complex than Google Docs. But if you use it well, then it gives you more capability, right? And it's like a different tool might suit different applications or scenarios or whatever.
+
+Swyx [01:14:01]: Yeah.
+
+Shunyu [01:14:01]: We should make more good tools, I guess.
+
+Swyx [01:14:04]: My quick take is when I started writing about the AI engineer, this was kind of vaguely in my head. But this is basically the job. Everything outside the LLM is the AI engineer that the researcher is not going to do.
+
+Harrison [01:14:15]: This basically maps to LLM, LLMOS?
+
+Swyx [01:14:18]: I would add in the code interpreter, the browser and the other stuff. But yeah, this is mostly it. I mean, those are the tools. Yeah.
+
+Shunyu [01:14:27]: Those are the external environment, which is a small box at the bottom.
+
+Swyx [01:14:30]: So then having this reasonable level of confidence that I know what things are, then I want to break it. I want to be like, OK, what's coming up that's going to blindside me completely? And it really is maybe like OmniModel where everything in, everything out. And does that change anything? If you scale up models 100 times more, does that change anything?
+
+Shunyu [01:14:50]: That's actually a great, great question. I think that's actually the last paragraph of the paper that's talking about this. I also got asked this question when I was interviewing with OpenAI.
+
+Swyx [01:15:01]: Please tell us how to pass OpenAI interviews.
+
+Shunyu [01:15:05]: Is any of this still true if, you know...
+
+Swyx [01:15:08]: If you 100x everything, yeah.
+
+Shunyu [01:15:09]: If we make the model much better. My longer answer to this,
+
+Swyx [01:15:13]: you should just refer to
+
+Shunyu [01:15:13]: the last paragraph of the paper, which is like a more prepared, longer answer. I think the short answer is understanding is always better. It's like a way of understanding things. The thought experiment that I write at the end of the paper is, imagine you have GPT-10, which is really good. It doesn't even need a chain of thought, right? Just input, output. Just stick to stick, right? It doesn't even need to do browsing or whatever. Or maybe it still needs some tools. But let's say it's really powerful. Then I think, even in that point, I think something like Koala is still useful if we want to do some neuroscience on GPT-10. It's like kind of doing human kind of neuroscience, right? Which module actually correlates to-
+
+Swyx [01:15:51]: You want it to be inspectable. Yeah, like you want to expect
+
+Shunyu [01:15:53]: what is episodic memory? What is a decision-making module? What is the- It's kind of like dissecting the human brain, right? And you need some kind of prior kind of framework to help you do this kind of discovery.
+
+Swyx [01:16:05]: Cool.
+
+Alessio [01:16:05]: Just one thing I want to highlight from your work. We don't have to go into it. It's a Tau bench.
+
+Swyx [01:16:10]: Oh, yeah. Which-
+
+Shunyu [01:16:11]: We should definitely cover this.
+
+Alessio [01:16:12]: Yeah, I'm a big fan of Simulative AI. We had a summer of Simulative AI. Another term we're trying to coin.
+
+Swyx [01:16:17]: Hasn't stuck, but I'm going to keep at it.
+
+Shunyu [01:16:20]: I'm really glad you covered my zero citation work. I'm really happy.
+
+Swyx [01:16:23]: No, now it's one. Now it's one. First citation. It's me.
+
+Alessio [01:16:28]: It's me right now.
+
+Swyx [01:16:29]: We just cited it here.
+
+Alessio [01:16:30]: So that counts.
+
+Shunyu [01:16:31]: Does it show on Google Story?
+
+Alessio [01:16:33]: We'll write a paper about this episode.
+
+Swyx [01:16:35]: One citation. One citation. Let's go.
+
+Shunyu [01:16:38]: Last time I checked, it's still zero.
+
+Alessio [01:16:40]: It's awesome. Okay. This one was funny because you have agents interact with like LM simulated person. So it's like actually just another agent.
+
+Swyx [01:16:49]: Right. Right?
+
+Alessio [01:16:49]: So it's like agents simulating with other agents. This has always been my thing with startups doing agents. I'm like, one day there's going to be training grounds for companies to train agents that they hire. Actually, Singapore is the first country to build the cyber range for cyber attack training. And I think you'll see more of that. So what was the inspiration there? Most of these models are bad at it,
+
+Swyx [01:17:11]: which is great.
+
+Alessio [01:17:11]: You know, we have some room for, I think the best model is 4.0 at like 48% average. So there's a lot of room to go.
+
+Swyx [01:17:19]: Yeah.
+
+Alessio [01:17:19]: Any fun stories from their directions that you hope that people take?
+
+Swyx [01:17:23]: Yeah.
+
+Shunyu [01:17:23]: First, I think shout out to Ciara, which is this very good startup, which was founded by Brad Taylor and Clay Barber. And Ciara is a startup doing conversational AI. So what they do is they they build agents for businesses. Like suppose you have a business and you have a customer service. We want to automate that part. And then it becomes very interesting because it's very different from coding a web agent or whatever people are doing, because it's more about how can you do simple things reliably? It's not about, you know, can you sample a hundred times and you find one good mass proof or kill solution. It's more about you chat with a hundred different users on very simple things. Can you be robust to solve like 99% of the time, right? And then we find there's no really good benchmark around this. So that's one thing. I guess another thing is obviously this kind of customer service kind of domain. Previously, there are some benchmarks, but they all have their limitations. And I think you want the task to be kind of hard and you want user simulation to be real. We don't have that until LLM. So data sets from 10 years ago, like either just have trajectories conversating with humans or they have very fake kind of simulators. I think right now it's a good opportunity to, if you really just care about this task of customer service, then it's a good opportunity because now you have LLMs to simulate humans. But I think a more general motivation is we don't have enough agent benchmarks that target this kind of robustness, reliability kind of standpoint. It's more about, you know, code or web. So this is a very good addition to the landscape.
+
+Alessio [01:18:57]: If you have a model that can simulate the persona, like the user the right way, shouldn't the model also be able to accomplish the task, right? If he has the knowledge of like what the person will want, then it means...
+
+Swyx [01:19:09]: This is a great question.
+
+Shunyu [01:19:09]: I think it really stems from like asymmetry of information, right? Because if you think about the customer service agent, it has information you cannot access, right? Like the APIs it could call or, you know, the policies of internal company policy, whatever. And that, I think, very interesting for TopEng is like it's kind of okay for the user to be kind of stupid. So you can imagine like there are failure cases, right? But I think in our case, as long as the user specifies the need very clearly, then it's up to the agent to figure out, for example, what is the second cheapest flight from this to that under that constraint, very complicated reasoning Like we shouldn't require users to be able to solve those things. They should just be able to clearly express their need. But then if the task failed, then it's up to the agent. That makes the evaluation much easier.
+
+Alessio [01:19:59]: Awesome. Anything else? I have one last question
+
+Shunyu [01:20:01]: for Harrison, actually.
+
+Harrison [01:20:03]: No, that's not this podcast.
+
+Shunyu [01:20:07]: I mean, there are a lot of questions
+
+Swyx [01:20:09]: around AI right now,
+
+Shunyu [01:20:09]: but I feel like perhaps the biggest question is application. Because if we have great application, we have super app, whatever, that keeps the whole thing going, right? Obviously, we have problems with infra, with chip, with transformer, with whatever, S4, a lot of stuff. But I do think the biggest question is application. I'm curious, from your perspective, is there any things that are actually already kind of working but people don't know enough? Is there any promising application that you're seeing so far?
+
+Harrison [01:20:37]: Okay, so I think one big area where there's clearly been success is in customer support. Both companies doing that as a service, but also larger enterprises
+
+Swyx [01:20:47]: doing that and building
+
+Harrison [01:20:47]: that functionality inside. There's a bunch of people doing coding stuff. We've already talked about that. I think that's a little bit...
+
+Swyx [01:20:56]: I wouldn't say that's a success yet,
+
+Harrison [01:20:57]: but there's a lot of excitement and stuff there. One thing that I've seen more of recently, I guess the general category would be research-style agents. Specific things recently would be... I've seen a few AISDR companies pop up where they basically do some data enrichment. They get a company name. They go out, find funding.
+
+Swyx [01:21:18]: What is SDR? Sales Development Rep. It's an entry-level job title in B2B SaaS. Yeah, so... I don't know why I noticed this. You were very quick on that.
+
+Alessio [01:21:27]: The PhD mind cannot comprehend.
+
+Harrison [01:21:30]: And so I'd classify that under the general area of research-style agents. I think legal falls in this as well. I think legal is a pretty good domain
+
+Swyx [01:21:42]: for this.
+
+Shunyu [01:21:43]: I wonder how good Harvey is doing.
+
+Swyx [01:21:46]: There was some debate, but they raised a lot of money. So who knows?
+
+Harrison [01:21:50]: I'd say those are... Those are a few of the categories
+
+Swyx [01:21:53]: that jumped to mind.
+
+Shunyu [01:21:53]: Entry-type kind of research.
+
+Harrison [01:21:55]: On the topic of applications though,
+
+Swyx [01:21:57]: the thing that I think
+
+Harrison [01:21:57]: is most interesting in this space right now is probably all the UXs around these apps and the different things besides chat that might come out. I think two that I'm really interested in. One, for the idea of this AISDR. I've seen a bunch of them do it a spreadsheet-style view, where you have 10 different companies or hundreds of different companies and five different attributes you want to run up and then each cell is an agent.
+
+Shunyu [01:22:21]: The good thing about this is you can already use the first couple of rows of spreadsheets as a few-shot example. There's so many good things about it.
+
+Harrison [01:22:27]: Yeah, you can test it out on a few. It's a great way for humans to run things in batch,
+
+Swyx [01:22:32]: which I don't...
+
+Harrison [01:22:32]: It's a great interface for that.
+
+Swyx [01:22:34]: It's still kind of elusive
+
+Shunyu [01:22:35]: to do this PhD kind of research, but I think those entry-type research where it's more repetitive
+
+Swyx [01:22:41]: it should be more automated.
+
+Harrison [01:22:42]: And then the other UX I'm really, really interested in is when you have agents running in the background, ambient-style agents, how can they reach out to you? So I think, as an example of this, I have an email assistant that runs in the background. It triages all my emails and it tries to respond to them. And then when it needs my input, do you want to do this podcast? It reaches out to me.
+
+Swyx [01:23:02]: It sends me a message. Oh, you have it? It is live? Yeah, yeah, yeah. Thank you, agent. I use it for all my emails. Thank you, agent. Well, we did Twitter.
+
+Harrison [01:23:08]: I don't have a company.
+
+Shunyu [01:23:09]: Did you write it with LengChain?
+
+Swyx [01:23:11]: Yeah, LengGraph. We'll open source it at some point.
+
+Shunyu [01:23:13]: LengGraph or LengChain?
+
+Swyx [01:23:15]: Yeah, yeah, yeah. I wonder. Both. Yeah. Both.
+
+Harrison [01:23:17]: So at this point, LengGraph for the orchestration, LengChain for the integrations with the different models.
+
+Shunyu [01:23:23]: I'm curious how the low-code kind of direction is going right now. Are people...
+
+Swyx [01:23:27]: We talked about this. Oh, sorry. It's not low-code.
+
+Harrison [01:23:29]: LengGraph is not low-code.
+
+Swyx [01:23:31]: You can cut this out.
+
+Shunyu [01:23:32]: No, no, no, no.
+
+Swyx [01:23:34]: People will tune in just for this. Well, it actually has to do
+
+Harrison [01:23:37]: with UXs as well. Probably sums back to this idea of, I think, what it means to build with AI is changing. I still really, really strongly believe that developers will be a core kind of like part of this, largely because we see you need a lot of control
+
+Swyx [01:23:51]: over these agents
+
+Harrison [01:23:51]: to get them to work reliably. But there's also very clearly components
+
+Swyx [01:23:55]: that you don't need to be a developer
+
+Harrison [01:23:56]: for prompting is kind of like the most obvious one.
+
+Swyx [01:23:59]: With LengGraph,
+
+Harrison [01:24:00]: one of the things that we added recently was like a LengGraph studio.
+
+Swyx [01:24:04]: So we called it kind of like
+
+Harrison [01:24:05]: an IDE for agents. You point it to your code file, where you have your graph defined in code.
+
+Swyx [01:24:10]: It spins up a representation
+
+Harrison [01:24:11]: of the graph. You can interact with it there. You can test it out. We've hooked it up to kind of
+
+Swyx [01:24:15]: like a persistence layer
+
+Harrison [01:24:16]: so you can do time travel stuff, which I think is another really cool UX that I first saw in Devon.
+
+Swyx [01:24:22]: Devon's time travel is good. The UX for Devon in general,
+
+Harrison [01:24:24]: I think you said it, but that was the novel. That was the best part. But to the low-code, no-code part, the way that I think about it is you probably want to have your cognitive architecture
+
+Swyx [01:24:35]: defined in code.
+
+Harrison [01:24:36]: Decision-making procedure.
+
+Shunyu [01:24:37]: Yes.
+
+Harrison [01:24:38]: But then there's parts within that that are prompts or maybe configuration options like something to do with drag or something like that. We've seen that be a popular configuration option.
+
+Shunyu [01:24:48]: So is it useful for programmers more or is it for people who cannot program? I guess if you cannot program,
+
+Swyx [01:24:54]: it's still very complicated for them. It's useful for both.
+
+Harrison [01:24:56]: I think we see it being useful for developers right now, but then we also see... There's often teams building this, right? It's not one person. And so I think there's this handoff where the engineer might define the cognitive architecture. They might do some initial prompt engineering.
+
+Shunyu [01:25:08]: It's easier to communicate to the product manager.
+
+Swyx [01:25:10]: It's easier to show them what's going on
+
+Harrison [01:25:11]: and it's easier to let them control it. And maybe they're doing the prompting. And so, yeah, I think what the TLDR is, what it means to build is changing. And also UX in general is interesting, whether it's for how to build these agents or for how to use them as end consumers. And there might also be overlap as well. And it's so early on
+
+Swyx [01:25:30]: and no one knows anything,
+
+Harrison [01:25:30]: but I think UX is one of the most exciting spaces to be innovating in right now.
+
+Swyx [01:25:34]: Let's do ACI. Yeah.
+
+Shunyu [01:25:36]: Okay.
+
+Swyx [01:25:37]: That's another theme that we cover on the pod. We had the first AI UX meetup and we're trying to get that going. It's not a job. It's just people just tinkering.
+
+Alessio [01:25:47]: Well, thank you guys so much.
+
+Swyx [01:25:49]: Yeah, it was amazing. Karrison, you're amazing as a co-host. We'd love to have you back.
+
+Harrison [01:25:54]: I just tried it. I listened to you guys for inspiration.
+
+Swyx [01:25:58]: It's actually really scary to have you as a listener because I don't want to misrepresent. Like I talk about 100 companies, right? And God forbid I get one of them wrong. I'm sure all of them listen as well, not to add pressure. Thank you so much. It was a pleasure to have you on. And you had one of the most impactful PhDs in this sort of AI wave. So I don't know how you do it, but I'm excited to see what you do at OpenAI. Thank you.
+
+1
+
+It is important to note that o1 uses reinforcement learning to “hone its chain of thought”, whereas this episode is about “zero gradient” LLM agents, but we are pressing ahead anyway because 1) we don’t know how o1 RL CoT works and 2) its useful to understand the prior art anyway.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

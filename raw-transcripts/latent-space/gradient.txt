@@ -1,0 +1,461 @@
+# How to train a Million Context LLM — with Mark Huang of Gradient.ai
+# URL: https://www.latent.space/p/gradient
+# Date: 2024-05-30
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+How to train a Million Context LLM — with Mark Huang of Gradient.ai
+
+21
+
+1
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -57:29
+
+-57:29
+
+Audio playback is not supported on your browser. Please upgrade.
+
+How to train a Million Context LLM — with Mark Huang of Gradient.ai
+
+Scaling Llama3 beyond 1M context window with ~perfect utilization, the difference between ALiBi and RoPE, how to use GPT-4 to create synthetic data for your context extension finetunes, and more!
+
+May 30, 2024
+
+21
+
+1
+
+1
+
+Share
+
+Transcript
+
+<150 Early Bird tickets left for the AI Engineer World’s Fair in SF! Prices go up soon.
+
+Note that there are 4 tracks per day and dozens of workshops/expo sessions; the livestream will air <30% of the content this time. Basically you should really come if you dont want to miss out on the most stacked speaker list/AI expo floor of 2024. 
+
+Apply for free/discounted Diversity Program and Scholarship tickets here. We hope to make this the definitive technical conference for ALL AI engineers.
+
+Exactly a year ago, we declared the Beginning of Context=Infinity when Mosaic made their breakthrough training an 84k token context MPT-7B.
+
+MPT-7B and The Beginning of Context=Infinity — with Jonathan Frankle and Abhinav Venigalla of MosaicML
+
+Alessio Fanelli and swyx & Alessio
+
+·
+
+May 20, 2023
+
+Look at that context length chart from last year. How quaint.
+
+Listen now
+
+A Brief History of Long Context
+
+Of course right when we released that episode, Anthropic fired the starting gun proper with the first 100k context window model from a frontier lab, spawning smol-developer and other explorations. In the last 6 months, the fight (and context lengths) has intensified another order of magnitude, kicking off the "Context Extension Campaigns" chapter of the Four Wars:
+
+In October 2023, Claude's 100,000 token windows was still SOTA (we still use it for Latent Space’s show notes to this day).
+
+On November 6th, OpenAI launched GPT-4 Turbo with 128k context.
+
+On November 21st, Anthropic fired back extending Claude 2.1 to 200k tokens.
+
+Feb 15 (the day everyone launched everything) was Gemini's turn, announcing the first LLM with 1 million token context window.
+
+In May 2024 at Google I/O, Gemini 1.5 Pro announced a 2m token context window
+
+In parallel, open source/academia had to fight its own battle to keep up with the industrial cutting edge. Nous Research famously turned a reddit comment into YaRN, extending Llama 2 models to 128k context. So when Llama 3 dropped, the community was ready, and just weeks later, we had Llama3 with 4M+ context!
+
+A year ago we didn’t really have an industry standard way of measuring context utilization either: it’s all well and good to technically make an LLM generate non-garbage text at 1m tokens, but can you prove that the LLM actually retrieves and attends to information inside that long context? Greg Kamradt popularized the Needle In A Haystack chart which is now a necessary (if insufficient) benchmark — and it turns out we’ve solved that too in open source:
+
+almost solid green across a million tokens is unfathomably based
+
+Today's guest, Mark Huang, is the co-founder of Gradient, where they are building a full stack AI platform to power enterprise workflows and automations. They are also the team behind the first Llama3's 1M+ and 4M+ context window finetunes.
+
+Long Context Algorithms: RoPE, ALiBi, and Ring Attention
+
+Positional encodings allow the model to understand the relative position of tokens in the input sequence, present in what (upcoming guest!) Yi Tay affectionately calls the OG “Noam architecture”. But if we want to increase a model’s context length, these encodings need to gracefully extrapolate to longer sequences.
+
+ALiBi, used in models like MPT (see our "Context=Infinity" episode with the MPT leads, Jonathan Frankle and Abhinav), was one of the early approaches to this space. It lets the context window stretch as it grows, using a linearly decreasing penalty between attention weights of different positions; the further two tokens are, the higher the penalty. Of course, this isn’t going to work for usecases that actually require global attention across a long context.
+
+In more recent architectures and finetunes, RoPE (Rotary Position Embedding) encoding is more commonly used and is also what Llama3 was based on. RoPE uses a rotational matrix to encode positions, which empirically performs better for longer sequences.
+
+The main innovation from Gradient was to focus on tuning the theta hyperparameter that governs the frequency of the rotational encoding.
+
+Audio note: If you want the details, jump to 15:55 in the podcast (or scroll down to the transcript!)
+
+the blogpost we reference for theta value
+
+By carefully increasing theta as context length grew, they were able to scale Llama3 up to 1 million tokens and potentially beyond. 
+
+Once you've scaled positional embeddings, there's still the issue of attention's quadratic complexity, and how longer and longer sequences impacts models speed and scaling abilities. Getting to 1-4M context window requires a fairly large amount of compute, so efficiency matters.
+
+Ring Attention was the other "one small trick that GPU clouds hate" that improves GPU utilization by allowing parallel computation and communication between GPUs. Gradient started from the EasyContext library as implementation of Ring Attention in PyTorch, since the original one was in JAX.
+
+note the dramatically (>100x) higher context size supported - given a fixed unit of hardware - by simply switching from vanilla to ring attention
+
+Long Context Data: Curriculum Learning and Progressive Extension
+
+The use of curriculum learning when extending context was another new approach; rather than training Llama3 on the full 1 million token context from the start, they progressively increased the sequence length over the course of training. Intuitively, it allows the model to first learn to utilize shorter contexts before tackling the full length, but it only works if data gets more and more "tricky" in long context situation.
+
+For the generic pre-training corpus they used SlimPajama as a base, and concatenated texts to reach the target length, while monitoring for diversity in the data. Datasets that only required attending to the last few tokens, for instance, would fail to teach long-range reasoning. To fix that, they used synthetic data (another one of our Four Wars of AI!) with GPT-4 to augment their datasets by prompting it to expand on information or rephrase excerpts. Another paper we previously mentioned in this space is "Rephrasing The Web".
+
+Long Context Benchmarking: Beyond Needles
+
+Long context is cool, but does it work? Greg’s now-famous "needle in a haystack" (NIAH) test, which measures a model's ability to extract a piece of information embedded in a long context, is a clean standard that everyone uses to start, but it is a little simplistic and the community has since created many options to extend it:
+
+RULER: Outside of various NIAH tests (single value, multiple values, etc) it also tests for things like "most frequent words" and "variable tracking", which is very helpful especially in coding use cases.
+
+LooGLE: Focuses on three main area: scientific papers, Wikipedia articles, movie and TV scripts. "Timeline reorder" is an interesting challenge in their benchmark, which asks model to create a timeline out of events that happened out of order in the text.
+
+Infinite Bench: First created in November 2023, most avg input tokens tasks are in the 100-200k tokens range across retrieval, Q&A, and code debugging.
+
+ZeroSCROLLS: this comes with a public leaderboard where you can see models performance, as well as tasks that you can browse to get an idea.
+
+The 4M context size seemed to be the limit where things started to fall apart as far as performance goes, which is quite impressive!
+
+Show Notes
+
+Mark Huang
+
+Gradient
+
+Chris Chang
+
+HuggingFace Hub with Llama3 finetunes
+
+Mad Men
+
+Crusoe
+
+Greg Kamradt's Needle in a Haystack
+
+Chameleon paper
+
+Charles Goddard (Mentioned in context with model merging)
+
+Matei Zaharia
+
+Phil Wang (lucidrains)
+
+Wing Lian
+
+Zhang Peiyuan
+
+Yi
+
+Scaling Laws of RoPE-based Extrapolation
+
+ALiBi
+
+YaRN
+
+Ring Attention
+
+Easy Context
+
+StrongCompute
+
+LoRa
+
+RULER: What's the Real Context Size of Your Long-Context Language Models?
+
+LooGLE: Can Long-Context Language Models Understand Long Contexts?
+
+Infinite Bench
+
+BAMBOO
+
+ZeroSCROLLS: Zero-Shot CompaRison Over Long Language Sequences
+
+DeepSeek paper
+
+Multi-head Latent Attention
+
+Chapters
+
+[00:00:01] Introductions
+
+[00:01:28] Founding story of Gradient and its mission
+
+[00:03:50] "Minimum viable agents"
+
+[00:07:37] Differentiating ML and AI, focusing on out-of-domain generalization
+
+[00:08:19] Extending Llama3 to 1M tokens
+
+[00:11:41] Technical challenges with long context sequences
+
+[00:14:30] Data quality and the importance of diverse datasets
+
+[00:16:07] What's a theta value?
+
+[00:18:27] RoPE vs Ring Attention vs ALiBi vs YaARN
+
+[00:20:23] Why RingAttention matters
+
+[00:22:47] How to refine datasets for context extension
+
+[00:27:28] Multi-stage training data and avoiding overfitting to recent data
+
+[00:28:10] The potential of using synthetic data in training
+
+[00:31:21] Applying LoRa adapters to extend model capabilities
+
+[00:34:45] Benchmarking long context models and evaluating their performance
+
+[00:38:38] Pushing to 4M context and output quality degradation
+
+[00:40:49] What do you need this context for?
+
+[00:42:54] Impact of long context in chat vs Docs Summarization
+
+[00:45:35] Future directions for long context models and multimodality
+
+[00:48:01] How do you know what research matters?
+
+[00:50:31] Routine for staying updated with AI research and industry news
+
+[00:52:39] Deciding which AI developments to invest time in
+
+[00:56:08] Request for collaboration and data set construction for long context
+
+Transcript
+
+Alessio [00:00:00]: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO-in-Residence at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol AI.
+
+Swyx [00:00:14]: Hey, and today we're in the remote studio with Mark Wang from Gradient. Welcome Mark.
+
+Mark [00:00:19]: Hey, glad to be here. It's really a great experience to be able to talk with you all. I know your podcast is really, really interesting and I always am listening to it every time you guys have a release.
+
+Alessio [00:00:31]: He's not a paid actor. He said that out of his own will.
+
+Swyx [00:00:34]: We'll give you the check later. So you're unusual in the sense that you and I go back to college. I don't exactly remember where we overlapped, but you know, we both went to Wharton. We went into the sort of quantitative developer realm.
+
+Mark [00:00:46]: Yeah, exactly. Kind of crazy, right? So it all goes full circle. I was a quant for quite a few years and then made it out into Silicon Valley and now we intersect again when it kind of feels like more or less the same, right? Like the AI wars, the trading wars back in the day too, to a certain extent and the grab for talent.
+
+Swyx [00:01:07]: I think there's definitely a few of us ex-finance people moving into tech and then finding ourselves gravitating towards data and AI. Seems like you did that. You were at a bunch of sort of quant trading shops, but then as you moved to tech, you were a lead data scientist at Box and staff ML scientist at Splunk. And then before working on the startup that eventually became Gradient. You want to tell that story?
+
+Mark [00:01:28]: Yeah, I think part of the reason why I came over from the quant finance world is to get more collaboration, learn about what big data and scaling machine learning really looks like when you're not in this bubble, right? And working at Box, I worked mostly in a cross-functional role, helping product analytics and go to market. And then at Splunk, it was a lot more specific role where I was helping with streaming analytics and search and deep learning. And for Gradient, like really why we started it was whether it was in finance or whether it was in tech, I always noticed that there was a little bit more to give in terms of what AI or ML could contribute to the business. And we came at a really good time with respect to wanting to bring the full value of what that could be into the enterprise. And then obviously, OpenAI created this huge vacuum into the industry to allow for that, right? So I myself felt like really, really empowered to actually ship product and ship stuff that I could think could really help people.
+
+Alessio [00:02:35]: And maybe just to touch a little bit on Gradient, I know we have a lot of things to go through Gradient, Llama3 context extension, there's a lot, but what exactly is Gradient? And you have an awesome design on your website, it's like really retro. I think people that are watching Fallout on Amazon Prime right now can maybe feel nostalgia just looking at it. What exactly is it? Because I know you have the foundry, you have the agent SDK, there's like a lot of pieces into it.
+
+Mark [00:03:00]: Yeah, for sure. And appreciate the call out for the design. I know my co-founder, Chris, spent a lot of thought in terms of how he wanted the aesthetic to look like. And it reminds me a lot about Mad Men. So that was the initial emotional shape that I felt when I saw it. Quite simply, Gradient, we're a full stack AI platform. And what we really want to do is we want to enable all of the RPA workloads or the codified automation workloads that existed in enterprise before. We really want to enable people to transition into more autonomous, agentic workflows that are less brittle, feel more seamless as an interface to able to empower what we really think the new AI workforce should look like. And that kind of required us to build a fairly horizontal platform for those purposes.
+
+Alessio [00:03:50]: We have this discussion in our AI in Action club on Discord, like the minimum viable agent or like kind of how you define an agent. In your mind, what is like the minimum thing that you can call actually an agent and not just like a for loop? And how do you see the evolution over time, especially as people adopt it more and more?
+
+Mark [00:04:08]: So I kind of stage it where everybody, first of all, at the lowest level thinks about like non-determinism with respect to how the pipeline looks like when it's executed. But even beyond that, this goes back into effectively evaluations. It's like on each stage of the node, you're going to have to see a marginal improvement in the probability of success for that particular workload because of non-determinism. So I think it is an overloaded term to a certain extent because like everything is an agent if it calls a language model or any sort of multimodal model these days. But for us, it's like, you know, my background is statistics. So I want to see improvements in the probability of the success event or outcome happening because of more nodes.
+
+Swyx [00:04:52]: Yeah, I think, you know, the one thing that makes this sort of generative AI era very different from the sort of data science-y type era is that it is very non-deterministic and it's hard to control. What's the founding story of Gradient? Like of all the problems that you chose, why choose this one? How did you get together your co-founders, anything like that, bring us up to the present day?
+
+Mark [00:05:13]: Yeah. So one of my co-founders is Chris and he's a really good friend of mine as well. I don't know if you intersected with him at Penn as well, but... Chris Chang? Yeah, yeah. Chris Chang, who did banking for maybe one or two years and then, you know, was a software engineer at Meta, also was at Google. And then most recently, he was like a director at Netflix and product. And we always wanted to do something together, but we felt what really came to fruition was wanting to develop something that is enterprise facing for once, mostly because of our experience with internal tooling, inability for something to like basically exist through like a migration, right? All the time with every ML platform that I've ever had to experience or he had to experience, it's like a rebuild and you rip it out and you have a new workflow or automation come in and it's this huge multi-quarter, maybe even multi-year project to do that. And we also teamed up with former coworker Chris's from Open Door Forest, who was also on Google Cloud Platform and him seeing the scale and actually the state of the art in terms of Google was using AI for systems before everybody else too, right? They invented a transformer and their internal set of tooling was just so far superior to everything else. It's really hard for people to go back after seeing that. So what we really wanted was to reduce that friction for like actually shipping workloads in product value when you have all these types of operational frictions that happen inside of these large enterprises. And then really like the main pivot point for all of it was like you said, things that can handle out of domain problems. So like out of domain data that comes in, having the flexibility to not fall over and having something that you build over time that continues to improve. Like machine learning is about learning and I feel like a lot of systems back in the place, they were learning a very specific objective function, but they weren't really natively learning with the user. So like that's the whole, you know, we use the term assistant all the time, but my vision for the assistant was always for the system to grow alongside me, right? Almost like an embodied second limb or something that will be able to get better as you also learn yourself.
+
+Swyx [00:07:37]: Yeah. You know, people always trying to define the difference between ML and AI. And I think in AI, we definitely care a lot more about out of domain generalization and that's all under the umbrella of learning, but it is a very specific kind of learning. I'm going to try to make a segue into today's main topic of conversation that's something that you've been blowing up on, which is the long context learning, right? Which is also some form of out of distribution generalization. And in this context, you're extending the context window of an existing open source model. Maybe if you want to like just bring us all the way back to it, towards like why got you interested in long context? Why did you find it like an interesting investment to work on? And then the story of how you did your first extensions.
+
+Mark [00:08:19]: For Llama3, it's specifically, we chose that model because of the main criticisms about it before, when it first got released, 8,000 context lengths just seemed like it was too short because it seemed like Mistral and even Yi came out with like a 2,000 token context length model. Really, the inception of all of it was us fine tuning so many models and working on regs so much and having this, and it still exists today, this basically pedagogical debate with everybody who's like, Hey, is it fine tuning versus reg? Is it this versus that? And at the end of the day, it's just all meta learning, right? Like all we want is like the best meta learning workflow or meta learning set up possible to be able to adapt a model to do anything. So naturally, long context had a place in that, but nobody had really pushed the limits of it, right? You would see like 10 shot, maybe 100 shot prompting or improving the model's capabilities, but it wasn't until Google comes out with Gemini with the first 1 million context length model that a lot of people's jaws dropped in that hunger for understanding what that could really facilitate and the new workflows came about. So we're staged to actually train other open source models to do that. But the moment Llama3 came out, we just went ham against that specific model because the two things that were particularly appealing for that was the fact that I see a lot of these language models as compression algorithms to a certain extent, like the way we have 15 trillion tokens into a specific model. That definitely made me feel like it would have a lot of capabilities and be more adaptable towards extending that context length. So we went in there and the 1 million number, that was more of just like, put the North Star up there and see if we can get there and then see what was happening along the way as we did that. So also shout out to Crusoe who facilitated all that compute because I would be lying if I was to say like, anyone could just go out and do it. It does require quite a bit of compute. It requires a lot of preparation, but all the stars kind of aligned for that moment for us to go after that problem.
+
+Swyx [00:10:32]: I'll take a side note on Crusoe since you just brought it up. Yeah. Like, can you explain what Crusoe is? I have this mental image of putting GPUs on top of oil rigs. What is it? What do they do? How do you work with them? You know, just anything nice. I'm sure they appreciate nice things that you say about them. Oh, for sure.
+
+Mark [00:10:48]: For sure. So they came to us through a collaborative effort where we basically were in search of a GPU provider. I don't want to call cloud service provider quite yet because then, you know, you think about hyperscalers. But for them, you know, they're one of the biggest alternative GPU cloud providers. And they were offering up, like, we want to do a collaboration to showcase their technology. And it just made it really easy for us to, like, scale up with their L40Ss. And those are the specific GPU instances we used and coordinating that effort with them to get that dedicated cluster first to do the project. It became a really good relationship. And we still work with them today because, like, we're trying to evaluate more of these models and possibly train more of them. And anyone could go up to them and basically get your compute from them. And they have a lot of GPUs available for those type of projects.
+
+Alessio [00:11:41]: I would love to maybe have you run people through why the models don't come with longer context sequences out of the box. Like, obviously, you know, the TLDR is like self-attention is like quadratic scaling of memory. So the longer the context size, the more compute you have to spend the training time. And that's why you have to get Crusoe to help you extend it. How do you actually train large language model that is like a very long context? And then how does that differ from just tacking it on on top later? And then maybe we'll dive into performance and some of those things. But I think for a lot of folks in our audience that are more AI engineers, they use models, but don't necessarily build the models themselves. A lot of time, it's hard to understand what goes into actually making a long context model.
+
+Mark [00:12:23]: Yeah, in terms of, you know, all the literature out there, I would say, honestly, it's probably still TBD as to like the trade offs between the approach we did, which is more of a curriculum learning approach after the fact versus inherently training a model with a long context throughout, because I just don't think people have looked at the scaling properties of it in deep detail. But as stylistic facts exist out there with research papers from meta themselves, actually, they've already shown in a paper that if you train a model on a shorter context, and you progressively increase that context to like, you know, the final limit that you have, like 32k is usually the limit of Lama 2 was that long. It actually performs better than if you try to train 32k the whole time. And I like to think about it intuitively, as if you're trying to learn probability theory, you're not going to go and read the book cover to cover and then do all the exercises afterwards, what you're going to do is you're going to do each chapter, do an exercise, read the chapter, do an exercise, and then finish right with the final set of like holistic exercises, or examination. So attention is exactly what it sounds like, to a certain extent, you have a bunch of indices, and you are making the model attend to localize contexts and concepts across the entirety of its encoding, right, like whatever the text that the sequence that you're giving it. So when you're doing the curriculum learning aspect of things, you are kind of trying to give it the opportunity to also attend to all the concepts. So data actually, in the creation of that context, plays a huge role, because a lot of times people make the mistake of trying to extend the context length by just giving it raw text that doesn't have the necessity for the model to go all the way in the beginning of the sequence, and then connect an idea to the end of the sequence.
+
+Alessio [00:14:30]: So data quality is one thing, but it sounds like what is the work like the 1 million context if Llama3 was 2k context size, like, is there like a minimum context size that you need to then be able to generalize? Or does it not not really matter in defined tuning kind of takes care of it?
+
+Mark [00:14:47]: There's no minimum, I would say, or at least, I can't make such a strong statement as to say that that does not exist. But if you have a 4k, any regular model out there, like you can progressively increase the context length of it so long as it has shown really good perplexity scores prior to your context length extension. So if it hasn't shown good perplexity, you basically can't even predict the next token, you're kind of out of luck, right? But then from there, the other component that we actually just released a blog on maybe last Friday, it's like you got to pay attention to the theta value that the model starts off with. What was fairly unique about the Llama3 model was their choice of the theta parameter, which gave some suspicion as to how long the context could be extended for the model. So that aspect of we can go into, you know, a huge lesson in terms of positional encodings and in rope scaling and stuff. But those concepts and that aspect of things enables you to scale out the length much more easily.
+
+Alessio [00:15:55]: What's the TLDR of what the theta is for a model? If I haven't built a model before? Yeah. I mean, obviously, I know what it is. But for people that don't know, right, I'm totally an expert.
+
+Mark [00:16:07]: So not all models have it. But you know, some models will employ rope scaling. And Llama3 does that. But there's also other positional encoding and embedding mechanisms that other models employ. But TLDR is, if you think about most architectures, they employ, it's kind of like a sine or cosine curve. And you're thinking about, you know, you have the amplitudes that occur there to allow for the model to like, see different types of distributions of data. Really what the theta value does is it governs like, how often like a pattern is going to appear in the embedding space, you basically are able to shift that rotational curve by increasing the theta value and allow for different types of distributions to be seen as if they actually occurred in the training data before. It's super confusing. But it's like, there's positional extrapolation, and then there's interpolation, you want interpolation, it's been shown that just pure extrapolation makes the model a lot worse, and it's harder to attend to stuff. Whereas the interpolation is like you're squeezing everything back in to what the original contact length was to a certain extent, and then allowing for it to overlap different sequences that it's already seen, as if it actually occurred when you see a million contexts of sequence tokens. So yeah, I think that aspect, we didn't know how well it would scale. I think that's one thing. So like, I'm not gonna lie and tell you like, right off the bat, we're like, we're definitely gonna hit a million. It was more like, we're getting to 256 and it looked good. We did our evals, we scaled it more. And then what was really good was that we established the formula at the start. So like, it's actually a formula that we actually took from the paper, I think it's the rope scaling paper. And we looked at that particular formula, and then we backed out the values. And it's all empirical. So like, it's not like a mathematical tautology or proof, it's an empirical formula that actually worked really well. And then we just kept scaling it up and it held. It's kind of like the scaling laws, you know, the scaling laws exist, but you don't know if they're going to continue.
+
+Swyx [00:18:27]: Yeah. Like, are you able to compare it with like other forms of scaling that people have been talking about? Alibi comes to mind, yarn is being talked about a lot by a news research. And then there's other forms which are like, not exactly directly related, but like ring attention comes up a lot that we had a really good session with StrongCompute in the Latent Space Discord talking about all these approaches. I just wonder if you want to compare and contrast like rope versus the other stuff.
+
+Mark [00:18:51]: Yeah, I think Alibi, we haven't compared with that one specifically, mostly because I've noticed some of the newer architectures don't actually employ it a lot. I think the last architecture that actually really employed it was the Mosaic MPT model class. And then almost all the models these days are all rope scaling. And then effectively, you can use yarn with that as well. We just did the theta scaling specifically because of its empirical elegance, really easy and like it was well understood by us. The other one that I know that in the open source that people are applying, which uses more of a LoRa based approach, which is really interesting too, is the one that Wing has been employing, which is Pose. We sort of help them evaluate some of the models. With respect to like the performance of it, it does start to break down a little bit more on the longer, longer context. So like 500,000 to a million, it appeared that it doesn't hold as well specifically for like needle in the haystack. It's still TBD as evaluations. It's a sparse high dimensional space where you're just like evaluating performance across so many different things and then trying to map it back to like, hey, here's the thing that I actually cared about from the start and I have like a thousand different evaluations and they tell me something but not the entire picture. And as for like ring attention specifically, we employed ring attention in order to do the training. So we combined flash attention and ring attention together with like a really specific network topology on our GPUs to be able to maximize the memory bandwidth. Yeah.
+
+Swyx [00:20:23]: As far as I understand, like ring attention, a lot of people credit it for Gemini's million token context, but actually it's just a better utilization of GPUs. Like, yeah, that's really what it is. You mentioned in our show notes, Zhang Peiyuan's easy context repo. I have seen that come up quite a bit. What does that do as, you know, like how important is it as ring attention implementation? I know there's like maybe another one that was done by Lucid Reins or one of the other open source people. But like, what is easy context? Is that the place to go? Like, did you evaluate a bunch of things to implement ring attention?
+
+Mark [00:20:53]: Yeah, we evaluated all of them. I would say the original authors, you know, Matei and all the folks at Berkeley, they created the JAX implementation for it. And unfortunately, not to discredit, you know, TPUs or whatever, like the JAX implementation just does not work on GPUs very well. Like any naive setup that you do, like it just won't run out of the box very easily. And then unfortunately, that was probably the most mature repo with a lot more configurations to set up interesting network topologies for your cluster. And then the other PyTorch implementations outside of easy context, they just didn't really work. Maybe we weren't implementing one small aspect incorrectly, but like, there was an active development on it at a certain point, like even lucidrains, I think he's interesting because for once he was actually like, he was like taking a job somewhere and then just stopped doing commits. And as we were working to try to find it, we never really want to jump in on a repo where someone's like kind of actively committing breaking changes to it. Otherwise, we have to like eat that repo ourselves. And easy context was the first PyTorch implementation that applied it with native libraries that worked pretty well. And then we adapted it ourselves in order to configure it for our cluster network topology. So you know, shout out to Zhang Peiyuan for his open source contributions. I think that we look forward to possibly collaborating him and push that further in the future because I think more people if they do want to get started on it. I would recommend that to be the easiest way unless you want to, like, I don't know how many people know Jax. Me personally, I don't really know it that well. So I'm more of a PyTorch guy. So I think he provides a really good introduction to be able to try it out.
+
+Alessio [00:22:47]: And so once you had the technical discovery, what about the actual customer interest, customers that you work with? I feel like sometimes the context size can be a bit of a marketing ploy, you know, people are like, oh, yeah, well, no, 1 million, 2 million, 3 million, 4 million. That's kind of the algorithms side of it. How do you power the training? But the other side is obviously the data that goes into it. There's both quantity and quality. I think that's how one of your tweets, you trained on about 200 million tokens for the AP model to the context extension. But what are the tokens? You know, how do you build them? What are like maybe some of the differences between pre-training data sets and context extension data sets? Yeah, any other color you give there will be great.
+
+Mark [00:23:30]: So specifically for us, we actually staged two different updates to the model. So our initial layer that we trained was just basically like a pre-training layer. So continual pre-training where we took the slim pajamas data, and then we filtered it and concatenated it so that it would reach the context lengths that we were trying to extend out to. And then we took the UltraChat data set, filtered it down, or maybe some other, you know, second order derivative of the UltraChat data set that was curated in, and then filtered it down and then reformatted it for our chat use case. For those two data sets, you always have to really keep in mind for the pre-training data, whether or not you may be like cutting off tokens in weird ways, whether or not, you know, the content is actually diverse enough to retain the ability of the model. So slim pajamas tends to be one of the best ones, mostly because it's a diverse data set. And you can use embeddings too as a pre-filtering step as well, right? Like how diverse are your embeddings space to the original corpus of the model, and then train on top of that to retain its abilities. And then finally, for the chat data set, making sure that it's attending to all the information that would be expected to really stretch its capabilities, because you could create like a long context data set where every single time the last 200 tokens could answer the entire question, and that's never going to make the model attend to anything. So it's even something that we're doing right now is trying to think about like, how do we actually improve these models? And how do you ablate the data sets such that it can expose like even more nuanced capabilities that aren't easily measurable quite yet?
+
+Alessio [00:25:26]: Is there a ratio between diversity of the data set versus diversity compared to what the model already knows? Like does the model already need to understand a good part of the new like the context extension data to function? Like can you put context extension data set that is like very far from like what was in the pre training? I'm just thinking as as the model get older, some of the data sets that we have might not be in the knowledge of the existing model that you're trying to extend.
+
+Mark [00:25:54]: I think that's always a consideration. I think specifically, you really got to know how many tokens were expended into that particular model from the start. And all models these days are now double digit trillions, right? So it's kind of a drop in the bucket, if you really think I can just put, you know, a billion tokens in there. And I actually think that the model is going to truly learn new information. There is a lot of research out there between the differences with respect to full fine tuning, which we applied full fine tuning versus lower base fine tuning. It's a trade off. And my opinion of it is actually that you can test certain capabilities and you can kind of inject new knowledge into the model. But to this day, I've not seen any research that does like a strong, well scaled out empirical study on how do you increase the model's ability to understand like these decision boundaries with a new novel data. Most of it is holding on a portion of the data as like novel and then needing to recycle some of the old knowledge. So it just doesn't forget and get worse at everything else, right? Which was seen. We do have historical precedent, where the original code bomb was trained further from Mama 2, and it just lost all its language capability, basically, right? So I don't want to call that project like deem it as a failure, but it wasn't a really successful generalization exercise, because, you know, these models are about flexibility and being like generic to a certain extent.
+
+Swyx [00:27:28]: One thing I see in the recent papers that have been coming out is this sort of concept of multi-stage training data. And if you're doing full fine tuning, maybe the move or the answer is don't train 500 billion tokens on just code, because then yeah, it's going to massively overfit to just code. Instead, maybe the move is to slowly change the mix over the different phases, right? So in other words, you still need to mix in some of your original source data set to make sure it doesn't deviate too much. I feel like that is a very crude solution. Maybe there's some smarter way to adjust like the loss function so that it doesn't deviate or overfit too much to more recent data. It seems like it's a solvable thing. That's what I'm saying. Like this overfitting to more recent data issue.
+
+Mark [00:28:10]: Yeah, I do think solvable is hard. I think provably solvable is always something that I know is extremely difficult, but from a heuristical standpoint, as well as like having like some sort of statistical efficiency on like how you can converge to the downstream tasks and improve the performance that way in a targeted manner, I do think there are papers that try to do that. Like the Do-Re-Mi paper, I think it was released last year, it was really good about doing an empirical study on that. I think the one thing people struggle with though, is the fact that they always try to do it on pretty naive tasks. Like you target like a naive task, and then you create your data mixture and you try to show some sort of algorithm that can retain the performance for those downstream tasks. But then what do we all care about are actually like really, really interesting, complex tasks, right? And we barely have good evaluations for those. If you do a deep dive at the Gemini 1.5 technical paper, which they just updated, it was a fantastic paper with new updates. If you look at all of their long context evaluations there, like a lot of them are just not something that the open community can even do, because they just hired teachers to evaluate whether or not this model generated a huge lesson plan that is really coherent. Or like you hire a bunch of subject matter experts, or they taught the model how to do language translation for extinct language where only 200 people in the world know. It's kind of hard for us to do that same study as an early stage startup.
+
+Swyx [00:29:50]: I mean, technically, now you can use Gemini as a judge, Gemini is touting a lot of their capabilities and low resource languages. One more thing before on that sort of data topic, did you have any exploration of synthetic data at all? You know, use Mistral to rephrase some existing part of your data sets, generate more tokens, anything like that, or any other form of synthetic data that you choose to mention? I think you also mentioned the large world model paper, right?
+
+Mark [00:30:13]: We used GPT-4 to rephrase certain aspects of the chat data, reformatting it or kind of generating new types of tokens and language and types of data that the model could see. And also like trying to take the lower probability, right, or the lower correlated instances of out of domain data in that we wanted to inject it to the model too, as well. So I actually think a lot of the moat is in the data pipeline. You'll notice most papers just don't really go into deep detail about the data set creation because, I mean, there's some aspects that are uninteresting, right? Which is like, we paid a bunch of people and generated a lot of good data. But then the synthetic data generating pipeline itself, sometimes that could be like 25% or 50% of the entire data set that you've been used to depreciating.
+
+Swyx [00:31:08]: Yeah, I think it's just for legal deniability.
+
+Swyx [00:31:13]: No, it's just too boring. You know, I'm not going to say anything because it's too boring. No, it's actually really interesting. But in fact, it might be too interesting. So we're not going to say anything about it.
+
+Alessio [00:31:21]: One more question that I had was on LoRa and taking some of these capabilities out and bringing them to other model. You mentioned Weng's work. He tweeted about we're going to take this LoRa adapter for the Gradient 1 million context extension, and you're going to be able to apply that to other model. Can you just generally explain to people how these things work with language models? I think people understand that with stable diffusion, you have these LoRa patches for different types of styles. Does that work similarly with LLMs? And is it about functionality? Can you do LoRa patches with specific knowledge? What's the state of the art there?
+
+Mark [00:31:58]: Yeah, I think there's a huge resurgence in what I would call model alchemy to a certain extent, because you're taking all of these LoRa's and you're mixing them together. And then that's a lot of the model merging stuff that I think Charles Goddard does and a lot of others in the open community, right? Because it's a really easy way. You don't need training, and you can test and evaluate models and take the best skills and mix and match. I don't think there has been as much empirical study, like you're saying, for how shows the same type of... It's not as interpretable as stable diffusion to a certain extent. Because even we have experimented with taking deltas in the same methodology as Wing, where we'll take a delta of an already trained model, try to see how that has created, in a sense, an ROHF layer, right? Taking the LLAMA instruct layer, subtracting the base model from that, and then trying to apply that LoRa adapter to another model and seeing what it does to it. It does seem to have an effect, though. I will not lie to say I'm really surprised how effective it is sometimes. But I do notice that for more complex abilities, other than more stylistic stuff, it kind of falls through. Because maybe it requires a much deeper path in the neural network, right? All these things, these weights are just huge trees of paths that the interesting stuff is the road less traveled, to a certain extent. And when you're just merging things brute force together that way, you don't quite know what you'll get out all the time. There's a lot of other research that you have merged ties and you have all these different types of techniques to effectively just apply a singular value decomposition on top of weights and just get the most important ones and prevent interference across all the other layers. But I think that that is extremely interesting from developer community. And I want to see more of it, except it is to a certain extent, kind of polluting the leaderboards these days because it's so targeted. And now you can kind of game the metric by just finding all the best models and then just merging them together to do that. And I'll just add one last bit is basically the most interesting part about all that actually to me is when people are trying to take the lowers as a way of like, short circuiting the training process. So they take the lowers, they merge it in, and then they'll fine tune afterwards. So like the fine tuning and the reinitialization of a little bit of noise into all the new merged models provides like kind of a learning tactic for you to get to that capability a little bit faster.
+
+Swyx [00:34:45]: There's a lot there. I really like the comparison of ties merging to singular value decomposition. I looked at the paper and I don't really think I understood it on that high level until you just said it. We have to move on to benchmarking. This is a very fun topic. Needle in a haystack. What are your thoughts and feelings? And then we can discuss the other benchmarks first, but needle in a haystack.
+
+Mark [00:35:04]: You want to put me on the spot with that one? Yeah, I think needle in a haystack is definitely like the standard for presenting the work in a way that people can understand and also proving out. I view it as like a primitive that you have to pass in order to give the model any shot of doing something that combines both like a more holistic language understanding and instruction following, right? Honestly, like it's mostly about if you think about the practical applications of long context and what people complain most about models when you stuff a lot of context into it is either the language model just doesn't care about what you asked it to do, or it cannot differentiate context that you want it to use as a source to prevent hallucination versus like instructions. I think that when we were doing it, it was to make sure that we were on the right track. I think Greg did a really great job of creating metric and a benchmark that everybody could
+
+Swyx [00:36:00]: understood.
+
+Mark [00:36:00]: It was intuitive. Even he says himself, we have to move past it. But to that regard, it's a big reason why we did the evaluation on the ruler suite of benchmarks, which are way harder. They actually include needle in the haystack within those benchmarks too. And I would even argue is more comprehensive than the benchmark that Gemini released for their like multi-needle in the haystack. Yeah.
+
+Swyx [00:36:26]: You mentioned quite a few. You mentioned RULER, LooGLE, infinite bench, bamboo, ZeroSCROLLS. Do you want to give us maybe two or three of those that you thought were particularly interesting or challenging and what made them stand out for you?
+
+Mark [00:36:37]: There's just so many and they're so nuanced. I would say like, yeah, zero scrolls was the first one I'd ever heard of coming out last year. And it was just more of like tracking variable over long context. I'll go into ruler because that's the freshest in my mind. And we're just scrutinizing it so much and running the evaluation in the previous two
+
+Swyx [00:36:56]: weeks.
+
+Mark [00:36:56]: But like ruler has four different types of evaluations. So the first one is exactly needle in the haystack. It's like you throw multiple needles. So you got to retrieve multiple key value pairs. There's another one that basically you need to differentiate.
+
+Swyx [00:37:13]: Multi-value, multi-query. Yeah, yeah.
+
+Mark [00:37:15]: Multi-value, multi-query. That's the ablation. There's also a variable tracking one where you go, hey, if X equals this, Y equals this, Y equals Z, like what is this variable? And you have to track it through all of that context. And then finally, there's one that is more of like creating a summary statistic. So like the common words one, where you choose a word that goes across the entire context, and then you have to count it. So it's a lot more holistic and a little bit more difficult that way. And then there's a few other ones that escaped me at this moment. But ruler really pushes you. If I think about the progression of the evaluations, it start to force the model to actually understand like the totality of the context. Like everybody argues to say, couldn't I just use like a retrieval to like just grab that variable rather than pay $10 for one shot or something? Although it's not as expensive. The main thing that I struggled with, with even some of our use cases, were like when the context is scattered across multiple documents, and you have like really delicate plumbing for the retrieval step. But it only works for that one, that really specific instance, right? And then you throw in other documents and you're like, oh, great, my retrieval doesn't grab the relevant context anymore. So that's the dream, right? Of getting a model that can generalize really well that way.
+
+Swyx [00:38:38]: Yeah, totally. And I think that probably is what Greg mentioned when saying that he has to move beyond Needle and Haystack. You also mentioned you extended from 1 million to 4 million token context recently. And you saw some degradation in the benchmarks too. Like you want to discuss that?
+
+Mark [00:38:53]: So if you look at our theta value at that point, it's getting really big. So think about floating point precision and think about basically now you're starting to run into problems where in a deep enough network and having to do joint probabilities across so many tokens, you're hitting the kind of the upper bound on accuracy there. And there's probably some aspect of clamping down certain activations that we need to do within training. Maybe it happens at inference time as well with respect to like the theta value that we use in how do we ensure that it doesn't just explode. If you've ever had to come across like the exploding gradients or the vanishing gradient problem, you will know what I'm talking about. A lot of the empirical aspect of that and scaling up these things is experimentation and figuring out how do you kind of marshal these really complicated composite functions such that they don't just like do a divide over zero problem at one point. Awesome.
+
+Alessio [00:39:55]: Just to wrap, there's the evals and then there's what people care about. You know, there's two things. Do you see people care about above 1 million? Because Jem and I had the 2 million announcement and I think people were like, okay, 1 million, 2 million, it's whatever. Like, do you think we need to get to 10 million to get people to care about again?
+
+Swyx [00:40:13]: Yeah.
+
+Alessio [00:40:14]: Do we need to get to 100 million?
+
+Mark [00:40:16]: I mean, that's an open question. I would certainly say a million seemed like the number that got people really excited for us. And then, you know, the 4 million is kind of like, okay, rather than like a breakthrough milestone, it's just the next incremental checkpoint. I do think even Google themselves, they're evaluating and trying to figure out specifically, how do you measure the quality of these models? And how do you measure and map those to capabilities that you care about going down the line?
+
+Swyx [00:40:49]: Right.
+
+Mark [00:40:49]: And I think us as a company, we're figuring out how to saturate the context window in a way that's actually adding incremental value. So the obvious one is code because code repositories are huge. So like, can you stuff the entire context of a repo into a model and then make it produce some module that is useful or some suggestion that is useful? However, I would say there are other techniques like, you know, alpha coding and flow engineering that if you do iterative things in a more agentic manner, it may actually produce better quality. I would preface and I would actually counter that maybe start off with the use case that people are more familiar with right now, which is constantly evolving context in like a session. So like, whereas you're coding, right? If you can figure out evals that actually work where you're constantly providing it multiple turns in each incremental turn has a nuance aspect and you have a targeted generation that you know of making the model track state and have state management over time is really, really hard. And it's an incredibly hard evaluation will probably only really work when you have a huge context. So that's sort of what we're working on trying to figure out those types of aspects. You can also map that. It's not just code state management exists. You know, we work in the finance sector a lot, like investment management, having a state management of like a concept and stuff that evolves over like a long session. So I'm super excited to hear what other people think about the longer context. I don't think Google is probably investing to try to get a billion quite yet. I think they're trying to figure out how to fully leverage what they've done already.
+
+Alessio [00:42:39]: And does this change in your mind for very long chats versus a lot of documents? The chat is kind of interactive, you know, and information changes. The documents are just trying to synthesize more and more things. Yeah. Any thoughts on how those two workloads differ?
+
+Mark [00:42:54]: I would say like with the document aspect of things, you probably have a little bit more ability to tweak other methodologies. You can get around the long context sometimes where you can do retrieval augmented generation or you do hierarchical recursive summarization, whereas evolution in like a session, because that state variable could undergo pretty rapid changes. It's a little bit harder to you getting around that without codifying a really specific workflow or like some sort of state clause that is going back to like determinism. Right. And then finally, what I really think people are trying to do is figure out how did all these shots progress over time? How do you get away from the brittleness of the retrieval step? If you shove in a thousand shots or 2000 shots, will it just make the retrieval aspect of good examples irrelevant? Kind of like a randomly sampling is fine at that point. There's actually a paper on that that came out from CMU that they showed with respect to a few extraction or classification, high cardinality benchmarks, they tracked fine tuning versus in context learning versus many, many shot in context learning. And they basically showed that many, many shot in context learning helps to prevent as much sensitivity around the examples themselves, right? Like the distraction error that a lot of LLMs get where you give it irrelevant context and it literally can't do the task because it gets sort of like a person too, right? Like you got to be very specific about, I don't want to distract this person because then they're going to go down a rabbit hole and not be able to complete the task. Yeah.
+
+Alessio [00:44:37]: Well, that's kind of the flip side of the needle in a haystack thing too in a bit. It's like now the models pay attention to like everything so well. Like sometimes it's hard to get them to like, I just said that once, please do not bring that up again. You know, it happens to me with code. Yeah. It happens to me with like CSS style sometimes or like things like that. If I have a long conversation, it tries to always reapply certain styles, even though I told it maybe that's not the right way to do it. But yeah, there's a lot again of empirical that people will do. And just, I know we kind of went through a lot of the technical side, but maybe the flip side is why is it worth doing? What are like the use cases that people have that make long context really useful? I think you have a lot of healthcare use cases. I saw on your Twitter, you just mentioned the finance use case, obviously some of the filings and documents that companies publish can be quite worthy. Any other things that you want to bring up, maybe how people are using gradient, anything like that, I think that will help have a clearer picture for people. Yeah.
+
+Mark [00:45:35]: So beyond just using the context for, you know, sessions and evolving state management, it really comes down to something that's fairly obvious, which everybody's trying to do and work on is how do you ground the language model better? So I think when you think pure text, that's one thing, but then multimodality, it's going to be pivotal for long context, just because videos, when you're getting into the frames per second, and you're getting into lots of images and things that are a lot more embodied, you need to utilize and leverage way more, way more tokens. And that is probably where, you know, us as a company, we're exploring more and trying to open up the doors for a lot more use cases because I think in financial services, as well as healthcare, we've done a good job on the tech side, but we still need to push a little bit further when we combine, you know, a picture with words, like a chart with words or somebody's medical image with words, stuff like that. You definitely can do a better job. You know, it's timely too, because Meta just released the new chameleon paper that does multimodal training, and it shows that early fusion is more sample efficient, right? So having that kind of view towards the future is something that we want to be primed to do because, you know, it's similar to what Sam Altman says himself too, right? You need to just assume that these models are going to be 10x better in the next few years. And if you are primed for that, that's where you have kind of a business that, you know, you're not just pivoting after every release or every event, you know, that drops.
+
+Swyx [00:47:12]: I think the thing about this 10x issue is that the 10x direction moves all the time. You know, some people were complaining about GPT-4.0 that the ELO scores for GPT-4.0 actually in reality, weren't that much higher than GPT-4.0 Turbo. And really the, you know, so it's not 10x better in reasoning, it's just 10x better in the integration of multiple modalities. By the way, look over here, there's a really sexy voice chat app that they accidentally made that they had to deprecate today. The 10x direction keeps moving. Now it's like, you know, fully in like sort of multi-modality land, right? And so can 10x in various ways, but like you, you guys have 10x context length, but like, are we chasing the last war? Because like, now like nobody cares about context length, now it's like multi-modality time, you know? I'm joking, obviously people do care about it. I wonder about this, how this comment about this 10x thing every single time.
+
+Mark [00:48:01]: You know, that's honestly why we kind of have our eye on the community as well as you, right? Like with your community and the things that you hear, you know, you want to build where, you know, we're a product company, we're trying to build for users, trying to listen to understand what they actually need. Obviously, you know, you don't build everything that people ask you to build, but we know what's useful, right? Because I think that you're totally right there. If we want to make something 10x better in a certain direction, but nobody cares and it's not useful for somebody, then it wasn't really worth the while. And if anything, maybe that's the bitter lesson 2.0 for so many tech startups. It's like build technology that people care about and will actually 10x their value rather than build technology that's just 10x harder.
+
+Swyx [00:48:48]: I mean, that's not a bitter lesson. That's just Paul Graham.
+
+Swyx [00:48:53]: One more thing on the chameleon paper. I was actually just about to bring that up, you know? So on AI News, my daily newsletter, it was literally my most recent featured paper. And I always wonder if you can actually sort of train images onto the same latent space as words. That was kind of done with like, you know, what we now call late fusion models with lava and flamingo and, you know, all the others. But now the early fusion models like chameleon seem to be the way forward. Like obviously it's more native. I wonder if you guys can figure out some kind of weird technique where you can take an existing Lama 3 model and early fuse the images into the text encoder so that we just retroactively have the early fusion models. Yeah.
+
+Mark [00:49:34]: Even before the chameleon paper came out, I think that was on our big board of next to do's to possibly explore or our backlog of ideas, right? Because as you said, even before this paper, I can't remember. I think Meta even had like a scaling laws for multimodality paper that does explore more early fusion. The moment we saw that, it was just kind of obvious to us that eventually it'll get to the point that becomes a little bit more mainstream. And yeah, that's a cool twist that we've been thinking about too as well, as well as other things that are kind of in the works that are a little bit more agentic. But if open collaboration interests you, we can always work on that together with the
+
+Swyx [00:50:14]: community. Okay. Shout out there. You can leave that in the call to action at the end. We have a couple more questions to round this out. You mentioned a lot of papers in your work. You're also building a company. You're also looking at open source projects and community. What is your daily or weekly routine to keep on top of AI?
+
+Mark [00:50:31]: So one, subscribe to AI News. He didn't have to pay me to say that. I actually really think it's a good aggregator. I think it's a good aggregator.
+
+Swyx [00:50:40]: I'll tell you why.
+
+Mark [00:50:41]: Most of the fastest moving research that's being done out there, it's mostly on Twitter. I wasn't a power Twitter user at all before three years ago, but I had to use it and I had to always check it in order to keep on top of early work that people wanted to talk about or present. Because nothing against submitting research papers to like ICLR or ICML, knowing the state of the art, those are like six months late, right? People have already dropped it on archive or they're just openly talking about it. And then being on Discord to see when the rubber hits the road, right? The implementations and the practices that are being done or the data sets, like you said. A lot of conversations about really good data sets and how do you construct them are done in the open in figuring that out. For people that don't have budgets of like $10 million, you just pay a bunch of annotators. So my routine daily is like, second thing I do when I wake up is to look on Twitter to see what the latest updates are from specific people that do really, really great work. Armin at Meta who did the chameleon paper, everything he writes on Twitter is like gold. So anytime he writes something there, I really try to figure out what he's actually saying there and then tie it to techniques and research papers out there. And then sometimes I try to use certain tools. I myself use AI itself to search for the latest papers on a specific topic, if that's the thing, on the top of my mind. And at the end of the day, trying out the products too. I think if you do not try out the tooling and some of the products out there, you are missing out on someone's compression algorithm. Like they compressed all the research out there and all the thought and all the state of the art into a product that they're trying to create for you. And then really backing out and reverse engineering what it took to build something like that. That's huge, right? If you can actually understand perplexity, for instance, you'll already be well ahead on the research.
+
+Swyx [00:52:39]: Oh, by the way, you mentioned what is a good perplexity score? There's just a number, right? It's like five to eight or something. Do you have a number in mind when you said that? Yeah.
+
+Mark [00:52:48]: I mean, flipping between train loss and perplexity is actually not native to me quite yet. But if you can get a four using the context length extension on LLAMA, you're in the right direction. And then obviously you'll see spikes. And specifically when the one trick you should pay attention to is you know that your context length and theta scaling is working right if the early steps in the perplexity go straight down. So when it wasn't correct, it would oscillate a lot in the beginning. And we just knew that we cut the training short and then retry a new theta scale.
+
+Swyx [00:53:19]: You're properly continuing fine tuning or the full pre-training. Yeah, yeah.
+
+Mark [00:53:23]: The model just saw something out of domain immediately and was like, I have no idea what to do. And you need it to be able to overlap that positional embedding on top of each other. One follow up, right?
+
+Swyx [00:53:34]: Before we close out. I think being on Twitter and looking at all these new headlines is really helpful, but then it only gets you a very surface level understanding. Then you still need a process to decide which one to invest in. I'm trying to dig for what is your formula for deciding what to go deep on and what to kind of skip.
+
+Mark [00:53:54]: From a practical standpoint, as a company, I already know there are three to five things that will be valuable and useful to us. And then there's other stuff that's out of scope for different reasons. Some stuff is out of scope from, hey, this is not going to impact or help us. And then other things are out of scope because we can't do it. A really good instance for that is specific algorithms for improving extremely large scale distributed training. We're not going to have the opportunity to get 2000 H100s. If we do, it'd be really cool. But I'm just saying, as for now, you got to reach for the things that would be useful. Things that would be useful for us, for everybody actually, to be honest, is evaluations, different post-training techniques, and then synthetic data construction. I'm always on the look for that. And then how do I figure out which new piece of news is actually novel? Well, that's sort of my mental cache to a certain extent. I've built up this state of, hey, I already know all the things that have already been written for the state of the art for certain topic areas. And then I know what's being recycled as an empirical study versus something that actually is very insightful. Underrated specific instance would be the DeepSeek paper where I'd never seen it before, but the multi-head latent attention. That was really unexpected to me because I thought I'd seen every way that people wanted to cut mixture of experts into interesting ways. And I never thought something would catch my eye to be like, oh, this is totally new. And it really does have a lot of value. That's mainly how I try to do it. And you talk to your network too. I just talk to the people and then know and make sure that I have certain subject matter experts on speed dial that I also like to share information with and understand, hey, does this catch your eye too? Do you think this is valuable or real? Because it's a noisy space we're in right now, which is cool because it's really interesting and people are excited about it. But at the same time, there is actually a 10X or more explosion of information coming in that all sounds really, really unique and new. And you could spend hours down a rabbit hole that isn't as useful. Awesome, Mark.
+
+Alessio [00:56:08]: I know we kept you in the studio for a long time. Any final call to actions for folks that could be roles you're hiring for, requests for startups, anything that comes to mind that you want to share with the audience?
+
+Mark [00:56:19]: We definitely have a call to action to get more people to work together with us for long context evaluations. That is sort of the it topic throughout even meta or Google or any of the other folk are focusing on because I think we lack an understanding of that within the community. And then can we as a community also help to construct other modalities of datasets that would be interesting, like pairwise datasets, right? Like you could get just straight video and then straight text, but getting them together for grounding purposes will be really useful for training the next set of models that I know are coming out. And the more people we have contributing to that would be really useful. Awesome.
+
+Alessio [00:57:00]: Thank you so much for coming on, Mark.
+
+Swyx [00:57:02]: This was a lot of fun.
+
+Alessio [00:57:02]: Yeah, thanks a lot.
+
+Mark [00:57:03]: Yeah, this is great.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

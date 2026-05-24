@@ -1,0 +1,661 @@
+# Grounded Research: From Google Brain to MLOps to LLMOps — with Shreya Shankar of UC Berkeley
+# URL: https://www.latent.space/p/shreya-shankar
+# Date: 2023-03-29
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Grounded Research: From Google Brain to MLOps to LLMOps — with Shreya Shankar of UC Berkeley
+
+10
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -41:45
+
+-41:45
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Grounded Research: From Google Brain to MLOps to LLMOps — with Shreya Shankar of UC Berkeley
+
+Ep. 5: Bridging Dev & Prod with ML Models as Materialized Views of a Database (?!)
+
+Latent.Space and Alessio Fanelli
+
+Mar 29, 2023
+
+10
+
+Share
+
+We are excited to feature our first academic on the pod! I first came across Shreya when her tweetstorm of MLOps principles went viral:
+
+Shreya Shankar@sh_reya
+
+I probably should have written this years ago, but here are some MLOps principles I think every ML platform (codebase, data management platform) should have: 1/n
+
+5:22 PM · May 4, 2022
+
+619 Reposts · 3.35K Likes
+
+Shreya’s holistic approach to production grade machine learning has taken her from Stanford to Facebook and Google Brain, being the first ML Engineer at Viaduct, and now a PhD in Databases (trust us, its relevant) at UC Berkeley with the new EPIC Data Lab. If you know Berkeley’s history in turning cutting edge research into gamechanging startups, you should be as excited as we are!
+
+Recorded in-person at the beautiful StudioPod studios in San Francisco.
+
+Full transcript is below the fold.
+
+Edit from the future: Shreya obliged us with another round of LLMOps hot takes after the pod!
+
+Other Links
+
+Shreya’s About: https://www.shreya-shankar.com/about/
+
+Berkeley Sky Computing Lab - Utility Computing for the Cloud
+
+Berkeley Epic Data Lab - low-code and no-code interfaces for data work, powered by next-generation predictive programming techniques
+
+Shreya’s ML Principles 
+
+Grounded Theory
+
+Lightning Round:
+
+Favorite AI Product: Stability Dreamstudio
+
+1 Year Prediction: Data management platforms
+
+Request for startup: Design system generator
+
+Takeaway: It’s not a fad!
+
+Timestamps
+
+[00:00:27] Introducing Shreya (poorly)
+
+[00:03:38] The 3 V's of ML development
+
+[00:05:45] Bridging Development and Production
+
+[00:08:40] Preventing Data Leakage
+
+[00:10:31] Berkeley's Unique Research Lab Culture
+
+[00:11:53] From Static to Dynamically Updated Data
+
+[00:12:55] Models as views on Data
+
+[00:15:03] Principle: Version everything you do
+
+[00:16:30] Principle: Always validate your data
+
+[00:18:33] Heuristics for Model Architecture Selection
+
+[00:20:36] The LLMOps Stack
+
+[00:22:50] Shadow Models
+
+[00:23:53] Keeping Up With Research
+
+[00:26:10] Grounded Theory Research
+
+[00:27:59] Google Brain vs Academia
+
+[00:31:41] Advice for New Grads
+
+[00:32:59] Helping Minorities in CS
+
+[00:35:06] Lightning Round
+
+Transcript
+
+[00:00:00] Hey everyone. Welcome to the Latent Space podcast. This is Alessio partner and CTM residence at Decibel Partners. I'm joined by my co-host, swyx writer and editor of Latent Space. Yeah,
+
+[00:00:21] it's awesome to have another awesome guest Shankar. Welcome .
+
+[00:00:25] Thanks for having me. I'm super excited.
+
+[00:00:27] Introducing Shreya (poorly)
+
+[00:00:27] So I'll intro your formal background and then you can fill in the blanks.
+
+[00:00:31] You are a bsms and then PhD at, in, in Computer Science at Stanford. So
+
+[00:00:36] I'm, I'm a PhD at Berkeley. Ah, Berkeley. I'm sorry. Oops. . No, it's okay. Everything's the bay shouldn't say that. Everybody, somebody is gonna get mad, but . Lived here for eight years now. So
+
+[00:00:50] and then intern at, Google Machine learning learning engineer at Viaduct, an OEM manufacturer, uh, or via OEM analytics platform.
+
+[00:00:59] Yes. And now you're an e I R entrepreneur in residence at Amplify.
+
+[00:01:02] I think that's on hold a little bit as I'm doing my PhD. It's a very unofficial title, but it sounds fancy on paper when you say
+
+[00:01:09] it out loud. Yeah, it is fancy. Well, so that is what people see on your LinkedIn. What's, what should, what should people know about you that's not on your LinkedIn?
+
+[00:01:16] Yeah, I don't think I updated my LinkedIn since I started the PhD, so, I'm doing my PhD in databases. It is not AI machine learning, but I work on data management for building AI and ML powered software. I guess like all of my personal interests, I'm super into going for walks, hiking, love, trying coffee in the Bay area.
+
+[00:01:42] I recently, I've been getting into cooking a lot. Mm-hmm. , so what kind of cooking? Ooh. I feel like I really like pastas. But that's because I love carbs. So , I don't know if it's the pasta as much as it's the carb. Do you ever cook for
+
+[00:01:56] like large
+
+[00:01:57] dinners? Large groups? Yeah. We just hosted about like 25 people a couple weeks ago, and I was super ambitious.
+
+[00:02:04] I was like, I'm gonna cook for everyone, like a full dinner. But then kids were coming. and I was like, I know they're not gonna eat tofu. The other thing with hosting in the Bay Area is there's gonna be someone vegan. There's gonna be someone gluten-free. Mm-hmm. . There's gonna be someone who's keto. Yeah.
+
+[00:02:20] Good luck, .
+
+[00:02:21] Oh, you forgot the seeds. That's the sea disrespects.
+
+[00:02:25] I know. . So I was like, oh my God, I don't know how I'm gonna do this. Yeah. The dessert too. I was like, I don't know how I'm gonna make everything like a vegan, keto nut free dessert, just water. It was a fun challenge. We ordered pizza for the children and a lot of people ate the pizza.
+
+[00:02:43] So I think , that's what happens when you try to cook, cook for everyone.
+
+[00:02:48] Yeah. The reason I dug a bit on the cooking is I always find like if you do cook for large groups, it's a little bit like of an ops situation. Yeah. Like a lot of engineering. A lot of like trying to figure out like what you need to deliver and then like what the pipeline
+
+[00:02:59] is and Oh, for sure.
+
+[00:03:01] You write that Gantt chart like a day in advance. , did you actually have a ga? Oh, I did. My gosh. Of course I had a Gantt chart. I, I dunno how people, did
+
+[00:03:08] you orchestrate it with airflow or ?
+
+[00:03:12] I orchestrated it myself. .
+
+[00:03:15] That's awesome. But yeah, we're so excited to have you, and you've been a pretty prolific writer, researcher, and thank you.
+
+[00:03:20] You have a lot of great content out there. I think your website now says, I'm currently learning how to make machine learning work in the real world, which is a challenge that mm-hmm. , everybody is steaming right now from the Microsoft and Googles of the word that have rogue eyes flirting with people, querying them to people, deploy models to production.
+
+[00:03:38] The 3 V's of ML development
+
+[00:03:38] Maybe let's run through some of the research you've done, especially on lops. Sure. And how to get these things in production. The first thing I really liked from one of your paper was the, the three VS of ML development. Mm-hmm. , which is velocity validation and versioning. And one point that you were making is that the development workflow of software engineering is kind of very different from ML because ML is very experiment driven.
+
+[00:04:00] Correct. There's a lot of changes that you need to make, you need to kill things very quickly if they're not working. So maybe run us through why you decided as kind of those three vs. Being some of the, the core things to think about. and some of the other takeaways from their research. Yeah,
+
+[00:04:15] so this paper was conducted as a loosely structured interview study.
+
+[00:04:18] So the idea is you interview like three or four people and then you go and annotate all the transcripts, tag them, kind of put the word clouds out there, whatever. There's a bunch of like cool software to do this. Then we keep seeing these, themes of velocity wasn't the word, but it was like experiment quickly or high experimentation rate.
+
+[00:04:38] Sometimes it was velocity. And we found that that was like the number one thing for people who were talking about their work in this kind of development phase. We also categorized it into phases of the work. So the life cycle like really just fell into place when we annotated the transcripts. And so did the variables.
+
+[00:04:55] And after three or four interviews you iterate on them. You kind of iterate on the questions, and you iterate on the codes or the tags that you give to the transcripts and then you do it again. And we repeated this process like three or four times up to that many people, and the story kind of told itself in a way that
+
+[00:05:11] makes sense.
+
+[00:05:12] I think, like I was trying to figure out why you picked those, but it's interesting to see that everybody kinda has the same challenges.
+
+[00:05:18] It fell out. I think a big thing, like even talking to the people who are at the Microsofts and the Googles, they have models in production. They're frequently training these models in production, yet their Devrel work is so experimental.
+
+[00:05:31] Mm-hmm. . And we were like, so it doesn't change. Even when you become a mature organization, you still throw 100 darts at the wall for five of them to stick and. That's super interesting and I think that's a little bit unique to data science and machine learning work.
+
+[00:05:45] Bridging Development and Production
+
+[00:05:45] Yeah. And one one point you had is kind of how do we bridge the gap between the development environments and the production environments?
+
+[00:05:51] Obviously you're still doing work in this space. What are some of the top of mind areas of focus for you in
+
+[00:05:57] this area? Yeah, I think it. Right now, people separate these environments because the production environment doesn't allow people to move at the rate that they need to for experimentation. A lot of the times as you're doing like deep learning, you wanna have GPUs and you don't wanna be like launching your job on a Kubernetes cluster and waiting for the results to come.
+
+[00:06:17] And so that's just the hardware side of things. And then there is the. Execution stack. Um, you wanna be able to query and create features real time as you're kind of training your model. But in production things are different because these features are kind of scheduled, maybe generated every week.
+
+[00:06:33] There's a little bit of lag. These assumptions are not accounted for. In development and training time. Mm-hmm. . So of course we're gonna see that gap. And then finally, like the top level, the interface level. People wanna experiment in notebooks, in environments that like allow them to visualize and inspect their state.
+
+[00:06:50] But production jobs don't typically run in notebooks. Yeah, yeah, yeah. I mean there, there are tools like paper mill and et cetera. But it's not the same, right? So when you just look at every single layer of the kind of data technical stack, there's a develop. Side of things and there's a production side of things and they're completely different.
+
+[00:07:07] It makes sense why. Way, but I think that's why you get a bunch of bugs that come when you put things in production.
+
+[00:07:14] I'm always interested in the elimination of those differences. Mm-hmm. And I don't know if it's realistic, but you know, what would it take for people to, to deploy straight to production and then iterate on production?
+
+[00:07:27] Because that's ultimately what you're
+
+[00:07:29] aim for. This is exactly what I'm thinking about right now in my PhD for kind of like my PhD. But you said it was database. I think databases is a very, very large field. , pretty much they do everything in databases . But the idea is like, how do we get like a unified development and production experience, Uhhuh, for people who are building these ML models, I think one of the hardest research challenges sits at that execution layer of kind of how do.
+
+[00:07:59] Make sure that people are incorporating the same assumptions at development time. Production time. So feature stores have kind of come up in the last, I don't know, couple of years, three years, but there's still that online offline separation. At training time, people assume that their features are generated like just completely, perfectly.
+
+[00:08:19] Like there's no lag, nothing is stale. Mm-hmm. , that's the case when trading time, but those assumptions aren't really baked. In production time. Right. Your features are generated, I don't know, like every week or some Every day. Every hour. That's one thing. How do, like, what does that execution model look like to bridge the two and still give developers the interactive latencies with features?
+
+[00:08:40] Preventing Data Leakage
+
+[00:08:40] Mm-hmm. . I think another thing also, I don't know if this is an interface problem, but how do we give developers the guardrails to not look at data that they're not supposed to? This is a really hard problem. For privacy or for training? Oh, no, just for like training. Yeah. Okay. also for privacy. Okay. But when it comes to developing ML models in production, like you can't see, you don't see future data.
+
+[00:09:06] Mm-hmm. . Yeah. You don't see your labels, but at development time it's really easy to. to leak. To leak and even like the seeming most seemingly like innocuous of ways, like I load my data from Snowflake and I run a query on it just to get a sense for, what are the columns in my data set? Mm-hmm. or like do a DF dot summary.
+
+[00:09:27] Mm-hmm. and I use that to create my features. Mm-hmm. and I run that query before I do train test. , there's leakage in that process. Right? And there's just at the fun, most fundamental level, like I think at some point at my previous company, I just on a whim looked through like everyone's code. I shouldn't have done that , but I found that like everyone's got some leakage assumptions somewhere.
+
+[00:09:49] Oh, mm-hmm. . And it's, it's not like people are bad developers, it's just that. When you have no guard the systems. Yeah, do that. Yeah, you do this. And of course like there's varying consequences that come from this. Like if I use my label as a feature, that's a terrible consequence. , if I just look at DF dot summary, that's bad.
+
+[00:10:09] I think there's like a bunch of like unanswered interesting research questions in kind of creating. Unified experience. I was
+
+[00:10:15] gonna say, are you about to ban exploratory data analysis ?
+
+[00:10:19] Definitely not. But how do we do PDA in like a safe , data safe way? Mm-hmm. , like no leakage whatsoever.
+
+[00:10:27] Right. I wanna ask a little small follow up about doing this at Berkeley.
+
+[00:10:31] Berkeley's Uniquely Research Lab Culture
+
+[00:10:31] Mm-hmm. , it seems that Berkeley does a lot of this stuff. For some reason there's some DNA in Berkeley that just, that just goes, hey, just always tackle this sort of hard data challenges. And Homestate Databricks came out of that. I hear that there's like some kind of system that every five years there's a new lab that comes up,
+
+[00:10:46] But what's going on
+
+[00:10:47] there? So I think last year, rise Lab which Ray and any scale came out of. Kind of forked into two labs. Yeah. Sky Lab, I have a water bottle from Sky Lab. Ooh. And Epic Lab, which my advisor is a co-PI for founding pi, I don't know what the term is. And Skylabs focus, I think their cider paper was a multi-cloud programming environment and Epic Lab is, Their focus is more like low-code, no-code, better data management tools for this like next generation of Interfa.
+
+[00:11:21] I don't even know. These are like all NSF gra uh, grants.
+
+[00:11:24] Yeah. And it's five years, so
+
+[00:11:26] it could, it could involve, yeah. Who knows what's gonna be, and it's like super vague. Yeah. So I think we're seeing like two different kinds of projects come out of this, like the sky projects of kind of how do I run my job on any cloud?
+
+[00:11:39] Whichever one is cheapest and has the most resources for me, my work is kind of more an epic lab, but thinking about these like interfaces, mm-hmm. , better execution models, how do we allow people to reason about the kind of systems they're building much more effectively. Yeah,
+
+[00:11:53] From Static Data to Dynamically Updated Data
+
+[00:11:53] yeah. How do you think about the impact of the academia mindset when then going into.
+
+[00:11:58] Industry, you know, I know one of the points in your papers was a lot of people in academia used with to static data sets. Mm-hmm. , like the data's not updating, the data's not changing. So they work a certain way and then they go to work and like they should think about bringing in dynamic data into Yeah.
+
+[00:12:15] Earlier in the, in the workflow, like, , how do you think we can get people to change that mindset? I think
+
+[00:12:21] actually people are beginning to change that mindset. We're seeing a lot of kind of dynamic data benchmarks or people looking into kind of streaming datasets, largely image based. Some of them are language based, but I do think it's somewhat changing, which is good.
+
+[00:12:35] But what I don't think is changing is the fact that model researchers and Devrel developers want. to create a model that learns the world. Mm-hmm. . And that model is now a static artifact. I don't think that's the way to go. I want people, at least in my research, the system I'm building, models are not a one time thing.
+
+[00:12:55] Models as views on Data
+
+[00:12:55] Models are views that are frequently recomputed over your data to use database speak, and I don't see people kind of adopting that mindset when it comes to. Kind of research or the data science techniques that people are learning in school. And it's not just like retrain G P T every single day or whatever, but it, it is like, how do I make sure that I don't know, my system is evolving over time.
+
+[00:13:19] Mm-hmm. that whatever predictions or re query results that are being generated are. Like that process is changing. Can you give
+
+[00:13:27] a, an overview of your research project? I know you mentioned a couple snippets here and there,
+
+[00:13:32] but that would be helpful. . I don't have a great pitch yet. I haven't submitted anything, still working on it, but the idea is like I want to create a system for people to develop their ML pipelines, and I want it to be like, Like unifying the development production experience.
+
+[00:13:50] And the key differences about this is one, you think of models as like data transformations that are recomputed regularly. So when you write your kind of train or fit functions, like the execution engine understands that this is a process that runs repeatedly. It monitors the data under the hood to refit the computation whenever it's detected.
+
+[00:14:12] That kind of like the data distributions have changed. So that way whenever you. Test your pipelines before you deploy them. Retraining is baked in, monitoring is baked in. You see that? And the gold star, the gold standard for me is the number that you get at development time. That should be the number that you get when you deploy
+
+[00:14:33] There shouldn't be this expected 10% drop. That's what I know I will have. Made something. But yeah, definitely working on that.
+
+[00:14:41] Yeah. Cool. So a year ago you tweeted a list of principles that you thought people should know and you split it very hopefully. I, I thought into beginner, intermediate, advanced, and sometimes the beginner is not so beginner, you know what I mean?
+
+[00:14:52] Yeah, definitely. .
+
+[00:14:53] The first one I write is like,
+
+[00:14:57] so we don't have to go through the whole thing. I, I do recommend people check it out, but also maybe you can pick your favorites and then maybe something you changed your mind.
+
+[00:15:03] Principle: Version Everything You Do
+
+[00:15:03] I think several of them actually are about versioning , which like maybe that bias the interview studying a little bit.
+
+[00:15:12] Yeah. But I, I really think version everything you do, because in experimentation time, because when you do an experiment, you need some version there because if you wanna pr like publish those. , you need something to go back to. And the number of people who like don't version things, it is just a lot. It's also a lot to expect for someone to commit their code every time they like.
+
+[00:15:33] Mm-hmm. train their model. But I think like having those practices is definitely worth it. When you say versioning,
+
+[00:15:39] you mean versioning code.
+
+[00:15:40] versioning code versioning data, like everything around a single like trial run.
+
+[00:15:45] So version code get fine. Mm-hmm. versioning data not
+
+[00:15:48] as settled. Yeah. I think that part, like you can start with something super hacky, which is every time you run your script, like just save a copy of your training set.
+
+[00:16:00] Well, most training sets are not that big. Yeah. Like at least when people are like developing on their computer, it. Whatever. It's not that big. Just save a copy somewhere. Put it ass three, like it's fine. It's worth it. Uhhuh, . I think there's also like tools like dvc like data versioning kind of tools. I think also like weights and biases and these experiment track like ML flow, the experiment tracking tools have these hooks to version your data for you.
+
+[00:16:23] I don't know how well they work these days, but . Yeah, just something around like versioning. I think I definitely agree with
+
+[00:16:30] Principle: Always validate your Data
+
+[00:16:30] I'm. Super, super big into data validation. People call it monitoring. I used to think it was like monitoring. I realize now like how little at my previous company, we just like validated the input data going into these pipelines and even talking to people in the interview study people are not doing.
+
+[00:16:48] Data validation, they see that their ML performance is dropping and they're like, I don't know why. What's going on ? And when you dig into it, it's a really fascinating, interesting, like a really interesting research problem. A lot of data validation techniques for machine learning result in too many false positive alerts.
+
+[00:17:04] And I have a paper got rejected and we're resubmitting on this. But yeah, like there, it's active research problem. How do you create meaningful alerts, especially when you have tons of features or you have large data sets, that's a really hard problem, but having some basic data validation check, like check that your data is complete.
+
+[00:17:23] Check that your schema matches up. Check that your most frequent, like your. Most frequently occurring value is the same. Your vocabulary isn't changing if it's a large language model. These are things that I definitely think I could have. I should have said that I did say data validation, but I didn't like, like spell it out.
+
+[00:17:39] Have you, have you looked into any of the current data observability platforms like Montecarlo or Big I I think you, I think you have some experience with that as
+
+[00:17:47] well. Yeah. I looked at a Monte car. Couple of years back, I haven't looked into big eye. I think that designing data validation for ML is a different problem because in the machine learning setting, you can allow, there's like a tolerance for how corrupted your data is and you can still get meaningful prediction.
+
+[00:18:05] Like that's the whole point of machine learning. Yeah, so like. A lot of the times, like by definition, your data observability platform is gonna give you false positives if you just care about the ML outputs. So the solution really, at least our paper, has this scheme where we learn from performance drops to kind of iterate on the precision of the data validation, but it's a hybrid of like very old databases techniques as well as kind of adapting it to the ML setting.
+
+[00:18:33] Heuristics for Model Architecture Selection
+
+[00:18:33] So you're an expert in the whole stack. I think I, I talk with a lot of founders, CTOs right now that are saying, how can I get more ML capabilities in, in my application? Especially when it comes to LLMs. Mm-hmm. , which are kind of the, the talk of the town. Yeah. How should people think about which models to use, especially when it comes to size and how much data they need to actually make them useful, for example, PT three is 175 billion parameters co-pilot use as a 12 billion model.
+
+[00:19:02] Yeah. So it's much smaller, but it's very good for what it does. Do you have any heuristics or mental models that you use when teams should think about what models to use and how big they need it to be?
+
+[00:19:12] Yeah I think that the. Precursor to this is the operational capabilities that these teams have. Do they have the capability to like literally host their own model, serve their own model, or would they rather use an api?
+
+[00:19:25] Mm-hmm. , a lot of teams like don't have the capability to maintain the actual model artifact. So even like the process of kind of. Fine tuning A G P T or distilling that, doing something like it's not feasible because they're not gonna have someone to maintain it over time. I see this with like some of the labs, like the people that we work with or like the low-code, no-code.
+
+[00:19:47] Or you have to have like really strong ML engineers right over time to like be able to have your own model. So that's one thing. The other thing is these G P T, these, these large language models, they're really good. , like giving you useful outputs. Mm-hmm. compared to like creating your own thing. Mm-hmm.
+
+[00:20:02] even if it's smaller, but you have to be okay with the latency. Mm-hmm. and the cost that comes out of it. In the interview study, we talk to people who are keeping their own, like in memory stores to like cash frequently. I, I don't know, like whatever it takes to like avoid calling the Uhhuh API multiple types, but people are creative.
+
+[00:20:22] People will do this. I don't think. That it's bad to rely on like a large language model or an api. I think it like in the long term, is honestly better for certain teams than trying to do their own thing on
+
+[00:20:36] house.
+
+[00:20:36] The LLMOps Stack
+
+[00:20:36] How's the L l M ops stack look like then? If people are consuming this APIs, like is there a lot of difference in under They manage the, the data, the.
+
+[00:20:46] Well,
+
+[00:20:46] I'll tell you the things that I've seen that are unified people need like a state management tool because the experience of working with a L L M provi, like A G P T is, mm-hmm. . I'm gonna try start out with these prompts and as I learn how to do this, I'm gonna iterate on these prompts. These prompts are gonna end up being this like dynamic.
+
+[00:21:07] Over time. And also they might be a function of like the most recent queries Tonight database or something. So the prompts are always changing. They need some way to manage that. Mm-hmm. , like I think that's a stateful experience and I don't see the like, like the open AI API or whatever, like really baking that assumption in into their model.
+
+[00:21:26] They do keep a history of your
+
+[00:21:27] prompts that help history. I'm not so sure. , a lot of times prompts are like, fetch the most recent similar data in my database, Uhhuh, , and then inject that into the pump prompt. Mm-hmm. . So I don't know how, Okay. Like you wanna somehow unify that and like make sure that's the same all the time.
+
+[00:21:44] You want prompt compiler. Yeah, . I think there's some startup probably doing that. That's definitely one thing. And then another thing that we found very interesting is that when people put these. LLMs in production, a lot of the bugs that they observe are corrected by a filter. Don't output something like this.
+
+[00:22:05] Yes. Or don't do this like, so there's, or please output G on, yeah. . So these pipelines end up becoming a hybrid of like the API uhhuh, they're. Service that like pings their database for the most recent things to put in their prompt. And then a bunch of filters, they add their own filters. So like what is the system that allows people to build, build such a pipeline, this like hybrid kind of filter and ML model and dynamic thing.
+
+[00:22:30] So, so I think like, The l l m stack, like is looking like the ML ops thing right in this way of like hacking together different solutions, managing state all across the pipeline monitoring, quick feedback loop.
+
+[00:22:44] Yeah. You had one, uh, just to close out the, the tweet thread thing as well, but this is all also relevant.
+
+[00:22:50] Shadow Models
+
+[00:22:50] You have an opinion about shadowing a less complicated model in production to fall back on. Yeah. Is that a good summary?
+
+[00:22:55] The shadowing thing only works in situations where you don. Need direct feedback from. The user because then you can like very reasonably serve it like Yeah, as as long, like you can benchmark that against the one that's currently in production, if that makes sense.
+
+[00:23:15] Right. Otherwise it's too path dependent or whatever to.
+
+[00:23:18] evaluate. Um, and a lot of services can benefit from shadowing. Like any, like I used to work a lot on predictive analytics, predictive maintenance, like stuff like that, that didn't have, um, immediate outputs. Mm-hmm. or like immediate human feedback. So that was great and okay, and a great way to like test the model.
+
+[00:23:36] Got it. But I think as. Increasingly trying to generate predictions that consumers immediately interact with. It might not be I, I'm sure there's an equivalent or a way to adapt it. Mm-hmm. AV testing, stage deployment, that's in the paper.
+
+[00:23:53] Keeping Up With Research
+
+[00:23:53] Especially with keeping up with all the new thing. That's one thing that I struggle with and I think preparing for this. I read a lot of your papers and I'm always like, how do you keep up with, with all of this stuff?
+
+[00:24:02] How should people do it? You know? Like, now, l l M is like the hot thing, right? There's like the, there's like the chinchilla study. There's like a lot of cool stuff coming out. Like what's. U O for like staying on top of this research, reading it. Yeah. How do you figure out which ones are worth reading?
+
+[00:24:16] Which ones are kind of like just skim through? I read all of yours really firmly. , but I mean other ones that get skimmed through, how should people figure it out?
+
+[00:24:24] Yeah, so I think. I'm not the best person to ask for this because I am in a university and every week get to go to amazing talks. Mm-hmm. and like engage with the author by the authors.
+
+[00:24:35] Yeah. Right. Yeah. Yeah. So it's like, I don't know, I feel like all the opportunities are in my lap and still I'm struggling to keep up, if that makes sense. Mm-hmm. . I used to keep like running like a bookmark list of papers or things that I want to read. But I think every new researcher does that and they realize it's not you worth their time.
+
+[00:24:52] Right? Like they will eventually get to reading the paper if it's absolutely critical. No, it's, it's true, it's true. So like we've, I've adopted this mindset and like somehow, like I do end up reading things and the things that I miss, like I don't have the fo. Around. So I highly encourage people to take that mentality.
+
+[00:25:10] I also, I think this is like my personal taste, but I love looking into the GitHub repos that people are actually using, and that usually gives me a sense for like, what are the actual problems that people have? I find that people on Twitter, like sometimes myself included, will say things, but you, it's not how big of a problem is it?
+
+[00:25:29] Mm-hmm. , it's not. Yeah, like , I find that like just looking at the repos, looking at the issues, looking at how it's evolved over time, that really, really helps. So you're,
+
+[00:25:40] to be specific, you're not talking about paper repos?
+
+[00:25:43] No, no, no, no. I'm talking about tools, but tools also come with papers a lot in, um, databases.
+
+[00:25:49] Yeah. Yeah. I think ML specifically, I think there's way too much ML research out there and yeah, like so many papers out there, archive is like, kind of flooded. Yeah.
+
+[00:26:00] It's like 16% of old papers produced.
+
+[00:26:02] It's, it's crazy. . I don't know if it's a good use of time to try to read all of them, to be completely honest.
+
+[00:26:10] Grounded Theory for Problem Discovery
+
+[00:26:10] You have a very ethnographic approach, like you do interviews and I, I assume like you just kinda observe and don't Yeah. Uh, prescribe anything. And then you look at those GitHub issues and you try to dig through from like production, like what is this orientation? Is there like a research methodology that you're super influenced by that guides you like this?
+
+[00:26:28] I wish that I had. Like awareness and language to be able to talk about this. Uhhuh, , . I
+
+[00:26:37] don't know. I, I think it's, I think it's a bit different than others who just have a technology they wanna play with and then they, they just ignore, like they don't do as much, uh, like people research
+
+[00:26:47] as
+
+[00:26:47] you do. So the HCI I researchers like, Have done this forever and ever and ever.
+
+[00:26:53] Yeah. But grounded theory is a very common methodology when it comes to trying to understand more about a topic. Yeah. Which is you go in, you observe a little bit, and then you update your assumptions and you keep doing this process until you have stopped updating your assumptions. . And I really like that approach when it comes to.
+
+[00:27:13] Just kind of understanding the state of the world when it comes to like a cer, like LLMs or whatever, until I feel like, like there was like a point in time for like lops on like tabular data prior to these large language models. I feel like I, I'd gotten the space and like now that these like large language models have come out and people are really trying to use them.
+
+[00:27:35] They're tabular kind of predictions that they used to in the past. Like they're incorporating language data, they're incorporating stuff like customer feedback from the users or whatever it is to make better predictions. I feel like that's totally changing the game now, and I'm still like, Why, why is this the case?
+
+[00:27:52] Was were the models not good enough? Do people feel like they're behind? Mm-hmm. ? I don't know. I try to talk to people and like, yeah, I have no answers.
+
+[00:27:59] Google Brain vs Academia
+
+[00:27:59] So
+
+[00:27:59] how does the industry buzz and focus influence what stuff the research teams work on? Obviously arch language models, everybody wants to build on them.
+
+[00:28:08] When you're looking at, you know, other peers in the, in the PhD space, are they saying, oh, I'm gonna move my research towards this area? Or are they just kind of focused on the idea of the
+
+[00:28:18] first. . This is a good question. I think that we're at an interesting time where the kind of research a PhD student in an academic institution at CS can do is very different from the research that a large company, because there aren't like, There just aren't the resources.
+
+[00:28:39] Mm-hmm. that large companies compute resources. There isn't the data. And so now PhD students I think are like, if they want to do something better than industry could do it, like there's like a different class of problems that we have to work on because we'll never be able to compete. So I think that's, yeah, I think that's really hard.
+
+[00:28:56] I think a lot of PhD students, like myself included, are trying to figure out like, what is it that we can do? Like we see the, the state of the field progressing and we see. , why are we here? If we wanna train language model, I don't, but if somebody wants to train language models, they should not be at uc.
+
+[00:29:11] Berkeley, , they shouldn't .
+
+[00:29:15] I think it's, there's a sort of big, gets bigger mentality when it comes to training because obviously the big companies have all the data, all the money. But I was kind of inspired by Luther ai. Mm-hmm. , um, which like basically did independent reproductions Yeah. Of G P T three.
+
+[00:29:30] Don't you think like that is a proof of, of existence that it is possible to do independently?
+
+[00:29:34] Totally. I think that kind of reproducing research is interesting because it doesn't lead to a paper. Like PhD students are still like, you can only graduate when you have papers. Yeah. So to have a whole lab set.
+
+[00:29:46] I think Stanford is interesting cuz they did do this like reproducing some of the language models. I think it should be a write
+
+[00:29:50] a passage for like every year, year one PhD. You
+
+[00:29:53] must reproduce everything. I won't say that no one's done it, but I do understand that there's an incentive to do new work because that's what will give you the paper.
+
+[00:30:00] Yeah. So will you put 20 of your students to. I feel like only a Stanford or somebody who like really has a plan to make that like a five plus year. Mm-hmm. research agenda. And that's just the first step sort of thing. Like, I can't imagine every PhD student wants to do that. Well, I'm just
+
+[00:30:17] saying, I, I, I feel like that there will be clouds, uh, the, the, you know, the big three clouds.
+
+[00:30:21] Mm-hmm. Probably the Microsoft will give you credits to do whatever you want. And then it's on you to sort of collect the data but like there of existence that it is possible to
+
+[00:30:30] It's definitely possible. Yeah. I think it's significantly harder. Like collecting the data is kind of hard. Like just like because you have the cloud credits doesn't mean like you have a cluster that has SREs backing it.
+
+[00:30:42] Mm-hmm. who helped you run your experiments. Right, right. Like if you are at Google Rain. Yeah. I was there what, like five, six years ago. God, like I read an experiment and I didn. Problems. Like it was just there. Problems . It's not like I'm like running on a tiny slur cluster, like watching everything fail every five.
+
+[00:31:01] It's like, this is why I don't train models now, because I know that's not a good use of my time. Like I'll be in so many like SRE issues. Yeah. If I do it now, even if I have cloud credits. Right. So, Yeah, I think it's, it can feel disheartening. , your PhD student training models,
+
+[00:31:18] well, you're working on better paradigms for everyone else.
+
+[00:31:21] You know? That's
+
+[00:31:22] the goal. I don't know if that's like forced, because I'm in a PhD program, , like maybe if I were someone else, I'd be training models somewhere else. I don't know. Who knows? Yeah. Yeah.
+
+[00:31:30] You've read a whole post on this, right? Choosing between a PhD and going into. Obviously open ai. Mm-hmm. is kinda like the place where if you're a researcher you want to go go work in three models.
+
+[00:31:41] Advice for New Grads
+
+[00:31:41] Mm-hmm. , how should people think about it? What are like maybe areas of research that are underappreciated in industry that you're really excited about at a PhD level? Hmm.
+
+[00:31:52] I think I wrote that post for new grads. . So it might not be as applicable like as a new grad. Like every new grad is governed by, oh, not every, a good number of new grads are governed by, like, I wanna do work on something that's impactful and I want to become very known for this.
+
+[00:32:06] Mm-hmm. , like, that's like , like a lot of, but like they don't really, they're walking outta the world for the first time almost. So for that reason, I think that like it's worth working on problems. We'll like work on any data management research or platform in an industry that's like working on Providence or working on making it more efficient to train model or something like.
+
+[00:32:29] You know, that will get used in the future. Mm-hmm. . So it might be worth just going and working on that in terms of, I guess like going to work at a place like OpenAI or something. I do think that they're doing very interesting work. I think that it's like not a fad. These models are really interesting.
+
+[00:32:44] Mm-hmm. and like, they will only get more interesting if you throw more compute Right. And more data at them. So it, it seems like these industry companies. Doing something interesting. I don't know much more than that. .
+
+[00:32:59] Helping Minorities in CS
+
+[00:32:59] Cool. What are other groups, organizations, I know you, you're involved with, uh, you were involved with She Plus Plus Helping with the great name.
+
+[00:33:07] Yeah, I just
+
+[00:33:08] got it.
+
+[00:33:10] when you say it
+
+[00:33:10] out loud, didn't name Start in 2012. Long time ago. Yeah.
+
+[00:33:15] What are some of the organizations you wanna highlight? Anything that that comes to?
+
+[00:33:20] Yeah. Well, I mean, shva Plus is great. They work on kind of getting more underrepresented minorities in like high school, interested, kind of encoding, like I remember like organizing this when I was in college, like for high schoolers, inviting them to Stanford and just showing them Silicon Valley.
+
+[00:33:38] Mm-hmm. and the number of students who went from like, I don't know what I wanna do to, like, I am going to major or minor in c. Almost all of them, I think. I think like people are just not aware of the opportunities in, like, I didn't really know what a programmer was like. I remember in Texas, , like in a small town, like it's, it's not like one of the students I've mentored, their dad was a vc, so they knew that VC is a career path.
+
+[00:34:04] Uhhuh, . And it's like, I didn't even know, like I see like, like stuff like this, right? It's like just raising your a. Yeah. Or just exposure. Mm-hmm. , like people who, kids who grow up in Silicon Valley, I think like they're just in a different world and they see different things than people who are outside of Silicon Valley.
+
+[00:34:20] So, yeah, I think Chiles West does a great job of like really trying to like, Expose people who would never have had that opportunity. I think there's like also a couple of interesting programs at Berkeley that I'm somewhat involved in. Mm-hmm. , there's dare, which is like mentoring underrepresented students, like giving research opportunities and whatnot to them and Cs.
+
+[00:34:41] That's very interesting. And I'm involved with like a summer program that's like an r u also for underrepresented minorities who are undergrads. , find that that's cool and fun. I don't know. There aren't that many women in databases. So compared to all the people out there. ? Yeah.
+
+[00:35:00] My wife, she graduated and applied physics.
+
+[00:35:02] Mm-hmm. . And she had a similar, similar feeling when she was in, in school.
+
+[00:35:06] Lightning Round
+
+[00:35:06] All right. Let's jump into the lining ground. So your favorite AI product.
+
+[00:35:12] I really like. Stable diffusion, like managed offerings or whatever. I use them now to generate all of my figures for any talks that I give. I think it's incredible.
+
+[00:35:25] I'm able to do this or all of my like pictures, not like graphs or whatever, .
+
+[00:35:31] It'd be great if they could do that. Really looking
+
+[00:35:34] forward to it. But I, I love, like, I'll put things like bridging the gap between development and production or whatever. I'll do like a bridge between a sandbox and a city. Like, and it'll make it, yeah.
+
+[00:35:46] like, I think that's super cool. Yeah. Like you can be a little, I, I enjoy making talks a lot more because of , these like dream studio, I, I don't even know what they're called, what organization they're behind. I think that is from Stability. Stability,
+
+[00:35:58] okay. Yeah. But then there's, there's like Lexi there. We interviewed one that's focused on products that's Flare ai, the beauty of stable diffusion being open sources.
+
+[00:36:07] Yeah. There's 10
+
+[00:36:07] of these. Totally, totally. I'll just use whichever ones. I have credits on .
+
+[00:36:13] A lot of people focus on, like have different focuses, like Sure. Mid Journey will have an art style as a focus. Mm-hmm. and then some people have people as the focus for scenes. I, I feel like just raw, stable diffusion two probably is the
+
+[00:36:24] best.
+
+[00:36:24] Yeah. Yeah. But I don't do, I don't have images of people in my slides . Yeah, yeah. Yeah. That'd be a little bit weird.
+
+[00:36:31] So a year from now, what do you think people will be most surprised by in ai? What's on the horizon and about to come, but people don't realize. .
+
+[00:36:39] I don't know if this will be, this is related to the AI part of things or like an AI advancement, but I consistently think people underestimate the data management challenges.
+
+[00:36:50] Ooh. In putting these things in production. Uhhuh, . And I think people get frustrated that they really try, they see these like amazing prototypes, but they cannot for the life of them, figure out how to leverage them in their organization. And I think. That frustration will be collectively felt by people as it's like it's happened in the past, not for LLMs, but for other machine learning models.
+
+[00:37:15] I think people will turn to whatever it, it's just gonna be really hard, but we're gonna feel that collective frustration like next year is what I think.
+
+[00:37:22] And we talked a little bit before the show about data management platforms. Yeah. Do you have a spec for what that
+
+[00:37:27] is? The broad definition is a system that handles kind of execution.
+
+[00:37:33] or orchestration of different like data transformations, data related transformation in your pipeline. It's super broad. So like feature stores, part of it, monitoring is part of it. Like things that are not like your post request to open AI's, p i, , .
+
+[00:37:51] What's one AI thing you would pay for if someone built.
+
+[00:37:54] So whenever I do like web development or front end projects or like build dashboards, like often I want to manage my styles in a nice way.
+
+[00:38:02] Like I wanna generate a color palette, uhhuh, and I wanna manage it, and I wanna inject it throughout the application. And I also wanna be able to change it over time. Yeah. I don't know how to do this. Well, ? Yeah, in like large or E even like, I don't know, just like not even that large of projects. Like recently I was building my own like Jupyter Notebook cuz you can do it now.
+
+[00:38:23] I'm super excited by this. I think web assembly is like really changed a lot of stuff. So I was like building my own Jupyter Notebook just for fun. And I used some website to generate a color palette that I liked and then I was like, how do I. Inject this style like consist because I was learning next for the first time.
+
+[00:38:39] Yeah. And I was using next ui. Yeah. And then I was like, okay, like I could just use css but then like, is that the way to do it for this? Like co-pilot's not gonna tell me how to do this. There's too many options. Yeah. So just like, let me like just read my code and read and give me a color palette and allow me to change it over time and have this I opera.
+
+[00:38:58] With different frameworks, I would pay like $5 a month for this.
+
+[00:39:01] Yeah, yeah, yeah. It's, it's a, you know, the classic approach to this is have a design system and then maintain it. Yeah. I'm not designing Exactly. Do this. Yeah, yeah, yeah, yeah. This is where sort of the front end world eats its own tail because there's like, 10 different options.
+
+[00:39:15] They're all awesome. Yeah, you would know . I'm like, I have to apologize on behalf of all those people. Cuz like I, I know like all the individual solutions individually, but I also don't know what to recommend to you .
+
+[00:39:28] So like that's therein lies is the thing, right? Like, ai, solve this for me please. ,
+
+[00:39:35] what's one thing you want everyone to take away about?
+
+[00:39:39] I think it's really exciting to me in a time like this where we're getting to see like major technological advances like in front of our eyes. Maybe the last time that we saw something of this scale was probably like, I don't know, like I was young, but still like Google and YouTube and those. It's like they came out and it was like, wow, like the internet is so cool , and I think we're getting to see something like that again.
+
+[00:40:05] Yeah. Yeah. I think that's just so exciting. To be a part of it somehow, and maybe I'm like surrounded by a bunch of like people who are like, oh, like it's just a fad or it's just a phase. But I don't think so. Mm-hmm. , I think I'm like fairly grounded. So yeah. That's the one takeaway I have. It's, it's not a fad.
+
+[00:40:24] My grandma asked me about chat, g p t, she doesn't know what a database is, but she knows about chat. G p t I think that's really crazy. , what does she, what does she use it for? No, she just like saw a video about it. Ah, yeah. On like Instagram or not, she's not like on like something YouTube. She watches YouTube.
+
+[00:40:41] She's sorry. She saw like a video on ChatGPT and she was like, what do you think? Is it a fad? And I was like, oh my god. , she like watched after me with this and I was like, do you wanna try it out? She was like, what ? Yeah,
+
+[00:40:55] she should.
+
+[00:40:55] Yeah, I did. I did. I don't know if she did. So yeah, I sent it to her though.
+
+[00:40:59] Well
+
+[00:40:59] thank you so much for your time, Sreya. Where should people find you online? Twitter.
+
+[00:41:04] Twitter, I mean, email me if you wanna directly contact me. I close my dms cuz I got too many, like being online, exposing yourself to strangers gives you a lot of dms. . Yeah. Yeah. But yeah, you can contact me via email.
+
+[00:41:17] I'll respond if I can. Yeah, if there's something I could actually be helpful with, so, oh,
+
+[00:41:22] awesome.
+
+[00:41:23] Thank you. Yeah, thanks for, thanks for.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Alessio Fanelli
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

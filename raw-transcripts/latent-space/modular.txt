@@ -1,0 +1,707 @@
+# Doing it the Hard Way: Making the AI engine and language 🔥 of the future — with Chris Lattner of Modular
+# URL: https://www.latent.space/p/modular
+# Date: 2023-09-14
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Doing it the Hard Way: Making the AI engine and language 🔥 of the future — with Chris Lattner of Modular
+
+34
+
+4
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:29:22
+
+-1:29:22
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Doing it the Hard Way: Making the AI engine and language 🔥 of the future — with Chris Lattner of Modular
+
+The LLVM/Clang/MLIR/Swift creator on lessons learned building and leading systems of compilers and engineers, why AI software is fundamentally broken, and how Modular+Mojo will fix it
+
+Sep 14, 2023
+
+34
+
+4
+
+Share
+
+Transcript
+
+Want to help define the AI Engineer stack? Have opinions on the top tools, communities and builders? We’re collaborating with friends at Amplify to launch the first State of AI Engineering survey! Please fill it out (and tell your friends)!
+
+If AI is so important, why is its software so bad?
+
+This was the motivating question for Chris Lattner as he reconnected with his product counterpart on Tensorflow, Tim Davis, and started working on a modular solution to the problem of sprawling, monolithic, fragmented platforms in AI development. They announced a $30m seed in 2022 and, following their successful double launch of Modular/Mojo🔥 in May, have just announced their $100m Series A1.
+
+While the performance claims of Mojo🔥 and its promise as a fully multithreaded compiled Python superset stole the show, we were amazed to learn that it is a side project - and the vision for Modular’s Python inference engine is at least as big.
+
+Listeners will recall that we last talked with George Hotz about his work on tinygrad and how he wants to replace PyTorch with something faster and lighter, handwriting a “reduced instruction set” of operators himself2. But what if the problem could be solved at even lower level - with the Python engine/runtime itself?
+
+Chris on Compilers
+
+Chris’ history with compilers is well known - creating LLVM during his PhD (for which he won the 2012 ACM Software System Award), hired straight into Apple where he also made Clang and Swift (the iPhone programming language that replaced Objective-C), then leading the Tensorflow Infrastructure team at Google where he built XLA, a just-in-time compiler for optimizing a lot of the algebra behind TF’s workloads, and MLIR, a modular compiler framework that sat above LLVM to optimize ML graphs and kernels that were hard to represent in the LLVM IR. 
+
+So as pretty much the best compiler engineer in human history, you’d justifiably assume that Chris is simply choosing to take his compiler approach to Python. And yet that is not how he thinks about compilers at all. 
+
+As he says in our chat,
+
+“How do you enable invention? How do you get more kinds of people that understand different parts of this problem to actually collaborate? And so this is where I see our work on Mojo and on the engine…
+
+…I don't have a compiler hammer that I'm running around looking for compiler problems to hit.”
+
+Today a small number of people at companies like OpenAI spend a lot of time manually writing CUDA kernels. But an optimizing compiler for AI leads to compilers as a means to an end for increasing software collaboration, expanding the ability of people with different skillsets and knowledge.
+
+“…What is the fundamental purpose of a compiler? Well, it's to make it so that you don't have to know as much about the hardware. You could write everything in very low-level assembly code for every single problem that you have… But what a compiler really does is it allows you to express things at a higher level of abstraction.”
+
+For Chris, compilers are also ways to properly automate generalized optimizations that might otherwise be manually coded and brittle abstractions, like operator fusion:
+
+“So NVIDIA goes and they build this really cool library called FasterTransformer. The performance point of using it is massive. So a lot of LLM companies and other folks use this thing because they want the performance.
+
+…Here's the problem. If you want to go innovate in transformers, now you're constrained by what FasterTransformer can do, right? 
+
+And so, again, you come back to where are compilers useful?
+
+They're useful for generalization. If you can get the same quality result or better than FasterTransformer, but with a generalized architecture, well now you can get the best of both worlds, where you have orthogonality and composability, you enable research, you also get better performance.”
+
+Done correctly, these operator optimizations being implemented at the compiler level amount to an “AI Engine” that can not only survive, but enable major architecture shifts should a credible alternative LLM architecture come along someday.
+
+Modular — the Unified AI Engine
+
+Modular’s original goal was to build the “Unified AI Engine” to speed up AI development and inference - one that doesn’t assume an “AI = GPUs” world that only benefits the “GPU-rich”, but one that treats AI as “a large-scale, heterogeneous, parallel compute problem”.
+
+Modular itself is an engine (separate from Mojo, which we cover below) that can run all other frameworks between 10% to 650% faster on CPUs (with GPU support coming in the fall):
+
+At Google, Chris’ job wasn’t to build the best possible compiler for AI. The goal was to build the best compiler for TPUs, so that all TensorFlow users would have a great Google Cloud experience. Similarly, the PyTorch team at Meta isn’t trying to make AI faster for the world, but mostly for their recommendations and ads systems. Chris and Tim realized that the AI engine and developer experience isn’t a product prioritized by any of the big tech companies (they tried) - so they see Modular as the best way to deliver the AI development platform of the future. 
+
+The modularity of Modular shines through in the hot-swapping Inference Engine demo, which has to be seen to be believed.
+
+Mojo 🔥 — Blazing Fast Python
+
+The other piece of Modular is Mojo, a new programming language for AI that is a superset of Python. In some sense it is “the ultimate yak shave”: We were shocked to learn that Chris and the team didn’t initially set out to create Mojo, but it started life as an internal DSL to make themselves more productive.
+
+Mojo adopted Python’s syntax since it’s by far the most used language in machine learning and AI. It also lets them supports all existing PyPi packages, requiring no code changes for developers to go from Python to Mojo. Mojo comes with a lot of different underlying design choices that lead to much better performance:
+
+It’s compiled rather than interpreted like Python
+
+No GIL which allows for multi-threading
+
+Better heap representation
+
+Leverages MLIR
+
+In the perfect test scenario that leverages all of these improvements, Mojo is up to ~68,000x faster than Python 🔥 (fire emoji is a valid file extension for Mojo files, btw!). 
+
+from the Modular blog
+
+Of course, that is just one microbenchmark, but as Jeremy Howard explains, most Python codebases should run between 10-100x faster simply by moving to Mojo with very minor adjustments. 
+
+A community member port of Llama2 from Python to Mojo shows it inferencing >100x faster than Python, and 20% faster than the handcoded raw C implementation.
+
+The Modular team is embarking in one of the hardest technical challenges we’ve seen a startup tackle, and we can’t wait to see what comes out of it. We had an amazing conversation with Chris diving into all the details, which we hope you enjoy!
+
+Show Notes
+
+Modular AI
+
+Chris’ personal website
+
+Scott Forstall
+
+Bret Victor’s Playgrounds
+
+Karpathy’s Tweets
+
+Speculative Execution
+
+Llama memory constraints
+
+LLVM
+
+Clang
+
+Swift
+
+TensorFlow
+
+PyTorch
+
+XLA
+
+MLIR
+
+TPUs
+
+Guido van Rossum
+
+Timestamps
+
+[00:00:00] Introduction
+
+[00:00:40] Chris's background - LLVM, Clang, Swift
+
+[00:03:01] Chris's experience with Google TPUs and XLA
+
+[00:05:47] The limitations of current frameworks like TensorFlow and PyTorch
+
+[00:08:03] The benefits of using compilers for AI systems
+
+[00:13:14] Enabling more collaboration between researchers through better systems
+
+[00:20:55] Starting with CPU optimization instead of just GPUs
+
+[00:24:36] Design principles and goals behind Modular
+
+[00:32:41] The benefits of starting from a general compiler architecture
+
+[00:35:13] Origins of deciding to create the Mojo language
+
+[00:44:43] Goals for Mojo to become a true Python superset
+
+[00:48:12] Thoughts on tinygrad
+
+[00:52:00] ggml, quantization, etc
+
+[00:57:00] Speculative execution and other gains from making Mojo more parallel
+
+[01:01:50] Future of Mojo’s toolkit
+
+[01:07:00] Why Modular is a company and not a foundation
+
+[01:11:00] Learnings as a first time founder and engineering leader
+
+[01:25:00] Lightning Round
+
+Transcript
+
+Alessio: Hey everyone, welcome to the Latent Space Podcast. This is Alessio, partner and CTO in Residence at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol.ai. [00:00:19]
+
+Swyx: Hey, and today we have Chris Lattner in the house. Welcome, Chris. [00:00:21]
+
+Chris: Hi both. Thanks for having me. [00:00:24]
+
+Swyx: We're so excited to have you. We have so many questions and we'll try to get through as many as we can. You're one of the easiest people to research I've ever had on the pod, because you document yourself extensively on https://nondot.org/sabre/. What's the story behind that, just quickly? [00:00:40]
+
+Chris: I mean, I've had that website for, since, I don't know, the mid-90s. So it's been a very, very, very long time, and I originally had a big personal page. Again, this was the mid-90s with all the scroll tags and all that kind of stuff. Yeah, exactly. [00:00:56]
+
+Swyx: The animated gifs. “Under construction.” [00:00:57]
+
+Chris: Yeah. It has been rebooted a few times, and web design is not my strong point, but the server was originally named after some fish we had. That was the origin of non-dot. [00:01:08]
+
+Swyx: I love it. I looked on Tanya's page and she has some spaniels. [00:01:12]
+
+Chris: Yep. We're dog people. We love many animals. [00:01:15]
+
+Swyx: So your quick bio, you did your PhD in CS in 2005, and then immediately went into Apple working on LLVM, the compiler framework that you created during your PhD. In our prep, you also maybe had a favorite Scott Forstall story. [00:01:32]
+
+Chris: Well, so I got to work with a lot of really interesting people at Apple. Scott was actually pretty famous. Scott is responsible for many things across the years, but he really drove the iPhone. At least the iPhone software, specifically. And so Scott was super interesting because he was kind of a high-maintenance person. He was very difficult to work with. He did not mind making other people wait for him. So there'd be all these exec reviews of Scott where the entire room is full of people. He's sitting across the hallway in his office for a half hour making people wait for him. And so when Scott was at Apple, I wasn't his biggest fan, I'll admit, but I actually have a lot of respect for a lot of the things he did. He drove a lot of the early iPhone stuff. He made the bet on Siri and a bunch of other stuff that he did. And so he's a very impressive person. I guess he's out of tech these days, but yeah, so many fascinating. [00:02:25]
+
+Swyx: My favorite story was the keyboards and how they basically had to invent predictive typing or it wouldn't work. [00:02:31]
+
+Chris: Yep. It's all software. So much of that, it feels obvious now because it's been developed for years and years and years, but it was like pure research and nobody knew if you could get all of that software to fit on such a constrained device for 1.0. So it's just an amazing time. [00:02:45]
+
+Swyx: Incredible. So I'll fill out the bio a little bit. You started working on Clang while at Apple, I think, as a front-end for C and Objective-C. You created Swift as well in 2010. And then in 2012, won the ACM Software System Award for LLVM, which I think is a crowning accomplishment for a lot of things. [00:03:01]
+
+Chris: I love to build things. [00:03:03]
+
+Swyx: You were VP of Autopilot at Tesla and then Senior Director and Distinguished Engineer at Google for TensorFlow. And then most recently, President of Product Engineering at RISC-V, or at SiFive, which builds RISC-V. [00:03:15]
+
+Chris: They're the inventors and they drive so much of RISC-V is a really fancy new instruction set for a lot of computing needs and led to a lot of AI chips and so much that exists out there. So it was a lot of fun. And so that was actually driving and building hardware. And so most of my career I spent on the software side of it. And so it was a lot of fun to be able to see the other side of how hardware comes together, how you design it, how you think about it, what are the trade-offs in that entire space. And so for a lot of years, I've been just on that hardware-software boundary. [00:03:48]
+
+Swyx: That's a lot of what we're going to talk about today with Modular Mojo. Well, so that's the brief history and you started Modular in 2022, about 20 months ago. What's one other thing on the personal side that people should know about you that people don't see on the LinkedIn because you're all into hardware-software boundaries and stuff? [00:04:05]
+
+Chris: I have kids, I like to do woodworking, I like to walk. And so often, I like to go walking with people and do walking one-ones and things like that. [00:04:15]
+
+Alessio: What's the latest woodworking project you've worked on? [00:04:18]
+
+Chris: Oh, I mean, I just built a Lego robotics table for my kids, so helping out with the school. And so, yeah, not the most fancy furniture, but I've also built furniture and many other things for the house. [00:04:29]
+
+Alessio: So I think the easiest thing for people to grasp so far has been Mojo, which is a superset of Python. And I think everybody talks about that because it's easier to grasp, but Modular's goal is to build a unified AI engine. And when I see unified, it implies things are not unified today, there's a lot of fragmentation, a lot of complexity. So let's start from the origin. What are some of the problems that you saw in the AI research and development space that you thought needed to be solved? [00:04:58]
+
+Chris: Yeah, great question. So if you go back just a few years ago to 2015, 2016, 2017 timeframe, AI was really taking off. It wasn't to the point where it is now, where it's obvious to everybody, but for those of us who were following, amazing things were happening. And that era of technology was powered by TensorFlow and powered by PyTorch, right? And PyTorch came a little bit later, but they're both kind of similar designs in some ways. The challenge there is that the people building these systems were driven by the AI and the research and the differential equations and the auto diff and all these parts of the problem. They weren't looking to solve the software-hardware boundary problem. And so what they did is they said, okay, well, what do we need to build? We need a way for people to set up layers. So we need something like Keras or NNModule or something like that. Well, underneath the covers are these things called operators. And so you get things like convolutions and matrix multiplications and reductions and element wise ops and all these different things. Well, how are we going to implement those? Let's go take CUDA and let's go take the Intel math libraries, Intel MKL, and let's build on top of those. Now doubt really well, but the challenge with that is that whenever you come out with a new piece of hardware, even if it's just a new variant of an Intel CPU, you have initially a small number of these operators. But today TensorFlow and PyTorch have thousands of operators. And so what ends up happening is each of these things get what's called a kernel. Each of these kernels ends up being written generally by humans manually. And so if you bring up a new piece of hardware, you have to then re-implement thousands of kernels. This makes it very difficult for people to enter the hardware space. The other side of it though is research, right? So if you're a researcher, very few people know how these kernels work, right? [00:06:41]
+
+This is coming in vogue. You hear about people writing CUDA kernels, for example. And I mean, the people who do this are amazing and I love them, but there's very few of them and the skill sets required to do that are just very different than innovating in model architecture, right? And so one of the challenges that we've seen with a lot of these AI systems has been the scalability problem of I can't find experts who can go write these kernels. Now, when I got involved with work at Google, we were working on Google TPUs. Google TPUs are one of the most successful at-scale training accelerators that exist. And one of the challenges that we face as a team is this challenge of saying, how do we bring up a novel piece of hardware given you have thousands of these different things? And really the goal at Google initially was catalyze and enable a ton of research. Now, one of the things that was done before I got there and that was novel and it attracted me there is people said, hey, let's use compilers for this. So instead of handwriting thousands of kernels and rewriting all of these operators and trying to do what Intel or what NVIDIA had done, they said, let's take a different approach. And compilers can be way more scalable than humans because compilers can allow you to mix kernels in different ways. And there's a number of these optimizations that are really important that you've talked about before, including kernel fusion, which can massively reduce memory traffic and things like this, and these other reassociations and optimizations that you want to be able to do. [00:08:03]
+
+Chris: And a compiler can do that in a very general way. Whereas if you're doing it with traditional handwritten kernels, what you get is you get a fixed permutation of the ones that people thought were interesting. And so the things that worked are the things that have already been important, not the things that researchers want to do next. And a lot of research is doing new things, right? And so the investment in compilers led to this thing called XLA, which is part of the Google stack. Really great, enabled massive exaflop scale computers, tons of amazing work was done with that. But there was another problem, right? The big problem was that, okay, well, it was brought up to enable one piece of hardware, in that case, Google TPUs. And it turns out building compilers is hard. And there's a different scalability problem, where before it was hard to hire lots of humans to write lots of kernels. Now you have to hire compiler engineers. And there are even fewer compiler engineers that know machine learning and know all this stuff. And so what actually happened there is that there's a bunch of technical innovation and a lot of good things that came out of it. But one of the challenges was something like XLA is it's not extensible. And so you can technically extend it if you're at Google and you work on TPUs and you have access to the hardware, right? But if you're not, then it becomes a real challenge. And so one of the things I love about the NVIDIA platform in particular is that if you look at CUDA, like many people get grumpy about CUDA for various reasons, but you go all the way back to when AI took off, like deep learning took off with the AlexNet moment, for example, right? So many people will credit the AlexNet moment as being a combination of two things. They say it's data, ImageNet, and compute, the power of the GPUs coming together. And that's what allowed the AlexNet moment to happen. But the thing they often forget is that the third part was programmability, because CUDA enabled researchers to go invent convolution kernels that did not exist, right? There was no TensorFlow back then. There was none of the stuff that existed. And so it's actually this triumvirate between data compute and programmability that enabled a novel kind of research to kick off this invention that became the entire wave of deep learning systems, right? And so to me, learning from many of these things, you have to learn from history, coming to modular saying, okay, well, how do we take the next step? How do we get to the next epoch in terms of this technology where we can get the benefits of humans who have amazing algorithmic innovation and ideas and sparsity and like all the things that are kind of on the edges of the research that could become relevant? How do we get the benefit of compilers? And so compilers do have amazing scale and generality to new kinds of problems. And then how do we get the benefit of programmability and mix all these things together? That set of insights is what led to modular and what we're doing with the AI engine. [00:10:44]
+
+Alessio: I think in one of your previous podcasts, you mentioned leaving people behind, you know, that are like not experts in certain things and they can't contribute. CUDA is great. And we had Tridao who created FlashAttention on the podcast. And when the new Cutlass version came out, he made FlashAttention too, because Cutlass was so much better. And like, he didn't have to worry about that. He could focus on it. How do you see the future of like AI development in kind of like a post-modular world? You know, do you think there's going to be a lot more collaboration at different levels of teams coming together? Or is one of your goals like allowing people that are not compiler experts to like not even think about it and assume they already got the best? [00:11:22]
+
+Chris: Yeah, well, so I mean, my general belief is that humans are amazing, but we can't always fit everything in our head, right? And so you have different kinds of specialities, different kinds of people. And so if you can get them to work together, you can get something that's bigger than any one of them, right? I have certain skill sets, but I barely remember differential equations, right? And so it turns out that I'm not going to be inventing the next great model architecture, [00:11:45]
+
+Swyx: right? [00:11:45]
+
+Chris: But I'm useful for some of the systems problems. And so if we can get these people working together and collaborating together and understanding how these things work, like new breakthroughs can happen. And so Tree's interview with you, I think is a great example of that, right? He explained how, you know, he was working on different parts of the stack. He got interested in the systems. And he's a research group with Chris Ray, right? They have applications people that they work with, right? And so it really does, in my opinion, come back to like, how do you enable this flywheel? How do you enable invention? How do you get more kinds of people that understand different parts of this problem to actually collaborate? And so this is where I think that, you know, you see our work on Mojo and on the engine and things like this, what we're doing is we're really trying to drive out the complexity of this problem because so many of these systems that have been built up, you know, they're just aggregated together, right? It's like, here's a useful thing that enables me to solve the problem I want. And it wasn't really designed top to bottom. And I think the modular world provides is a much simpler stack that's much more orthogonal, much more consistent, much more principled. And that enables us to like reduce complexity all the way up the stack. Whereas if you're building on top of all this fragmented kind of mess of history, right? You just kind of have to cope with it. And a lot of the AI, particularly on the research systems, right? They have this happy path. And so if you do exactly the demo, the thing will work. But if you try changing anything just a little bit, everything falls apart and performance is awful or it doesn't work or whatever. And so that's an artifact of this fragmentation at the bottom. [00:13:14]
+
+Swyx: So you kind of view compilers and languages as medium for which humans can collaborate or cross boundaries. [00:13:20]
+
+Chris: I like compilers. I've been working on them for a long time, but work backwards from the problem, right? And if compilers are useful or the technology is compiler technology is useful to solve the problem, then that's cool. Let's use it. I don't have a compiler hammer that I'm running around looking for compiler hammer. Compiler problems to hit. Yeah, exactly. And so here, you say, what good is a compiler? Like what is the fundamental purpose of a compiler? Well, it's to make it so that you don't have to know as much about the hardware. You could write everything in very low level assembly code for every single problem that you have. But what a compiler or a programming language or an AI framer really does is it allows you to express things at a higher level of abstraction. Yeah. Now that goal serves multiple purposes. One purpose is that you make it easier, right? Second goal is that my opinion is that like, if you push a lot of complexity out of your head, you make room for new kinds of complexity. And so it's really about reduction of accidental complexity so that you can wrestle with the inherent complexity and the problem. Another is that by getting abstraction, right, you enable, for example, one of the things that compilers are good at, particularly modern ones like we're building, is that the compilers have infinite attention to detail. Humans don't, right? And so it turns out that, you know, if you hand write a bunch of assembly and then you have a similar problem, well, you just like take it and hack it a little bit without doing a first principles analysis of the best way to solve the problem, right? Well, compiler can actually do a lot better than that because CPU cycles are basically free these days. [00:14:42]
+
+Swyx: Yeah, exactly. [00:14:42]
+
+Chris: And also higher levels of abstraction give you other powers. And one of the things I think is really exciting about deep learning systems and things like what Modular is building is that it has raised compute to this graph level. Once you have gotten things out of for loops and semicolons and, you know, out of the muck and into something that's more declarative, well, now you can do things where you transform the compute. This is something that I think that many people don't yet realize because it's kind of possible, but it's really such a pain with these existing systems is that, you know, a lot of the power of what this abstraction provides is the ability to do things like Pmap and Vmap, like where you're taking a computation and then transforming it. And one of the things I was very inspired by my time at Google is, you know, we started out with these very low level things and, you know, single node GPU machines and then clusters and then async programming, like all this very little stuff. And by the time I had left, we had had, you know, researchers in Jupyter Notebook training petaflop supercomputers. You just think about that. That is an enormous lift in terms of the tech. And that was made possible by a lot of very layered and well-architected systems, by a lot of, you know, novel HPC type hardware, by a lot of these breakthroughs that had happened. And so what I'd love to see is for that technology to get even more widely adopted, generalized and get out there and also kind of break down a lot of the complexity that got built up along the way. Beautiful. [00:16:09]
+
+Swyx: You use very precise terms, AI engine, AI framework, AI compiler. And I think that means special things for you, especially within the modular context. Do you care to define them so we can have context for the rest of the conversation? Yeah, absolutely. [00:16:22]
+
+Chris: That's a great point. When I think about framework, I'm usually talking about things like TensorFlow and PyTorch. These are things that, you know, most people building a model will use something like PyTorch to build it and train it and do things like that. Underneath that, you end up getting a whole bunch of ways to talk to the hardware. And often it's CUDA or Intel MKL or something like this. And so those things are the engine. And that interface of the hardware is generally what I think of when I talk about an engine. [00:16:48]
+
+Swyx: Right. And modular is a new engine. Yes. [00:16:51]
+
+Chris: And modular is providing a new engine that plugs into TensorFlow, PyTorch, and a whole bunch of other stuff. And then allows you to drive, manipulate, program the hardware in a new way. [00:16:59]
+
+Swyx: Which I would recommend everyone check out the products launch demo where you swapped it out in real time and it just kept working. [00:17:06]
+
+Chris: Yep, yep. [00:17:07]
+
+Swyx: That was a big flex. [00:17:08]
+
+Chris: So I believe in properly modular, properly layered, properly designed technology. And so if you get the abstractions right, you can do really cool things like this. [00:17:16]
+
+Alessio: Let's start diving deeper. So as you mentioned, you said between the framework level and the hardware level. So when it first got announced, I went on the website and I was like, wow, I wonder how many petaflops they get on an A100. And then I open and it's all CPUs. So my question is, everybody's trying to make GPUs go brr. Why are you making CPUs go brr first? [00:17:40]
+
+Chris: So this is the problem with doing first principles work. Is that you have to do all of the work from the beginning. And if you do it right, you shouldn't skip over important steps. What is an AI system today? Lots of people say, oh, it's a GPU. People are fighting over GPUs. They're always talking about, it's all about GPUs, right? AI, in my opinion, is actually a large-scale, heterogeneous, parallel compute problem. And so AI traditionally starts with data loading. GPUs don't load data, right? And so you have to do data loading, preprocessing, networking, a whole bunch of stuff. And then you do a lot of matrix multiplications. You do all the things that people usually talk about. But then you do post-processing and you send stuff out over a network or under disk, right? And so CPUs, it turns out, are necessary to drive the GPUs, right? And a lot of the systems, again, when you say, let's bring up software for the accelerator, what you end up doing is you say, okay, well, what can the accelerator do? It turns out it's a subset of the problem because they decided that the matrix multiplications or whatever they thought was important is the important part of the problem. So you then go build a system that does exactly what the chip will do. And you never have time to go solve the big problem. And so it's really funny when you look at something like a TensorFlow or like a PyTorch, so much of that host side compute problem, the CPU work, ends up being in Python, ends up being in these things like tf.data and stuff like this. Not programmable, not extensible, really slow in many cases, very difficult to distribute. And so there's a huge mess here. Also, if you look at CPUs, it turns out they are accelerators. So CPUs these days have tensor cores. They just get funny names like AMX instructions and things like this, right? And the reason for that is that it used to be that CPUs and GPUs were completely different things. What's happened over time is GPUs get more programmable and more like CPUs, and CPUs get more parallel. And so what's happening is we're getting a spectrum of this technology. And so when we started modular, we said, okay, well, let's look at this from a technology perspective. Hey, it makes sense to build a general thing because once you have a general thing, you can specialize. As I've seen with XLA and some of these other stacks, like it's very hard to start with the specialized thing and then generalize it. Also, it turns out that, you know, where's the spend in AI? Well, I mean, different people are spending different amounts of money, different things, but training scales the size of your research team, inference scales the size of your product and user base and everything else. And so a lot of inference these days is still done on CPU. So what we decided to do is we said, okay, well, let's start with CPU. Let's get improve the architecture. CPUs are also easier to work with and they don't stock out and they, you know, they're easier for a variety of other reasons. And let's prove that we can build a very general architecture that can scale across different families. And so what we showed is we showed, okay, we can do Intel, AMD, we can do this arm Graviton thing and showed a lot of support for, you know, all the different weird permutations of things within even an Intel CPU. There's all these different vector lengths and all this stuff going on and showing that we could beat the vendor software with much more general and flexible programming approaches. And then from there, yes, we're doing GPU. We'll have GPUs coming out soon. And then when you build into that, right, what you get is you get the benefit of a well considered, well layered stack that has got all the right DNA in it. And so then you can scale into these different kinds of accelerators over time. [00:20:55]
+
+Alessio: What are some of the challenges to actually build an engine? So I think the CPU point people have. So that's why you see LLAMA, CPP, you see some of this quantization where most people are thinking, let's take the model, quantize it, make it runnable on CPU and do that. You were like, no, I'm kind of like more crazy than that. How about we redo the whole engine? How does that differ in terms of work? So the model work is very kind of like weight specific. Yours is more like runtime, compiler specific. What does your team look like? And what are the challenges that you tackle to make an engine happen? [00:21:29]
+
+Chris: In terms of the technology or? [00:21:31]
+
+Swyx: Yeah. [00:21:31]
+
+Alessio: Kind of like, how do you even start? Like when you started this company, kind of like some people said, I'm going to change the weights and quantize them. You were like, I'm going to change the engine. You know, what are some of the low hanging fruits, maybe some of the initial challenges that you're working on? [00:21:45]
+
+Chris: Well, so, so I think a lot of what characterized modular is doing things the hard way to get a better outcome. [00:21:52]
+
+Swyx: Right. [00:21:52]
+
+Chris: So many of the people on our team, we've worked on all of the systems. So, you know, I worked on XLA and TensorFlow, the people that worked on PyTorch, TVM, the Intel OpenVINO stuff, like all of these weird things that have been created in the industry, Onyx Runtime, right? We have several really great people from there. And so many of these people have been working on these systems. And the challenge with them is that many of these systems were designed like five or eight years ago. [00:22:17]
+
+Swyx: Right. [00:22:17]
+
+Chris: And so AI was very different back then. There were no LLMs, right? I mean, it was a very different world. And so the challenge is, is that when you build a system, it starts out by being a pile of code and it gets bigger and bigger and bigger and bigger and bigger. And the farther along its evolution you get, the harder it is to make fundamental changes. And so what we did is we said, okay, let's start all the way at the beginning. Just like you're saying, yes, it's much harder. Again, I like to build things and I think our team likes to build things. And so you say, well, how does threading work? By the way, it's not often known, but TensorFlow, PyTorch, all these things still run the same thread pool that Caffe ran on. Widely known to be a huge problem, leads to massive performance problems, makes latency super unpredictable when you do inference. That one, a very specific set of design choices to make the thread pool block and be, you know, be synchronous. And like the entire architecture at the very bottom of the stack was wrong. And once you get that wrong, you can't go back. And so our thread pool assumes that no test can block. You have very lightweight threading, right? This goes directly into everything that gets built on top of it. You then go into things like, okay, well, how do you express kernels? Well, you still want to be able to handwrite kernels and we start by prototyping things in C++, but then you also get up into the mojo land. And so you build, you know, a very fancy auto-fusing compiler using all the best state-of-the-art techniques while also going beyond state-of-the-art because we know that users hate static shape limitations, lack of programmability. They don't want to be tied just to tensors, for example. And so a lot of LLMs have ragged tensors and things like that going on. Tabular data, you have like all these things. And so what you want to be building and one of the benefits of architecting things from first principles is that you can take all the pain that you've suffered and felt in other systems and you've never had a chance to do anything about it because of schedule, because of constraints from various kinds, and you can actually architect and build the right thing that can scale into that. And so that's, that's the approach we took. And so a lot of it was very familiar work, but it's very hardcore design engineering and you really need to know the second and third order effects of each decision. And fortunately, a lot of the stuff isn't research anymore. It's pretty proven. [00:24:31]
+
+Swyx: So you mentioned some design goals that you have in first principles. Do you have a list? [00:24:36]
+
+Chris: In what sense? [00:24:40]
+
+Swyx: Off the top of your head. Like, I think it's very useful when designing systems to have that list of principles. And I think you very much think of yourself as a first principles thinker, but I think your principles differ than most. And you've gained this insight over just studying a lot of AI work over the years. What are they? [00:24:55]
+
+Chris: I don't know that I have one set of principles that I, you know, it's like one, one club that I go around and beat things with. But a lot of what we're trying to do is we're trying to unlock the latent potential of a lot of hardware and do so in a way that's super accessible. And so a lot of our starting conditions was not like enable a new thing. It's much more about drive out the complexity that people are struggling with to do the thing. And so it's not research. It's about design and engineering. Now, when you look at this, we're also driving from, okay, let's enable the maximum power of any given piece of hardware. So if you talk to an LLM company and they just spent $200 million on GPUs and their A100 GPUs of a specific memory size or whatever, right? They want to get everything possible out of that chip and they don't want a lowest common denominator solution. Right? And so you want, on the one hand, full power. You want to go all the way down to the metal and be able to unlock these things. And some of these researchers like, like tree and others, I mean, they're freaking amazing. [00:25:57]
+
+Swyx: Right? [00:25:57]
+
+Chris: But on the other hand, a lot of other people want more portability, generality, abstraction. [00:26:03]
+
+Swyx: Right? [00:26:03]
+
+Chris: And so the challenge becomes how do you enable and how do you design a system where you get abstraction by default without like giving up the full power? And again, a lot of the compiler systems that have been, you know, compiler for ML type things have really given up full power because they're just trying to cover one specific point in the space. And so owning that and designing for that, I think is really important to what we're [00:26:25]
+
+Swyx: doing. [00:26:25]
+
+Chris: And other pieces, just sympathy for users, because a lot of people that get obsessed about the tech forget about the fact that the people that will be using it will be very different than the people that are building it. That aspect is actually really important when your developer tools fundamentally is to understand that the developers that are using it, they don't want to know about the [00:26:44]
+
+Swyx: tech. [00:26:44]
+
+Chris: One of the things that's super funny about working on compilers is nobody wants to know about a compiler. You're building a Mojo app or you're building a C app or whatever, right? You just want the compiler to get out of your way or tell if you did something wrong, right? If you're thinking about the compilers because it's too slow or it's, you know, broken in some way or something. And so AI tech should be the same way, right? I mean, how much of building and deploying a model is fighting with the tools? Get some crazy Python stack trace out of some tool because it covered the special case and now you're off that happy path, right? And so that compassion for users is something I think that, largely because AI infrastructure is so immature, but it's never been really part of the ethos of the people building tools. [00:27:22]
+
+Swyx: You chose things like, you know, your third pool has everything non-blocking. The sum of your first principles have led the module inference engine to be two to three times faster than PyTorch and TensorFlow, right? [00:27:33]
+
+Chris: Oh, I was trying to look at it. [00:27:34]
+
+Swyx: I'll show a decomposition of performance. Okay, well, yeah. So you can talk about that too. [00:27:38]
+
+Chris: So one of the really funny things that if you get it wrong, it's very difficult to fix is asynchrony. And so when you think about, I have a CPU and I have a GPU and they talk to each other, most people think about it in terms of CPUs doing some stuff that throws a CUDA kernel across the fence, GPUs go brr, right? And then when there's results, you know, you read it back, right? But that's actually a really inefficient way to run a computer. What you actually want is you want to think about there's two different computers that are both executing and they're sending messages back and forth to each other. So I built hardware, right? If you go all the way down to the gates, when you look at this, these computers, whether they're the tiled cerebrus wafer thing, right? Hardware is implicitly parallel. All of these things are always running all the time and they're communicating with each other. And so starting from an asynchronous programming model means that you can get accelerators that send messages to each other because that's the natural form of the hardware. When you get into CPUs, CPUs, you have, you know, 88 core CPUs or a hundred core CPUs these days, even if you have four, right? What they really are is there are four completely independent computers. And so, yeah, they send cash lines across the fabric at each other, right? But they're async, right? And so much of the programming model that people start with is always sync. And so when you build into the stuff, you say, okay, well, that's a huge problem. The consequence of getting this right is that now you get overlapping work and it comes for free, right? And again, simplicity, the right architecture leads to the thing just magically happening. One of the great projects we did at Google back in the day involved some of this stuff and it led to a 2x improvement in ads throughput. Ads is a very tuned workload, right? And getting TPUs and CPUs to work at the same time and overlap that compute was a huge deal. And the fact that it just falls out of an async architecture is quite important. And again, you look at this at all levels of granularity, networking is asynchronous. So as soon as you distribute a compute problem across a network, async is there, right? And so all of these systems are kind of designed in the wrong way. You go up a level of the stack. So you have these operators, right? Super interesting how this whole ecosystem evolved. If you dig into something like TensorFlow or PyTorch, right? You know, you get to the point where you have a matrix multiplication. And so like you've talked about before on your podcast, kernel fusion is really important. And the way people did that historically is they say, okay, well, I have a matrix multiplication and oh gosh, it's often followed by a ReLU. Well, I'll make a MatMul ReLU fused kernel, right? Cool, and that's a huge performance improvement because ReLU is just a max operation and you avoid tons of memory traffic, all good stuff, right? You run into these scalability problems because now you get things like a fused attention layer. So what is the consequence of saying, I'm going to manually tune the things that are important for mlperf or something, right? Well, what ends up happening is, again, you get these happy paths and they work way better than the default path. And so if you look within the NVIDIA world, for example, there's a ton of focus on transformers. And so NVIDIA goes and they build this really cool library called Faster Transformer. The performance point of using it is massive. Like it's a big deal. And so a lot of LLM companies and other folks use this thing because they want the performance. Performance turns into cost and throughput and all good things. Here's the problem. If you want to go innovate in transformers, now you're constrained by what Faster Transformer can do, right? And so, again, you come back to where are compilers useful. They're useful for generalization. And so if you can get the same quality result or better than Faster Transformer, but with a generalized architecture, well, now you can get the best of both worlds where you have orthogonality and composability, you enable research, you also get better performance. One of the things that you ask, like, how can we beat state of the art? Well, it's because it turns out compilers have more attention span. And it turns out that what's happened, even within like the NVIDIA product line, or even within the Intel product line, or even within one vendor's line of technologies, is that they have to build these little compilers because there's so much variation across the product family. If you look at an Intel product family, for example, they're building software that has to run on many different versions of this architecture. And they come out and they add a cool new dot product instruction, or they add beeflet 16 support, or they add whatever. And so what's been happening in the industry is that each of these companies have been building their own little compilers. And so their own little compilers are, again, they're focused on one part of the PROM domain. They have all these issues. They're not scaled very well. And so you get either, again, another fragmented part of the space where something will work really well, usually for a benchmark, right? But then it doesn't work well when people try to do new things. And so kernel fusion turns out to be one of those things. The programmability side, right? I mean, you just keep working your way up the stack. Matrix multiplication is really important. So who's that thing that hasn't been invented yet? I mean, we have folks that are using our stuff that care about computational fluid dynamics, right? And things like this, where it's really more of HPC, linear algebra, like more general than deep learning, right? And they want to use the same technology because all this technology is general purpose. And so enabling people to express their PROM domains, and often they're experts in fluid dynamics, which I know nothing about, by the way. [00:32:41]
+
+Swyx: I mean, diffusion is another one that relatively recent new technique. Yeah, right. [00:32:47]
+
+Chris: And so like enabling people to innovate in this way without having to know all that thread pool, right? You know, they don't want to know about a thread pool. And so enabling people to be able to focus on the part of the stack they care about and have it compose in is super important. Again, many systems have been built that tackle individual pieces of these PROMs. They end up usually having very specific constraints and limitations and problems. And so what we're doing is we're saying, okay, let's do the hard thing. Go all the way back. Let's actually build things in the right way and layer them up and do so in a way that composes correctly. And then what that means is you're driving away all that complexity that comes from, you know, the blocks don't plug together. [00:33:25]
+
+Alessio: Yeah, even at the hardware level, I'm sure that the cerebros of the world are like really happy that you're building this because now they can offer binding. And then I think that's one of the main complaints from developers is like these chips sound great, but like, how do I use them, you know? [00:33:43]
+
+Chris: Well, and that's one. So we're still early in our journey, but I care a lot about hardware and we have many friends in the space. The challenge again, so I worked on TPUs as one example, but certainly not the only one. The challenge, if you're building innovative hardware is you have to build the entire stack from the very bottom to the top. And so if you talk about a cerebros, right, they've built some amazing stuff, but they've had to build their own vertical software stack. And now it doesn't work the same at the top level as anything else. And so even if it's really good, right, it means that there's this huge barrier of entry for a developer to switch to their tech stack. Sometimes they're, some of these things are better than others, let's just say, right? And so it turns out building stuff is really hard. And so a lot of what we're trying to do is, again, we're putting down bricks. Like we have to take steps in logical order. We have to build the technology in the right way. Like I insist that we do everything at a super high quality. But when you do that, what that means is that then you can have a thing that you can plug into. And no, we can't turn a cell phone into a data center supercomputer, right? But if you want to quantize your model, you shouldn't have to use different tools for a cell phone than you use for a supercomputer, right? It turns out the intake's the same. Yeah. [00:34:50]
+
+Alessio: Let's keep working our way towards the 35,000 times faster number that is out there. So you kind of keep going up and then you get to the Python level. [00:35:00]
+
+Swyx: Yep. [00:35:00]
+
+Alessio: And you're building Mojo, which is a Python superset. I'm also sure you didn't wake up one day [00:35:06]
+
+Swyx: and you were like, [00:35:06]
+
+Alessio: yeah, that sounds like a fun thing to do, creating a Python superset. Yep. What are some of the limitations that you saw there? [00:35:13]
+
+Chris: Yeah, well, so I'll tell you where it came from. Because when we started Modular, we had no intention of building a programming language. So this is the, again, it's not looking for reasons to invent a language. But if we have to invent one to solve a problem, then cool, let's do it. So what we did was we said, okay, let's start, again, thread pools and other very basic stuff. How do we integrate with existing TensorFlow PyTorch systems? Turns out that's technically very complicated and very yucky. But then you get into the more, okay, let's get the hardware to go broom, right? Prom, right? And so then what we decided to do is we invented a whole bunch of very nerdy, very low level compiler tech. And so our compiler, yeah, it does autofusion and stuff like this, but it's designed for cloud first compute. Because there's more than one computer in the world, right? [00:36:00]
+
+Swyx: And things like this. [00:36:00]
+
+Chris: And so caching, distribution, like all these things get built into the compiler. You want to use things like auto tuning, [00:36:06]
+
+Swyx: right? [00:36:06]
+
+Chris: Because of all the complexity in the hardware and humans are great at algorithms. Attention span is not always the right thing. And so there's these requirements that came out of this. And so what we did is we built this pure compiler technology and validated it to show that we could generate kernels with very high performance. We got to the point where we're building that all and we were writing this very low level MLIR stuff by hand. We're happy enough with it at the time, but our team hated writing the stuff by hand. And so we needed syntax and said, okay, well, this looks like a language. And so what choices do we have? We could either do a domain specific embedded DSL like thing, like Halide, or there's a whole bunch of these things [00:36:45]
+
+Swyx: that are out there, [00:36:45]
+
+Chris: or we could build a programming language. And so again, saying, let's do it the hard way because it gives you a better result. The problem with the Halide or like the OpenAI Triton thing, or like there's a whole bunch of stuff that's kind of in this category is that they have terrible debuggers. The tools around it are really weird. They demo really well, but often are best used by the people who built the tools themselves, things like this. What we decided to do is say, okay, well, let's go build a full programming language. I know how to do that, built Swift, learned a few lessons. I know both how to do it, but also what a big commitment it is to do that. And the consequence of that is you can do something that's much better. Now you have to go shopping for syntax, right? And so we'd built all this pure technology and we could do anything we wanted. Could use Swift, could use C++, [00:37:31]
+
+Swyx: could use whatever, [00:37:31]
+
+Chris: but obviously the entire ML community is around Python. And so we said, okay, well, let's go use Python. And then how are we going to do that? Again, you dive into these levels of decision-making and it's like, okay, well, there's a lot of things that are like Python, right? [00:37:45]
+
+Swyx: But they're not, [00:37:45]
+
+Chris: and they don't get adoption and they have huge problems and they fragment the community and all the things. And so I said, okay, well, let's actually do it the right way. Let's try to build something that it'll take time to get there. But in the end, it's a super set of Python. [00:37:57]
+
+Swyx: Why? [00:37:57]
+
+Chris: Well, Python syntax isn't actually the important thing. It's the community, the entire body of programmer muscle memory, right? Like all of these things are actually the important thing. And so building a thing that looks like Python, but it's not was never a goal. Let's go actually build and again, do the hard thing that leads to a better quality result that'll be better for the world. Even if it takes a little bit longer to build. I'm shocked. [00:38:21]
+
+Swyx: My jaw was like dropped the entire time you were saying this because this sounds like it's just a massive yak shave to improve your tooling to make yourself more productive, [00:38:29]
+
+Chris: which is crazy. [00:38:31]
+
+Swyx: Like most people start out trying to do the language first, but you came at a great point. [00:38:36]
+
+Chris: So we built it and we started on this path to make it so that our team would be more productive. And we say today, like the most important Mojo developers are at modular. And that's actually really important when you're building a language is use it yourself. This was a mistake we made with Swift is we built Swift to solve a people don't like objective C syntax problem. Roughly, but we did not have internal users before we launched it. Not significant ones, right? And so with Mojo, like we're actually using it. And it's the thing that powers all the kernels in our engine. And so it's actually needs to be production quality. But then you realize that shaving the act that finally is actually not actually not worth it, right? [00:39:15]
+
+Swyx: And we realized, okay, [00:39:15]
+
+Chris: well, Mojo is actually useful to lots of other people. And so this is when we announced it. We said, okay, well, yeah, we'll make this a standalone thing because we think it's valuable and interesting to the rest of the world as well. And then, of course, we'll invest in it more because it's not just us and we can tolerate pain, but we want people to fall in love with good tools. [00:39:31]
+
+Swyx: Yeah. And obviously you had a great stack already and good team, but like how long from realization that, oh, we need to start looking around for a language to something that looks like Mojo today? [00:39:41]
+
+Chris: Yeah. So the lexer and the parser for Mojo started in October. [00:39:45]
+
+Swyx: Wow. [00:39:45]
+
+Chris: So it's less than a year old. [00:39:48]
+
+Swyx: Yeah. [00:39:48]
+
+Chris: This is also another thing is that I'm a very strange person in many ways, right? My ideas of what are hard problems are really different than other people, right? But Mojo is a much smaller language than Swift is. [00:40:00]
+
+Swyx: Yeah. [00:40:00]
+
+Chris: And even when it's done, it will be a much smaller language. And so compared to building Clang, which is a full C++ compiler or Swift, which is itself a very complicated, fancy system for a variety of reasons, right? This is actually a small project. Yeah. Yeah. [00:40:15]
+
+Swyx: You still have to pick design choices from like Rust and whatever [00:40:18]
+
+Chris: Yeah, well, absolutely. And so we will see what happens with Mojo over time. I would like a big chunk of our stack that is currently written in C++ to eventually move over. And so having a very good system programming language that scales is quite valuable and useful for lots of reasons. [00:40:32]
+
+Swyx: One of the other things [00:40:33]
+
+Chris: I'll share with you is that starting from CPU, starting from the general thing that you then specialize leads to these design points, for example, in Mojo, where you say, okay, well, if I care about high performance data loading, that needs to be super parallel. I care about disks being parallel and network being parallel and async and all this stuff that needs to be safe, right? And so with Swift, we built a memory-safe parallel programming abstraction called Actors. We've built all this stuff. And so being able to take the lessons learned from building [00:41:03]
+
+Swyx: it the first time [00:41:03]
+
+Chris: and driving it into a system the second time means that you can make something that's much better than the first time around when you were just figuring things out. So, but starting from generality is really important. [00:41:14]
+
+Swyx: Every single language designer I've ever talked to has emphasized a playground and I was browsing your site and I realized that you had called the Xcode and Swift playgrounds a personal passion and you were inspired by Brett Victor. I guess, what have you learned about building a good playground? Because you just released modular like a few days ago, sorry, Mojo a few days ago, I was able to go in and play with it. What have you learned? And maybe what goes, what is underappreciated about like a good playground? [00:41:38]
+
+Chris: Yeah, well, so when we were building Swift, there's this big question about how do we do something better than what Objective-C had? Yeah, right. And so naturally it's like you've gone through all this work, [00:41:48]
+
+Swyx: you're building this new thing, [00:41:48]
+
+Chris: what can you do with it? When we first launched, we wanted to make something very visual. Apple's a very visual company, right? It likes user interfaces [00:41:56]
+
+Swyx: and stuff like this. [00:41:56]
+
+Chris: And it turns out that we as humans, many of us are very visual learners and thinkers. One of the things that playgrounds for iOS and for the Mac allows you to do is play with time. And so what happens is that there's a graphical view of a canvas roughly, right? You then run your program and you have a ball bouncing or whatever the thing is that's happening. And now you can scrub through time because it can log and keep track of a bunch of state. And so this is one of the cool things about building systems and controlling it top to bottom is that you can build these kinds of experiences. One of the fun projects I was able to work on at Apple is this thing called Swift Playgrounds. And so it's actually an iPad app. The entire purpose is to teach kids how to code, right? And so one of the cool things about that is that that led to this whole area of research, to me at least, and around UI design for saying, for Playgrounds, how do I do coding on an iPad without popping up a keyboard, right? And so, exactly, very interesting technical problem, very different than compilers, turns out, right? And so we spent a lot of time working on gestures for like, you know, moving braces and blocks and refactoring code and doing all this stuff, making it so that it's super predictably understood what identifiers were in scope. And so complete the identifiers instead of you having to type them, instead of typing in numbers, like you get a little spinner. [00:43:12]
+
+Swyx: That's not just for kids. [00:43:14]
+
+Chris: And so it's super awesome. One of the things that came out of that is the current iPad keyboard allows you to swipe down on keys instead of going through modifiers. And so that came out of that project. And so there's a lot of the stuff where being able to build this stuff enables you to re-ask old questions. Yeah. [00:43:33]
+
+Swyx: Oh, that's great. I love the scrubbing stuff. And Brent actually worked at Apple. It probably overlapped with you. I actually never met him. [00:43:39]
+
+Chris: Yeah, so I'm sure it's a giant compound. Yeah, so coming back to Brett Victor, so Brett did a whole bunch of research on user interface paradigms for kind of explaining how code works. And so he wrote up many different, it seems like a worry dream or something is his blog or something. And he has a whole bunch of like concept demos and things like this. And so it was super inspirational. And so a lot of what we were doing was saying, okay, well, can we get this actually out to people to actually use? And so that was a lot of fun. So Mojo doesn't have anything quite as cool like that yet. But we'll see. [00:44:13]
+
+Swyx: There's a whole community [00:44:13]
+
+Chris: of people building cool stuff. [00:44:15]
+
+Swyx: And a lot of people are saying, [00:44:15]
+
+Chris: oh, we should have UI libraries and stuff like this. And Mojo is not gonna build a UI library. But there's a lot of cool people on the internet that know how to do this well. And I'd love to see that. [00:44:25]
+
+Alessio: Let's list some of the known things about Mojo that people like. It's compiled instead of interpreter. There's like no global interpreter lock. The heap representation is different. Use MLIR. What are maybe some of your favorite or like most underrated things about Mojo that you haven't covered? Well, so I think that [00:44:43]
+
+Chris: there's two ways of looking at Mojo. Most common way is it's like a Python plus plus. Again, I've been working on this stuff [00:44:49]
+
+Swyx: for a long time. [00:44:49]
+
+Chris: It kind of been there before, right? And so if you look at Swift versus Objective-C, what Objective-C is, is it's this really interesting language that many people don't know anymore, but where you have effectively small talk, which has super dynamic objects combined with C, right? And so the way Objective-C worked in the first iPhone and Macs for years were all built with Objective-C. Is that the high-level libraries are all built with the super dynamic, you know, you could inject methods and override things and hack the class hierarchy and all this stuff, completely dynamic object model combined with C, which is really good at executing things efficiently, [00:45:25]
+
+Swyx: right? [00:45:25]
+
+Chris: And so one of the reasons that Objective-C scaled so well, for example, in the first iPhone, which was super CPU constrained, was that anytime performance was a problem, you could drop down to C. So in the case of Swift, what happened is we said, okay, well, we want to keep all the things that are good about Objective-C. So it has to be dynamic classes. You have to be able to do all this kind of stuff. We have to work with all of the Objective-C frameworks, but then we want to be able to make one thing that scales, so it's not two different worlds glued together. Python is the same thing as Objective-C, [00:45:53]
+
+Swyx: right? [00:45:54]
+
+Chris: But turn on its head, where instead of being objects and C, it's like what people think of as Python, like a very high-level dynamic, flexible programming model, but then it's also glued onto C for the execution layer, right? And so you look at something like NumPy has a very nice Python layer, or even TensorFlow or PyTorch, very nice Python layer, but underneath the covers, it's all C is C++. And so a lot of what we're doing in Mojo is, you know, we learned a lot from Swift and things like this, but it's kind of conceptually similar, where what you're doing is you're saying, cool, it's not about whether dynamics good or static is good. They're both good. They're good for different problems. So let's put them together in a consistent thing and allow you to reach for the right answer for a given problem instead of being religious about it, like dynamic typing is the right answer, right? Just say like, cool, dynamic typing is great. We can see all the benefits. A lot of people love this and it's super productive and expressive. But if you want better performance, you can reach for static typing, right? And so a lot of, I think what Mojo is, is it's progressive in terms of like, get out of arguing about stupid things that don't matter. Just let people solve problems, right? And I think that is hopefully what people see in it. Now, I mean, we can dive into other things. So Mojo learns from Rust, for example. Rust is a wonderful community with a lot of cool stuff going on. It's kind of hard to learn. And so can we take the type system innovations like lifetimes and features like that, pull them forward into a thing and make them easier to learn? If so, then we get a lot of the benefits of the safety and the other things that Rust gives and performance and all the good things, [00:47:24]
+
+Swyx: no garbage collector, [00:47:24]
+
+Chris: all the stuff that people love about Rust, do so in a way that's a lot easier to learn, right? [00:47:28]
+
+Swyx: And so it'll borrow a checker. [00:47:30]
+
+Chris: Do have a borrow checker. But one of the challenges with Rust is that, in my opinion, it's more cultural. I mean, there are definitely language design issues that antagonize it a little bit, but a lot of it is the culture, right? And so a lot of the culture of Rust is very much thou shalt borrow and expose references to everything. And the pervasive library model around Rust ends up being culturally very low level, but you could write much higher level libraries in Rust if you wanted to. And so what we're doing with Mojo is saying, okay, let's take the tech, let's fix some of the language issues [00:48:04]
+
+Swyx: and things like that, [00:48:04]
+
+Chris: but let's define a new culture. And so as we roll out new features and new enhancements into Mojo, you'll see more and more of that over time. [00:48:12]
+
+Alessio: — So one of the things that George Hotz talked about on the podcast is XLA is like a CISC and tanning dry is a risk. You built XLA, so... — Your response. — Exactly. We got the other side of the thing. What are your thoughts on that and what are the right trade-offs to make? [00:48:29]
+
+Chris: — Yeah, so I contributed to XLA. I didn't write the whole thing, but yeah. — And you worked on RISC. [00:48:34]
+
+Swyx: — Yeah. [00:48:35]
+
+Chris: Also, I love George. He's a very interesting person. He's very enthusiastic, and that's really cool. It seems like he's learning his first compiler, though, because what he's doing is he's building what's widely known as a tensor contraction compiler. And so he's identified one sub, sub, sub, sub, sub [00:48:53]
+
+Swyx: part of the problem, [00:48:53]
+
+Chris: which turns out to be really important, which is how do you express the matrix multiplications and stuff like this. And he's learning how to build a compiler for that. He doesn't care about performance, as he talked about, and performance is not great. And so he has different sets of goals. But what he's doing is he's reductively turning AI into a matmul, something that a polyhedral compiler or something like that would tackle. And that's cool. Been there, done that. The problem with that is it doesn't scale. It turns out that there are a lot of things in AI that are not just matmuls. And so one of the challenges that I predict he'll run into is when you get out to those problems, now suddenly you'll have two systems. Simplest example, this is like the data layer will be completely different, right? And so there'll be this interface. What happens when there's this phase change between how the system works? Is it easy to use? Is it composed? What happens? [00:49:45]
+
+Swyx: I don't know, right? [00:49:45]
+
+Chris: So George is a super smart guy. We'll see what he comes up with. The other thing I'd say is that he's very focused on building and learning and doing things in an opinionated way that he likes. He's not being super user-centric and meeting people where they are and trying to get and lift people and do the things they're already doing, but do them better. And so it'll be interesting to see if he gets a community of people that are actually building things that are kind of beyond his circle. But he's a very smart guy. And I think that some of the stuff he's doing will be really cool. And I think it's also really interesting because he's showing the world, like the Jaxx people, that you don't need all of PyTorch to build a framework. [00:50:21]
+
+Swyx: Right? [00:50:22]
+
+Chris: And so that truth, I think, is I think maybe two-sided because on the one hand, the tasteful subset of AI infra, however you want to look at that, is actually relatively small. But the complexity that you need to be able to integrate into a production system, deal with quantization, deal with all these things you actually need for really high performance, like really push the boundaries of what people are doing, that's where it gets hard. And so I have no way to predict where it'll go. But if you want to make a risk versus risk argument, well, it's risk until you want to do new things. And what he's identified as a subset of the problem that you can model in a very, very nice, beautiful way, which is known, but there's a lot of the rest of the problem. And so if you've compressed, you know, he talks about XLA having 150 ops, XLA could have a 10th of that. If you just said it's element-wise with an enum, which is kind of what he does. And so that's not really the right question. The right question is what can you express? And can you express a big enough part of the problem for it to be useful? And so, I don't know, we'll see where it goes. [00:51:24]
+
+Swyx: That's fascinating. Some good advice in there, I think, from engineer to engineer. Yeah, well, so, I mean, [00:51:29]
+
+Chris: but George's goal and my goal are very different. That's the important thing. It's like George's, he's building a thing to understand it. It's the best way. I mean, from what I understand, I haven't talked with George about this. And he wants it locally run transformers. [00:51:43]
+
+Swyx: Well, yeah, which is cool. [00:51:44]
+
+Chris: And I want that too. We'll talk about that in a few months, but so we have similar technical goals [00:51:51]
+
+Swyx: in some cases, right? [00:51:51]
+
+Chris: But the way he's approaching the problem is build a thing to learn it, right? And so he's very happy to talk about how he'll like rip the whole thing up and throw it away. And that's super awesome. He's building it like a research project. Like we're building it in a very different way saying, okay, we know that PyTorch is yucky in various ways or TensorFlow's made some unfortunate design decisions, [00:52:11]
+
+Swyx: right? [00:52:11]
+
+Chris: It's not about beauty. It's about pragmatism. Because when we talk to people, we say, hey, who here wants to rewrite all your code? Generally, not very many people raise their hand and people are willing to in certain cases and there are certain profiles. But if you look at where the majority of the market and where the community is, it's much smaller. Interesting. [00:52:28]
+
+Swyx: Well, you mentioned one of the operations that might be tricky is sort of the data layer. I don't know if I exactly understand what specifically is in the data layer, but I think memory constraints are something that people are talking about a lot. Recently, Georgi Griganov of GGML was showing off just the sheer amount of stuff that he can do on a single MacBook. And the analysis from Andrej Karpathy was mostly that it's just because it's memory-constrained, not compute-constrained. So even though you have a lot less compute on a single machine on Apple Silicon, it doesn't actually matter because you're just ultimately optimizing for token output. What memory-specific optimizations on the Mojo design side would you call out as important design choices? [00:53:10]
+
+Chris: Yeah, so I think that a lot of the on-device ML or on-device LLM work has really been around 4-bit quantization and 2-bit and 1-bit and things like this. You called them hacks, I think, on your... Okay. [00:53:22]
+
+Swyx: I don't think it's hacks. [00:53:24]
+
+Chris: I mean, I think it's funny, like if you want to nerd out about it, like a float 32 is a quantized representation of infinite precision floating point numbers, right? You only have 32 bits to be able to represent all of numerics, right? That's a pretty flexible and useful hack, right, from that perspective. So I'm not here to tell you that there's one right way to run a neural network. I want to make it as easy as possible to be able to explore and research and try new things. And if it works well for you, great. The challenge I have with like the 4-bit numeric stuff and with quantization in general is that the way these things are implemented are hacks. And so often it is very hard-coded kernels. So GGML, wonderful project, lots of really cool and smart people working on this. The kernel libraries are very specific, individual things that are available in very hard-coded ways and they don't compose correctly. You know, you want to walk up to it with a novel model, right? GGML requires a lot of rework before you can do that. And not lots of people know C++ that do this stuff. And so anyways, my goal and my quest is to massively reduce that complexity. Within quantization, here's the thing I'll give you to think about, right? So autofusing compilers are better for performance, memory, and accuracy. And the reason for that is that if you're using autofusion, avoiding go-out-to-memory, good for performance. Automatic is better than manual, so it's good for humans that don't have the attention span to do this. But with quantization, it's really interesting because the way you normally implement a quantized operation is that you have higher internal precision than you do the external precision, right? And so if you write out an activation in memory, you have to re-quantize down to eight bits. But often what you'll end up doing is, or take Flute 16 or something, right? The internal activation, or the internal arithmetic is done as Flute 32. Load from memory, and you do like a multiplication of two Flute 16 things and you get a Flute 32 intermediate result. And so in the CPU or in the GPU, in registers, you have higher precision. So now when you do autofusion, you keep things in the higher precision, and so you have less intermediate rounding. And so when you take a big attention block and you do quantized fusion, you actually get, yes, much more flexibility because you can fuse much bigger regions than people can do by hand. You get better performance because you're not writing things out, but you also get better accuracy. And so that's one of the things that, again, [00:55:46]
+
+Swyx: That's a free lunch. [00:55:47]
+
+Chris: That's pretty great, right? And so, and also you go back to the complexity and the pain and suffering and the, you know, a lot of what Modular's trying to do is reduce suffering in the world. A lot of the quantization tools are just really bad. And it's because, you know, they have this like unmovable kernel library that has a whole bunch of special important cases and they're trying to like pattern match onto it. And so they often have very flaky problems and it's just a huge pain in the butt. And so by solving some of that low-level compiler nerdery, right, it enables you to have better tools, better accuracy, like all these things actually stack out and just leads to better technology. And then is 4-bit the right answer? I mean, 4-bit's cool, 2-bit's cool. All this stuff is cool, right? I mean, I think that there, it really depends on your application or use case. And so allowing people to play with that, that cannot write the kernels, like that's the whole point. [00:56:35]
+
+Swyx: Yeah, they can still quantize, but using your approach, like it's just orthogonal. It's just going to be a straight improvement either way. So, yeah. [00:56:41]
+
+Chris: Right, exactly. [00:56:42]
+
+Alessio: There's still so much we're figuring out, right? The mixture of experts thing, like a few months ago, like people were not really thinking about, then George kind of leaked it on the podcast. Alerted it on our pod. Yeah, and then people started talking about it. A few other people confirmed it, yeah. [00:56:56]
+
+Chris: Yeah, yeah, yeah, exactly. [00:56:57]
+
+Alessio: As all these people started talking about it, I was like, I didn't say it. Please don't call me Sam Ullman. Speculative execution is another one. Basically, like Karpathy's thing is like, hey, if you're trying to get one token, getting K token in batch is almost the same time. I'm sure Mojo is great for that because it's not single-threaded like Python. You can run parallel. [00:57:18]
+
+Chris: So one of the funny things about this is that you've all been in space for a while. It used to be back in the day, ResNet-50 or something, or MNIST, right? What is a neural network? It's machine learning operators, right? Then reinforcement learning came on the scene, right? And now suddenly you're saying an inference ends up being part of the thing the agent does. And then I have a training job that's driving this thing. And now a big RL system ends up being this massively complicated distributed system where you have traditional AI infra lashed together with all this Python and stuff like this. You come back to like stable diffusion with the units, you go look at yield LLM implementation, all the tokenization stuff's in Python. It's super funny when you look at this because what the world is telling us is that this AI infra, these systems are not flexible enough. And so why do you have to do the tokenization in Python? It's because the data layers, the libraries that people build in this stuff are not programmable and you need flexibility. And so people do this. And by putting this stuff into Python, I mean, it's great and I understand that, or rewriting into C++ to deploy it, right? What ends up happening is you lose the ability to do things like PMAP because the graph, the underlying ML model is a declarative specification of compute. But if you can't represent your computation, then you can't transform it, right? And so one of the real purposes of Mojo and the way it integrates with the engine and stuff like this is to give you the best of both worlds where you can say, cool, I can have full programmability. I can write a completely custom tokenization layer or whatever it is I want to do. Or if I have a really compressed on-disk format or I want three bit, whatever the thing is, I can express that. But now it composes into the stack instead of it being a bolt-on on the side that doesn't work well. I've seen the consequence of not building this stuff. And what it does is it drives all this complexity into the system. Or you look at serving layers. There's these platforms like SageMaker, for example. SageMaker is a very popular hosting solution for doing inference on models. But it's really just a TensorFlow or PyTorch that's wrapped up, right? And so sure, you can give it a TensorFlow graph and say, go ahead and serve my TensorFlow graph. But what if you want some pre-processing? Well, you have to set up a microservice next to it, right? And so now you have all this data going in and out over the network just to do one summarization operator before you send something out to the mobile client that you're talking to or something, right? And so the consequence of these design points drives a huge amount of this external complexity into the systems. It just doesn't need to be there. If you do the hard work, it doesn't need to be there if you do all the hard work of first-printing this stuff. [00:59:50]
+
+Alessio: What about the post-transformer world? I think we kind of touched about this. And when you have faster transformer and all these things, it's so easy to just do another transformer model. We just did our WKB episode with Eugene Cha. What do you think about transformer alternatives and how closely are you working with some of these groups as you develop modular? [01:00:12]
+
+Chris: Yeah, so we're great friends with Chris Ray's research group, and he's pushing on the hyena models with FFTs and things like this. And so I'm not smart enough to know the right thing there, honestly. My take on that is that there's a lot of smart people. I have a hard time believing transformers are the last major macro architecture that will be invented. And so what I'd love to do is enable more people to be able to play with this stuff. I often get asked of, why does anybody care about AI and for if transformers have solved it? It's a super funny question, because the basic assumption there, which is not wrong, the basic assumption is that transformers have eaten everything. They've eaten so much of vision transformers and everything else. They've eaten all the modalities. Therefore, in the fullness of time, they'll eat everything. But the funny thing about that is that that's a very narrow view of, again, what is AI? Because AI also includes massive recommender models where you have huge embeddings and these big, dense matrix multiplications. It also includes the units and things like this. It also kind of ignores the fact that transformers, as a category, there's a lot of consistency and we still have softmax. But if you go back to the first paper, the modern transformer is actually quite different. And so, yes, there's a lot of really good ideas about attention and things like this. But the evolution of this over time has really refined the approaches and a lot of the activation functions have changed. And a lot of stuff and a lot of innovation is still happening in this field. So, I mean, is it FFTs or is it attention? I defer to smarter people that know that stack better. But what I'd love for them to be able to do is not be held back by the architectures of the systems that were massively over-optimized just for attention. – What else should people be on the lookout for modular? [01:01:50]
+
+Alessio: So you just released yesterday Mojo download on Linux systems. You have macOS and Windows coming out soon. What are, say, like six, nine months from now, I don't know how much you can share, what is going to be the toolkit? So there's kind of like modular is the engine, Mojo is like the language. What are going to be the other components that people can leverage? – Yeah, yeah. [01:02:08]
+
+Chris: As we record, just yesterday, we announced download support for Linux. I've heard of Macs and Apple platforms. Turns out CI is kind of annoying with them. And so, yes, we'll roll out that kind of stuff. So roll out new platforms, of course. One of the things we're, and within Mojo, Mojo is still a young language. And so we have traits coming, hopefully by the end of the year. We have a bunch of things like that that'll be really a big deal for library design and enable new kinds of things to be expressed cleanly. Mojo will mature, right? And so I think that this is a major thing that we're focused on, is actually building Mojo in the right way. And that'll be super exciting. One of the consequences of that is we want a big community around Mojo to build cool stuff. And so as part of building in towards this, we'll start open sourcing Mojo. I think that's something that'll be really great. We just want to make sure that we do it. And again, if we do anything, we want to do it the best possible way. So we want to figure out what is the right contribution model and all this kind of stuff. We want a permissive license. And so we have to nail down a lot of the details to kind of go into this stuff. Because again, we want to be able to build something that works well and have a whole bunch of people that work well together and not just a gigantic, catastrophic mess. [01:03:14]
+
+Alessio: Yeah, there's kind of like the Python 2-3 mess that we all got through and nobody wants to remember about it. What's kind of the relationship with Guido and the Python Foundation? And because some of the Mojo stuff is like, this is so good, why isn't it in Python 2? You know, long-term, how are you planning to keep kind of like the two languages in sync? And how are you involved with each other, so to speak? [01:03:38]
+
+Chris: Yeah, so Guido for quite some time, from before the launch. And so he's known about Mojo as it's coming. We've been very fortunate. He spent a bunch of time with our team [01:03:47]
+
+Swyx: and things like this. [01:03:47]
+
+Chris: He occasionally shows up on Discord and gives me a hard time about things. So that's super awesome. [01:03:52]
+
+Swyx: What is his pet topic? [01:03:53]
+
+Chris: I think that he enjoys trolling us. And so, which I also enjoy. So it's all good. And so like there's Guido himself, then there's a broader question of Python. I consider Mojo to be a member of the Python family. And so there's a number of members of the Python family, by the way, including things like PyPy and Cython and like all this stuff. And so we want to be a good member of the Python family. And what I expect is that Python will continue to evolve and add new stuff. Mojo will continue to evolve and add new stuff, right? And so the analogy I give to people is to go way back 30, 40 years ago, there was C, and then this newcomer came on the scene in 1983 or something called C++, right? And what was C++? Well, it was C with classes, right? And so Python with not just classes, but all the stuff underneath it that you usually do in C, right? And so what happened back in the day is that C and C++ started as two different communities, but there's tons of intermixing and idea sharing and interpollination of ideas. And a lot of the C++ features ended up in C. And then of course, all the C features ended up in C++. And so I expect that same thing to happen. And so I look at it as Python 3 versus Mojo. Python 3 is really defined by its runtime. It's defined by a specific object model. And it really, I mean, if the Python community wants to change that, that would be really interesting. But Mojo is saying, okay, it's defined by a superset of the expressive capability. And so we have fancy MLIR compilers [01:05:21]
+
+Swyx: and things like this. [01:05:21]
+
+Chris: And so we can have on-stack representations and things that kind of lead to relatives of each other. And I'd like for Mojo to be a superset, right? In terms of all the capabilities. But each of these things will evolve in parallel. You know, I consider, you know, when people come to me and they say, hey, I want like this crazy feature, which should be in Python. I say, great, go talk to Python. We're here to add the systems programming features. We're not here to just add a general, you know, Walrus 2 operator or something. Ooh, that still burns a little bit. [01:05:49]
+
+Swyx: But, you know, Python actually did end up adding no-gill after, like, not long after. Well, they haven't added it yet, but there's been discussion about it. Well, also, yeah, I mean, [01:05:58]
+
+Chris: I think the gill stuff is also going to be super interesting. They have a five-year journey to add this. And so it's going to be technically very complicated for the community because one of the most beautiful things and pragmatic things about Python is that you drop right down in C. And so much of the Python ecosystem is actually C libraries or C++ or et cetera, right? But then are wrapped by Python, right? But one of the things the no-gill stuff breaks is it breaks a bunch of that glue. And so, like, the ability to get and set attributes, all the C functions for doing that break, right? And so that's going to cause a lot of churn and complexity. And so I'm not involved in the effort, obviously, but from what I can see, the Python community seems like they're walking into this with eyes wide open. Oh, yeah. They understand the trade-offs. I think they're doing a really, like, well-thought-out approach to this. And so I think that it will probably go really well. Now, that's great also, by the way, because Mojo likes threads, because threads are a thing, right? And so this will make it so that the Python ecosystem is more concurrent compatible, which will be great for us. [01:07:00]
+
+Swyx: Yeah, but you're already there, so. [01:07:02]
+
+Chris: Yeah, exactly. I mean, again, first principle learning something, it's not like, you know, multi-cores of the future anymore, right? Yeah, yeah. [01:07:08]
+
+Swyx: One thing you're doing differently than beyond, in terms of, you know, C, C++, and then, you know, Python, Python++, is that you're choosing to build this as a company. Why a company and not a foundation? I think you kind of answered that with the modular first. [01:07:19]
+
+Chris: Yeah, so we didn't start modular to build Mojo. We started modular to solve some AI problems, and then said, okay, well, we need to do a language. So I'll reinterpret your question, if it's okay, as saying, why is modular an independent company instead of part of a big tech? Apple or Google or Microsoft or whatever. So there's a number of reasons. Well, so first of all, I'll say, we tried. We collectively, I'll speak on behalf of all of our, the people on our team. Many of us came from big tech. Yeah. Like I worked at Google. I worked on ML infrastructure at Google, right? Literally working on this problem. And many of our people came out of this context. And the challenge, again, these companies are amazing, right? This isn't to bag on big tech. The challenge is, AI infra is not their product, right? So when I was working on XLA for TPUs, when I was working on XLA, it was to enable TPUs. It wasn't some abstract, let's go solve programming model and hardware and this big problem. It was literally enable this hardware because we just installed exaflops of it, and we needed to get to go and work, right? When you look at what is TensorFlow, it's, by the way, part of the cloud organization within Google. So if you want help with TensorFlow, sign up for GCP, and then they can help you, right? What is their product? Then Meta, right? I mean, what are they trying to solve? Well, they're trying to solve their ad stuff. [01:08:34]
+
+Swyx: Meta has never had any interest in, yeah, external facing developer stuff. But Microsoft would have had you, like Satya has, you know. [01:08:40]
+
+Chris: Yeah, I wouldn't go so far to say that none of these people care. All these people care. And there's so many good engineers within the PyTorch team that care about external developers. But the way to think about this is that all these projects are more of like a hobby than they are the company project, right? And so that difference is actually really important. Like, I mean, if you file a bug against Meta or a bug against PyTorch, you have a bunch of really good engineers that are allowed to work on that, and they want their product to be good. And so they might fix it, but also they might not, right? When we talk to people, not everybody in AI trusts Meta and Google. Often they're directly competing with them, right? And so like, no, I'm not going to actually show you my model so that you can debug the problem. They're conflicted in lots of different ways. And so with Modular as a standalone company, it's super important to us that we're neutral. We're like Switzerland, right? We do not build hardware. We do not have a cloud. We are not building an LLM, right? And so what we're doing is we're building AI Infra in a way that is really good so that you all can go invent all this other stuff and you have the right tools to do it, and we're not competing with you, right? And so that is something that, you know, again, there's lots of really good people, all my friends, you know, in all these different places, right? It's not the engineers or the management is doing anything wrong. It's just that what is their core incentive structure? What do the engineers get promoted for doing? And these things that, you know, actually they're more incentive oriented than they are technically oriented [01:10:08]
+
+Swyx: end up mattering a lot. [01:10:08]
+
+Chris: And this is one of the reasons why at a hardware company, you're not incentivized to build software that runs on lots of different kinds of hardware, obviously, right? Within Google, you're not incentivized to build things that work great for PyTorch. You know, so there's this problem where the rest of the world is building on AI. They use TensorFlow and PyTorch and lots of hardware and lots of clouds and lots of stuff. And so being able to help people and be aligned with their interests is really useful. [01:10:31]
+
+Swyx: One thing I wanted to come back on, you said you don't have a cloud, but the way that people would use the modular inference engine is through your cloud. [01:10:39]
+
+Chris: You have cloud engineers. [01:10:40]
+
+Swyx: We do have cloud engineers. [01:10:41]
+
+Chris: Actually, the way our product gets used is you use it on your cloud. And so we give you roughly a Docker container, and so it can run on cloud, on-prem, on laptops. We have folks using all kinds of different things. And so it's very modular that way. So we'll also build into a hosted product, of course, over time, just out of convenience. A lot of people don't want to do the management themselves, but we're really focused on meet people where they are, right? And we believe that our tech gets adopted faster if it's easy to adopt and easy to use and saying, okay, first move all your stuff to our cloud. [01:11:14]
+
+Swyx: It's a valuable thing, [01:11:15]
+
+Chris: particularly for people who don't want to manage that, but it just slows down adoption. [01:11:18]
+
+Swyx: So a bit more company origin story stuff, because I just love company origin story type things. Your co-founder is Tim Davis, who you've worked with for a while. He's also had a couple of other startups under his belt. You get the idea for modular at SciFive, and you talked to the big clouds, and they didn't really want it, or you just arrived at the conclusion that it wouldn't be the best place for it. How did you go about founding the company? Yeah, good question. [01:11:40]
+
+Chris: So I've been working on this stuff since 2016, 2017, right? So I've been working on AI and for of different points. So Tesla doing applied. How do we make cars drive themselves? At Google, bringing up a hardware program and trying to get TensorFlow to be architected better, let's say. Then I was dissatisfied for various reasons with what was going on at Google and with not taking PyTorch seriously and things like that. And so I went and joined a hardware startup. When I did that, I really wanted to solve this problem, but the timing that was in 2020, which was right before the pandemic, by the way, it wasn't right, right? Because at that time, there's still a lot of things were unknown. PyTorch was still figuring stuff out, and they had a lot of very ambitious projects. And at the time, I'm like, okay, well, I assume that Meta will go off and solve these problems, right? And so I joined a hardware startup to understand the other side, the business strategy, the commercial side of things, how the company building side of things and all this kind of stuff, learned a ton. Also that I'm a software person, not a hardware person, but Tim was going through his own journey. And so Tim joined Google Brain roughly the same time I did in 2017. We worked together very closely. I was on the data center TPU side. He was on the mobile side with Android and all that kind of stuff. I was engineering, he was product. We were very complimentary that whole time. He stayed at Google through all that time until about 2020 and to 2021 through 2021. And so we kind of got to the points in our journey where we're saying, okay, well, what are we going to do next? And so middle of 2021, we said, okay, well, this AI infra problem is still a thing. This is, in our opinion, was not getting fixed. We looked at this and said, okay, well, what are the problems in the space? A reductive way of asking the question is you say, if AI is so important to the world, this was before chat GPT, but AI was important before chat GPT, by the way. If it's so important to the world, why is all the software so bad? Why is it so hard to deploy a model? I mean, we did huge amounts of work to make it easy to train models, but getting them into production is still very, very challenging. And so what we did is we broke this all down and we said, okay, well, there's really three kinds of software in the world. There's the hardware specific software. So CUDA or the XLA stack or the Apple neural engine stack with Core ML, things like this. And it's not the hardware people's fault, but they have to build this vertical software stack for their hardware because there's nothing to plug into. There's no LLVM for machine learning, right? And as a consequence of doing that, and they're not malicious, but they end up fragmenting the universe because they all have to build different stuff. Okay, so that's one third of the software in AI. Another third is the frameworks. So you've got TensorFlow, you got PyTorch, you got TVM, you got like all this stuff out there. All these things were, you know, they're eight years old. The infrastructure itself was research, right? These things were built in a different era of what ML was, and they got evolved along the way and new hardware and new use cases and all this stuff. And they were never intentionally designed by, you know, from what we know now. Furthermore, often because AI was so important to their host companies, hundreds of people got thrown at it, right? And so I don't know how much money has been spent on TensorFlow or PyTorch, but it's a lot, right? And so you get all these people that are kind of hacking away in the combination of lots of hands and not a lot of clear vision. I mean, it's easier to understand in hindsight than it is to predict what AI will look like in five years, right? It means that it will generate a lot of stuff, which is maybe not the most clean architecture, right? And so we get these systems that have lots of well-known problems. And so PyTorch, for example, it's pretty difficult to deploy. It's pretty well-known. It doesn't really work great with lots of non-NVIDIA hardware, right? It doesn't scale super well for LLMs. These things are pretty well-known, but they're very difficult fundamentally to fix. And the PyTorch engineers are doing really great work. They're working hard on this, but it's really hard to fix given the environment that they're in. And so because you've got the hardware side of things that's fragmenting software, you've got the framework side that is, you know, they're tied to the architecture that they started with and things evolved. What we've got is we've got a lot of people who want to make AI easy. And so MLOps is this category that evolved. And what I think a lot of these folks tried to do is they said, hey, let's make it easy by making the API super simple. So AutoML, one example of this, maybe the most extreme, but lots of other people said, hey, I'm going to add a layer of Python on top of this gigantic mess, and that will make it easy to do AI. But the challenge is you can't solve programmability or performance or hardware capabilities or new kinds of algorithms or like security, like these core problem deployability, these core problems that people are struggling with by adding a layer of Python on top, at least not without giving up the mad joy of like all the craziness of AI research. Right? And so what we decided to do is we said, okay, well, let's go back and first principles this thing, like what is causing all of this madness? Well, it's because there's no thing for people to plug into. Let's go do that hard thing. Let's go build from the bottom up. One of our first blog posts was, you know, it's before we could say what we were doing. It's like the mission statement of what let's actually design and first principles of stuff. Let's build this unifying platform. Let's tackle the hard problem. And so that's what we decided to do. [01:16:47]
+
+Alessio: At Decibel, our team is kind of like early believers and technical founders. And we see a lot of founders like yourself. You have a very long career. It's like an amazing engineer. And then all of a sudden you're like in the CEO seat. What are some of the learnings that you've had building a team, mentoring people, especially when I'm sure a lot of your work has been mentoring engineer, and now it's like also having the product head, also having the fundraising head, any stories and learnings? [01:17:13]
+
+Chris: So at Modular, my co-founder, Tim and I, we're like two in a box, right? So one of the things that I think is really special is that we have a very strong relationship and we complement each other very well, yin and yang, right? And so having somebody to talk to is really, really important. And it's not something that I've had being engineering leader at Google or engineering leader at Apple or something like this. And so that I think is super special. I'll also say that, you know, I've built many teams, many products and technologies. And so I built all this kind of stuff, but it's always within somebody else's context. And so it's really nice to not have to clean up somebody else's mess, right? [01:17:46]
+
+Swyx: Well, it's your mess now. Yeah, exactly. [01:17:48]
+
+Chris: And so also you get to, again, you get a first principles of everything. Like how do we think about comp? How do we think about, you know, a lot of the philosophy at Modular was, okay, well, you know, our belief when we started the company was we understood the pain. I'll speak on behalf of Tim. Tim understood the pain with his Google hat on, right? And he worked with a lot of customers outside and things like this, but having a Google hat on is very different than having a startup hat on, right? And so when we started the company, we started and said, okay, well, Chris goes and engineering leader, go start building the thing and build the engineering team and all that kind of stuff. Tim goes and builds the product side and the business side and things like this and goes and interviews 50 or 100 different companies without a Google hat on. What is your pain point? What are you doing? What are your challenges? How can we help? We're thinking about building X. What do you think about that? And really hone the vision. And that's what allowed us to come back together. And so the challenging things about being Modulars, we're trying to build something that is really hard. It's a super hard tech problem. Also pretty abstract. I mean, it's getting less abstract now that it's working and it's all coming together and we can announce things, right? But solving this problem requires hiring these very expensive specialists out of all these big tech companies, right? And so that really formed and shaped a lot of our initial conditions, how we thought about things. And again, when you're first principaling this, you say, okay, well, because of that, I have to raise a lot of money. I have to be able to incentivize people well. I have to be able to pay them. I need to be able to make it comfortable, like make it so that they're not fish out of water. And a lot of that shapes how you do this stuff. And so I've really enjoyed it. I think that it's a lot of fun. It's also great because we can do things where, you know, you come back to, is TensorFlow or PyTorch a product? I would say no, but I'd also say self-reflectively, many of the things I've worked on for like Swift, for example, right? Or even Xcode are products in the sense of they are, there's a product manager and there's a team that works on it and that you ship it to customers, but it is not the core product of the company. Xcode is a loss center, right? Apple doesn't make money on it. It is because it is detached. It's kind of one level indirect from the customer, right? It's very easy for that team or for a support team like that or like the TensorFlow or the PyTorch team equivalently to go work on interesting technical projects that get very divorced from the customer because you don't really know what they're doing. And so for us, we're directly customer facing, right? We see the pain. And in AI, as I think you probably know, right? There's a lot of pain and building and deploying these things is really a mess. And sure, throw a layer of Python on top, you can make a demo simple, right? But a lot of the pain that the leading companies and the leading people that are building these things are facing are not that kind of a problem. It's that they're surrounded by too many things that don't really work, right? And so a lot of our vision on let's go unify all this stuff. Let's have fewer things that work better came directly out of talking to teams that their problem is that they're building a product and their product changes. They're not using one model. Their needs over time evolve. And okay, well, now we have a mobile product. Well, now what does that mean? That's a completely different universe, right? And so what ends up happening with the teams we work with is that they're often quite sophisticated and they've evolved lots of different messy systems for different special cases and it's killing them, right? And so they often want to just be able to run faster, right? Do I need a team of 50 engineers to deploy this model? Why do I need that? [01:21:09]
+
+Swyx: I was also curious about your learnings as an engineering leader. So you've just had tons of experience building teams and hiring engineers. Obviously people want to work with you naturally. So you just naturally get a buff. Oh yeah, so it's easy, right? What is your learnings or advice or just on the engineering management side of things? [01:21:26]
+
+Chris: Yeah, so I mean, I think there's different things. I consider my job is to help the team win, right? So I do what it takes to win. And you have to be like, starting from wanting to win is actually something that some people take for granted, right? And so you have to define what winning is. And so giving people a clear vision, having a clear purpose, keeping people aligned, super, super important when you've got a whole bunch of really good people that are all wanting to be heroes in their own journey, right? If the vectors add up, you can make a lot of progress really fast. If they're pointing against each other, they cancel out, right? Within, you know, because of who I am and what I like to do, like I will often help build the initial foundation of the thing myself. And so showing the team how to build things is really good for not just like, because I built a lot of this stuff before, like directly contribute, but also saying the culture. So one of the things that is really important to me in an engineering team is how fast can you spin, right? If you're sitting there and you have to wait 24 hours or three weeks for CI to run, well, it just slows everything down, right? And so, well, what does that mean? Well, it means testing strategy. It means like all of these things are just like core software engineering problems end up mattering a lot. And once you get a culture in there, like, you know, low dependencies, like do not just suck in third-party dependencies and hope it'll be great. Because there's lots of these things that kind of come into this. And then what you end up doing is you end up building a culture within the team. Now, when you do that, now you have really good people. You have to identify first when you're hiring, but also as people are evolving, like what are people good at, right? And I really believe that if you have a really powerful engineer, for example, or product manager or whatever, [01:23:01]
+
+Swyx: if they're really good, [01:23:01]
+
+Chris: you can throw them at any problem and they can make progress, right? But if you have somebody who's really good and really passionate and you line them up with something they really want to be doing, well, then they'll have superpowers, right? And so a lot of it is making sure people are working on the right problems. And so they're able to grow and do things and push and they have agency to own decisions and they're able to do things. And so it's kind of like this ongoing, like evolving dance, particularly in a high growth team, where what you're doing is you're looking for not just what are the lines of code you write, but also what are you contributing, right? And things like this. And so there's a lot of building a team that I'm not the guy that's going to write a management textbook or something like that, right? I mean, you should. I should probably write a compiler textbook first. [01:23:47]
+
+Swyx: Yeah, you have many contributions. [01:23:50]
+
+Chris: I like building the thing, unfortunately. And so I don't slow down for stuff like that. But a lot of it is, people get very focused on often the product or if they're really, really smart and they're good at business, they focus on the customer and the problems the customer has, right? But you can't solve and build the product without having the team. And so, so much of these things end up being these virtuous loops. And so thinking about all parts of those problems, I think is really an important part of being a leader and being a team. And again, this is one of the reasons I love Tim [01:24:21]
+
+Swyx: and love working with him [01:24:21]
+
+Chris: because he's really great at ways that I'm less great at and we're both learning from each other. Before we do landing ground, [01:24:27]
+
+Alessio: any people that should be joining your team, any role that you have open that you're looking for? [01:24:32]
+
+Chris: We are growing quite a bit. We are focused on a whole bunch of different things, including hardware, software boundary. And so if you're a kernel engineer, you care about performance, GPUs and like all the weird things that are out there, right? This is a major focus. We are not hiring researchers, but we really love applied people that like actually get a model to work in production and do things. And that's really great for us. We have a lot of customer engagements and things like that going on that can be very helpful and valuable with that. We're also growing out our go-to-market team and there's many different kinds of roles. You can check out our career page and we have a number of positions posted there. [01:25:06]
+
+Swyx: Awesome. [01:25:07]
+
+Alessio: So we have our usual three questions before wrapping up. One is on acceleration, one is on exploration, and then I'll take it away. So the acceleration one is, what's something that already happened in AI that you thought would take much longer to be here? [01:25:21]
+
+Chris: So the chat GPT explosion, I thought was super interesting, right? And for folks like us that have been paying attention to AI for a long time, chat GPT was super interesting to me because it was a user interface innovation. And chat GPT happened and then GPT-4 happened and the world generally didn't even notice GPT-4. Nerds like us did, right? But they had no idea, they don't care. Chat GPT was the thing that really got people excited and it was really, you know, RLHF, like, I mean, that goes into all this stuff, right? But it was really about the user interface and how they use it. And suddenly it opened people's minds to the power of what AI can do. And so I thought that was super interesting. And from a looking backwards perspective, I thought that brought AI forward in the public consciousness by several years, I think. [01:26:10]
+
+Swyx: I always say you want to combine model with modality. Like chat GPT, you know, we had Clippy before and Clippy never took off. But anyway, so the time was right. What do you think is the most interesting unsolved question in AI? Maybe not the one you're tackling. [01:26:24]
+
+Chris: There's lots of smart people with lots of different opinions about what AI is, right? And there are certain people that you know, and I know that think that everything just be an end-to-end neural net and software should go away, right? I think that the open question is, what is the balance between trained algorithms and intelligently designed algorithms? I do not believe personally that it is all one or all the other, right? And if you want to build a cat detector, then a CNN is a really good way to do that. If you want to write a bootloader or an operating system, then for loops are a good way to do that, right? But where do things phase out over time and how do we make it so that app developers can think about these things more consistently instead of thinking about them as, you know, category A versus category B, right? And I mean, part of my bet is that AI as a software development approach ends up being, you know, part of the tool set of how people think about building applications. You know, where applications are not just like an iPhone app or something like that, but it's your cloud services, your data pipeline. It's like this whole complicated dance that leads to building a user product, right? And so I think that we as an industry haven't yet figured that out, right? I mean, it's just so early. AI is like in its adolescent years right now. [01:27:35]
+
+Alessio: It's funny because like doing this podcast, we're like, oh, remember that? And then you look at the timestamp and it was like three months ago. Exactly. You know, it's kind of you look back and it's like, oh, it's not even one year since JGBT came out, you know? And we went from like no AI safety discourse, for example, to like AI is going to end the world. Then it's like, all we did was I put a chat online, you know, so it kind of makes you wonder. [01:27:58]
+
+Chris: And I'll admit, like in 2017, there was a bunch of people focused on safety. And I'm like, why does this matter? Right? And they were just ahead of their time. Now it's pretty clear. [01:28:06]
+
+Swyx: Yeah, exactly. [01:28:06]
+
+Chris: That's exactly right. [01:28:07]
+
+Swyx: They took it seriously when the rest of us were only looking at the math. Yeah. [01:28:11]
+
+Chris: Well, and that's one of the things I really love about some of the OG people like Jeff Hinton and some of these folks like Jan Leku because they were into AI before it was cool, right? They were working on this stuff before it was obvious to everyone. And I think that they have seen and can integrate across a much longer timeframe. And that the wisdom that comes out of that, I think enables them to do even today, really amazing things that they get that better perspective for. [01:28:36]
+
+Alessio: Awesome. Before we wrap, Chris, any final takeaway message that you want everybody to think about and remember? [01:28:43]
+
+Chris: No, I mean, thank you for having me. I mean, this is a lot of fun and I really love being able to talk at a much more technical level about the AI part of what we're doing. And so I'm just so excited about where things are, what's happening, what the world's building, like just everything about what's happening right now is just super exciting to me. Awesome. [01:29:01]
+
+Alessio: Thank you so much, Chris. [01:29:02]
+
+Swyx: Thank you. [01:29:02]
+
+1
+
+At a rumored $600m valuation.
+
+2
+
+The RISC comparison is particularly on the nose because Chris was both the eng lead for Tensorflow/XLA and President at SiSense leading commercialization of RISC-V, and has some direct experience with successful technologies on both extremes of the complexity spectrum. We asked Chris to directly respond to George’s criticism on the pod and he had some nice words of advice for George if you listen closely.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

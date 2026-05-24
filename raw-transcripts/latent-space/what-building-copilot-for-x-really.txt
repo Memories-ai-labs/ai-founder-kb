@@ -1,0 +1,130 @@
+# What Building "Copilot for X" Really Takes
+# URL: https://www.latent.space/p/what-building-copilot-for-x-really
+# Date: 2022-12-19
+# source: Latent Space
+
+What Building "Copilot for X" Really Takes
+
+A "Copilot for X" guide from the team that built the first real Copilot competitor!
+
+Latent.Space and Anshul Ramachandran
+
+Dec 19, 2022
+
+37
+
+3
+
+1
+
+Share
+
+Note from swyx: I’m delighted to present our first guest post! This comes from the Codeium team, who I’ve had the good fortune of getting to know in the past year. This small team blew away my expectations by creating a complete Copilot clone in one month (not exaggerating - I have disabled GitHub Copilot completely to use them, in part to beta-test Hey Github, but also Codeium seems a bit faster!). Since “Copilot for X” is at the top of every AI product thinker’s wishlist (example), I invited them to share their learnings! 
+
+TL;DR: To build a “Copilot for X”, you must:
+
+Estimate inference scale: while trading off latency and output quality
+
+Build first party: Third-party APIs will wreck your unit economics
+
+Figure out Realtime Infra: ChatGPT, Dall-E, etc are too slow to keep flow
+
+Optimize prompts: Context window is limited; what info most improves output?
+
+Merge model outputs and UX: Raw model output is unintuitive; long tail of UX.
+
+Eventually, you will want to go beyond “Copilot for X” because Copilot itself is just the beginning of many possible models of productionized AI.
+
+I have inserted some extra comments inline, but the rest you read is from Anshul and team.
+
+If you’ve ever found yourself in an AI corner of Twitter in the last few months, you likely have seen a tweet like:
+
+Ben Tossell@bentossell
+
+Startups used to name themselves the "Uber for X".
+
+Now they are naming themselves the "Copilot for X".
+
+If you don't know about Copilot yet, it makes coding easier. 
+
+Whole Mars Catalog @WholeMarsBlog
+
+GitHub CoPilot is truly amazing technology. 
+
+You can just write a function name and in many cases it can write the function for you. People can’t imagine how much AI is about to supercharge human productivity. https://t.co/TzJ7WwQAtv https://t.co/6PUR0JH29u
+
+3:01 PM · Dec 1, 2022
+
+4 Reposts · 18 Likes
+
+Copilot is Github’s generative LLM-based tool that suggests code as you type, promising to reduce boilerplate, minimize StackOverflow lookups, and overall make coding less tedious. “Copilot for X” refers to a hypothetical new startup using the same AI tech to make profession X less tedious (law, finance, academic grants, etc.).
+
+But what do you really have to think about when actually implementing a Copilot for X? 
+
+Who are we?
+
+We are the creators of Codeium, a free Copilot alternative. In the last three months, we have built from scratch an AI code generation tool that works across 20+ languages in multiple popular IDEs, all with extremely low latency and competitive suggestion quality. 
+
+Over the last year, we have also been building scalable ML infra-as-a-service for some of the most complex and compute intensive business ML applications, such as autonomous vehicle simulation. With the explosion of generative models, we realized that we were in a good position to combine this cutting edge AI with our cutting edge ML infrastructure to create consumer-facing productionized-AI products, which led us to Codeium. Thousands of developers already use Codeium, and we are looking to get feedback from even more in order to shape the roadmap of AI-accelerated software development. 
+
+What Copilot for X takes
+
+So, returning to the original question on Copilot for X, here’s what we at Codeium have learned so far:
+
+Know the scale of inference. This is the first thing we did because order of magnitude differences in usage drastically change the cost calculus. For us, we realized a single developer will, on average, need a few thousand code suggestions a day (counting all suggestions, not just accepted suggestions). 
+
+To figure out how many inferences you will have to do, consider the level of interactivity and the tradeoff between latency and output quality. If your model’s output isn’t almost always exactly what the user wants, then you should aim to be more realtime (lower latency) - otherwise you run the risk of eroding user trust. As we will discuss in future points, given how large these models are, this corresponds to a non-trivial amount of compute and therefore $$$.
+
+Using a third-party API probably doesn’t make long term financial sense. If you want to make Copilot for X, then you will need to finetune some base language model for your application, just like how all of these generative code models were first trained on a large natural language database and then fine-tuned on code (sometimes in multiple stages). Using a third-party API to perform this finetuning and then running inferences through that service, while fine during bootstrapping, will quickly rack up an unsustainable bill.
+
+Back of the envelope numbers: GPT-3 Curie costs $0.002/1K tokens and let’s say each suggestion uses ~2K tokens (prompt + generation). This comes out to $4/user/day, or over $1000/user/year assuming 1K suggestions/user/day. It’s unlikely you can pass that cost entirely to the user long term (and forget about margins…)
+
+[swyx] A recent @levelsio post-mortem found that Lensa AI beat his product in market share ($1m per day revenue vs 250k lifetime revenue) by running their own models, resulting in being 15x cheaper (AvatarAI priced at $30, Lensa priced at $2, he estimates their unit costs were $0.50)
+
+If your Copilot for X application needs to be realtime, then the ML infra serving problem is as important as the model itself. By realtime, we mean that the user gets value by staying in the “flow” state and cannot wait a couple seconds for an inference as you see ChatGPT, DALL-E, Jasper, etc. Average human visual reaction time is ~150ms, and that’s a tough constraint on running an inference through a multibillion parameter model (let alone data passing network latency overheads). It’s why Copilot doesn’t use the largest available Codex model. Start thinking of optimizing model graphs, serving within the user’s region, quantization, etc from the beginning.
+
+[swyx] This recent reverse analysis of Copilot Internals showed that it is using a 12B parameter cushman-ml model rather than a 175B GPT3-family model. The open source SalesForce CodeGen models (which you can try with FauxPilot if you have an Nvidia card) range from 350m - 16B parameters.
+
+Prompt and context matter. Remember when I said each suggestion uses ~2K tokens per forward pass? Your limit on tokens per forward pass will be defined by the size of your model and the acceptable latency ceiling. Each token is on average ~0.75 words for English text, and leaving some number of tokens for the actual output, this means that your “input” to the forward pass can probably have max ~3K words. That’s actually not a whole lot of words in most applications. And often to get the best results, you don’t want to pass in just the preceding text - succeeding text, text from related files/documents, and additional natural language prompting all can improve the quality of the results. Reducing the number of tokens overall and proper usage of those tokens is more of an art form than science, and you’ll want to iterate here.
+
+[swyx] For example, we now know that Copilot’s prompt pipeline includes the document’s path and language, the most recently accessed 20 files of the same language, and a prioritized “wishlist” of prefixes and suffixes of text surrounding the cursor, and snippet extraction using Jaccard similarity.
+
+Client side implementation is just as important as model quality. Yes, improving the model and building all of the data processing, training, and serving infrastructure is necessary, but don’t forget about all of the logic to make a useful product that needs to happen before model input as well as between model output and user. This is why when we tried using an open source model like CodeGen out of the box (take the text before the cursor, pass it to the model, return output of model), the resulting experience was not great (even ignoring the latency from running on our own significantly slower-than-cloud local machine GPUs). As a trivial example, when using a tool like Copilot or Codeium, you might notice that if there is a code suggestion within empty parentheses to populate a function’s arguments and body, the model output has been cleanly merged with that existing closing parenthesis so that the user isn’t left with a trailing symbol that they have to manually delete. These kinds of considerations accumulate quickly, so you will spend a good amount of time and effort iterating on the interface between model outputs and UX.
+
+At Codeium, we are developing Copilot for developers. Which brings us to our last point: This tech and the productionizing of it is brand new. 
+
+There is a lot more that we can do with generative language models than just completing input text, and these other applications could potentially generate even more value to end-users. There are a bunch of potentially impactful applications in the dev workflow if productionized properly:
+
+Explaining complex code? 
+
+Repairing code after upstream changes? 
+
+Translating between languages? 
+
+Updating code to new fancy features and packages? 
+
+We believe these are just the early stages of AI codegen, and large generative models in general. So instead of “Copilot of X,” we suggest thinking “(Whatever Copilot can Become) of X” (and hopefully “Codeium of X” in the not-so-distant future).
+
+Shameless plug!
+
+Codeium is currently free for all users - see the power of generative LLMs in action for yourself at codeium.com, and join our Discord community to stay in the loop as we learn more about building on top of this tech (and to give us feedback on what you want to see from AI-accelerated software development!).
+
+Many thanks to the Codeium team for sharing their invaluable insights! If you enjoyed this we’d appreciate a signal boost on Twitter or Mastodon, and you can also follow Anshul and Codeium on Twitter.
+
+37
+
+3
+
+1
+
+Share
+
+PreviousNext
+
+A guest post by
+
+Anshul Ramachandran
+
+Building Codeium to bring AI to the dev experience (codeium.com)
+
+Subscribe to Anshul

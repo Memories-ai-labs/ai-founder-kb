@@ -1,0 +1,477 @@
+# 2024 in Vision [LS Live @ NeurIPS]
+# URL: https://www.latent.space/p/2024-vision
+# Date: 2024-12-22
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+2024 in Vision [LS Live @ NeurIPS]
+
+12
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -57:24
+
+-57:24
+
+Audio playback is not supported on your browser. Please upgrade.
+
+2024 in Vision [LS Live @ NeurIPS]
+
+Peter Robicheaux and Isaac Robinson of Roboflow recap Sora, SAM2, MagVIT, PaliGemma, AIMv2, Florence 2, how DETRs killed YOLO, and more. Special guest from Vik Korrapati of Moondream.
+
+Dec 22, 2024
+
+12
+
+2
+
+Share
+
+Transcript
+
+Happy holidays! We’ll be sharing snippets from Latent Space LIVE! through the break bringing you the best of 2024! We want to express our deepest appreciation to event sponsors AWS, Daylight Computer, Thoth.ai, StrongCompute, Notable Capital, and most of all all our LS supporters who helped fund the gorgeous venue and A/V production!
+
+For NeurIPS last year we did our standard conference podcast coverage interviewing selected papers (that we have now also done for ICLR and ICML), however we felt that we could be doing more to help AI Engineers 1) get more industry-relevant content, and 2) recap 2024 year in review from experts. As a result, we organized the first Latent Space LIVE!, our first in person miniconference, at NeurIPS 2024 in Vancouver.
+
+The single most requested domain was computer vision, and we could think of no one better to help us recap 2024 than our friends at Roboflow, who was one of our earliest guests in 2023 and had one of this year’s top episodes in 2024 again. Roboflow has since raised a $40m Series B!1
+
+Links
+
+Their slides are here:
+
+All the trends and papers they picked:
+
+Isaac Robinson
+
+Sora (see our Video Diffusion pod) - extending diffusion from images to video
+
+SAM 2: Segment Anything in Images and Videos (see our SAM2 pod) - extending prompted masks to full video object segmentation
+
+DETR Dominancy: DETRs show Pareto improvement over YOLOs
+
+RT-DETR: DETRs Beat YOLOs on Real-time Object Detection
+
+LW-DETR: A Transformer Replacement to YOLO for Real-Time Detection
+
+D-FINE: Redefine Regression Task in DETRs as Fine-grained Distribution Refinement
+
+Peter Robicheaux
+
+MMVP (Eyes Wide Shut? Exploring the Visual Shortcomings of Multimodal LLMs)
+
+Florence 2 (Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks)
+
+PalíGemma / PaliGemma 2
+
+PaliGemma: A versatile 3B VLM for transfer
+
+PaliGemma 2: A Family of Versatile VLMs for Transfer
+
+AlMv2 (Multimodal Autoregressive Pre-training of Large Vision Encoders)
+
+Vik Korrapati - Moondream
+
+Full Talk on YouTube
+
+Want more content like this? Like and subscribe to stay updated on our latest talks, interviews, and podcasts.
+
+Transcript/Timestamps
+
+[00:00:00] Intro
+
+[00:00:05] AI Charlie: welcome to Latent Space Live, our first mini conference held at NeurIPS 2024 in Vancouver. This is Charlie, your AI co host. When we were thinking of ways to add value to our academic conference coverage, we realized that there was a lack of good talks, just recapping the best of 2024, going domain by domain.
+
+[00:00:36] AI Charlie: We sent out a survey to the over 900 of you. who told us what you wanted, and then invited the best speakers in the Latent Space Network to cover each field. 200 of you joined us in person throughout the day, with over 2, 200 watching live online. Our second featured keynote is The Best of Vision 2024, with Peter Robichaud and Isaac [00:01:00] Robinson of Roboflow, with a special appearance from Vic Corrapati of Moondream.
+
+[00:01:05] AI Charlie: When we did a poll of our attendees, the highest interest domain of the year was vision. And so our first port of call was our friends at Roboflow. Joseph Nelson helped us kickstart our vision coverage in episode 7 last year, and this year came back as a guest host with Nikki Ravey of Meta to cover segment Anything 2.
+
+[00:01:25] AI Charlie: Roboflow have consistently been the leaders in open source vision models and tooling. With their SuperVision library recently eclipsing PyTorch's Vision library. And Roboflow Universe hosting hundreds of thousands of open source vision datasets and models. They have since announced a 40 million Series B led by Google Ventures.
+
+[00:01:46] AI Charlie: Woohoo.
+
+[00:01:48] Isaac's picks
+
+[00:01:48] Isaac Robinson: Hi, we're Isaac and Peter from Roboflow, and we're going to talk about the best papers of 2024 in computer vision. So, for us, we defined best as what made [00:02:00] the biggest shifts in the space. And to determine that, we looked at what are some major trends that happened and what papers most contributed to those trends.
+
+[00:02:09] Isaac Robinson: So I'm going to talk about a couple trends, Peter's going to talk about a trend, And then we're going to hand it off to Moondream. So, the trends that I'm interested in talking about are These are a major transition from models that run on per image basis to models that run using the same basic ideas on video.
+
+[00:02:28] Isaac Robinson: And then also how debtors are starting to take over the real time object detection scene from the YOLOs, which have been dominant for years.
+
+[00:02:37] Sora, OpenSora and Video Vision vs Generation
+
+[00:02:37] Isaac Robinson: So as a highlight we're going to talk about Sora, which from my perspective is the biggest paper of 2024, even though it came out in February. Is the what?
+
+[00:02:48] Isaac Robinson: Yeah. Yeah. So just it's a, SORA is just a a post. So I'm going to fill it in with details from replication efforts, including open SORA and related work, such as a stable [00:03:00] diffusion video. And then we're also going to talk about SAM2, which applies the SAM strategy to video. And then how debtors, These are the improvements in 2024 to debtors that are making them a Pareto improvement to YOLO based models.
+
+[00:03:15] Isaac Robinson: So to start this off, we're going to talk about the state of the art of video generation at the end of 2023, MagVIT MagVIT is a discrete token, video tokenizer akin to VQ, GAN, but applied to video sequences. And it actually outperforms state of the art handcrafted video compression frameworks.
+
+[00:03:38] Isaac Robinson: In terms of the bit rate versus human preference for quality and videos generated by autoregressing on these discrete tokens generate some pretty nice stuff, but up to like five seconds length and, you know, not super detailed. And then suddenly a few months later we have this, which when I saw it, it was totally mind blowing to me.
+
+[00:03:59] Isaac Robinson: 1080p, [00:04:00] a whole minute long. We've got light reflecting in puddles. That's reflective. Reminds me of those RTX demonstrations for next generation video games, such as Cyberpunk, but with better graphics. You can see some issues in the background if you look closely, but they're kind of, as with a lot of these models, the issues tend to be things that people aren't going to pay attention to unless they're looking for.
+
+[00:04:24] Isaac Robinson: In the same way that like six fingers on a hand. You're not going to notice is a giveaway unless you're looking for it. So yeah, as we said, SORA does not have a paper. So we're going to be filling it in with context from the rest of the computer vision scene attempting to replicate these efforts. So the first step, you have an LLM caption, a huge amount of videos.
+
+[00:04:48] Isaac Robinson: This, this is a trick that they introduced in Dolly 3, where they train a image captioning model to just generate very high quality captions for a huge corpus and then train a diffusion model [00:05:00] on that. Their Sora and their application efforts also show a bunch of other steps that are necessary for good video generation.
+
+[00:05:09] Isaac Robinson: Including filtering by aesthetic score and filtering by making sure the videos have enough motion. So they're not just like kind of the generators not learning to just generate static frames. So. Then we encode our video into a series of space time latents. Once again, SORA, very sparse in details.
+
+[00:05:29] Isaac Robinson: So the replication related works, OpenSORA actually uses a MAG VIT V2 itself to do this, but swapping out the discretization step with a classic VAE autoencoder framework. They show that there's a lot of benefit from getting the temporal compression, which makes a lot of sense as the Each sequential frames and videos have mostly redundant information.
+
+[00:05:53] Isaac Robinson: So by compressing against, compressing in the temporal space, you allow the latent to hold [00:06:00] a lot more semantic information while avoiding that duplicate. So, we've got our spacetime latents. Possibly via, there's some 3D VAE, presumably a MAG VATV2 and then you throw it into a diffusion transformer.
+
+[00:06:19] Isaac Robinson: So I think it's personally interesting to note that OpenSORA is using a MAG VATV2, which originally used an autoregressive transformer decoder to model the latent space, but is now using a diffusion diffusion transformer. So it's still a transformer happening. Just the question is like, is it?
+
+[00:06:37] Isaac Robinson: Parameterizing the stochastic differential equation is, or parameterizing a conditional distribution via autoregression. It's also it's also worth noting that most diffusion models today, the, the very high performance ones are switching away from the classic, like DDPM denoising diffusion probability modeling framework to rectified flows.
+
+[00:06:57] Isaac Robinson: Rectified flows have a very interesting property that as [00:07:00] they converge, they actually get closer to being able to be sampled with a single step. Which means that in practice, you can actually generate high quality samples much faster. Major problem of DDPM and related models for the past four years is just that they require many, many steps to generate high quality samples.
+
+[00:07:22] Isaac Robinson: So, and naturally, the third step is throwing lots of compute at the problem. So I didn't, I never figured out how to manage to get this video to loop, but we see very little compute, medium compute, lots of compute. This is so interesting because the the original diffusion transformer paper from Facebook actually showed that, in fact, the specific hyperparameters of the transformer didn't really matter that much.
+
+[00:07:48] Isaac Robinson: What mattered was that you were just increasing the amount of compute that the model had. So, I love how in the, once again, little blog posts, they don't even talk about [00:08:00] like the specific hyperparameters. They say, we're using a diffusion transformer, and we're just throwing more compute at it, and this is what happens.
+
+[00:08:08] Isaac Robinson: OpenSora shows similar results. The primary issue I think here is that no one else has 32x compute budget. So we end up with these we end up in the middle of the domain and most of the related work, which is still super, super cool. It's just a little disappointing considering the context. So I think this is a beautiful extension of the framework that was introduced in 22 and 23 for these very high quality per image generation and then extending that to videos.
+
+[00:08:39] Isaac Robinson: It's awesome. And it's GA as of Monday, except no one can seem to get access to it because they keep shutting down the login.
+
+[00:08:46] SAM and SAM2
+
+[00:08:46] Isaac Robinson: The next, so next paper I wanted to talk about is SAM. So we at Roboflow allow users to label data and train models on that data. Sam, for us, has saved our users 75 years of [00:09:00] labeling time.
+
+[00:09:00] Isaac Robinson: We are the, to the best of my knowledge, the largest SAM API that exists. We also, SAM also allows us to have our users train just pure bounding box regression models and use those to generate high quality masks which has the great side effect of requiring less training data to have a meaningful convergence.
+
+[00:09:20] Isaac Robinson: So most people are data limited in the real world. So anything that requires less data to get to a useful thing is that super useful. Most of our users actually run their object per frame object detectors on every frame in a video, or maybe not most, but many, many. And so Sam follows into this category of taking, Sam 2 falls into this category of taking something that really really works and applying it to a video which has the wonderful benefit of being plug and play with most of our Many of our users use cases.
+
+[00:09:53] Isaac Robinson: We're, we're still building out a sufficiently mature pipeline to take advantage of that, but it's, it's in the works. [00:10:00] So here we've got a great example. We can click on cells and then follow them. You even notice the cell goes away and comes back and we can still keep track of it which is very challenging for existing object trackers.
+
+[00:10:14] Isaac Robinson: High level overview of how SAM2 works. We there's a simple pipeline here where we can give, provide some type of prompt and it fills out the rest of the likely masks for that object throughout the rest of the video. So here we're giving a bounding box in the first frame, a set of positive negative points, or even just a simple mask.
+
+[00:10:36] Isaac Robinson: I'm going to assume people are somewhat familiar with SAM. So I'm going to just give a high level overview of how SAM works. You have an image encoder that runs on every frame. SAM two can be used on a single image, in which case the only difference between SAM two and SAM is that image encoder, which Sam used a standard VIT [00:11:00] Sam two replaced that with a hara hierarchical encoder, which gets approximately the same results, but leads to a six times faster inference, which is.
+
+[00:11:11] Isaac Robinson: Excellent, especially considering how in a trend of 23 was replacing the VAT with more efficient backbones. In the case where you're doing video segmentation, the difference is that you actually create a memory bank and you cross attend the features from the image encoder based on the memory bank.
+
+[00:11:31] Isaac Robinson: So the feature set that is created is essentially well, I'll go more into it in a couple of slides, but we take the features from the past couple frames, plus a set of object pointers and the set of prompts and use that to generate our new masks. Then we then fuse the new masks for this frame with the.
+
+[00:11:57] Isaac Robinson: Image features and add that to the memory bank. [00:12:00] It's, well, I'll say more in a minute. The just like SAM, the SAM2 actually uses a data engine to create its data set in that people are, they assembled a huge amount of reference data, used people to label some of it and train the model used the model to label more of it and asked people to refine the predictions of the model.
+
+[00:12:20] Isaac Robinson: And then ultimately the data set is just created from the engine Final output of the model on the reference data. It's very interesting. This paradigm is so interesting to me because it unifies a model in a dataset in a way that is very unique. It seems unlikely that another model could come in and have such a tight.
+
+[00:12:37] Isaac Robinson: So brief overview of how the memory bank works, the paper did not have a great visual, so I'm just, I'm going to fill in a bit more. So we take the last couple of frames from our video. And we take the last couple of frames from our video attend that, along with the set of prompts that we provided, they could come from the future, [00:13:00] they could come from anywhere in the video, as well as reference object pointers, saying, by the way, here's what we've found so far attending to the last few frames has the interesting benefit of allowing it to model complex object motion without actually
+
+[00:13:18] Isaac Robinson: By limiting the amount of frames that you attend to, you manage to keep the model running in real time. This is such an interesting topic for me because one would assume that attending to all of the frames is super essential, or having some type of summarization of all the frames is super essential for high performance.
+
+[00:13:35] Isaac Robinson: But we see in their later ablation that that actually is not the case. So here, just to make sure that there is some benchmarking happening, we just compared to some of the stuff that's came out prior, and indeed the SAM2 strategy does improve on the state of the art. This ablation deep in their dependencies was super interesting to me.
+
+[00:13:59] Isaac Robinson: [00:14:00] We see in section C, the number of memories. One would assume that increasing the count of memories would meaningfully increase performance. And we see that it has some impact, but not the type that you'd expect. And that it meaningfully decreases speed, which justifies, in my mind, just having this FIFO queue of memories.
+
+[00:14:20] Isaac Robinson: Although in the future, I'm super interested to see A more dedicated summarization of all of the last video, not just a stacking of the last frames. So that another extension of beautiful per frame work into the video domain.
+
+[00:14:42] Realtime detection: DETRs > YOLO
+
+[00:14:42] Isaac Robinson: The next trend I'm interested in talking about is this interesting at RoboFlow, we're super interested in training real time object detectors.
+
+[00:14:50] Isaac Robinson: Those are bread and butter. And so we're doing a lot to keep track of what is actually happening in that space. We are finally starting to see something change. So, [00:15:00] for years, YOLOs have been the dominant way of doing real time object detection, and we can see here that they've essentially stagnated.
+
+[00:15:08] Isaac Robinson: The performance between 10 and 11 is not meaningfully different, at least, you know, in this type of high level chart. And even from the last couple series, there's not. A major change so YOLOs have hit a plateau, debtors have not. So we can look here and see the YOLO series has this plateau. And then these RT debtor, LW debtor, and Define have meaningfully changed that plateau so that in fact, the best Define models are plus 4.
+
+[00:15:43] Isaac Robinson: 6 AP on Cocoa at the same latency. So three major steps to accomplish this. The first RT deditor, which is technically a 2023 paper preprint, but published officially in 24, so I'm going to include that. I hope that's okay. [00:16:00] That is showed that RT deditor showed that we could actually match or out speed YOLOs.
+
+[00:16:04] Isaac Robinson: And then LWdebtor showed that pre training is hugely effective on debtors and much less so on YOLOs. And then DeFine added the types of bells and whistles that we expect from these types, this, this arena. So the major improvements that RTdebtor shows was Taking the multi scale features that debtors typically pass into their encoder and decoupling them into a much more efficient transformer encoder.
+
+[00:16:30] Isaac Robinson: The transformer is of course, quadratic complexity. So decreasing the amount of stuff that you pass in at once is super helpful for increasing your runtime or increasing your throughput. So that change basically brought us up to yellow speed and then they do a hardcore analysis on. Benchmarking YOLOs, including the NMS step.
+
+[00:16:54] Isaac Robinson: Once you once you include the NMS in the latency calculation, you see that in fact, these debtors [00:17:00] are outperforming, at least this time, the the, the YOLOs that existed. Then LW debtor goes in and suggests that in fact, the frame, the huge boost here is from pre training. So, this is the define line, and this is the define line without pre training.
+
+[00:17:19] Isaac Robinson: It's within range, it's still an improvement over the YOLOs, but Really huge boost comes from the benefit of pre training. When YOLOx came out in 2021, they showed that they got much better results by having a much, much longer training time, but they found that when they did that, they actually did not benefit from pre training.
+
+[00:17:40] Isaac Robinson: So, you see in this graph from LWdebtor, in fact, YOLOs do have a real benefit from pre training, but it goes away as we increase the training time. Then, the debtors converge much faster. LWdebtor trains for only 50 epochs, RTdebtor is 60 epochs. So, one could assume that, in fact, [00:18:00] the entire extra gain from pre training is that you're not destroying your original weights.
+
+[00:18:06] Isaac Robinson: By relying on this long training cycle. And then LWdebtor also shows superior performance to our favorite data set, Roboflow 100 which means that they do better on the real world, not just on Cocoa. Then Define throws all the bells and whistles at it. Yellow models tend to have a lot of very specific complicated loss functions.
+
+[00:18:26] Isaac Robinson: This Define brings that into the debtor world and shows consistent improvement on a variety of debtor based frameworks. So bring these all together and we see that suddenly we have almost 60 AP on Cocoa while running in like 10 milliseconds. Huge, huge stuff. So we're spending a lot of time trying to build models that work better with less data and debtors are clearly becoming a promising step in that direction.
+
+[00:18:56] Isaac Robinson: The, what we're interested in seeing [00:19:00] from the debtors in this, this trend to next is. Codetter and the models that are currently sitting on the top of the leaderboard for large scale inference scale really well as you switch out the backbone. We're very interested in seeing and having people publish a paper, potentially us, on what happens if you take these real time ones and then throw a Swingy at it.
+
+[00:19:23] Isaac Robinson: Like, do we have a Pareto curve that extends from the real time domain all the way up to the super, super slow but high performance domain? We also want to see people benchmarking in RF100 more, because that type of data is what's relevant for most users. And we want to see more pre training, because pre training works now.
+
+[00:19:43] Isaac Robinson: It's super cool.
+
+[00:19:48] Peter's Picks
+
+[00:19:48] Peter Robicheaux: Alright, so, yeah, so in that theme one of the big things that we're focusing on is how do we get more out of our pre trained models. And one of the lenses to look at this is through sort of [00:20:00] this, this new requirement for like, how Fine grained visual details and your representations that are extracted from your foundation model.
+
+[00:20:08] Peter Robicheaux: So it's sort of a hook for this Oh, yeah, this is just a list of all the the papers that I'm going to mention I just want to make sure I set an actual paper so you can find it later
+
+[00:20:18] MMVP (Eyes Wide Shut? Exploring the Visual Shortcomings of Multimodal LLMs)
+
+[00:20:18] Peter Robicheaux: Yeah, so sort of the big hook here is that I make the claim that LLMs can't see if you go to if you go to Claude or ChatGPT you ask it to see this Watch and tell me what time it is, it fails, right?
+
+[00:20:34] Peter Robicheaux: And so you could say, like, maybe, maybe the Like, this is, like, a very classic test of an LLM, but you could say, Okay, maybe this, this image is, like, too zoomed out, And it just, like, it'll do better if we increase the resolution, And it has easier time finding these fine grained features, Like, where the watch hands are pointing.
+
+[00:20:53] Peter Robicheaux: Nodice. And you can say, okay, well, maybe the model just doesn't know how to tell time from knowing the position of the hands. But if you actually prompt [00:21:00] it textually, it's very easy for it to tell the time. So this to me is proof that these LLMs literally cannot see the position of the watch hands and it can't see those details.
+
+[00:21:08] Peter Robicheaux: So the question is sort of why? And for you anthropic heads out there, cloud fails too. So the, the, my first pick for best paper of 2024 Envision is this MMVP paper, which tries to investigate the Why do LLMs not have the ability to see fine grained details? And so, for instance, it comes up with a lot of images like this, where you ask it a question that seems very visually apparent to us, like, which way is the school bus facing?
+
+[00:21:32] Peter Robicheaux: And it gets it wrong, and then, of course, it makes up details to support its wrong claim. And so, the process by which it finds these images is sort of contained in its hypothesis for why it can't. See these details. So it hypothesizes that models that have been initialized with, with Clip as their vision encoder, they don't have fine grained details and the, the features extracted using Clip because Clip sort of doesn't need to find these fine grained [00:22:00] details to do its job correctly, which is just to match captions and images, right?
+
+[00:22:04] Peter Robicheaux: And sort of at a high level, even if ChatGPT wasn't initialized with Clip and wasn't trained contrastively at all. The vision encoder wasn't trained contrastively at all. Still, in order to do its job of capturing the image it could do a pretty good job without actually finding the exact position of all the objects and visual features in the image, right?
+
+[00:22:21] Peter Robicheaux: So This paper finds a set of difficult images for these types of models. And the way it does it is it looks for embeddings that are similar in clip space, but far in DynaV2 space. So DynaV2 is a foundation model that was trained self supervised purely on image data. And it kind of uses like some complex student teacher framework, but essentially, and like, it patches out like certain areas of the image or like crops with certain areas of the image and tries to make sure that those have consistent representations, which is a way for it to learn very fine grained visual features.
+
+[00:22:54] Peter Robicheaux: And so if you take things that are very close in clip space and very far in DynaV2 space, you get a set of images [00:23:00] that Basically, pairs of images that are hard for a chat GPT and other big language models to distinguish. So, if you then ask it questions about this image, well, as you can see from this chart, it's going to answer the same way for both images, right?
+
+[00:23:14] Peter Robicheaux: Because to, to, from the perspective of the vision encoder, they're the same image. And so if you ask a question like, how many eyes does this animal have? It answers the same for both. And like all these other models, including Lava do the same thing, right? And so this is the benchmark that they create, which is like finding clip, like clip line pairs, which is pairs of images that are similar in clip space and creating a data set of multiple choice questions based off of those.
+
+[00:23:39] Peter Robicheaux: And so how do these models do? Well, really bad. Lava, I think, So, so, chat2BT and Jim and I do a little bit better than random guessing, but, like, half of the performance of humans who find these problems to be very easy. Lava is, interestingly, extremely negatively correlated with this dataset. It does much, much, much, much worse [00:24:00] than random guessing, which means that this process has done a very good job of identifying hard images for, for Lava, specifically.
+
+[00:24:07] Peter Robicheaux: And that's because Lava is basically not trained for very long and is initialized from Clip, and so You would expect it to do poorly on this dataset. So, one of the proposed solutions that this paper attempts is by basically saying, Okay, well if clip features aren't enough, What if we train the visual encoder of the language model also on dyno features?
+
+[00:24:27] Peter Robicheaux: And so it, it proposes two different ways of doing this. One, additively which is basically interpolating between the two features, and then one is interleaving, which is just kind of like training one on the combination of both features. So there's this really interesting trend when you do the additive mixture of features.
+
+[00:24:45] Peter Robicheaux: So zero is all clip features and one is all DynaV2 features. So. It, as you, so I think it's helpful to look at the right most chart first, which is as you increase the number of DynaV2 features, your model does worse and worse and [00:25:00] worse on the actual language modeling task. And that's because DynaV2 features were trained completely from a self supervised manner and completely in image space.
+
+[00:25:08] Peter Robicheaux: It knows nothing about text. These features aren't really compatible with these text models. And so you can train an adapter all you want, but it seems that it's in such an alien language that it's like a very hard optimization for this. These models to solve. And so that kind of supports what's happening on the left, which is that, yeah, it gets better at answering these questions if as you include more dyna V two features up to a point, but then you, when you oversaturate, it completely loses its ability to like.
+
+[00:25:36] Peter Robicheaux: Answer language and do language tasks. So you can also see with the interleaving, like they essentially double the number of tokens that are going into these models and just train on both, and it still doesn't really solve the MMVP task. It gets Lava 1. 5 above random guessing by a little bit, but it's still not close to ChachiPT or, you know, Any like human performance, obviously.
+
+[00:25:59] Peter Robicheaux: [00:26:00] So clearly this proposed solution of just using DynaV2 features directly, isn't going to work. And basically what that means is that as a as a vision foundation model, DynaV2 is going to be insufficient for language tasks, right?
+
+[00:26:14] Florence 2 (Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks)
+
+[00:26:14] Peter Robicheaux: So my next pick for best paper of 2024 would be Florence 2, which tries to solve this problem by incorporating not only This dimension of spatial hierarchy, which is to say pixel level understanding, but also in making sure to include what they call semantic granularity, which ends up, the goal is basically to have features that are sufficient for finding objects in the image, so they're, they're, they have enough pixel information, but also can be talked about and can be reasoned about.
+
+[00:26:44] Peter Robicheaux: And that's on the semantic granularity axis. So here's an example of basically three different paradigms of labeling that they do. So they, they create a big dataset. One is text, which is just captioning. And you would expect a model that's trained [00:27:00] only on captioning to have similar performance like chat2BT and like not have spatial hierarchy, not have features that are meaningful at the pixel level.
+
+[00:27:08] Peter Robicheaux: And so they add another type, which is region text pairs, which is essentially either classifying a region or You're doing object detection or doing instance segmentation on that region or captioning that region. And then they have text phrased region annotations, which is essentially a triple. And basically, not only do you have a region that you've described, you also find it's like, It's placed in a descriptive paragraph about the image, which is basically trying to introduce even more like semantic understanding of these regions.
+
+[00:27:39] Peter Robicheaux: And so like, for instance, if you're saying a woman riding on the road, right, you have to know what a woman is and what the road is and that she's on top of it. And that's, that's basically composing a bunch of objects in this visual space, but also thinking about it semantically, right? And so the way that they do this is they take basically they just dump Features from a vision encoder [00:28:00] straight into a encoder decoder transformer.
+
+[00:28:03] Peter Robicheaux: And then they train a bunch of different tasks like object detection and so on as a language task. And I think that's one of the big things that we saw in 2024 is these, these vision language models operating in, on pixel space linguistically. So they introduced a bunch of new tokens to point to locations and
+
+[00:28:22] Peter Robicheaux: So how does it work? How does it actually do? We can see if you look at the graph on the right, which is using the, the Dino, the the Dino framework your, your pre trained Florence 2 models transfer very, very well. They get 60%, 60 percent map on Cocoa, which is like approaching state of the art and they train
+
+[00:28:42] Vik Korrapati: with, and they
+
+[00:28:43] Peter Robicheaux: train with a much more more efficiently.
+
+[00:28:47] Peter Robicheaux: So they, they converge a lot faster, which both of these things are pointing to the fact that they're actually leveraging their pre trained weights effectively. So where is it falling short? So these models, I forgot to mention, Florence is a 0. 2 [00:29:00] billion and a 0. 7 billion parameter count. So they're very, very small in terms of being a language model.
+
+[00:29:05] Peter Robicheaux: And I think that. This framework, you can see saturation. So, what this graph is showing is that if you train a Florence 2 model purely on the image level and region level annotations and not including the pixel level annotations, like this, segmentation, it actually performs better as an object detector.
+
+[00:29:25] Peter Robicheaux: And what that means is that it's not able to actually learn all the visual tasks that it's trying to learn because it doesn't have enough capacity.
+
+[00:29:32] PalíGemma / PaliGemma 2
+
+[00:29:32] Peter Robicheaux: So I'd like to see this paper explore larger model sizes, which brings us to our next big paper of 2024 or two papers. So PolyGemma came out earlier this year.
+
+[00:29:42] Peter Robicheaux: PolyGemma 2 was released, I think like a week or two ago. Oh, I forgot to mention, you can actually train You can, like, label text datasets on RoboFlow and you can train a Florence 2 model and you can actually train a PolyGemma 2 model on RoboFlow, which we got into the platform within, like, 14 hours of release, which I was really excited about.
+
+[00:29:59] Peter Robicheaux: So, anyway, so [00:30:00] PolyGemma 2, so PolyGemma is essentially doing the same thing, but instead of doing an encoder decoder, it just dumps everything into a decoder only transformer model. But it also introduced the concept of location tokens to point to objects in pixel space. PolyGemma 2, so PolyGemma uses Gemma as the language encoder, and it uses Gemma2B.
+
+[00:30:17] Peter Robicheaux: PolyGemma 2 introduces using multiple different sizes of language encoders. So, the way that they sort of get around having to do encoder decoder is they use the concept of prefix loss. Which basically means that when it's generating, tokens autoregressively, it's all those tokens in the prefix, which is like the image that it's looking at and like a description of the task that it's trying to do.
+
+[00:30:41] Peter Robicheaux: They're attending to each other fully, full attention. Which means that, you know, it can sort of. Find high level it's easier for the, the prefix to color, to color the output of the suffix and also to just find like features easily. So this is sort of [00:31:00] an example of like one of the tasks that was trained on, which is like, you describe the task in English and then you give it all these, like, You're asking for it to segment these two classes of objects, and then it finds, like, their locations using these tokens, and it finds their masks using some encoding of the masks into tokens.
+
+[00:31:24] Peter Robicheaux: And, yeah, so, one of my critiques, I guess, of PolyGemma 1, at least, is that You find that performance saturates as a pre trained model after only 300 million examples seen. So, what this graph is representing is each blue dot is a performance on some downstream task. And you can see that after seeing 300 million examples, It sort of does equally well on all of the downtrend tasks that they tried it on, which was a lot as 1 billion examples, which to me also kind of suggests a lack of capacity for this model.
+
+[00:31:58] Peter Robicheaux: PolyGemma2, [00:32:00] you can see the results on object detection. So these were transferred to to Coco. And you can see that this sort of also points to an increase in capacity being helpful to the model. You can see as. Both the resolution increases, and the parameter count of the language model increases, performance increases.
+
+[00:32:16] Peter Robicheaux: So resolution makes sense, obviously, it helps to find small images, or small objects in the image. But it also makes sense for another reason, which is that it kind of gives the model a thinking register, and it gives it more tokens to, like, process when making its predictions. But yeah, you could, you could say, oh, 43.
+
+[00:32:30] Peter Robicheaux: 6, that's not that great, like Florence 2 got 60. But this is not Training a dino or a debtor on top of this language or this image encoder. It's doing the raw language modeling task on Cocoa. So it doesn't have any of the bells and whistles. It doesn't have any of the fancy losses. It doesn't even have bipartite graph matching or anything like that.
+
+[00:32:52] Peter Robicheaux: Okay, the big result and one of the reasons that I was really excited about this paper is that they blow everything else away [00:33:00] on MMVP. I mean, 47. 3, sure, that's nowhere near human accuracy, which, again, is 94%, but for a, you know, a 2 billion language, 2 billion parameter language model to be chat2BT, that's quite the achievement.
+
+[00:33:12] Peter Robicheaux: And that sort of brings us to our final pick for paper of the year, which is AIMV2. So, AIMV2 sort of says, okay, Maybe this language model, like, maybe coming up with all these specific annotations to find features and with high fidelity and pixel space isn't actually necessary. And we can come up with an even simpler, more beautiful idea for combining you know, image tokens and pixel tokens in a way that's interfaceable for language tasks.
+
+[00:33:44] Peter Robicheaux: And this is nice because it can scale, you can come up with lots more data if you don't have to come up with all these annotations, right? So the way that it works. is it does something very, very similar to PolyGemo, where you have a vision encoder that dumps image tokens into a decoder only transformer.
+
+[00:33:59] Peter Robicheaux: But [00:34:00] the interesting thing is that it also autoregressively tries to learn the mean squared error of the image tokens. So instead of having to come up with fancy object detection or semantic, or segment, or segmentation labels, you can just try to reconstruct the image and have it learn fine grained features that way.
+
+[00:34:16] Peter Robicheaux: And it does this in kind of, I think, a beautiful way that's kind of compatible with the PolyGemma line of thinking, which is randomly sampling a prefix line of thinking Prefix length and using only this number of image tokens as the prefix. And so doing a similar thing with the causal. So the causal with prefix is the, the attention mask on the right.
+
+[00:34:35] Peter Robicheaux: So it's doing full block attention with some randomly sampled number of image tokens to then reconstruct the rest of the image and the downstream caption for that image. And so, This is the dataset that they train on. It's image or internet scale data, very high quality data created by the data filtering networks paper, essentially which is maybe The best clip data that exists.
+
+[00:34:59] Peter Robicheaux: [00:35:00] And we can see that this is finally a model that doesn't saturate. It's even at the highest parameter count, it's, it appears to be, oh, at the highest parameter account, it appears to be improving in performance with more and more samples seen. And so you can sort of think that. You know, if we just keep bumping the parameter count and increasing the example scene, which is the, the, the line of thinking for language models, then it'll keep getting better.
+
+[00:35:27] Peter Robicheaux: So how does it actually do at finding, oh, it also improves with resolution, which you would expect for a model that This is the ImageNet classification accuracy, but yeah, it does better if you increase the resolution, which means that it's actually leveraging and finding fine grained visual features.
+
+[00:35:44] Peter Robicheaux: And so how does that actually do compared to CLIP on Cocoa? Well, you can see that if you slap a transformer detection head on it, Entry now in Cocoa, it's just 60. 2, which is also within spitting distance of Soda, which means that it does a very good job of [00:36:00] finding visual features, but you could say, okay, well, wait a second.
+
+[00:36:03] Peter Robicheaux: Clip got to 59. 1, so. Like, how does this prove your claim at all? Because doesn't that mean like clip, which is known to be clip blind and do badly on MMVP, it's able to achieve a very high performance on fine, on this fine grained visual features task of object detection, well, they train on like, Tons of data.
+
+[00:36:24] Peter Robicheaux: They train on like objects, 365, Cocoa, Flickr and everything else. And so I think that this benchmark doesn't do a great job of selling how good of a pre trained model MV2 is. And we would like to see the performance on fewer data as examples and not trained to convergence on object detection. So seeing it in the real world on like a dataset, like RoboFlow 100, I think would be quite interesting.
+
+[00:36:48] Peter Robicheaux: And our, our, I guess our final, final pick for paper of 2024 would be Moondream. So introducing Vic to talk about that.
+
+[00:36:54] swyx: But overall, that was exactly what I was looking for. Like best of 2024, an amazing job. Yeah, you can, [00:37:00] if there's any other questions while Vic gets set up, like vision stuff,
+
+[00:37:07] swyx: yeah,
+
+[00:37:11] swyx: Vic, go ahead. Hi,
+
+[00:37:13] Vik Korrapati / Moondream
+
+[00:37:13] question: well, while we're getting set up, hi, over here, thanks for the really awesome talk. One of the things that's been weird and surprising is that the foundation model companies Even these MLMs, they're just like worse than RT Tether at detection still. Like, if you wanted to pay a bunch of money to auto label your detection dataset, If you gave it to OpenAI or Cloud, that would be like a big waste.
+
+[00:37:37] question: So I'm curious, just like, even Pali Gemma 2, like is worse. So, so I'm curious to hear your thoughts on like, how come, Nobody's cracked the code on like a generalist that really you know, beats a specialist model in computer vision like they have in in LLM land.[00:38:00]
+
+[00:38:01] Isaac Robinson: Okay. It's a very, very interesting question. I think it depends on the specific domain. For image classification, it's basically there. In the, in AIMv2 showed, a simple attentional probe on the pre trained features gets like 90%, which is as well as anyone does. The, the, the, the bigger question, like, why isn't it transferring to object detection, especially like real time object detection.
+
+[00:38:25] Isaac Robinson: I think, in my mind, there are two answers. One is, object detection is really, really, really the architectures are super domain specific. You know, we see these, all these super, super complicated things, and it's not super easy to, to, to build something that just transfers naturally like that, whereas image classification, you know, clip pre training transfers super, super quickly.
+
+[00:38:48] Isaac Robinson: And the other thing is, until recently, the real time object detectors didn't even really benefit from pre training. Like, you see the YOLOs that are like, essentially saturated, showing very little [00:39:00] difference with pre training improvements, with using pre trained model at all. It's not surprising, necessarily, that People aren't looking at the effects of better and better pre training on real time detection.
+
+[00:39:12] Isaac Robinson: Maybe that'll change in the next year. Does that answer your question?
+
+[00:39:17] Peter Robicheaux: Can you guys hear me? Yeah, one thing I want to add is just like, or just to summarize, basically, is that like, Until 2024, you know, we haven't really seen a combination of transformer based object detectors and fancy losses, and PolyGemma suffers from the same problem, which is basically to say that these ResNet, or like the convolutional models, they have all these, like, extreme optimizations for doing object detection, but essentially, I think it's kind of been shown now that convolution models like just don't benefit from pre training and just don't like have the level of intelligence of transformer models.
+
+[00:39:56] swyx: Awesome. Hi,
+
+[00:39:59] Vik Korrapati: can [00:40:00] you hear me?
+
+[00:40:01] swyx: Cool. I hear you. See you. Are you sharing your screen?
+
+[00:40:04] Vik Korrapati: Hi. Might have forgotten to do that. Let me do
+
+[00:40:07] swyx: that. Sorry, should have done
+
+[00:40:08] Vik Korrapati: that.
+
+[00:40:17] swyx: Here's your screen. Oh, classic. You might have to quit zoom and restart. What? It's fine. We have a capture of your screen.
+
+[00:40:34] swyx: So let's get to it.
+
+[00:40:35] Vik Korrapati: Okay, easy enough.
+
+[00:40:49] Vik Korrapati: All right. Hi, everyone. My name is Vic. I've been working on Moondream for almost a year now. Like Shawn mentioned, I just went and looked and it turns out the first version I released December [00:41:00] 29, 2023. It's been a fascinating journey. So Moonbeam started off as a tiny vision language model. Since then, we've expanded scope a little bit to also try and build some tooling, client libraries, et cetera, to help people really deploy it.
+
+[00:41:13] Vik Korrapati: Unlike traditional large models that are focused at assistant type use cases, we're laser focused on building capabilities that developers can, sorry, it's yeah, we're basically focused on building capabilities that developers can use to build vision applications that can run anywhere. So, in a lot of cases for vision more so than for text, you really care about being able to run on the edge, run in real time, etc.
+
+[00:41:40] Vik Korrapati: So That's really important. We have we have different output modalities that we support. There's query where you can ask general English questions about an image and get back human like answers. There's captioning, which a lot of our users use for generating synthetic datasets to then train diffusion models and whatnot.
+
+[00:41:57] Vik Korrapati: We've done a lot of work to minimize those sessions there. [00:42:00] So that's. Use lot. We have open vocabulary object detection built in similar to a couple of more recent models like Palagem, et cetera, where rather than having to train a dedicated model, you can just say show me soccer balls in this image or show me if there are any deer in this image, it'll detect it.
+
+[00:42:14] Vik Korrapati: More recently, earlier this month, we released pointing capability where if all you're interested in is the center of an object you can just ask it to point out where that is. This is very useful when you're doing, you know, I automation type stuff. Let's see, LA we, we have two models out right now.
+
+[00:42:33] Vik Korrapati: There's a general purpose to be para model, which runs fair. Like it's, it's it's fine if you're running on server. It's good for our local Amma desktop friends and it can run on flagship, flagship mobile phones, but it never. so much for joining us today, and we'll see you in the [00:43:00] next one. Less memory even with our not yet fully optimized inference client.
+
+[00:43:06] Vik Korrapati: So the way we built our 0. 5b model was to start with the 2 billion parameter model and prune it while doing continual training to retain performance. We, our objective during the pruning was to preserve accuracy across a broad set of benchmarks. So the way we went about it was to estimate the importance of different components of the model, like attention heads, channels MLP rows and whatnot using basically a technique based on the gradient.
+
+[00:43:37] Vik Korrapati: I'm not sure how much people want to know details. We'll be writing a paper about this, but feel free to grab me if you have more questions. Then we iteratively prune a small chunk that will minimize loss and performance retrain the model to recover performance and bring it back. The 0. 5b we released is more of a proof of concept that this is possible.
+
+[00:43:54] Vik Korrapati: I think the thing that's really exciting about this is it makes it possible for for developers to build using the 2B param [00:44:00] model and just explore, build their application, and then once they're ready to deploy figure out what exactly they need out of the model and prune those capabilities into a smaller form factor that makes sense for their deployment target.
+
+[00:44:12] Vik Korrapati: So yeah, very excited about that. Let me talk to you folks a little bit about another problem I've been working on recently, which is similar to the clocks example we've been talking about. We had a customer reach out who was talking about, like, who had a bunch of gauges out in the field. This is very common in manufacturing and oil and gas, where you have a bunch of analog devices that you need to monitor.
+
+[00:44:34] Vik Korrapati: It's expensive to. And I was like, okay, let's have humans look at that and monitor stuff and make sure that the system gets shut down when the temperature goes over 80 or something. So I was like, yeah, this seems easy enough. Happy to, happy to help you distill that. Let's, let's get it going. Turns out our model couldn't do it at all.
+
+[00:44:51] Vik Korrapati: I went and looked at other open source models to see if I could just generate a bunch of data and learn from that. Did not work either. So I was like, let's look at what the folks with [00:45:00] hundreds of billions of dollars in market cap have to offer. And yeah, that doesn't work either. My hypothesis is that like the, the way these models are trained are using a large amount of image text data scraped from the internet.
+
+[00:45:15] Vik Korrapati: And that can be biased. In the case of gauges, most gauge images aren't gauges in the wild, they're product images. Detail images like these, where it's always set to zero. It's paired with an alt text that says something like GIVTO, pressure sensor, PSI, zero to 30 or something. And so the models are fairly good at picking up those details.
+
+[00:45:35] Vik Korrapati: It'll tell you that it's a pressure gauge. It'll tell you what the brand is, but it doesn't really learn to pay attention to the needle over there. And so, yeah, that's a gap we need to address. So naturally my mind goes to like, let's use synthetic data to, Solve this problem. That works, but it's problematic because it turned out we needed millions of synthetic gauge images to get to reasonable performance.
+
+[00:45:57] Vik Korrapati: And thinking about it, reading a gauge is like [00:46:00] not a one, like it's not a zero short process in our minds, right? Like if you had to tell me the reading in Celsius for this, Real world gauge. There's two dials on there. So first you have to figure out which one you have to be paying attention to, like the inner one or the outer one.
+
+[00:46:14] Vik Korrapati: You look at the tip of the needle, you look at what labels it's between, and you count how many and do some math to figure out what that probably is. So what happens if we just add that as a Chain of thought to give the model better understanding of the different sub, to allow the model to better learn the subtasks it needs to perform to accomplish this goal.
+
+[00:46:37] Vik Korrapati: So you can see in this example, this was actually generated by the latest version of our model. It's like, okay, Celsius is the inner scale. It's between 50 and 60. There's 10 ticks. So the second tick, it's a little debatable here, like there's a weird shadow situation going on, the dial is off, so I don't know what the ground truth is, but it works okay.
+
+[00:46:57] Vik Korrapati: There's points on there that are, the points [00:47:00] over there are actually grounded. I don't know if this is easy to see, but when I click on those, there's a little red dot that moves around on the image. The model actually has to predict where this points are, I was already trying to do this with bounding boxes, but then Malmo came out with pointing capabilities.
+
+[00:47:15] Vik Korrapati: And it's like pointing is a much better paradigm to to represent this. We see pretty good results. This one's actually for clock reading. I couldn't find our chart for gauge reading at the last minute. So the light. Blue chart is with our rounded chain of thought. This measures, we have, we built a clock reading benchmark about 500 images.
+
+[00:47:37] Vik Korrapati: This measures accuracy on that. You can see it's a lot more sample efficient when you're using the chain of thought to model. Another big benefit from this approach is like, you can kind of understand how the model is. it and how it's failing. So in this example, the actual correct reading is 54 Celsius, the model output [00:48:00] 56, not too bad but you can actually go and see where it messed up. Like it got a lot of these right, except instead of saying it was on the 7th tick, it actually predicted that it was the 8th tick and that's why it went with 56.
+
+[00:48:14] Vik Korrapati: So now that you know that this. Failing in this way, you can adjust how you're doing the chain of thought to maybe say like, actually count out each tick from 40, instead of just trying to say it's the eighth tick. Or you might say like, okay, I see that there's that middle thing, I'll count from there instead of all the way from 40.
+
+[00:48:31] Vik Korrapati: So helps a ton. The other thing I'm excited about is a few short prompting or test time training with this. Like if a customer has a specific gauge that like we're seeing minor errors on, they can give us a couple of examples where like, if it's miss detecting the. Needle, they can go in and correct that in the chain of thought.
+
+[00:48:49] Vik Korrapati: And hopefully that works the next time. Now, exciting approach, we only apply it to clocks and gauges. The real question is, is it going to generalize? Probably, like, there's some science [00:49:00] from text models that when you train on a broad number of tasks, it does generalize. And I'm seeing some science with our model as well.
+
+[00:49:05] Vik Korrapati: So, in addition to the image based chain of thought stuff, I also added some spelling based chain of thought to help it understand better understand OCR, I guess. I don't understand why everyone doesn't do this, by the way. Like, it's trivial benchmark question. It's Very, very easy to nail. But I also wanted to support it for stuff like license plate, partial matching, like, hey, does any license plate in this image start with WHA or whatever?
+
+[00:49:29] Vik Korrapati: So yeah, that sort of worked. All right, that, that ends my story about the gauges. If you think about what's going on over here it's interesting that like LLMs are showing enormous. Progress in reasoning, especially with the latest set of models that we've seen, but we're not really seeing, I have a feeling that VLMs are lagging behind, as we can see with these tasks that should be very simple for a human to do [00:50:00] that are very easy to find VLMs failing at.
+
+[00:50:04] Vik Korrapati: My hypothesis on why this is the case is because On the internet, there's a ton of data that talks about how to reason. There's books about how to solve problems. There's books critiquing the books about how to solve problems. But humans are just so good at perception that we never really talk about it.
+
+[00:50:20] Vik Korrapati: Like, maybe in art books where it's like, hey, to show that that mountain is further away, you need to desaturate it a bit or whatever. But the actual data on how to, like, look at images is, isn't really present. Also, the Data we have is kind of sketched. The best source of data we have is like image all text pairs on the internet and that's pretty low quality.
+
+[00:50:40] Vik Korrapati: So yeah, I, I think our solution here is really just we need to teach them how to operate on individual tasks and figure out how to scale that out. All right. Yep. So conclusion. At Moondream we're trying to build amazing PLMs that run everywhere. Very hard problem. Much work ahead, but we're making a ton of progress and I'm really excited [00:51:00] about If anyone wants to chat about more technical details about how we're doing this or interest in collaborating, please, please hit me up.
+
+[00:51:08] Isaac Robinson: Yeah,
+
+[00:51:09] swyx: like, I always, when people say, when people say multi modality, like, you know, I always think about vision as the first among equals in all the modalities. So, I really appreciate having the experts in the room.
+
+1
+
+We’re not saying there’s a correlation, but we’re not not saying it…
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

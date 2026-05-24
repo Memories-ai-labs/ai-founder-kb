@@ -1,0 +1,454 @@
+# Cline: The Open Source Code Agent — with Saoud Rizwan and Nik Pash
+# URL: https://www.latent.space/p/cline
+# Date: 2025-07-31
+# source: Latent Space
+
+Cline: The Open Source Code Agent — with Saoud Rizwan and Nik Pash
+
+On the heels of their $32m Series A: Why fast apply models got bitter lesson'd, pioneering the plan + act paradigm for coding, and why people are use coding agents for non-coding tasks
+
+Jul 31, 2025
+
+44
+
+1
+
+Share
+
+Clline announces their $32m Seed+A today. In an age of nonstop VSCode forks (Kiro) and terminal agents (Warp 2.0, Charm Crush, Augment CLI), why is a free open source VSCode extension doing so well in 2025?
+
+As the AI coding wars rage on, there seems to be an unlimited demand for new entrants in this space. In January of this year, Cline launched their AI engineer extension compatible with VS Code, Cursor, and Windsurf. In the 6 months since release, they are closing in on 2 million downloads. 
+
+Plan & Act and why RAG for coding is dead
+
+The first change the Cline team introduced to the regular AI IDE workflow is going from sequential chat to plan + act where the models can create an outline of the changes needed, and then work through them. 
+
+One of the key differences in this mode is moving on from RAG (i.e. index your codebase and do semantic search) to agentic search. You can read pash’s blog post here about RAG being a mind virus.
+
+This all ties into the newly-coined “context engineering” practice, which for Cline has a few different pieces:
+
+Dynamic Context Management: Employing strategies to intelligently read and summarize file content in real-time, ensuring context remains relevant and up-to-date without overwhelming the context window.
+
+AST-Based Analysis: Using Abstract Syntax Trees (AST) to precisely identify and extract relevant parts of code, which aids in accurate navigation and manipulation of files.
+
+Narrative Integrity: Ensuring continuous narrative coherence throughout tasks by summarizing past interactions and retaining key information to maintain context accuracy during long or complex tasks.
+
+Memory Bank: Developing mechanisms to capture and retain essential "tribal knowledge" and developer preferences without explicit input, facilitating more personalized and contextually aware interactions.
+
+MCPs for Everyone
+
+Cline also leaned into MCPs very early, and already launched their own marketplace. We asked them what the most popular MCPs are, and got a list of the “usual suspects” which you can find in their MCP marketplace:
+
+File System MCP: For managing files and directories.
+
+Browser Automation MCPs: Playwright, Puppeteer, and Browser Tools for web tasks.
+
+Git Tools: For repository interactions and version control.
+
+Documentation Retrieval (Context 7): Allows easy access to documentation libraries.
+
+Third-party integrations: Slack, Perplexity Research, Unity, and Ableton for tasks beyond typical coding environments.
+
+The surprising thing was how MCPs are also the killer feature for non-technical people. There are Cline users who don’t code at all but use it as a workflow automation platform, with two leading use cases:
+
+Automated Marketing and Social Media: Leveraging Reddit and Twitter MCP integrations to automate content scraping and post generation right in the IDE.
+
+Presentation Creation: Non-technical users generated entire slide decks by transcribing voice notes and automatically formatting them into professional presentations. (You can argue this is coding-adjacent as it uses code as slides frameworks, but still!)
+
+As MCPs keep growing in popularity and the multi-modal textbox keeps growing as the best AI interface, we’ll see more of these. 
+
+Show Notes
+
+Cline
+
+Sentry
+
+SlideDev
+
+Limitless
+
+Context7
+
+Agents-927
+
+Fast Apply Models Are Dead
+
+RAG is a Mind Virus
+
+Timestamps
+
+[00:00:05] Introductions
+
+[00:01:35] Plan and Act Paradigm
+
+[00:05:37] Model Evaluation and Early Development of Cline
+
+[00:08:14] Use Cases of Cline Beyond Coding
+
+[00:09:09] Why Cline is a VS Code Extension and Not a Fork
+
+[00:12:07] Economic Value of Programming Agents
+
+[00:16:07] Early Adoption for MCPs
+
+[00:19:35] Local vs Remote MCP Servers
+
+[00:22:10] Anthropic's Role in MCP Registry
+
+[00:22:49] Most Popular MCPs and Their Use Cases
+
+[00:25:26] Challenges and Future of MCP Monetization
+
+[00:27:32] Security and Trust Issues with MCPs
+
+[00:28:56] Alternative History Without MCP
+
+[00:29:43] Market Positioning of Coding Agents and IDE Integration Matrix
+
+[00:32:57] Visibility and Autonomy in Coding Agents
+
+[00:35:21] Evolving Definition of Complexity in Programming Tasks
+
+[00:38:16] Forks of Cline and Open Source Regrets
+
+[00:40:07] Simplicity vs Complexity in Agent Design
+
+[00:46:33] How Fast Apply Got Bitter Lesson'd
+
+[00:49:12] Cline's Business Model and Bring-Your-Own-API-Key Approach
+
+[00:54:18] Integration with OpenRouter and Enterprise Infrastructure
+
+[00:55:32] Impact of Declining Model Costs
+
+[00:57:48] Background Agents and Multi-Agent Systems
+
+[01:00:42] Vision and Multi-Modalities
+
+[01:01:07] State of Context Engineering
+
+[01:07:37] Memory Systems in Coding Agents
+
+[01:10:14] Standardizing Rules Files Across Agent Tools
+
+[01:11:16] Cline's Personality and Anthropomorphization
+
+[01:12:55] Hiring at Cline and Team Culture
+
+Transcript
+
+Introductions
+
+Alessio [00:00:05]: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO at Decibel, and I'm joined by my co-host Swyx, founder of Small AI. Welcome, welcome.
+
+Swyx: And today in the studio with a nice two guests from Cline, Pash and Saud. That's right. Yes.
+
+Alessio [00:00:20]: You nailed it. Let's go.
+
+Swyx [00:00:23]: I think that Cline has a decent fan base, but not everyone has heard of it. Maybe we should just get an upfront, like what is Cline, maybe from you and then you can modify that as well.
+
+Saoud [00:00:35]: Yeah, Cline's an open source coding agent. It's a VS Code extension right now, but it's coming to JetBrains and NeoVim and CLI. You give Cline a task and he just goes off and does it. He can take over your terminal, your editor, your browser, connect to all sorts of MCP services and essentially take over your entire developer workflow. And it becomes this point of contact for you to get your entire job done, essentially.
+
+Swyx [00:01:01]: Beautiful. Pash, what would you modify? Or what's another way to look at Cline that you think is also valuable?
+
+Pash [00:01:08]: Yeah, I think Cline is the kind of infrastructure layer for agents, for all open source agents, people building on top of this like agentic infrastructure. Cline is a fully modular system. That's the way we envision it. And we're trying to make it more modularized so that you can build any agent on top of it. Yeah. So with the CLI and with the SDK that we're rolling out, you're going to be able to build fully agentic systems for agents.
+
+Plan and Act Paradigm
+
+Swyx [00:01:35]: Oh, okay. That is a different perspective on Cline that I had. So, okay, let's talk about coding first and then we'll talk about the broader stuff. You also are similar to Ader. I don't know who comes first in that you use the plan and act paradigm quite a bit. I'm not sure how well known this is. Like to me, I'm relatively up to speed on it. But again, like maybe you guys want to explain like why different models for different things.
+
+Saoud [00:02:02]: Yeah, I'm going to take the credit. Yeah, I'm going to take the credit for coming up with plan and act first. Okay. Cline was the first to sort of come up with this concept of having two modes for the developer to engage with. So just in like talking to our users and seeing how they use Cline where it was really only an input field, we found a lot of them starting off working with the agent, coming up with a markdown file where they asked the agent to put together some kind of architecture plan for the work that they want the agent to go on to do. And so they we would find that that people just came up with this workflow for themselves just organically. And so we thought about how we might translate that into the product. So it's a little bit more intuitive for new users who don't have to kind of pick up that pattern for themselves, and can kind of direct and, and put in guardrails for the agent to hear to these different modes, whenever the user switches between them. So for example, in plan mode, the agents directed to be more exploratory, read more files, get more data, get more data, get more data, get more data. Sort of understanding and fill up its context with any sort of relevant information to come up with a plan of attack for whatever the task is the user wants to accomplish. And then when they switch to act mode, that's when the agent gets this directive to look at the plan and start executing on it, running commands, editing files. And it just makes working with agents a little bit easier, especially with something like Cline, where a lot of the times, people's engagement with it is mostly in the plan mode, where there's a lot of back and forth. There's a lot of extracting context from the developer, you know, asking questions, you know, what do you want the theme to look like? What pages do you want on the website, just trying to extract any sort of information that the user might not have put into their initial prompt. Once the user feels like, okay, I'm ready to let the agent go off and work on this, they switch to act mode, check auto approve, and just kick their feet up and you know, get coffee or whatever and let the agent get the job done. So yeah, most of the engagement happens in the plan mode. And then act mode, they kind of just have a peripheral vision into what's going on, mostly to course correct whenever it goes in the wrong direction. But for the most part, they can just rely on the model to get it done.
+
+Alessio [00:04:14]: And was this the first shape of the product? Or did you get to the plan act iteratively? And maybe, was this the first idea of the company itself? Or were you exploring other stuff?
+
+Saoud [00:04:26]: It was a lot of, especially in the early days of Cline, it was a lot of experimenting and talking to our users. And seeing what kind of workflows came up that they found that were useful for them and translating them into the product. So plan and act was really a byproduct of just talking to people in our discord, just asking them what would be useful to them, what kind of prompt shortcuts we could add into the UI. I mean, that's really all plan and act mode is. It's essentially a shortcut for the user to save them the trouble of having to type out, you know, I want you to ask me questions and put together a plan the way that you might have to. You know, some of the other tools, you'd have to like be explicit about, I want you to come up with a plan before, you know, acting on it or editing files, incorporating that into the UI, just saves the user the trouble of having to type that out themselves.
+
+Alessio [00:05:14]: But you started right away as a coding product. And then this was part of, okay, how do we get better UX, basically? Exactly. Yeah. What was the model evaluation at the time? So I'm sure part of like the we need plan and act is like, maybe the models are not able to do it end to end. When you started working on the model, what was the evaluation like? And then how did you start working on that? Where were the model limitations? What were the best models? And then how has that evolved over time?
+
+Model Evaluation and Early Development of Cline
+
+Saoud [00:05:37]: Yeah, when I first started working on Client, this was, I think, 10 days after Cloud 3.5 Sonic came out, I was reading Anthropix model card addendum. And there was this section about agentic coding and how it was so much better at this step by step accomplishing tasks. And they talked about running this internal test where they let the model run in this loop where it could call tools. And it was obvious to me that, okay, they have some version, and they have some application internally, that's really different from how the, you know, the other things at the time were things like Copilot and Cursor and Ader. They didn't do this for like step by step reasoning and accomplishing tasks. They were more suited for the Q&A and, and one shot prompting paradigm. At the time, I think it was June 2024, Anthropix was doing a build with Cloud hackathon. So I thought, okay, this is going to be fun. And I think this is a really cool new capability that none of the models have really been capable of doing before. And I think being able to create something from the ground up and take advantage of kind of like the nuances of how much the models improved in that point in time. So for example, Cloud 3.5 was also really good at this test called needle in a haystack, where if it has a lot of context in its context window, for example, you know, 90% of its 200k context window is filled up. It's really good at picking out. granular details in that context, whereas before Cloud 3.5, it really pay a lot more attention to whatever was at the beginning or the end of the context. So just taking advantage of kind of the nuances of it being better at understanding longer context and it being better at task by task, sorry, step by step, accomplishing tasks, and building a product from the ground up just kind of let me create something that just felt a little bit different than anything else that was around at the time. And some of the core principles and building the first version of the product was just keep it really simple. Just let the developer feel like they can kind of use it however they want, so make it as general as possible, and kind of let them come up with whatever workflows, you know, works well for them. People use it for all sorts of things outside of coding, our product marketing guy, Nick Bauman, he uses it to connect to, you know, a Reddit MCP server, scrape content connected to an X MCP server and post tweets, essentially, even though it's a VS Code extension, and a coding agent. MCP kind of lets it function as this everything agent where it can connect to, you know, whatever services and things like that, and that's really a side effect of having very general prompts just in the product and not sort of limiting it to just coding tasks.
+
+Use Cases of Cline Beyond Coding
+
+Pash [00:08:14]: I was at a conference in Amsterdam, and I built my whole presentation, my whole slide deck using this library. It's like a JavaScript library called SlideDev, and I just asked Cline, like, hey, like, here's like my style guidelines. I wrote like a big Cline rules document explaining like... how I want to style the presentation in SlideDev, I told Cline, like, the agenda I kind of recorded using this other app called Limitless, like transcribed my voice in a text about like my thoughts, just like stream of consciousness about what I was going to talk about for this conference for my talk, and Cline just went in and built the whole deck for me, so, you know, Cline really can do anything. In JavaScript. In JavaScript, yeah.
+
+Swyx [00:08:56]: Yeah, so it's kind of a coding use case.
+
+Pash [00:08:59]: It was kind of a... It was kind of a coding use case, but then making a presentation out of it, but it can also like run scripts, like do like data analysis for you, and then put that into a deck, you know, kind of combine things.
+
+Why Cline is a VS Code Extension and Not a Fork
+
+Saoud [00:09:09]: And being a VS Code extension is kind of this, like, it gives you these interesting capabilities where you have access to the user's OS, you have access to the user's terminal, and, you know, you can read and edit files. Being an extension, it reduces a lot of the onboarding friction for a lot of developers, or they don't have to, you know, install a whole new application. Or have to, you know, go through whatever internal jumping through hoops to try to get something approved to use within their organizations. So the marketplace gave us a ton of really great distribution, and it's sort of like the perfect conduit for something that needs access to files on your desktop, or to be able to run things on your terminal, to be able to edit code, and to take advantage of VS Codes. It's really nice UI and show you like diff views, for example, before and after it makes changes to files.
+
+Swyx [00:09:59]: Weren't you tempted to fork VS Code, though? I mean, you know, you could be sitting on $3 billion right now.
+
+Saoud [00:10:05]: Well, no, I actually like pity anybody that has to fork VS Code, because Microsoft makes it like notoriously difficult to maintain these forks. So a lot of resources and efforts go into just maintaining, keeping your fork up to date with all the updates that VS Code is making. I see.
+
+Swyx [00:10:23]: Is that because they have a private repo and they need to just sync it? There's no like... Exactly. Exactly. And there's one of those kinds of open source projects.
+
+Saoud [00:10:31]: Right. And VS Code is moving so quickly where I'm sure they run into all sorts of issues, not just in, you know, things like merge conflicts, but also in the back end. They're always making improvements and changes to, for example, their VS Marketplace API. And to have to like reverse engineer that and figure out kind of how to make sure that your users don't run into issues using things like that is, I'm sure, like a huge headache for anybody that has to maintain a VS Code fork. And it also, you know, being an extension also gives us a lot more distribution. You have to use us or somebody else. You can use Cline in Cursor or in Windsurf or in VS Code. And I think Cline complements all these things really well in that, you know, we get the opportunity to kind of figure out and work really closely with our users to figure out what the best agentic experience is. Whereas, you know, Cursor and Windsurf and Copilot have to think about the entire developer experience, the inline code edits, the Q&A, sort of all the other bells and whistles that go into writing code. Right. Right. Right. Right. So I think that's what we're going to focus on, what I think is the future programming, which is this agentic paradigm. And as the models get better, people are going to find themselves using natural language, working with an agent more and more and less being in the weeds and editing code and tab autocomplete.
+
+Pash [00:11:42]: Yeah, just like imagine how many like resources you would have to spend maintaining a fork of VS Code where we can just kind of stay focused on the core agentic loop, optimizing for different model families as they come out, supporting them. You know, there's so much work that goes into all of this that maintaining a fork on the side would just be such a massive distraction for us that I don't think it's really worth it.
+
+Economic Value of Programming Agents
+
+Alessio [00:12:07]: I feel like when you talk, I hear this distinction between we want to be the best thing for the future of programming. And then also, this is also great for non-programming. Is this something that has been recent for you where you're seeing more and more people use the MCP servers, especially to do less technical thing? And that's an interesting area. Yeah. Yeah. Yeah. Yeah. I mean, it's still like the highest kind of like economic value thing to be selling today. I'm curious if you can share more.
+
+Saoud [00:12:34]: In terms of economic value, programming is definitely the highest cost to benefit for language models right now. And I think, you know, we're seeing a lot of, you know, model labs recognize that opening-eyed, anthropic or taking coding a lot more seriously than I think they did a year ago. What we've seen is, well, yes, like the MCP ecosystem is growing and a lot of people are using it for things outside of programming. The majority use case is mostly developer work. There was an article on Hacker News a couple of weeks ago about how a developer deployed a buggy Cloudflare worker and used a sentry MCP server to pull a stack trace and ask Cline to sort of fix the bug using the stack trace information, connect to a GitHub MCP server to close the issue and deploy the fix to Cloudflare. All right within Cline using natural language. Never having to leave VS code and it sort of interacts with all these services that otherwise the developer would have had to have the cognitive overload of having to, you know, figure out for himself and leave his developer environment to essentially do what the agent could have done just on the background, just using natural language. So I think that's kind of like where things are headed is the application layer being connected to sort of all the different services that you might have had to interact with before manually and it being this sort of single point of contact for you to interact with using natural language. And. You being less and less in the code and more and more a high level understanding of what the agent's doing and being able to course correct. I think that's another part of what's important to us and what's allowed us to kind of cut through the noise in this like incredibly noisy spaces. I think a lot of a lot of people have really grand ideas for, you know, where things are heading, but we've been really maniacal about what's useful to people today. And a large part of that is understanding sort of the limitations of these models, what they're not. So good up and giving enough insight into those sorts of things to the end developers so that they know how to course correct. They know how to give feedback when things don't go right. So, for example, Cline is really good about, you know, giving you a lot of insight into the prompts going into the model, into when there's an error, why the error happened into the tools that the model is calling. We try to give as much insight into what exactly the model is doing in each step in accomplishing a task. So when things don't go wrong or it starts to. Go off in the wrong direction, you can give it feedback and course correct. I think the course correcting part is so incredibly important and in getting work done, I think much more quickly than if you were to kind of give a sort of a background agent work, you come back a couple of hours later and it's just like totally wrong. And it didn't do anything that you expected it to do. And you kind of have to retry a couple of times before it gets it right.
+
+Alessio [00:15:16]: I think the Sentry example is great because I feel in a way the MCPs are like cannibalizing the products themselves. Like I started using the Sentry MCP. And then Sentry released here, which is like their issue resolution agent, and it was free at the start. So I turned it on in Sentry, I was using it, it's great. And then they started charging money for it. And I'm like, I can use the MCP for free, put the data in my coding agent, and it's going to fix the issue for free and send it back. I'm curious to see, especially in coding where you can kind of have this closed loop where, okay, RDS MCP is going to become the paid AI offering so that then you can plug it in and. It's client going to have kind of like a MCP subscription where like totally you're kind of fractionalizing all these costs. To me today, it feels like it doesn't make a lot of sense the way they're structured.
+
+Early Adoption for MCPs
+
+Pash [00:16:07]: Well, yeah, we were like very early on. We like we've been bullish on MCP from the very beginning.
+
+Saoud [00:16:13]: And we are a launch partner, a financial MCP, I think. Sorry to interrupt. Yeah, no worries. I think when Anthropic first launched MCP and they made this big announcement about this new protocol that they've been working on and open sourcing it. Nobody really. Understood what it meant. And it took me some time really digging into their documentation about how it works and why this is important. I think they kind of took this bet on the open source community contributing to an ecosystem in order for it to really take off. And so I wanted to try to help with that for as much as possible. So for a long time, most of client system prompt was how does MCP work? Because it was so new at the time that, you know, the models didn't know anything about it and how to make MCP servers. So like if the developer wanted to, you know, make something. Like that would be really good at it. And I'd like to think that, you know, client had something to do with how much the MCP ecosystem has grown since then. And just getting developers more insight and sort of awareness about how it works under the hood, which I think is incredibly important in using it, let alone just developing these things. And so, yeah, when we launched MCP in client, I remember our Discord users just trying to wrap their heads around it. And in seeing clients build MCP servers from the ground up, they're like, OK. They started to connect the dots. This is how it works under the hood. This is why it's useful. This is how agents connect to these tools and services and these APIs and sort of saved me a lot of the trouble of having to do this sort of stuff myself.
+
+Pash [00:17:37]: Those were like the early days of MCP when people were still trying to wrap their heads around it. And there's like a big problem with discoverability. So back in like February, we launched the MCP marketplace where you could actually go through and have like this one-click install process where client would actually go through looking at a readme. And that's like linked to a GitHub, install the whole MCP server from scratch and just get it running immediately. And that was like, I think around that time, that's when MCP really started taking off with like the launch of the marketplace where people were able to discover MCPs, contribute to the MCP marketplace. We've listed over like 150 MCP servers since then. And like the top MCPs in our marketplace have over, you know, hundreds of thousands of downloads. People use them. And, you know, there's like really notable examples where you mentioned like, how are people like, it's like kind of eating existing products, but at the same time, we're starting to see like this ecosystem evolve where people are monetizing MCPs like a notable example of this is 21st dev magic MCP server where it injects some taste into this coding agent into the LLM where they have this library of beautiful components and they just inject relevant examples. So that. Client can go in and implement beautiful UIs. And the way they monetize that was like a standard API key. So we're starting to see developers really like take MCPs, build them in, have distribution platforms like the MCP marketplace and client and monetize their whole business around that. So now it's like almost like you're selling tools to agents, which is a really interesting topic.
+
+Alessio [00:19:22]: And you can do that because you're in VS code. So you have the terminal. So you can do. And PX run the different servers. Have you thought about doing remote MCP hosting or you feel like that's not something you should take over?
+
+Local vs Remote MCP Servers
+
+Pash [00:19:35]: Yeah, we haven't really hosted any ourselves. We think that's we we're looking into it. I think it's it's all very nascent right now, the the remote MCPs, but we're definitely interested in supporting remote MCPs and listing them on our marketplace.
+
+Saoud [00:19:50]: And another part, I think what sort of local MCP servers and remote MCPs is. Most of the remote MCPs are only useful to connect to different APIs. But that's only a you know, that's only a small use case for MCPs. A lot of MCPs help you connect to different applications on your computer. For example, there's like a a Unity MCP server that helps you create, you know, 3D objects with right from within VS code. There's an Ableton MCP server. You can make songs using something like client or whatever else uses MCPs. We won't see a world where these MCP servers are only hosted remotely. There will always be some mix of local MCP servers and remote MCP servers. I think the remote MCP servers do make the installation process a little bit easier with, you know, with something like an OAuth flow and just authenticating a little bit not as painful as having to manage API keys yourself. But for the most part, I think the MCPs ecosystem is is is really in its earlier days. We're still trying to figure out this good balance of security, but also convenience for the end developer so that it's not a pain to have to set these things up. And I think we're still in this very much experimental phase about how useful it is to people. And I think now that it is seeing this level of market fit and people are coming out with, you know, these sorts of like articles and workflows about how it's totally changing their jobs. I think there's going to be a lot more of resources and efforts that go into the ecosystem and just building out the protocol, which I think there's a lot on Anthropics Roadmap. And I think the community in general just has a lot of ideas and our marketplace in particular has given us insights into some ways that we can do this. And I think the community in general just has a lot of ideas and our marketplace in particular has given us insights into some ways that we can do this. and I think the community in general just has a lot of ideas and our marketplace in particular has given us insights into some ways that we can do this. Things that, you know, developers have asked for from it, that we're kind of thinking about how do we you know, what is the marketplace of the future look like? And for us, that's it's it's going to be a combination of, you know, well, there's a lot of our users are very security conscious. And there's a lot of ways that MCPs, you know, servers can be pretty dangerous to use if you don't trust the end developer of these things. And so we're trying to figure out, you know, what is a future look like where you can where you have some level of security? and to kind of build some level of confidence in the MCP servers you're installing? I think right now it's just it's too early and there's a lot of trust in the community that I don't think a lot of, you know, enterprise developers or organizations are quite willing to do yet. So that's something that's top of mind for us.
+
+Anthropic's Role in MCP Registry
+
+Swyx [00:22:10]: There's an interesting tension between the Nthopic and the community here. You basically kind of have a model register MCP registry internally, right? Honestly, I think you should expose it. I was looking for it on your website and you don't have it like the only way to access is to install client. But there's others like Smithery and all the other guys, right? But then Anthropic has also said they'll launch a model registry at some point or MCP registry at some point? Some point. If Anthropic launched the official one, would they just win by default, right? Because like, would you just use them?
+
+Saoud [00:22:40]: I think so. I think the entire ecosystem will just converge around whatever they do. They just have such good distribution and they're, yeah, they came up with it. Yeah, exactly. Cool.
+
+Most Popular MCPs and Their Use Cases
+
+Swyx [00:22:49]: And then I wanted to, I noticed that you had some like really downloaded MCPs. I was going by most installs. I'm just going to read it off. You can stop me anytime to comment on them. So top is file system MCP. Makes sense. Browser tools from agent-AI. I don't know what that is. Sequential thinking. That one came out with the original MCP release. Context 7. I don't know that one.
+
+Pash [00:23:12]: That's a big one. What is it? Context 7 kind of helps you pull in documentation from anywhere. And it has like this big index of all of the popular libraries and documentation for them. Okay. And you can, your agent can kind of submit like a natural language query and search for any documentation. It just says everyone's docs. Yes.
+
+Swyx [00:23:33]: And apparently Upstash did that, which is also unusual because Upstash is just normally Redis. Git tools, that one came out originally. Fetch. Browser use. Browser use, I imagine, competes with browser tools, right? I guess. And then below that, playwright. Playwright, right? So there's a lot of. Like, let's automate the browser and let's do stuff. I assume for debugging. Firecrawl, Puppeteer, Figma. Here's one for you. Perplexity research. Is that yours?
+
+Pash [00:23:59]: Well, yeah, I forked that one and listed it. But yeah, that's, you know, that's another very popular one where you can research anything.
+
+Swyx [00:24:06]: So people want to emulate the browser. I'm just trying to learn lessons from what people are doing, right? They want to automate the browser. They want to access Git and file system. They want to access docs and search. Anything else? You think, like, it is notable?
+
+Pash [00:24:21]: There's all kinds of stuff where it's like, you know, there's like the Slack MCP where you can send, you know, that's actually one workflow that I have set up where you can, like, automate repetitive tasks in Client. So I tell Client, like, OK, pull down this PR, use the GH command line tool, which I already have installed using the terminal to pull the PR, get the description of the PR, the discussion on it and get the full diff as like a like a single command, non-interactive command. Yeah. Pull in all that context, read the files around the diff, review it, ask a question like, hey, do you want me to approve this or not with this comment? And if I say yes, approve it and then send a message in Slack to my team using the Slack MCP, for example. Oh, use it to write. Yes. I would only use it to read. Yeah, no, it's, you know, people like I love it. You know, I love being able to just like send an automated message in Slack or whatever. You can also like set it up, like set up your workflow however you want, where it's like, OK, client. Please ask me before doing anything, you know, just make sure you're asking me to like approve before you send a message or something like that.
+
+Challenges and Future of MCP Monetization
+
+Swyx [00:25:26]: Yeah. OK, just just to close out MCP side, anything else interesting going on in MCP universe that we should talk about? MCP off was recently ratified.
+
+Pash [00:25:34]: I think monetization is a big question right now for the MCP ecosystem. We've been talking a lot with Stripe. They're very bullish on MCP and they're trying to figure out like a monetization layer for it. But it's all so early that it's kind of hard to really even envision where it's going to go.
+
+Swyx [00:25:55]: Let me just put up a straw man and you can tell me what's wrong with it. Like, how is this different from API monetization? Right. Like you sign up here, make an account, I give you a token back and then you use token. I charge you against your usage.
+
+Pash [00:26:07]: No, like like I think that's how it is right now. That's how like the the magic MCP, the 21st dev guys did it. But we're kind of envisioning a world where agents can. Can pay themselves for these MCP tools that they're using and pay for each tool call and you can't deal with like a million different API keys from different products and like signing up for all this, there needs to be like a unified kind of payment layer. Some people talk about like stable coins, how like those are coming out now that agents can natively use those. Stripe is they're considering this like abstraction and around the MCP protocol for payments. But like I said, it's kind of hard to really tell where it's going. How that's going to manifest.
+
+Swyx [00:26:50]: I would say like I covered when they launched their agent toolkit last year, a few months ago, it seemed like that was enough. Like you didn't seem to need stable coins except for the fact that they take like 30 cents every transaction. Yeah.
+
+Alessio [00:27:04]: Have you seen people use the X402 thing by Coinbase to make this basically like the you can do a HTTP request that includes payment in it? What?
+
+Pash [00:27:15]: Yeah, yeah, it's a it's been around forever. The 402 error that's like payment not accepted or something. Right. So, yeah, we've seen some people talking about that, like more like natively building that in. But yeah, nothing. Yeah, no one's really doing that right now.
+
+Security and Trust Issues with MCPs
+
+Swyx [00:27:32]: Anything you're seeing on like are people like in making MCP startups that are interesting?
+
+Alessio [00:27:39]: Mostly around rehosting local ones and do remote and then basically do instead of setting up 10 MCPs, you have like a canonical URL that you put in. All of your tools and then expose all the tools from all the servers. Yeah, there's like MCP that run some of these tools.
+
+Swyx [00:27:54]: Yeah, but I think it kind of has the same issues of how do you incentivize people to make better MCPs, you know, and will it be mostly first party or will it be a third party? Yeah, like your perplexity. MCP was the photo.
+
+Pash [00:28:06]: What's wrong with the perplexity when with MCPs and installing them locally on your device, there's always a massive risk associated with that. And when an MCP is created by someone that. We have no idea who they are at any point. They might, you know, update the GitHub to like introduce some kind of malicious stuff. So even if you like verified it when you're listing it, you might change it. So I ended up having to fork a few of those to make sure that we lock that version down.
+
+Swyx [00:28:33]: Oh, OK. So this is just like you're just forking it so that you don't change it. Yeah, without without. That's interesting. These are all the problems of a registry, right? Like that you need to ensure security and all that. Cool. I'm happy to move on. I would say like the last thing that's kind of curious. It's like if Anthropic hasn't hadn't come along and made MCP, what would have happened? What's the alternative history like? Would you have come with MCP?
+
+Alternative History Without MCP
+
+Saoud [00:28:56]: So we saw some of our competitors who have been kind of working on their own version of plug and play tools into these agents. They kind of had to natively create these tools and integrations themselves directly into their product. And so I think anybody in the space would have had to just do the laborious work of having to recreate these tools and integrations for So I think Anthropic just saved us all a lot of trouble and tapped into the power of open source and community driven development and allowed, you know, individual contributors to make an MCP for anything people could think of and really take advantage of people's imagination in a way that I think is necessary right now for us to really tap into full potential of this sort of thing.
+
+Alessio [00:29:38]: So we've had, I think, a dozen episodes with different coding products. Yeah.
+
+Market Positioning of Coding Agents and IDE Integration Matrix
+
+Swyx [00:29:43]: And this, by the way, this this episode came directly after he tweeted about it. I think he tweeted about the Cloud Code episode where they were sitting right where you're sitting. Thanks for sharing the clip. Talking about RAG. Yeah.
+
+Alessio [00:29:52]: Can you give people maybe the matrix of the market of, you know, you have like fully agentic, no IDE, you have agentic plus IDE, which is kind of yours. You have IDE with some co-piloting. How should people think about the different tools and what you guys are best at or maybe what you don't think you're best at?
+
+Saoud [00:30:11]: I think what we're best at and like our ethos since the beginning is just meet the developers where they're at today. I think there is a little bit of insight and handholding these models need right now. And the IDE is sort of the perfect conduit for something like that. You can see the edits it's making. You can see the commands that it's running. You can see the tools that it's calling. It gives you the perfect UX for you to have the level of insight and control and be able to course correct the way that you need to to work with the limitations of these models today. But I think it's pretty obvious that as the models get better, you'll be doing less and less than that, less and less of that and more and more of the initial planning. And prompting and sort of have the trust and confidence that, you know, the model will be able to get the job done pretty much exactly how you want it to. I think there will always be a little bit of a gap in that these models will never be able to read our minds. So there will have to be a little bit of, you know, making sure that you give it the most comprehensive and sort of like all the details of what you want from it. So if you're a lazy prompter, you can expect a ton of friction and back and forth. You really get what you want. But I think we're all learning for ourselves as we work with these things, kind of the right way to prompt these things and to be explicit about what it is that we want and kind of how they hallucinate the gaps that they might need to fill to get to the end result and how we might want to avoid something like that. So what's interesting about Cloud Code is there isn't really a lot of insight into what the agent's doing. It kind of gives you this like checklist of what it's doing holistically at a high level. I don't think that really would have worked well if the models weren't good enough to actually produce. But I think the space has to catch up to, okay, maybe people don't need as much insight into these sorts of things anymore. And they are okay with letting an agent kind of get the job done. And really all you need to see is sort of the end result and tweak it a little bit before it's really perfect. And I think there is going to be different tools for different jobs. I think something like totally autonomous agent that you don't have a lot of insight into is great for maybe scaffolding. New projects, but for kind of the serious, more complex sorts of things where, you know, you do need a certain level of insight or you do need to kind of have like more engagement. You might want to use something that does give you some more insight. So I think these sorts of tools complement each other. So for example, writing tests or spinning off 10 agents to try to fix the same bug, you know, might be useful for a tool that doesn't require too much engagement from you. Whereas something that requires a little bit more creativity or imagination. Or extracting context from your brain requires a little bit more of insight into what the model is doing and a back and forth that I think client is a little bit better suited for.
+
+Visibility and Autonomy in Coding Agents
+
+Pash [00:32:57]: Like visibility into what the agent is doing. That's like one axis. And then another is autonomy, like how automated it is. And we have a category of companies that are focusing more on the use case of people that don't even want to look at code, which is like, you know, the lovables, the replets. Where. It's like you go in, you build an app, you might not even be technical and you're just happy with the result. And then you have kind of stuff that's kind of like a hybrid where it's, you know, for engineers, it's built for engineers, but you don't really have a lot of visibility into what's going on in a hood. This is like for like the vibe coders where they're, you know, fully, you know, letting, letting the AI take the wheel and building stuff very rapidly and lots of open source fans and, you know, people that are hobbyists enjoy coding in this. And then you get to like serious engineering teams where they can't really give everything over to the AI, at least not yet. And they need to have high visibility into what's going on every step of the way and make sure that they actually understand what's happening with their code. You're kind of handing off your production code base to this non-deterministic system and then hoping that you catch it in review if anything goes wrong. Whereas personally, the way I use AI, the way I use Cline is I like to be there every step of the way and kind of guide it in the right direction. So I know every step of the way, like as every file is being edited, I prove every single thing and make sure that things are going in the right direction. I have a good understanding as things are being developed, where it's going. So like this kind of hybrid workflow really works for me personally. But, you know, sometimes if I want to go full YOLO mode, I go ahead and just auto approve everything. And just step out for a cup of coffee and then come back and, you know, review the work.
+
+Alessio [00:34:50]: My issue with this as an engineer myself is that we all want to believe that we work on the complex things. How have you guys seen the line of complex change over time? I mean, if we sat down having this discussion 12 months ago, complex was like much easier than today for the models. Do you feel like that's evolving quickly enough that like, you know, in 18 months, it's like you should probably just do four. Follow Gen Tech for like 75% of work, 80% of work, or do you feel like it's not moving as quickly as you thought?
+
+Evolving Definition of Complexity in Programming Tasks
+
+Saoud [00:35:21]: I think, I think what was complex a couple of years ago is totally different to what is complex today. Now, I think what we need to be more intentional about are the architectural decisions we make really early on and how the model kind of builds on top of that. If you have kind of a clear direction of where things are headed and what you want, you kind of have a good idea to what, how you might want to like lay the foundation for it. And I think what we might have considered complex a few years ago, algorithmic, you know, challenges, that's pretty trivial for models today and stuff that we don't really necessarily have to think too much about anymore. We kind of give it, you know, a certain expectation or unit test about what we want, and it kind of goes off and puts together the, you know, the perfect solution. So I think there's a lot more thought that has to go into tasteful architectural decisions that really comes down to you having experience with what works and what doesn't work. Having a clear idea. For the direction of where you want to take the project and sort of your vision for the code base. Those are all decisions that I think is hard to rely on a model for because of its limited context and its, you know, its inability to kind of see your vision for things and really have a good understanding of what you're trying to accomplish without you, you know, putting together a massive prompt of, you know, everything that you want from it. But I think what we were, you know, what we spent most of our time working on a couple years ago has totally changed. And I think for the better. I think architectural decisions are a lot more fun to think about than putting together algorithms.
+
+Pash [00:36:49]: It kind of frees up the senior software engineers to think more architecturally. And then once they have a really good understanding of what's what the current state of the repository is, what the current state of the architecture is, and when they're introducing something new, they're really thinking at an architectural level. And they articulate that to Cline. And that's also there's like some skill involved there. And some of that can be mitigated with like asking follow up questions, being proactive about clarifying. Things on the agent side, but ultimately, you need to articulate this new architecture to the agent, and then the agent can go down and down into the mines and implement everything for you. And it is more fun working that way. Like, personally, like, I find it a lot more engaging to just think on a more architectural level and for junior engineers, it's a really good paradigm to learn about the code base. It's kind of like having a senior engineer in your back pocket where you're asking Cline. Like, hey, can you explain the repository for me? If I wanted to implement something like this, what files would I look at? How does this work? It's great for that as well.
+
+Alessio [00:37:53]: If you're moving on from competition, I have one last question. Competition. Yeah. So there's Twitter beef with RooCode. I just want to know what the backstory is, because you tweeted yesterday, somebody asked RooCode to add Gemini CLI support, and then you guys responded, just copy it from us again. And they said, thank you. We'll make sure to give credit. Is it a real beef? No. Is it a friendly beef?
+
+Forks of Cline and Open Source Regrets
+
+Pash [00:38:16]: I think we're all just having fun on the timeline. There's a lot of forks.
+
+Saoud [00:38:21]: There's like 6,000 forks.
+
+Pash [00:38:23]: Yeah, there's like, if you search Cline in the VS Code marketplace, it's like the entire page is just like forks of Cline. And there's like even forks of forks that, you know, came out and raised like a whole bunch of money. What? Yeah, it's crazy.
+
+Saoud [00:38:37]: The top three apps in OpenRouter are all Cline, and then Cline fork, Cline fork.
+
+Pash [00:38:42]: It's funny. Yeah, billions of tokens getting sent through. Like all these forks, there's like, there's like fork wars and 10,000 forks and all you need is a knife, you know, so no, it's, it's exciting. Uh, I think they're all really cool people. We've got people in Europe forking us. We've got people in China making like a little fork of us. I think Samsung recently came out with like a, was a Wall Street Journal article where they're using Cline, but they're using like their own little fork of Cline. That's kind of isolated. You know, we, we encourage it.
+
+Alessio [00:39:12]: Do you have any regrets about being open source?
+
+Saoud [00:39:14]: Not at all. I think Cline started off as this like really good foundation for what a coding agent looks like, and people just had a lot of their own really interesting ideas and spinoffs and concepts about, you know, what they thought, you know, they, that they wanted to build on top of it was, and just being able to see that and see the excitement around, just in the space in general has just been, I think, inspirational and has helped us kind of glean insights into what works and what doesn't work and incorporate that into our own product. And for the most part, I think for, you know, the same. I think for many of us, like, you know, we've been so many years with Samsung and all of the organizations where there's a lot of friction and be able to use software like this on their, on their code bases, it reduces that barrier to entry, which I think is like incredibly important when you want to get your feet wet with this whole new agentic coding paradigm that's going to completely upend the way that we've written software for decades. So in the grand scheme of things, I think it's a net positive for the world and for the space. And so no regrets.
+
+Simplicity vs Complexity in Agent Design
+
+Pash [00:40:07]: In a lot of ways, like, you know, it's us and the Forks. We were kind of there originally when we were like the only ones with this. philosophy of keeping things simple, keeping things down to like the model, letting the model do everything, not cutting on, not trying to make money off of inference, going context heavy, reading files into context very aggressively. And kind of going back to Cloud Code, I was actually like, it was really nice to see that they came out and they validated our whole philosophy of like, keeping things as simple as possible. And that kind of goes in with like the whole rag thing, which is like, rag was the early thing in like 2022. You started getting these vector database companies, context windows were very small. This was like a way of people called it like, oh, you can give your AI infinite memory. It's not really that. But that was like, the marketing that was sold to the venture backers that were like investing in all these companies. And it became this narrative that really stuck around. And like, even now, like we get like potential, like, you know, enterprise perspective, like they're, they're, they're going through like the procurement process. And they're, it's almost like they're going through like a checklist asking, like, hey, do you guys do like indexing, like of the code base and doing rag? And I'm like, well, why? Like, why are you like, why do you want to do this? I think Boris said it said it very well on this exact podcast where we tried rag and it doesn't really work very well, especially for coding is like, the way rag works is you have to like chunk all these files across your entire repository and like chop them up in a small little piece. And then throw them into this hyper dimensional vector space, and then pull out these random chugs when you're searching for relevant code snippets. And it's like, fundamentally, it's like so schizo. And like, I think it actually distracts the model. And you get worse performance than just doing well, like a senior software engineer does when they first, they're introduced to a new repository, where it's like that you look at the folder structure, you look through the files, oh, this file imports from this other file, let's go take a look at that. And you kind of agentically explore the repository. That's like, we found that works so much better. And there's like similar things where it's like, like the simplicity always wins, like this bitter lesson where fast apply is another example. So cursor came out with this fast apply, like they call the instant apply back in July of 2024, where the idea was models at the time were not very good at editing files. And the way editing files works in kind of the context of an agent is you have a search block, and then a replace block where you have to like match the search block exactly to what you're trying to replace. And then a replace block just swaps that out. And at the time models were not very good. It was like, I forget, like GPT they were using under the hood at the time wasn't very good at formulating these search blocks perfectly, and it would fail oftentimes. So they came up with this clever workaround to fine tune this fast apply model where they let these frontier models at the time, they let them be vague, they let them output those like lazy code snippets that we're all very familiar with, where it's like rest of the file here, like rest of the imports here, and then fed that into this fine tuned fast apply model that was like, probably like a Quen 7b or something quantized, very small, dinky little model. And they fed this lazy code snippet into this smaller model and the smaller model we fine tuned to output the entire file with the code changes applied. And that, you know, the one of the founders of Ader said this really well, and like very early GitHub sessions, where he said, like, well, now instead of worrying about one model messing things up, now you have to worry about two models messing things up. And what's worse is the other model that you're giving that you're handing your production code to this like fast apply model, it's like, it's a tiny model, its reasoning is not very good. It's maximum output tokens, you know, there might be 8000 tokens, 16,000 tokens, now they're training like 32,000 tokens, maybe. And a lot of the coding files, like we have a five file in our repository, that's like 42,000 tokens long, and that's longer than the maximum token output length of one of these smaller fast apply models. So what do you do then, then you have to build workarounds around that, then you have to build all this infrastructure to like pass things off. And then it's making mistakes. It's like very subtle mistakes to where it's like, it looks like it's working, but it's not actually what the original frontier model suggested. And it's like slightly different. And it introduces like all of these subtle bugs into your code. And what we're starting to see is like, as AI gets better, the application layer is reducing, you're not going to need all these clever workarounds, you're not going to have to maintain these systems. So it's really liberating to not be bogged down with RAG, or with fast apply, and just focus on this like core agentic loop and maximizing diff edit failures. Like in our own internal benchmarks, Cloud Sonnet 4 recently hit a sub 5%, or like around actually 4% diff edit failure rate. At like when fast apply came out, that was way higher, that was like in the 20s and the 30s. Now we're down to 4%, right? And in six months, how does it go to zero? Well, it's going to zero, like as we speak, it's going to zero every day, you know, and I was actually talking with the founders of some of these companies that do fast apply, they're trying to kind of work with us, their whole bread and butter is fine tuning these fast apply models. And you know, like relays and morph. And I had like a very candid conversation with these guys where I was like, well, there's a window of time where fast apply was relevant. Cursor started this window of time back in July. How much time do you think we have left until they're no longer relevant? Do you think it's an infinite time window? They're like, no, it's definitely finite. Like this, this era of fast apply models is definitely coming to an end. And I was like, well, how long do you guys think they were like, maybe three months, maybe less. So I still think there's some cases where RAG is useful. You know, if you have a lot of human readable, readable documents, large knowledge, base of documents where you don't really care about like inherent logic within them, like sure, index it, chunk it, do retrieval on it, or fast applies, like maybe if your organization you're forced into using like a very small model, that's not very good at search and replace like a deep seek or something, you know, maybe use a fast apply model.
+
+How Fast Apply Got Bitter Lesson'd
+
+Saoud [00:46:33]: I think RAG and fast apply were these just tools in a toolkit for when models weren't the greatest at large context or search and replace diff editing. But now they are extra ingredients that could make things go wrong that you just don't need anymore. There was an interesting article from Cognition Labs about, you know, multi-agent orchestration. Getting right into it. It's like you're on autopilot for us. That's cool. Yeah. I mean, it's a great article. Yeah, it's a great article. They talked about how, you know, when you start working with different models, different agents, there's a lot that gets lost in the details. And, you know, the devil in the details, that's, those are the most important things and making sure that it doesn't, you don't have the agent sort of like running in loops and running to the same issues again and have sort of like all the right contexts. And so I think being close to the model, throwing all the context you need at it, not taking these cost optimized approach to pulling in relevant context, use something like RAG or a cheaper model to apply edits to a file. I think ultimately, yes, it's more expensive. It's asking, you know, a model like Cloud Sonnet to do sort of all these sorts of things, to grep an entire code base and to, you know, fill up its entire context. But you kind of get what you pay for. And I think that's been another benefit of being open source is that our developers, they can peek under the kimono. They can see, you know, where their requests are being sent, what prompts are going into these things. And that creates a certain level of trust where, you know, when they spend $10, $20, $100 a day, they know kind of where their data is being sent. That one model is being sent to what prompts are going into these things. And so they get comfortable with the idea of spending that much money, get the job done.
+
+Pash [00:48:19]: Yeah, it's like not making money off of inference. I think the incentives are so they're so relevant in this discussion because, you know, if you're incentivized, you know, if you're charging, you know, $20 per month and you're trying to make money on that, you're going to be offloading all kinds of important work to smaller models or optimizing for costs with RAG, like retrieval with RAG. Yeah. Not reading the entire file, but maybe reading like a small snippet of it. Whereas if you're not making money off inference and you're just going direct, you know, users can bring their own API keys. Well, then all of a sudden you're not incentivized to cut down on cost. You're actually incentivized just to build the best possible agent. We're starting to see this trend of the whole industry is moving in that direction, right? You're starting to see like everyone open up to pay as you go models or pay directly for inference. And I think that is the future.
+
+Cline's Business Model and Bring-Your-Own-API-Key Approach
+
+Alessio [00:49:12]: What's the Cline pricing business model?
+
+Saoud [00:49:15]: Right now, it's bringing an API key, essentially just whatever pre-commitment you might have to whatever inference provider, whatever model you think works best for your type of work. You just plug in your Anthropic or OpenAI or OpenRouter, whatever it is, API key into Cline, and it connects directly to whatever model you select. And I think that level of transparency, that level of we're building the best product. We're not focused on sort of capturing margin on, you know, the price obfuscation and clever tricks and model orchestration to, you know, keep costs low for us and optimize for higher profits. I think that's put us in this like unique position to really push these models to their full potential. And I think that's shown, you know, I think that's, that's, you get what you pay for, throw a task in Cline and, and it gets expensive.
+
+Pash [00:50:08]: But that's the cost of intelligence.
+
+Saoud [00:50:11]: That's the cost of intelligence, yeah. So yeah, the business model right now is, is you get to choose kind of where it's open source, you can fork it, you can choose where your data gets, and you can choose who you want to pay. A lot of organizations we've talked to get some, you know, a certain level of volume based discounts with, with these providers. And so they could, they can take advantage of that through Cline, which is helpful because Cline can get pretty expensive. And yeah.
+
+Swyx [00:50:34]: Wait, so, I mean, I'm still not hearing how you make money. Like you said you don't. Huh? Why? Why make money? Yeah. Uh, cause you have to pay your salaries.
+
+Pash [00:50:44]: No, that's the, that's the, a lot of people ask us that and I always just throw the why at them, but it's, um.
+
+Swyx [00:50:49]: These just sound like the PartyFool guys. PartyFool is like.
+
+Pash [00:50:51]: The real answer is enterprise. So, um.
+
+Swyx [00:50:54]: Which, uh, we can say, because you're, you know, we release this when you launch it. Yeah. Yeah.
+
+Pash [00:50:58]: So you want to talk about enterprise? Yeah.
+
+Saoud [00:51:01]: I think being open source and bringing in API key has given us a lot of easy adoption in these organizations where things like data privacy and control and security are top of my list. And I think that's something that's really important to keep in mind. And it's hard to commit to sending their code and plain text to God knows what servers training their data to do training their data on models that might, you know, output their IP to random users. I think there, people are a lot more conscious about where their data is getting sent and what's being used to it. And so it's given us this opportunity to say, okay, nothing passes through our own servers. You have total control over the entire application where your data gets sent. And that's good. And I think, you know, one of the things that we've been talking about in this given organization is that, you know, we've been talking to over the course of the last couple of months, this sort of like easy adoption and I think this opportunity for us to, to work more closely with them and say, you know, what are all the things that we can do to help with adoption and the rest of your organization, essentially, how can we pour gasoline on sort of the evangelism that, you know, people have for client in these organizations and spread the usage of, of agent decoding, I think at an enterprise level.
+
+Pash [00:52:08]: Well, yeah, what's, what's crazy is, um, so we, we had. We open source Cline, people really liked it. Developers were using it within their organizations or organizations were kind of like reluctantly okay with it because they saw like we're open source and we're not sending our data, their data anywhere. They could use their existing API keys. and then we launched like on our website, like a contact form for enterprise, like if you're interested in enterprise offering, hit us up. And we had no real enterprise product at the time. And it turned out like we just got this massive. Influx of. Big enterprises reaching out to us and, you know, we had a fortune five company come up to us and they were like, Hey, um, we have hundreds of engineers using Cline within our organization and this is a massive problem for us. This is like a fire that we need to put out because we have no idea what API keys they're using, how much they're spending, where they're sending their data. Please just like, let us give you money to make an enterprise product. So the product kind of just evolved out of that. Right, right.
+
+Saoud [00:53:11]: I mean, it's, it really just. Comes down to more of listening to our users. So right after we put out this page, we just had a lot of demand for sort of like the table stake enterprise features, the security guard rails and governance and insights that sort of like the admins in these organizations need to, to reliably use something like Cline. Yeah. We've gotten a lot of people wanting us to sort of give them two things, invoices just to help with like all the budgeting and spending the, you know, thousands of dollars. All the Europeans. Yeah. Just the other thing, which I thought was a little bit surprising was some level of insight into the benefit that Cline's providing them. So it could be our Sage or lines of code written because it allows these sort of like AI forward drivers for adopting these sorts of tools in these organizations to take that as a proof point and go to the rest of their teams and say, this is how much Cline's helping me. You need to start adopting this so we can keep up with the rest of the industry.
+
+Swyx [00:54:07]: This is for like internal champions to prove their ROI. Exactly. Okay.
+
+Saoud [00:54:11]: Can they use the same thing on the probable base that to justify the spend? Yeah.
+
+Integration with OpenRouter and Enterprise Infrastructure
+
+Swyx [00:54:18]: We can do this afterwards, but we would like to talk to those and actually feature some of them. What they're saying to their bosses on the podcast so that we can get a sense because like often times we hear, we only talk to founders and builders of like the dev tool, but like not the end consumer. And actually we want to hear from them, right? Like about how they're thinking about what they need. To kind of, kind of cool. One thing I wanted to ask, to double-click on is about you was an Instagram doc in your group. is the relationship between Open Router and then like your enterprise offering, right? So my understanding is currently everything runs through Open Router.
+
+Saoud [00:54:49]: Not everything. So you can bring API keys to OpenAI, Anthropic, Bedrock. And then you have a direct connection there. If the user has a direct connection there.
+
+Swyx [00:54:59]: But everything else would run through Open Router. And so basically the enterprise version of Client would be you have your own Open Router that you would provide visibility and control to that enterprise.
+
+Pash [00:55:12]: Yeah, like that's for like the self-hosted option, right? Like there's a lot of enterprises where they're okay with not self-hosting, but as long as they're using their own Bedrock API keys and stuff like that. Whereas the ones that are really interested in like self-hosting or like that want to be able to manage their teams, there would be like this internal router going on.
+
+Impact of Declining Model Costs
+
+Swyx [00:55:32]: The curious thing here is like, what if model costs just go to zero? Like Gemini code just comes out and it's like, yeah, guys, it's free. Well, yeah. That'd be great for us.
+
+Saoud [00:55:42]: Yeah, that'd be great for us. So our thesis is inference is not the business.
+
+Swyx [00:55:46]: You will just never make money on inference, right? Yeah.
+
+Saoud [00:55:48]: We want to give the end user total transparency into price, which I think is like incredibly important to even get comfortable with the idea of spending as much money as you do. I think the price obfuscation in this space has given developers this reluctance to opt into usage-based plans. And we're seeing a lot of... I think a lot of people kind of converge on this concept of, okay, maybe have like a base plan just to use the product, but sort of get out of the way of the inference and respect the end developer enough to give them the level of insight into not just the cost, but the models being used and give them more confidence in spending however much it takes to get the work done. I think you can use tricks like RAG and FASTA plan, things like that to keep costs low. But for the most part, there's enough ROI on coding agents where, you know, people are willing to spend money to get the job done.
+
+Pash [00:56:39]: And for a truly good coding agent, the ROI is almost hard to even calculate because there's so many things that I would have never even bothered doing. But now I have Cline and I could just do this weird experiment or do this side project or fix this random bug that I would have never even thought about. So how do you measure that?
+
+Swyx [00:57:01]: One variant of this problem... We're about to move on to context engineering and memory and all the other stuff. One variant. The other variant of this I wanted to touch on a little bit was just background agents and multi-agents. So the instantiations of this now, I would say, are background agents. It would be Codex, for example, like spinning up, you know, one PR per minute or Devin or Cognition. So would you ever go there? That's one concrete question I can ask you. Would there be Cline on the server, whatever? And then the other version is still on the laptop, but more sort of parallel agents like the Kanban. It's currently very hyped right now. People are making like Kanban interfaces for Cursor and also for Cloud Code. Just anything like in the parallel or background side of things.
+
+Background Agents and Multi-Agent Systems
+
+Pash [00:57:48]: We're releasing a CLI version of Cline and using the CLI version of Cline, it's fully modular. So you can ask Cline to run the CLI to spin up more Clines or you could run Cline in some kind of cloud process in a GitHub action. Whatever you want. So the CLI is really the form factor for these kind of fully autonomous agents. And it's also nice to be able to tap into an existing Cline CLI running on your computer and be able to like take over and steer it in the right direction. So that's also possible. But what do you think, Saad?
+
+Saoud [00:58:23]: I don't think it's an either or. I think all these different modalities complement each other really well. So the Codex, the Devins, Cursor's background agent, I think they all sort of accomplish the same thing. They. If we were to come out with our own version of it, I'd say that it would be a foundation for how other developers could build on top of it. So Nick's older brother, Andre, he's sort of thinking 10 years ahead. And it always kind of blows my mind a little bit about some of the ideas that he has about where the space is going. But we recently had a discussion about building this open source framework for coding agents for any sort of platform. Building the SDK and the tool. And all the other things that might be helpful and necessary to bring Cline to. Chroma as an extension, to the CLI, to JetBrains, to Jupyter notebooks, to your smart car, whatever it is. But to build a. Your fridge. Your fridge. Exactly. Microwave. Yeah, exactly. This is what we saw kind of like with the 6000Forks on top of Cline, is we sort of put together this foundation for how this community of developers, we sort of put together this foundation that this community of developers could build on top of. And sort of take advantage of. You know, their experiments and imagination and their creativity about where the space is headed. And I think looking forward, building an open source foundation and the building blocks for how we bring something like Client to things that go outside the scope of software development or, you know, VS Code extension. I think that'll open up the door to things that, you know, ultimately complement each other really well, but it'll never be sort of this like either or thing. I think background agents are good for certain kinds of work and parallel Kanban multi-agents might be good for when you want to experiment and iterate on, you know, five different versions of, you know, how a landing page might look. And then something like a back and forth with a single agent like Client works really well for when you want to, you know, pull context and put together a really complicated plan for a really complex task. And I think all these different... tools will ultimately end up complementing each other and people will kind of develop a taste and an understanding for what works best for what kind of work. But I think just looking 10 years ahead, we at the very least want to sort of be at the frontier of providing sort of the building blocks for what the next thing is after background agents or, you know, multi-agents.
+
+Vision and Multi-Modalities
+
+Swyx [01:00:42]: I was going to go into context engineering kind of like topic du jour. I think that this is kind of similar-ish in a thread to RAG and how RAG is a mind virus, which I love, by the way, that... the way that you phrased it. Yeah, you have in your docs context management. You also have a section on memory bank, which is kind of cool. I think a lot of people are trying to figure out memory. Let's just start at the high level and then we'll go into memory later. What, you know, what does context engineering mean to you?
+
+State of Context Engineering
+
+Saoud [01:01:07]: Context engineering mean to me?
+
+Swyx [01:01:10]: It means prompt engineering. Yeah, right. Like, I mean, so I think like there is a lot of art to like what goes in there. I think that really is like the 80-20 of building a really good agent. It's like figuring out... figuring out what goes into the context and, you know, I think interplay between MCP and your system client, you know, recommended prompts, I think, is what is ultimately making a good agent.
+
+Pash [01:01:37]: Yeah, I think context management is like one part of it is what you load in to context. The other part of it is how do you clean things up when you're reaching the context window, right? How do you curate that whole lifecycle? Yeah, I think context management is like one part of it is how do you clean things up when you're reaching the context window, right? And the way that I think about it is there's so many options on the table and there's so many risks to misdirecting the agents or distracting the agents. There's ideas about, you know, RAG or other kinds of forms of retrieval. That's one idea. There's the agentic exploration. That's another idea that we found works much better. And it seems like the trend is changing. Generally, for loading things into context, it's giving the model the tools that it can use to pull things into context, letting the model decide what exactly to pull into context, as well as some hints along the way, kind of like a like a map of what's going on, like ASTs, abstract syntax trees, potentially what tabs they have open in VS Code. That was actually in our internal kind of benchmarking that turned out to work very, very well. It's almost like it's reading your mind when you have like a few.
+
+Swyx [01:02:53]: It stresses me out because like sometimes then I'm like, I have like unrelated tabs open and I have to go close them before I kick off a thing.
+
+Pash [01:02:59]: I wouldn't think too much about it, especially when you're using Cline. Cline does a pretty good job of just navigating that. But I definitely, there are edge cases, right? There's edge cases for everything. And it's kind of like, okay, what's like the majority use case is like, you know, when are you starting a brand new task and you don't have a single tab open that's relevant to it? Obviously, in the CLI, you might, you don't have that little indicator. So there you have to think. You don't have to have a whole lot of things outside the box for that. So that's like for reading things into context. And then for context management is when you're approaching the full capacity of the context window is how do you condense that? And we've played around with this kind of naive truncation very early on where we just like throw out the first half of the conversation. It's coming. And there's problems with that, obviously. Because it's like. Kind of like. You're halfway through a book. And you. You're like. Like, you start reading halfway through, right? You don't know anything that happened beforehand. And we like to think a lot about, like, narrative integrity is, like, every task and client is kind of like a story. It might be a boring story where it's, like, this lonely coding agent that's just, you know, determined to help you solve, you know, whatever it is. Like, the big thing that the protagonist needs to overcome is, like, the resolution of the task, right? But how do we maintain that narrative integrity where every step of the way the agent can kind of predict the next token, which is, like, predict the next part of the story to reach that conclusion? So, we played around with things like cleaning up duplicate file reads. That works pretty well. But ultimately, this is another case where it's, like, well, what if you just give the model, like, what if you just ask the model, like, what do you think belongs in context? Another form of this is summarization, which is, like, hey, summarize all the relevant details. And then we'll swap that in. And that works really, really well.
+
+Swyx [01:04:50]: Double-clicking on the AST mention, that's very verbose. When do you use that?
+
+Saoud [01:04:56]: Right now, it's a tool. The way that it works is when client is doing sort of the agentic exploration of trying to pull in relevant context, and it wants to sort of get an idea of what's going on in a certain directory, for example, there's a tool that lets it pull in all the sort of language from a directory. So, it could be the names. It could be the names of classes, the names of functions, and that gives it some idea of, okay, here's what's going on in this folder. And if it seems relevant to whatever the task is trying to accomplish is, then it sort of, like, zooms in and starts to actually read those entire files into context. So, it's essentially a way to help it kind of figure out how to navigate through large codebases.
+
+Pash [01:05:36]: Yeah, we've seen some companies working on, it's, like, an interesting idea, it's, like, an AST, but it's also a knowledge graph, and you can run these discrete determinants. So, it's kind of, like, you know, you can run these deterministic, almost, like, actions on this knowledge graph, where you could say, like, hey, find me all the functions that, find me all the functions of the codebase, and find me all the functions that aren't being used, and delete all of them, and the agent can kind of reason in this almost, like, SQL-like language, working with this knowledge graph to do these kinds of global operations. Like, right now, if you ask a coding agent to go through and remove all unused functions, or do, like, some kind of large refactoring work, in some cases, it might work. Very oftentimes, it's just going to struggle a lot, burn a lot of tokens, and fail, ultimately, whereas with these kinds of tools, it can actually operate on the entire repository with these kinds of query, like, short little query statements. I think there is a lot of potential in something like this, where it's, like, the next level beyond the AST, and it's, like, a language for querying this kind of knowledge graph, but, like, we've seen with, like, the Cloud 4 release is, these frontier model shops, they tend to train on their own application layer, and you might come up with, like, a very clever tool that, in theory, would work really well, but then it doesn't work well with Cloud 4, because Cloud 4 is trained to grep, right? So, that's another interesting phenomenon, where it's, like, you're expecting these frontier models to become more generalized over time, but, instead, they're becoming more specialized, and you have to, like, support these different model families.
+
+Alessio [01:07:15]: Just to wrap on the memory side, memory is almost the artifact of summarization. So, you summarize the context, and then you kind of extract some sides. Any interesting learnings from there? Like, things that are maybe not as intuitive, especially for code? I think people grasp the, like, memory about humans, but, like, what are memories about code bases and things look like?
+
+Memory Systems in Coding Agents
+
+Saoud [01:07:37]: I think memories, right now, for the large part, are mostly useless. I think the kinds of memories that you might want decoding. I think the kind of memories that you might want decoding.
+
+Saoud [01:08:16]: And I don't think people, they don't want to have to think about those sorts of things. So it's something we're thinking about is how can we hold on to the tribal knowledge that these agents learn along the way that people aren't documenting or putting into rules files without the user having to go out of their way to sort of force them to store these things into a memory database, for example.
+
+Pash [01:08:37]: Those are like kind of like workspace rules or tribal knowledge, like general patterns that you use as a team. But then there is like in our, we ran this like internal experiment where we built this to-do list tool where there's only one tool where you could just write the to-do. And every time you could like rewrite the to-do from scratch. And we would passively as part of every, like not every message, but like every once in a while, we would pass in this context of what the latest state of this to-do list is. And we found that that actually keeps the agent on track after multiple rounds of context summarization and compaction. And it could all of a sudden build like an entire complex kind of task from scratch over, you know, 10x the context window length. And in internal testing, this was like very, very promising. So we're trying to flesh that out. And I think something like that, we had earlier versions of the memory bank, which actually. Our like Nick, Nick Bauman, our marketing guy came up with this memory bank concept where it was like this client rules where he would tell a client like, Hey, whenever you're working, have the scratch pad of what you're working on. And this is like a more built-in way of doing that. And I think that also might be very, very, very helpful for the agents to just have like a little scratch pad of like, Hey, what have I done so far? What's left specific app file mentions, like what kind of code we're working on general. Context and passing that off between sessions. Yeah.
+
+Standardizing Rules Files Across Agent Tools
+
+Alessio [01:10:14]: Any thought on CloudMD versus AgentsMD versus AgentMD? I built an open source tool called Agents927, like the XKCD that just copy paste this across all the different file names. So all of them have access to it. Do you think there should be a single file? Like there's also like the IDE rules versus the agent rules. There's kind of like a lot of issues.
+
+Saoud [01:10:35]: I actually think it's fine that each of these different tools have their own specific instructions. Because I find myself using a cursor rules and a client rules separately. When I want client the agent, I want him to work, you know, a certain way that's different than how I might want, you know, cursor to interact with my codebase. So I think each tool is specific to the kind of work that I do. And I have different instructions for how I want these things to operate. So I think I've seen like a lot of people complain about it. And I get that it could make codebases look a little bit ugly. But for me, it's been like incredibly helpful for them to be separated.
+
+Swyx [01:11:07]: I noticed that you said him. Does this client have? Cline's the he-him. Does he have a whole backstory personality? Yeah.
+
+Cline's Personality and Anthropomorphization
+
+Saoud [01:11:16]: So Cline is a play on CLI and editor.
+
+Swyx [01:11:20]: Because it used to be Claude Dev and now it's Cline. Yeah.
+
+Saoud [01:11:22]: I feel like Cline kind of stands out in the space for having, for being a little more humanized than something like, you know, a cursor agent or a co-pilot or a cascade.
+
+Swyx [01:11:32]: And I think there's Devon, which is a real name, you know. Claude is a real name, I guess. Claude's a real name. Yeah.
+
+Saoud [01:11:38]: Yeah. So I've been, I've been in, I think we've all been in Cline. It's been a little bit of both. a little bit more self-aware than I was when I was in Cline. I think that's what makes me more confident. I think that's what makes me more confident because I was more, I was more confident that I could lean on it a little bit more. There's, there's kind of a, of a trust building with, I think with an agent and the humanizing aspect of it, I think has been helpful to me personally. And.
+
+Pash [01:11:56]: And this goes back to like the narrative integrity is just, it's actually really It's really important, I think, to anthropomorphize agents in general, because everything they do is like a little story. And without having a distinct kind of identity, you get worse results. And when you're developing these agents, that's kind of how we need to think about them, right? We need to think that we're like crafting these stories. We're almost like Hollywood directors, right? We're putting all the right pieces in place for the story to unfold. And yeah, having an identity around that is really, really important.
+
+Swyx [01:12:30]: And Cline, you know, he's a cool little guy. He's just a chill guy. He's helping us out. You know, he's always like happy to help. Or if you tell him to not be happy, he can be very grumpy. So that's great. Awesome. I know you're hiring. You have 20 people now. You are aiming to 100. You have a beautiful new office. What's your best pitch for working at Cline?
+
+Hiring at Cline and Team Culture
+
+Saoud [01:12:55]: A lot of our hiring right now is, so far, it's been just friends of friends, people in our network, people that we've worked with before that we've trusted and that we know can show up for like this incredibly hard thing that we're working on. And there's a lot of challenges ahead. And I think the problem space is probably the most exciting thing to be working on right now. Engineers in general love working on things that make their own lives easier. And so I couldn't imagine working on something more exciting than a coding agent. You know, it's a little biased, but I think a large part of it is it's an exciting problem space. We're looking for really motivated people that want to work on challenges like figuring out kind of like what the next 10 years looks like and building kind of the foundation for, you know, what comes next after background agents or multi agents and really help in sort of defining how all this shapes up. We have this like really excited community of users and developers. I think being open source has also created a lot of goodwill with us, where a lot of the feedback we get. is like incredibly constructive and helpful in shaping our roadmap and, and the product that we're building and working with a community like that is like one of the most fulfilling things ever. Right now, we're kind of in between offices, but, you know, doing things like go karting and kayaking and things like that. So it's a lot of hard work, but you know, we make sure to have fun along the way. So
+
+Pash [01:14:15]: Yeah, no, like client is a, it's a unique company, because it really does feel like we're all just like friends building something cool. And we work really, really hard. And the space is, it's not just competitive, it's like hyper competitive, there's, like capital is flowing into all every single possible competitors, we have forks of forks, like I said, raising 10s of millions of dollars. And we're growing very rapidly. We're at 20 people. Now we're aiming to be at 100 people by the end of the year. And being open source, it has its own challenges. It's like people, we do all this research, we do all this benchmarking work to make sure our diff editing algorithm is robust, the way we're working with these models to optimize for the lowest possible diff edit failures. And then we open source that and then we post it on Twitter. And someone's like, Oh, thanks so much for open sourcing that I'm going to go and like raise a bunch of money with like our own product with it. But the way that I see it is like this is, you know, let them copy. We're the leaders in the space. We're kind of showing the way for the entire industry. And being an engineer and building all this stuff is super exciting. So working with all these people is just amazing.
+
+Alessio [01:15:26]: Okay, awesome. Thank you guys for coming on.
+
+Saoud [01:15:28]: Yeah, thank you so much. So much fun.
+
+44
+
+1
+
+Share
+
+PreviousNext

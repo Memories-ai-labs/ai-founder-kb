@@ -1,0 +1,785 @@
+# 97% Cheaper, Faster, Better, Correct AI — with Varun Mohan of Codeium
+# URL: https://www.latent.space/p/varun-mohan
+# Date: 2023-03-02
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+97% Cheaper, Faster, Better, Correct AI — with Varun Mohan of Codeium
+
+6
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -50:51
+
+-50:51
+
+Audio playback is not supported on your browser. Please upgrade.
+
+97% Cheaper, Faster, Better, Correct AI — with Varun Mohan of Codeium
+
+Latent Space Podcast Ep. 2: Why you are holding your GPUs wrong
+
+Alessio Fanelli, Latent.Space, and Varun Mohan
+
+Mar 02, 2023
+
+6
+
+Share
+
+OpenAI just rollicked the AI world yet again yesterday — while releasing the long awaited ChatGPT API, they also priced it at $2 per million tokens generated, which is 90% cheaper than the text-davinci-003 pricing of the “GPT3.5” family. Their blogpost on how they did it is vague: Through a series of system-wide optimizations, we’ve achieved 90% cost reduction for ChatGPT since December; we’re now passing through those savings to API users.
+
+We were fortunate enough to record Episode 2 of our podcast with someone who routinely creates 90%+ improvements for their customers, and in fact have started productizing their own infra skills with Codeium, the rapidly growing free-forever Copilot alternative (see What Building “Copilot for X” Really Takes). Varun Mohan is CEO of Exafunction/Codeium, and he indulged us in diving deep into AI infrastructure, compute-optimal training vs inference tradeoffs, and why he loves suffering.
+
+Recorded in-person at the beautiful StudioPod studios in San Francisco.
+
+Full transcript is below the fold.
+
+we forgot to take a group photo but the studio IS beautiful!
+
+Timestamps
+
+00:00: Intro to Varun and Exafunction
+
+03:06: GPU Efficiency, Model Flop Utilization, Dynamic Multiplexing
+
+05:30: Should companies own their ML infrastructure?
+
+07:00: The two kinds of LLM Applications
+
+08:30: Codeium
+
+14:50: “Our growth is 4-5% day over day”
+
+16:30: Latency, Quality, and Correctability
+
+20:30: Acceleration mode vs Exploration mode
+
+22:00: Copilot for X - Harvey AI’s deal with Allen & Overy
+
+25:00: Scaling Laws (Chinchilla)
+
+28:45: “The compute-optimal model might not be easy to serve”
+
+30:00: Smaller models
+
+32:30: Deepmind Retro can retrieve external infromation
+
+34:30: Implications for embedding databases
+
+37:10: LLMOps - Eval, Data Cleaning
+
+39:45: Testing/User feedback
+
+41:00: “Users Is All You Need”
+
+42:45: General Intelligence + Domain Specific Dataset
+
+43:15: The God Nvidia computer
+
+46:00: Lightning round
+
+Show notes
+
+Varun Mohan Linkedin
+
+Exafunction
+
+Blogpost: Are GPUs Worth it for ML
+
+Codeium
+
+Copilot statistics
+
+Eleuther’s The Pile and The Stack
+
+What Building “Copilot for X” Really Takes
+
+Copilot for X
+
+Harvey, Copilot for Law - deal with Allen & Overy
+
+Scaling Laws
+
+Training Compute-Optimal Large Language Models - arXiv (Chinchilla paper)
+
+chinchilla's wild implications (LessWrong)
+
+UL2 20B: An Open Source Unified Language Learner (20B)
+
+Paper - Deepmind Retro
+
+“Does it make your beer taste better”
+
+HumanEval benchmark/dataset
+
+Reverse Engineering Copilot internals
+
+Quora Poe
+
+Prasanna Sankar notes on FLOPs and Bandwidth
+
+NVIDIA H100 specs - 3TB/s GPU memory, 900GB/s NVLink Interconnect
+
+Optimizer state is 14x size of model - 175B params => 2.5TB to store state → needs at least 30 H100 machines with 80GB each
+
+Connor Leahy on The Gradient Podcast
+
+Lightning Rounds
+
+Favorite AI Product: Midjourney
+
+Favorite AI Community: Eleuther and GPT-J
+
+One year prediction: Better models, more creative usecases
+
+Request for Startup: Superathlete Fitness Assistant
+
+Takeaway: Continue to tinker!
+
+Transcript
+
+[00:00:00] Alessio Fanelli: Hey everyone. Welcome to the Latent Space podcast. This is Alessio, partner and CTO in residence at Decibel Partners. I'm joined by my cohost, swyx, writer, editor of L Space Diaries.
+
+[00:00:20] swyx: Hey, and today we have Varun Mohan from Codeium / Exafunction on. I should introduce you a little bit because I like to get the LinkedIn background out of the way.
+
+[00:00:30] So you did CS at MIT and then you spent a few years at Nuro where you were ultimately tech lead manager for autonomy. And that's an interesting dive. Self-driving cars in AI and then you went straight into Exafunction with a few of your coworkers and that's where I met some of them and started knowing about Exafunction.
+
+[00:00:51] And then from out of nowhere you cloned GitHub Copilot. That's a lot of progress in a very short amount of time. So anyway, welcome .
+
+[00:00:59] Varun Mohan: That's high praise.
+
+[00:01:00] swyx: What's one thing about you that doesn't appear on LinkedIn that is a big part of what people should know?
+
+[00:01:05] Varun Mohan: I actually really like endurance sports actually.
+
+[00:01:09] Like I, I've done multiple triathlons. I've actually biked from San Francisco to LA. I like things that are like suffering. I like to suffer while I, while I do sports. Yeah.
+
+[00:01:19] swyx: Do you think a lot about like code and tech while you're doing those endurance sports or are you just,
+
+[00:01:24] Varun Mohan: your mind is just focused?
+
+[00:01:26] I think it's maybe a little bit of both. One of the nice things about, I guess, endurance athletics, It's one of the few things you can do where you're not thinking about, you can't really think about much beyond suffering. Like you're climbing up a hill on a bike and you see like, uh, you see how many more feet you need to climb, and at that point you're just struggling.
+
+[00:01:45] That's your only job. Mm-hmm. . Yeah. The only thing you can think of is, uh, pedaling one more pedal. So it's actually like a nice, a nice way to not think about work. Yeah,
+
+[00:01:53] Alessio Fanelli: yeah, yeah. Maybe for the audience, you wanna tell a bit about exa function, how that came to be and how coding came out
+
+[00:01:59] Varun Mohan: of that. So a little bit about exo function.
+
+[00:02:02] Before working at exa function, I worked at Neuro as Sean was just saying, and at neuro, I sort of managed large scale offline deep learning infrastructure. Realized that deep learning infrastructure is really hard to build and really hard to maintain for even the most sophisticated companies, and started exa function to basically solve that gap, to make it so that it was much easier for companies.
+
+[00:02:24] To serve deep learning workloads at scale. One of the key issues that we noticed is GPUs are extremely hard to manage fundamentally because they work differently than CPUs. And once a company has heterogeneous hardware requirements, it's hard to make sure that you get the most outta the hardware. It's hard to make sure you can get, get great GPU utilization and exa function was specifically built to make it so that you could get the most outta the hardware.
+
+[00:02:50] Make sure. Your GP was effectively virtualized and decoupled from your workload to make it so that you could be confident that you were running at whatever scale you wanted without burning the bank.
+
+[00:03:00] swyx: Yeah. You gave me this metric about inefficiency,
+
+[00:03:03] Varun Mohan: right? Oh, okay. Like flop efficiency. Yeah. Yeah. So basically, I think it comes down to, for most people, one of the things about CPUs that's really nice is with containers, right?
+
+[00:03:13] You can end up having a single. You can place many containers on them and all the containers will slowly start eating the compute. It's not really the same with GPUs. Like let's say you have a single. For the most part, only have one container using that gpu. And because of that, people heavily underestimate what a single container can sort of do.
+
+[00:03:33] And the GPU is left like heavily idle. And I guess the common term now with a lot of LM workloads is like the flop efficiency of these workloads. M F U, yeah. Yeah. Model flop utilization. The model flop utilization, which is basically like what fraction of the flops or compute on the hardware is actually getting used.
+
+[00:03:49] And sort of what we did at exa function. Not only make it so that the model was always running, we also built compiler technology to make it so that the model was also running more efficiently. And some of these things are with tricks like operator fusion, like basically you could imagine fusing two operations together such that the time it takes to compute.
+
+[00:04:07] the fused operation is lower than the time it takes for each individual operation. Oh my God. Yeah. .
+
+[00:04:13] Alessio Fanelli: Yeah. And you have this technique called dynamic multiplexing, which is basically, instead of having a one-to-one relationship, you have one GP for multiple clients. And I saw one of your customers, they went from three clients to just one single GPU and the cost by 97%.
+
+[00:04:29] What were some of those learning, seeing hardware usage and efficiencies and how that then played into what, what
+
+[00:04:34] Varun Mohan: you're building? Yeah, I think it basically showed that there was probably a gap with even very sophisticated teams. Making good use of the hardware is just not an easy problem. I think that was the main I, it's not that these teams were like not good at what they were doing, it's just that they were trying to solve a completely separate problem.
+
+[00:04:50] They had a model that was trained in-house and their goal was to just run it and it, that should be an easy. Easy thing to do, but surprisingly still, it's not that easy. And that problem compounds in complexity with the fact that there are more accelerators now in the cloud. There's like TPUs, inferential and there's a lot of decisions, uh, that users need to make even in terms of GPU types.
+
+[00:05:10] And I guess sort of what we had was we had internal expertise on what the right way to run the workload was, and we were basically able to build infrastructure and make it so that companies could do that without thinking. So most
+
+[00:05:21] Alessio Fanelli: teams. Under utilizing their hardware, how should they think about what to own?
+
+[00:05:26] You know, like should they own the appearance architecture? Like should they use Xlo to get it to production? How do you think
+
+[00:05:32] Varun Mohan: about it? So I think one thing that has proven to be true over the last year and a half is companies, for the most part, should not be trying to figure out what the optimal ML architecture is or training architecture is.
+
+[00:05:45] Especially with a lot of these large language models. We have generic models and transformer architecture that are solving a lot of distinct problems. I'll caveat that with most companies. Some of our customers, which are autonomous vehicle companies, have extremely strict requirements like they need to be able to run a model at very low latency, extremely high precision recall.
+
+[00:06:05] You know, GBT three is great, but the Precision Recall, you wouldn't trust someone's life with that, right? So because of that, they need to innovate new kinds of model architectures. For a vast majority of enterprises, they should probably be using something off the shelf, fine tuning Bert models. If it's vision, they should be fine tuning, resonant or using something like clip like the less work they can do, the better.
+
+[00:06:25] And I guess that was a key turning point for us, which is like we start to build more and more infrastructure for the architectures that. The most popular and the most popular architecture was the transformer architecture. We had a lot of L L M companies explicitly reach out to us and ask us, wow, our GT three bill is high.
+
+[00:06:44] Is there a way to serve G P T three or some open source model much more cheaply? And that's sort of what we viewed as why we were maybe prepared for when we internally needed to deploy transform models our.
+
+[00:06:58] Alessio Fanelli: And so the next step was, Hey, we have this amazing infrastructure. We can build kind of consumer facing products, so to speak, at with much better unit economics, much better performance.
+
+[00:07:08] And that's how code kind
+
+[00:07:10] Varun Mohan: of came to be. Yeah. I think maybe the, the play is not maybe for us to be just, we make a lot of consumer products. We want to make products with like clear ROI in the long term in the enterprise. Like we view code as maybe one of those things. Uh, and maybe we can, we can talk about code maybe after this.
+
+[00:07:27] We. Products like co-pilot as being extremely valuable and something that is generating a lot of value to professionals. We saw that there was a gap there where a lot of people probably weren't developing high intensive L L M applications because of cost, because of the inability to train models the way they want to.
+
+[00:07:44] And we thought we could do that with our own infrastructure really quickly.
+
+[00:07:48] swyx: I wanna highlight when you say high intensive, you mean basically generate models every key, uh, generate inferences on every keystroke? That's
+
+[00:07:55] Varun Mohan: right. Yeah. So I would say like, there's probably two kinds of L l M applications here.
+
+[00:07:59] There's an L L M application where, you know, it rips through a bunch of data and maybe you wait a couple minutes and then you see something, and then there's an application where the quality is not exactly what you want, but it's able to generate enough, sorry, low enough latency. It's still providing a ton of value.
+
+[00:08:16] And I will say there's like a gap there where the number of products that have hit that co-pilot spot is actually not that high. Mm. A lot of them are, are kind of like weight and, you know, just generate a lot of stuff and see what happens because one is clearly more compute intensive than the other Basically.
+
+[00:08:31] swyx: Well co uh, I don't know if we told the whole story yet, you were going to
+
+[00:08:35] Varun Mohan: dive into it. . Yeah, so I guess, I guess the story was I guess four or five months ago we sort of decided internally as a team we were like very early adopters of co-pilot. I'm not gonna sit here and say co-pilot, it's not a great tool.
+
+[00:08:45] We love co-pilot. It's like a fantastic tool. We all got on the beta. The moment it came out we're like a fairly small T, but we, like we all got in, we were showing each other completions. We end up writing like a lot of cuda and c plus plus inside the company. And I think there was probably a thought process within us that was like, Hey, the code we write is like very high aq.
+
+[00:09:04] You know? So like there's no way it can help. And one of the things in c plus plus that's like the most annoying is writing templates. Writing template programming is maybe one of those things. No one, maybe there's like some people in the C plus O standards community that can do it without looking at the, looking at anything online.
+
+[00:09:19] But we struggle. We struggle writing bariatric templates and COPA just like ripped through. Like we had a 500 line file and it was just like writing templates like, and we didn't really even test it while we were running it. We then just compiled it and it just, We're like, wow. Like this is actually something that's not just like it's completing four loops, it's completing code for us.
+
+[00:09:38] That is like hard in our brains to reach, but fundamentally and logically is not that complicated. The only reason why it's complicated is there's just a lot of rules, right. And from then we were just like, wow, this is, that was maybe the first l l m application for us internally, because we're not like marketers that would use, uh, Jasper, where we were like, wow, this is like extremely valuable.
+
+[00:09:58] This is not a toy anymore. So we wanted to take our technology to build maybe apps where these apps were not gonna be toys, right? They were not gonna be like a demo where you post it on Twitter and then you know there's hype and then maybe like a month later, no one's using.
+
+[00:10:11] swyx: There's a report this morning, um, from co-pilot where they, they were estimating the key tabs on amount of code generated by a co-pilot that is then left in code repos and checked in, and it's something like 60 to 70%
+
+[00:10:24] Varun Mohan: That's, that's nuts, but I totally believe it given, given the stats we have too. There's this flips in your head once you start using products like this, where in the beginning there's like, there's like skepticism, like how, how valuable can it be? And suddenly now like user behavior fundamentally changes so that now when I need to write a function, I'm like documenting my code more because I think it's prompting the model better, right?
+
+[00:10:43] So there's like this crazy thing where it's a self-fulfilling prophecy where when you get more value from it, more of your code is generated. From co-pilot
+
+[00:10:50] swyx: just to walk through the creation process, I actually assumed that you would have grabbed your data from the pile, which is the Luther ai, uh, open source, uh, code information.
+
+[00:11:00] But apparently you scraped your own
+
+[00:11:01] Varun Mohan: stuff. Yeah. We ended up basically using a lot of open, I guess, permissively licensed code, uh, in the public internet, mainly because I think also the pile is, is fairly a small subset. Uh, I think maybe after we started there was the, that was also came to be, but for us, we had a model for ourselves even before that, uh, was the point.
+
+[00:11:21] Ah, okay. So the timing was just a little bit off. Yeah, exactly. Exactly. But it's awesome work. It's, it seems like there's a good amount of work that's getting done Decentrally. Yeah. Which is a little bit surprising to me because I'm like more bullish on everyone needs to get together in a room and make stuff happen.
+
+[00:11:35] Like we're all in person in Mountain View. But yeah, no, it's pretty impressive. Yeah. Luther in general, like everything they've done, I'm pretty impressed with it. Yeah, and we're
+
+[00:11:42] swyx: gonna talk about that. Cause I, I didn't know you were that involved in the community
+
+[00:11:45] Varun Mohan: that early on I wasn't involved. It was more of like a, I was watching and maybe commenting from time to time.
+
+[00:11:50] So they're a very special community for sure. Yeah,
+
+[00:11:52] swyx: yeah, yeah. That's true. That's true. My impression is a bunch of you are geniuses. You sit down together in a room and you. , get all your data, you train your model, like everything's very smooth sailing. Um, what's wrong with that
+
+[00:12:02] Varun Mohan: image? Yeah, so probably a lot of it just in that a lot of our serving infrastructure was already in place, Uhhuh before then.
+
+[00:12:09] So like, hey, we were able to knock off one of these boxes that I think a lot of other people maybe struggle with. The open source serving offerings are just, I will say, not great in that. That they aren't customized to transformers and these kind of workloads where I have high latency and I wanna like batch requests, and I wanna batch requests while keeping latency low.
+
+[00:12:29] Mm-hmm. , right? One of the weird things about generation models is they're like auto regressive, at least for the time being. They're auto aggressive. So the latency for a generation is a function of the amount of tokens that you actually end up generating. Like that's like the math. And you could imagine while you're generating the tokens though, unless you batch a.
+
+[00:12:46] It's gonna end up being the case that you're not gonna get great flop utilization on the hardware. So there's like a bunch of trade offs here where if you end up using something completely off the shelf, like one of these serving thing, uh, serving frameworks, you're gonna end up leaving a lot of performance on the table.
+
+[00:13:00] But for us, we were already kind of prepared. To sort of do that because of our infrastructure that we had already built up. And probably the other thing to sort of note is early on we were able to leverage open source models, sort of bootstrap it internally within our company, but then to ship, we finally had some requirements like, Hey, we want this model to have fill in the middle capabilities and a bunch of other things.
+
+[00:13:20] And we were able to ship a model ourselves. So we were able to time it so that over the course of multiple months, different pieces were like working out properly for us. So it wasn't. . You know, we started out and we were just planning the launch materials. The moment we started there was like maybe some stuff that was already there, some stuff that we had already figured out how to train models at scale internally.
+
+[00:13:38] So we were able to just leverage that muscle very quickly. I think the one
+
+[00:13:41] swyx: thing that you had figured out from the beginning was that it was gonna be free forever. Yeah. Yeah, co-pilot costs $10
+
+[00:13:47] Varun Mohan: a month. Co-pilot costs $10 a month. I would argue significantly more value than $10 a month. The important thing for us though, was we are gonna continue to build more great products on top of code completion.
+
+[00:13:58] We think code completion is maybe day one of what the future looks like. And for that, clearly we can't be a product that's like we're $10 a month and we're adding more products. We want a user base that loves using us. And we'll continue to stay with us as we continue to layer on more products. And I'm sure we're gonna get more users from the other products that we have, but we needed some sort of a differentiator.
+
+[00:14:17] And along the way we realized, hey, we're pretty efficient at running these workloads. We could probably do this. Oh, so it wasn't,
+
+[00:14:23] swyx: it was a plan to be free from the start. You just
+
+[00:14:25] Varun Mohan: realized we, yeah. We realized we could probably, if we cut and optimized heavily, we could probably do this properly. Part of the reasoning here was we were confident we could probably build a pro tier and go to the enter.
+
+[00:14:35] But for now, originally when we, when we started, we weren't like, we're just gonna go and give every, all pieces of software away for free. That wasn't like sort of the goal there. And
+
+[00:14:43] swyx: since you mentioned, uh, adoption and, you know, traction and all that, uh, what can you disclose about user growth? Yeah, user adoption.
+
+[00:14:50] Varun Mohan: Yeah. So right now we have. We probably have over 10,000 users and thousands of daily actives, and people come back day over day. Our growth is like around, you know, four to 5% day over day right now. So all of our growth right now is sort of like word of mouth, and that's fundamentally because like the product is actually one of those products where.
+
+[00:15:08] Even use COT and use us, it's, it's hard to tell the difference actually. And a lot of our users have actually churned off of cot isn't Yeah. I,
+
+[00:15:14] swyx: I swept Yeah. Yeah. To support you guys, but also also to try
+
+[00:15:17] Varun Mohan: it out. Yeah, exactly. So the, the crazy thing is it wasn't like, Hey, we're gonna figure out a marketing motion of like, Going to the people that have never heard of co-pilot and we're gonna like get a bunch of users.
+
+[00:15:27] We wanted to just get users so that in our own right we're like a really great product. Uh, and sort of we've spent a lot of engineering time and obviously we co-wrote a blog post with you, Sean, on this in terms of like, there's a lot of engineering work, even beyond the latency, making sure that you can get your cost down to make a product like this actually work.
+
+[00:15:44] swyx: Yeah. That's a long tail of, of stuff that you referenced,
+
+[00:15:47] Varun Mohan: right? Yes. Yeah, exactly.
+
+[00:15:48] swyx: And you, you said something to the order of, um, and this maybe gets into co-pilot for X uh, which is something that everybody is keen about cuz they, they see the success of co-pilot. They're like, okay, well first of all, developer tools, there's more to do here.
+
+[00:16:00] And second of all, let's say the co-pilot idea and apply for other disciplines. I don't know if you wanna Yeah.
+
+[00:16:06] Varun Mohan: There's
+
+[00:16:06] Alessio Fanelli: gonna some. Key points that, that you touched on. Um, how to estimate, inference a scale, you know, and the latency versus quality trade-offs. Building on first party. So this is free forever because you run your own models, right?
+
+[00:16:19] That's right. If you were building on open ai, you wouldn't be able to offer it for free real-time. You know, when I first use coding, It was literally the same speed as Copi is a little bit
+
+[00:16:29] swyx: faster. I don't know how to quantify it,
+
+[00:16:31] Varun Mohan: but we are faster. But it's one of those things that we're not gonna like market as that's the reason because it's not in and of itself a right for you to like, I'm just gonna be open with you.
+
+[00:16:39] It's not a reason for you to like suddenly turn off a copilot where if our answers were trash, uh, but we were faster. You know what I mean? But your focus
+
+[00:16:46] Alessio Fanelli: was there. We used the alpha, I think prem on our discord came to us and say, you guys should try this out. So it was really fast. Even then, prompt optimization is another big thing, and model outputs and UX kind of how you bring them together.
+
+[00:17:00] Which ones of these things are maybe like the one or two that new founders should really think about first?
+
+[00:17:07] Varun Mohan: Yeah, I think, I think my feeling on this is unless you are ex, you probably should always bootstrap on top of an existing a. Because like even if you were to, the only reason why we didn't is because we knew that this product was actually buildable.
+
+[00:17:22] Probably if we worked hard enough to train a model, we would actually be able to build a great product already. But if you're actually going out and trying to build something from scratch, unless you genuinely believe, I need to fine tune on top of, you know, terabytes of data terabyte is a very large amount of data, but like tens of gigabytes of data.
+
+[00:17:37] Probably go out and build on top of an API and spend most of your time to make it so that you can hit that quality latency trade off properly. And if I were to go out and think about like the three categories of like an LM product, it's probably like latency, quality, and correct ability. The reality is, you know, if I were to take a product like co-pilot or Coum, the latency is very low.
+
+[00:17:58] The quality I think, is good enough for the task, but the correct ability is, is very easy. Credibility. What, what is correct ability? Correct ability means, let's say the quality is not there. Like you consider the the case where, The answer is wrong. How easy is it for your user to actually go and leverage parts of the generation?
+
+[00:18:16] Maybe a, a concrete example. There's a lot of things people are excited about right now where I write a comment and it generates a PR for me, and that's like, that's like really awesome in theory. I think that's like a really cool thing and I'm sure at some point we will be able to get there. That will probably require an entirely new model for what it's worth that's trained on diffs and commits and all these other things that looks at like improvements and code and stuff.
+
+[00:18:37] It's probably not gonna be just trained on generic code. But the problem with those, those sort of, I would say, applications are that, let's suppose something does change many files, makes large amounts of changes. First of all, it's guaranteed not gonna be. Because even the idea of like reviewing the change takes a long time.
+
+[00:18:54] So if the quality and the correct ability is just not there, let's say you had 10 file, a 10 file change and you modified like, you know, file two and four, and those two modifications were consistent, but the other eight files were not consistent. Then suddenly the correct ability is like really hard.
+
+[00:19:10] It's hard to correct the output of the model. And so the user interface is 100% really important. But maybe until you get the latency down or the correct ability, like correct ability, like a lot better, it's probably not gonna be shippable. And I think that's what you gotta spend your time focusing on.
+
+[00:19:26] Can you deliver a product that is actually something users want to use? And I think this is why I was talking about like demo. It's like very easy to hand to handpick something that like works, that works for a demo, exceedingly hard for something that has large scope, like a PR to work consistently. It will take a lot of engineering effort to make it work on small enough chunks so that a user is like, wow, this is value generative to me.
+
+[00:19:49] Because eroding user trust or consumer trust is very easy. Like that is, it is is much, much, it's very easy to erode user trust versus enterprise. So just be mindful of that, and I think that's probably like the mantra that most of these companies need to operate under. Have you done any
+
+[00:20:05] Alessio Fanelli: analysis on. What the ratio between code generated and latency is.
+
+[00:20:11] So you can generate one line, but you could also generate the whole block. You can generate Yeah. A whole class and Yeah. You know, the more you generate the, the more time it takes. Like what's the sweet spot that, that you
+
+[00:20:21] Varun Mohan: found? Yeah, so I think there was a great study and, and I'm not sure if it's possible to link it, but there was a great study about co-pilot actually that came out.
+
+[00:20:28] Basically what they said was there were two ways that developers usually develop with a code assistant technology. They're either in what's called like acceleration mode or exploration mode. And exploration mode is basically you're in the case where you don't even know what the solution space for the function is.
+
+[00:20:43] and you just wanna generate a lot of code because you don't even know what that looks like. Like it might use some API that you've never heard of. And what you're actually doing at that point is like you're writing a clean comment, just wishing and praying that you know, the generation is long enough and gets you, gets you far enough, right?
+
+[00:20:57] acceleration mode is basically you are doing things where you are very confident in what you're doing and effectively. Code gives you that muscle so that you can basically stay in flow state and you're not thinking about like exactly what the APIs look like, but push comes to shove. You will figure out what the APIs look like, but actually like mentally, it takes off like a load in your head where you're like, oh wow.
+
+[00:21:18] Like I can just do this. The intent to execution is just a lot, a lot lower there. And I think effectively you want a tool that captures that a little bit. And we have heuristics in terms of captur. Whether or not you're in acceleration versus exploration mode. And a good heuristic is, let's say you're inside like a basic block of a piece of code.
+
+[00:21:37] Let's say you're inside a a block of code or an IF statement, you're probably already in acceleration mode and you would feel really bad if I started generating the ELs clause. Because what happens if that else causes really wrong? That's gonna cause like mental load for you because you are the way programmers think.
+
+[00:21:51] They only want to complete the if statement first, if that makes sense. So there are things where we are mindful of like how many lines we generate if you use the product, like multi-line generations happen and we are happy to do them, but we don't want to do them when we think it's gonna increase load on developers, if that makes sense.
+
+[00:22:07] That
+
+[00:22:07] Alessio Fanelli: makes sense. So co-pilot for x. , what are access that you think are interesting for people to build
+
+[00:22:13] Varun Mohan: in? Didn't we see some, some tweet recently about Harvey ai, uh, company that, that is trying to sell legal? It's like a legal, legal assistance. That's, that's pretty impressive, honestly. That's very impressive.
+
+[00:22:23] So it seems like I would really love to see what the product looks like there, because there's a lot of text there. You know, looking at bing, bing, ai, like, I mean, it's, it's pretty cool. But it seems like groundedness is something a lot of these products struggle with, and I assume legal, if there's one thing you want them to.
+
+[00:22:39] To get right. It's like the groundedness. Yeah.
+
+[00:22:42] swyx: Yeah. I've made the analogy before that law and legal language is basically just another form of programming language. You have to be that precise. Yes. Definitions must be made, and you can scroll to find the definition. It's the same thing. Yes. ,
+
+[00:22:55] Varun Mohan: yes. Yeah. But like, I guess there's a question of like comprehensiveness.
+
+[00:22:59] So like, let's say, let's say the only way it generates a suggestion is it provides like, you know, citations to other legal. You don't want it to be the case that it misses things, so you somehow need the comprehensiveness, but also at the same time, you also don't want it to make conclusions that are not from the site, the things at sites.
+
+[00:23:15] So, I don't know, like that's, that's very impressive. It's clear that they've demonstrated some amount of value because they've been able to close a fairly sizable enterprise contract. It was like a firm with 3,500 lawyers, something nuts, honestly. Very cool. So it's clear this is gonna happen, uh, and I think people are gonna need to be clever about how they actually make it work.
+
+[00:23:34] Within the constraints of whatever workload they're operating in. Also, you, you guys
+
+[00:23:37] swyx: are so good at trading stuff, why don't you, you try
+
+[00:23:39] Varun Mohan: cloning it. Yeah. So I think, I think that's, that's, uh, preview the roadmap. Yeah, yeah, yeah, yeah. No, no, no, but I'm just kidding. I think one of the things that we genuinely believe as a startup is most startups can't really even do one thing properly.
+
+[00:23:52] Mm-hmm. Focus. Yeah. Yeah. Usually doing one thing is really hard. Most companies that go public have like maybe a couple big products. They don't really have like 10, so we're under no illusions. Give the best product experience, the amount of engineering and attention to detail, to build one good product as hard.
+
+[00:24:08] So it's probably gonna be a while before we even consider leaving code. Like that's gonna be a big step because the amount of learning we need to do is gonna be high. We need to get users right. We've learned so much from our users already, so, yeah, I don't think we'd go into law anytime soon.
+
+[00:24:22] swyx: 3,500 lawyers with Ellen and Ry, uh, is, is is apparently the, the new
+
+[00:24:27] Varun Mohan: That's actually really big.
+
+[00:24:28] Yeah. Yeah. I can congrat.
+
+[00:24:29] swyx: Yeah, it's funny cuz like, it seems like these guys are moving faster than co-pilot. You know, co-pilot just launched, just announced enterprise, uh, like co-pilot for teams or co-pilot for Enterprise. Yeah. After like two years of testing.
+
+[00:24:40] Varun Mohan: Yeah, it does seem like the co-pilot team has built a very, very good product.
+
+[00:24:44] Um, so I don't wanna like say anything, but I think it is the case to startups will be able to move faster. I feel like that is true, but hey, like GitHub has great distribution. Whatever product they do have, they will be able to sell it really. Shall
+
+[00:24:56] swyx: we go into model numbers and infra estimates? our favorite
+
+[00:25:01] Varun Mohan: topics.
+
+[00:25:02] Nice small models. Nice.
+
+[00:25:04] swyx: So this is, um, relevant to basically I'm researching a lot of skilling law stuff. You have a lot of thoughts. You, you host paper discussions
+
+[00:25:12] Varun Mohan: in your team. Yeah, we, we try to like read papers that we think are really interesting and relevant to us. Recently that's been, there's just a fire hose of papers.
+
+[00:25:21] You know, someone even just curating what papers we should read internally as a company. Yeah, I think, I think there's, there's so much good content
+
+[00:25:28] swyx: out there. You should, you guys should have a podcast. I mean, I told you this before. Should have a podcast. Just, just put a mic near where, where you guys are
+
+[00:25:33] Varun Mohan: talking.
+
+[00:25:34] We gotta, we gotta keep developing coding though, . No, but you're doing this discussion
+
+[00:25:38] swyx: anyway. You
+
+[00:25:38] Varun Mohan: might as well just, oh, put the discussion on a podcast. I feel like some of the, some of the thoughts are raw, right? Like, they're not gonna be as, as nuanced. Like we'll just say something completely stupid during our discussions.
+
+[00:25:48] I don't know, , maybe that's exciting. Maybe that's, it's kinda like a justin.tv, but for ML papers, Okay, cool. I watched that.
+
+[00:25:55] swyx: Okay, so co-pilot is 12 billion parameters. Salesforce cogen is up to 16. G P t three is 175. GP four is gonna be 100 trillion billion. Yeah. So what, what we landed on with you is with, uh, with Cilla, is that we now have an idea of what compute optimal data scaling is.
+
+[00:26:14] Yeah. Which is about 20 times parameters. Is that intuitive to you? Like what, what did that
+
+[00:26:18] Varun Mohan: unlock? I think basically what this shows is that bigger models are like more data efficient, like given the same number of tokens, a big model like trained on the same number of tokens. A bigger model is like, is gonna learn more basically.
+
+[00:26:32] But also at the same time, the way you have to look at it is there are more flops to train a bigger model on the same number of tokens. So like let's say I had a 10 billion parameter model and I trained it on on 1 million tokens, but then I had a 20 billion parameter model at the end of it will be a better.
+
+[00:26:47] It will have better perplexity numbers, which means like the probability of like a prediction is gonna be better for like the next token is gonna be better. But at the end of it, you did burn twice the amount of compute on it. Right? So Shinto is an interesting observation, which says if you have a fixed compute budget, And you want the best model that came out of it because there's like a difference here where a model that is, that is smaller, trained on the same number of tokens as fewer flops.
+
+[00:27:12] There's a a sweet spot of like number of tokens and size a model. I will say like people probably like. Are talking about it more than they should, and, and I'll, I'll explain why, but it's a useful result, which is like, let's say I have, you know, some compute budget and I want the best model. It tells you what that, what you should generate.
+
+[00:27:31] The problem I think here is there is a real trade off of like, you do need to run this model somewhere. You need to run it on a piece of hardware. So then it comes down to how much memory does that piece of hardware have. Let's say for a fixed compute budget, you could train a 70 billion parameter. What are you gonna put that on?
+
+[00:27:47] Yeah, maybe you could, could you put that on an 80 gig, A 100? It would be a stretch. You could do things like f, you know, in eight F p a, to reduce the amount of memory that's on the box and do all these other things. But you have to think about that first, right? When you want to go out and train that model.
+
+[00:27:59] The worst case is you ended up training that mo, that model, and you cannot serve it. So actually what you end up finding is for a lot of these code completion models, they are actually what you would consider over-trained . So by that I mean like, let's look at a model like Cogen. It's actually trained on, I believe, and, and I could be wrong by, you know, a hundred billion here or there.
+
+[00:28:18] I got some data. Oh, okay. Let's look at the 3 billion parameter model. It's a 2.7. I think it's actually a 2.7 billion barometer model. It's weird because they also trained on natural language on top of code, but it's trained on hundreds of billions of tokens. If you applied that chinchilla, Optimization to it, you'd be like, wow, this is, this is a stupid use of compute.
+
+[00:28:36] Right? Because three, they should be going to 60, any anything more than 60. And they're like, they should have just increased the model size. But the reality is if they had like the compute optimal one might not be one that's easy to serve, right? It could just have more parameters. And for our case, our models that we train internally, they might not be the most compute.
+
+[00:28:56] In other words, we probably could have had a better model by making it larger, but the trade off would've been latency. We know what the impact of having higher latency is, and on top of that, being able to fit properly on our hardware constraints would've also been a concern.
+
+[00:29:08] swyx: Isn't the classic stopping point when you, you see like loss kind of levels off.
+
+[00:29:12] Right now you're just letting chinchilla tell you,
+
+[00:29:16] Varun Mohan: but like you should just look at loss. The problem is the loss will like continue to go down. It'll just continue to go down like, like in a, in a way that's like not that pleasing. It's gonna take longer and longer. It's gonna be painful, but it's like one of those things where if you look at the perplexity number of difference between.
+
+[00:29:31] Let's say a model that's like 70 billion versus 10 billion. It's not massive. It's not like tens of percentage points. It's like very small, right? Mm. The reality is here, like, I mean this comes down to like IQ of like these models in some sense, like small wins at the margins are massive wins in terms of iq.
+
+[00:29:47] Like it's harder to get those and they don't look as big, but they're like massive wins in terms of reasoning. They can now do chain of thought, all these other things. Yeah, yeah, yeah.
+
+[00:29:55] swyx: It's, and, and so apparently unlocked around the
+
+[00:29:57] Varun Mohan: 20 billion. Yes. That's right. Some kind of magic. Yeah. I think that was from the UL two or maybe one of those land papers.
+
+[00:30:03] Any thoughts on why? Like is there is? I don't know. I mean, emergence of intelligence, I think. I think maybe one of the things is like we don't even know, maybe like five years from now of what we're gonna be running are transformers. But I think it's like, we don't, we don't 100% know that that's true. I mean, there's like a lot of maybe issues with the current version of the transformers, which is like the way attention works, the attention layers work, the amount of computers quadratic in the context sense, because you're like doing like an n squared operation on the attention blocks basically.
+
+[00:30:30] And obviously, you know, one of the things that everyone wants right now is infinite context. They wanna shove as much prop as possible in here. And the current version of what a transformer looks like is maybe not ideal. You might just end up burning a lot of flops on this when there are probably more efficient ways of doing it.
+
+[00:30:45] So I'm, I'm sure in the future there's gonna be tweaks to this. Yeah. Uh, but it is interesting that we found out interesting things of like, hey, bigger is pretty much always better. There are probably ways of making smaller models significantly better through better data. That is like definitely true. Um, And I think one of the cool things that the stack showed actually was they did a, like a, I think they did some ablation studies where they were like, Hey, what happens if we do, if we do decontamination of our data, what happens if we do de-duplication?
+
+[00:31:14] What happens if we do near dup of our data and how does the model get better? And they have like some compelling results that showcase data quality really matters here, but ultimately, Yeah, I think it is an interesting result that at 20 billion there's something happening. But I also think like some of these things in the future may look materially different than what they look like right now.
+
+[00:31:30] Hmm. Do you think
+
+[00:31:31] Alessio Fanelli: the token limitation is actually a real architectural limitation? Like if you think about the tokens need as kind of like atic, right? Like once you have. 50,000 tokens context, like 50,000 or infinite. For most use cases, it's like the same. Where do you think that number is, especially as you think about code, like some people have very large code bases, there's a lot.
+
+[00:31:53] Have you done any work there to figure out where the sweet
+
+[00:31:55] Varun Mohan: spot is? Yeah, look, I think what's gonna really end up happening is if people come up with a clever way and, and it, there was some result research that I believe came out of Stanford. I think the team from the Helm group, I think came out with some architecture that looks a little bit different than Transformers, and I'm sure something like this will work in the future.
+
+[00:32:13] What I think is always gonna happen is if you find a cheap way to embed context, people are gonna figure out a way to, to put as much as possible in because L LM so far have been like virtually stateless. So the only thing that they have beyond fine tuning is like just shoveling everything you can inside.
+
+[00:32:28] And there are some interesting papers, like retro, actually there are maybe some interesting pieces of thought like ideas that have come out recently. Yeah, let's go through them. So one of the really interesting ideas, I think is retro. It's this paper that came out of DeepMind and the idea is actually, let's say you send out, you send out, uh, a prompt.
+
+[00:32:44] Okay? Send out a prompt. You compute the burt embedding of that. And then you have this massive embedding database. And by massive, I'm not talking about like gigabytes, I'm talking about terabytes. Like you have, geez, you actually have 10 times the number of tokens as what was used to train the model. So like, let's say you had a model that was trained on a trillion tokens, you have a 10 trillion embed, uh, like embedding database.
+
+[00:33:04] And obviously Google has this because they have all content that ever existed in humanity and they have like the best data set and sort of, they were able to make one of these, uh, embedding databases. But the idea here, which is really cool, is you end. Taking your prompt, computing, the bird, embedding you find out the things that were nearby.
+
+[00:33:20] So you do roughly like a semantic search or an embedding search within that. And then you take those, you take the documents that were from those embeddings and you shove those in the model too, in what are called like cross chunked attention. So you like shove them in the model with it as well.
+
+[00:33:34] Suddenly now the model is able to take in external. Which is really exciting actually, because suddenly now you're able to get dynamic context in, and the model in some sense is deciding what that context is. It's not deciding it completely. In this case, because the Bert model in this case was actually frozen.
+
+[00:33:50] It wasn't trained with the retro model as well, but. The idea is you're somehow adding or augmenting context, which I think is like quite exciting. There's probably two futures. Either context becomes really cheap. Right now it's quadratic. Maybe there's a future where it becomes linear in the, in the size of the context, but the future might actually be the model itself dictates, Hey, I have this context.
+
+[00:34:10] You have this data source. Give me this. The model itself is going out into your database and like being like, I want this information, and this is kind of like. What Bing search is looking like. Right? Or bing chat is sort of looking like where it's like I, the model is probably, there's probably some model that's saying I want this information.
+
+[00:34:27] And that is getting augmented into the context. Now the model itself knows what context it sort of has and it can sort of like build a state machine of sort of what it needs. And that's probably what the future of this looks like. So you, you
+
+[00:34:37] swyx: predict monster embedding database
+
+[00:34:39] Varun Mohan: companies? Probably Monster embedding database companies or, yeah.
+
+[00:34:43] The model in some sense will need to talk to, Talk to these embedding databases. I'm actually not convinced that the current breed of embedding database companies are like ready for what the future sort of looks like. I think I'm just looking at their pricing, how much it costs per gigabyte and it's prohibitive at the scale we're talking about, like let's say you actually did want to host a 10 terabyte embedding database.
+
+[00:35:03] A lot of them were created, let's say two years ago, two, three years ago, where people were like, you know, embedding databases are small and they need to make the cost economics work. But maybe, yeah, there's probably gonna be a big workload there. I will just say for us, we will probably just build this in-house to start with, and that's because I think the technology probably isn't there.
+
+[00:35:20] And I think that the technology isn't there yet. Like waiting on point solutions to come up is a lot harder, um, than probably building it up. The way I, I like to think about this is probably the world looks on the LM space. Looks like how the early internet days were, where I think the value was accrued to probably like Google and Google needed to figure out all the crazy things to make their workload work.
+
+[00:35:41] And the reason why they weren't able to outsource is, is no one else was feeling the pain. ,
+
+[00:35:46] swyx: they're just solving their own pain points. They're just solving their own pain points. They're so far ahead of everyone else. Yes, yes. And just wait
+
+[00:35:50] Varun Mohan: for people to catch up. Yes. Yes. And that's maybe different than how things like Snowflake look where the interface has been decided for what SQL looks like 50 years ago.
+
+[00:35:58] And because of that, you can go out and build the best database and Yeah, like everyone's gonna be like, this doesn't make my beer taste better. And buy your database basically. That's
+
+[00:36:08] swyx: a great reference, by the way. Yeah. We have some friends of the, the pod that are working on embedding database, so we'll try to connect you Toroma
+
+[00:36:14] Varun Mohan: and see.
+
+[00:36:14] Yeah. Oh, I actually know Anton. I worked with him at Neuro. Oh. Although, there you go. Yeah. Uh, what do you, well, what do you think about, I mean,
+
+[00:36:20] swyx: so chromas pivoting towards an embedding
+
+[00:36:22] Varun Mohan: database. I think it's an interesting idea. I think it's an interesting idea. I wonder what the early set of workloads that.
+
+[00:36:27] They will hit our, and you know what the scaling requirements are. This is maybe the classic thing where like, the teams are great, but you need to pick a workload here that you care about the most. You could build anything. You could build anything. When you're an infrastructure company, you can go in, if I was selling, serving in for, I could build, serving for like linear aggression.
+
+[00:36:44] I could build this, but like, unless you hit the right niche for the end user, it's gonna be. . So I think it, I'm excited to see what comes out and if they're great, then we'll use it. Yeah.
+
+[00:36:54] swyx: I also like how you slowly equated yourself to Google there. Oh, we're not, we're not Google. You're, you're gonna be the Google of ai.
+
+[00:37:00] Varun Mohan: We're definitely, we're definitely not Google. But I was just saying in terms of like, if you look at like the style of companies that came out. Yeah. You know? Absolutely. Or maybe we should live in the cutting edge in
+
+[00:37:08] swyx: the future. Yeah. I think that's the pitch.
+
+[00:37:10] Varun Mohan: Okay, thanks for bitch us.
+
+[00:37:13] Alessio Fanelli: So you just mentioned the older vector embedding source are kind of not made for the L l M generation of compute size.
+
+[00:37:21] what does l LM ops look like? You know, which pieces need to be drastically different? Which ones can we recycle?
+
+[00:37:27] Varun Mohan: Yeah. One of the things that we've found, like in our own thing of building code that's been just shows how much is missing, and this is the thing where like, I don't know how much of this you can really outsource, which is like we needed to build eval infrastructure.
+
+[00:37:40] That means how do you build a great code? And there are things online like human eval, right? And uh, I was telling, which is the benchmark telling Sean about this, the idea of human eval is really neat for code. The idea is you provide a bunch of functions with Docstrings and the eval instead of being, did you predict next token?
+
+[00:37:56] It's like, did you generate the entire function and does the function run correctly against a bunch of unit tests? Right. And we've built more sophisticated evals to work on many languages, to work on more variety of code bases. One of the issues that ends up coming up with things like human eval is contam.
+
+[00:38:12] Because a lot of these, uh, things that train models end up training on all of GitHub GitHub itself has human eva, so they end up training on that. And then the numbers are tiny, though. It's gonna be tiny, right? But it doesn't matter if it's tiny because it'll just remember it. It'll remember that it's, it's not that it's that precise, but it will, it's like, it's basically like mixing your, your training and validation set.
+
+[00:38:32] It's like, oh, yeah, yeah, yeah, yeah. But we've seen cases where like online where someone is like, we have a code model that's like, they we're like, we did this one thing, and HU and human eval jumped a ton and we were just like, huh, did human eval get into your data set? Is that really what happened there?
+
+[00:38:46] But we've needed to build all this eval. And what is shown is data cleaning is massive, but data cleaning looks different by. Like code data cleaning is different than what is a high quality piece of code is probably different than what's a high quality legal document. Yeah. And then on top of that, how do you eval this?
+
+[00:39:01] How do you also train it at scale at whatever cost you really want to get? But those are things that the end user is either gonna need to solve or someone else is gonna need to solve for them. And I guess maybe one of the things I'm a little bearish on is if another company comes out and solves eval properly for a bunch of different verticals, what was the company that they were selling to really?
+
+[00:39:21] What were they really doing at that point? If they themselves were not eval for their own workload and all these other things? I think there are cases where, let's say for code where we probably couldn't outsource our eval, like we wouldn't be able to ship models internally if we didn't know how to eval, but it's clear that there's a lot of different things that people need to take.
+
+[00:39:38] Like, Hey, maybe there's an embedding piece. How large is this embedding database actually need to be? But hey, this does look very different than what classic ML ops probably did. Mm-hmm. . How
+
+[00:39:47] Alessio Fanelli: do you compare some of these models? Like when you're thinking about model upgrading and making changes, like what does the testing piece of it internally?
+
+[00:39:56] Yeah. For us look like.
+
+[00:39:56] Varun Mohan: For us, it's like old school AB testing. We've built like infrastructure to be able to say, ramp up users from one to 10 to. 50% and slowly roll things out. This is all classic software, uh, which
+
+[00:40:09] swyx: you do in-house. You don't, you don't buy any
+
+[00:40:10] Varun Mohan: services. We don't buy services for that.
+
+[00:40:13] There are good services, open source services that help you just don't need them. Uh, yeah, I think that's just like not the most complicated thing for us. Sure. Basically. Yeah. Uh, but I think in the future, maybe, we'll, obviously we use things like Google Analytics and all this other stuff, but Yeah. For things of ramping our models, finding out if they're actually better because the eval also doesn't tell the whole story because also for us, Even before generating the prompt, we do a lot of work.
+
+[00:40:36] And the only way to know that it's really good across all the languages that our users need to tell us that it's actually good. And, and they tell us by accepting completions. So, so GitHub
+
+[00:40:44] swyx: co-pilot, uh, the extension does this thing where they, they like, they'll set a timer and then within like five minutes, 10 minutes, 20 minutes, they'll check in to see if the code is still there.
+
+[00:40:54] I thought it was a
+
+[00:40:54] Varun Mohan: pretty creative way. It's, it's a very, it's honestly a very creative way. We do do things to see, like in the long term, if people did. Accept or write things that are roughly so because they could accept and then change their minds. They could accept and then change their minds. So we, we are mindful of, of things like that.
+
+[00:41:09] But for the most part, the most important metric is at the time, did they actually, did we generate value? And we want to know if that's true. And it's, it's kind of, it's honestly really hard to get signal unless you have like a non-trivial amount of usage, non-trivial, meaning you're getting, you're doing hundreds of thousands of completions, if not millions of completions.
+
+[00:41:25] That sounds like, oh wow. Like, that's like a very small amount. But like it's classic. Maybe like if you look at like when I used to be an intern at Quora, like, you know, now more than seven, eight years ago. When I was there, I like shipped a change and then Cora had like millions of daily actives and then it looked like it was good, and then a week later it was just like way worse.
+
+[00:41:43] And how is this possible? Like in a given hour we get like hundreds of thousands of interaction, just like, no, you just need way more data. So this is like one of those things where I think having users is like genuinely very valuable to us, basically. Users is all you need. . Yeah.
+
+[00:41:59] swyx: Um, by the way, since you brought out Quora, have you tried po any, any thoughts
+
+[00:42:03] Varun Mohan: on po I have not actually tried po I've not actually tried.
+
+[00:42:05] I
+
+[00:42:05] swyx: mean, it seems like a question answering website that's been around for 20 years or something. Would be very, would be very good at question answering. Yeah.
+
+[00:42:12] Varun Mohan: Also Adam, the ceo, is like incredibly brilliant. That guy is like insanely smart, so I'm sure they're gonna do,
+
+[00:42:18] swyx: they have accidentally built the perfect like data collection company for For qa.
+
+[00:42:22] Varun Mohan: Yeah. . It takes a certain kind of person to go and like cannibalize your original company like the in, I mean, it was kinda stagnant for like a few years. Yeah, that's probably true. That's
+
+[00:42:31] swyx: probably true. The observation is I feel like you have a bias to its domain specific. , whereas most research is skewed towards, uh, general models, general purpose models.
+
+[00:42:40] I don't know if there's like a, a deeper insight here that you wanna go into or, or not, but like, train on all the things, get all the data and you're like, no, no, no. Everyone needs like customized per task,
+
+[00:42:49] Varun Mohan: uh, data set. Yeah. I think I'm not gonna. Say that general intelligence is not good. You want a base model that's still really good and that's probably trained on normal text, like a lot of different content.
+
+[00:43:00] But I think probably one thing that old school machine learning, even though I'm like the kind of person that says a lot of old school machine learning is just gonna die, is that training on a high quality data set for your workload is, is always gonna yield better results and more, more predictable results.
+
+[00:43:15] And I think we are under no illusions that that's not the case. Basical. And
+
+[00:43:19] swyx: then the other observation is bandwidth and connectivity, uh, which is not something that people usually think about, but apparently is a, is a big deal. Apparently training agreed in the synchronous needs, high GPU coordination.
+
+[00:43:29] These are deleted notes from Sam Altman talking about how they think about training and I was like, oh yeah, that's an insight. And
+
+[00:43:34] Varun Mohan: you guys have the same thing. Yeah. So I guess for, for training, you're right in that it is actually nuts to think about how insane the networks are for NVIDIA's most recent hardware, it's.
+
+[00:43:46] For the H 100 boxes, you shove eight of these H 100 s on a. Between two nodes. The bandwidth is 3,200 gigabits a second, so 400 gigabytes a second between machines. That's like nuts when you just sit and think about it. That's like double the memory bandwidth of what a CPU has, but it's like between two machines.
+
+[00:44:04] On top of that, within the machine, they've created this, this fabric called envy link that allows you to communicate at ultra low latency. That's even lower than P C I E. If you're familiar, that's like the communication protocol. . Yeah, between like the CPU and the other devices or other P C I E devices.
+
+[00:44:21] All of this is to make sure that reductions are fast, low latency, and you don't need to think about it. And that's because like a lot of deep learning has sort of evolved. Uh, training has evolved to be synchronous in the OG days. There is a lot of analysis in terms of how good is asynchronous training, which is like, Hey, I have a node, it has a current state of the model.
+
+[00:44:39] It's gonna update that itself locally, and it'll like every once in a while, go to another machine and update the weights. But I think like everyone has converged to synchronous. I'm not exactly sure. There's not a lot of good research on asynchronous training right now. Or maybe there is an, I haven't read it.
+
+[00:44:52] It's just that there isn't as much research because people are just like, oh, synchronous works. Uh, and the hardware is continually upleveled to handle
+
+[00:44:59] swyx: that. Yeah. It was just un unintuitive to me cuz like the whole purpose of GPUs could train things. A lot of things in parallel. Yes.
+
+[00:45:05] Varun Mohan: But the crazy thing is also, maybe I can, I can give some dumb math here.
+
+[00:45:09] Sure. Here, which is that, uh, let's go with uh, G B T three, which is like 170 billion per. The optimizer state, so while you're training is 14 times the size of the model, so in this case, if it's like 170 billion parameters, it's probably, I'm not great at mental math here, but that's probably around 2.5 terabytes to just store the optimizer state.
+
+[00:45:30] That has gotta be sharded across a lot of machines. Like that is not a single gpu. Even if you take an H 100 with 80 gigs to just shard that much, that's like 40, at least 30 machines. So there's like something there where these things need to communicate with each other too.
+
+[00:45:44] swyx: You need to vertically scale horizontally.
+
+[00:45:46] Varun Mohan: Yeah. You gotta co-located, you gotta somehow feel like you have this massive, the, the ideal programming paradigm is you feel like you have this massive computer. That has no communication, you know, overhead at all, but it has like infinite computer and infinite memory bandwidth.
+
+[00:45:59] swyx: That's the AI cluster. Um, okay, well, uh, we want to head to the questions.
+
+[00:46:05] Alessio Fanelli: So favorite AI product that you are not
+
+[00:46:08] Varun Mohan: building? Yeah, I'm friends with some of the folks at Mid Journey and I really think the Mid Journey product is super cool, especially seeing how the team is iterating and the quality of generations. It consistently gets upleveled. I think it's like quite neat and I think internally at at exa functional, we've been trying out mid Journey for like random content to like generate images and stuff.
+
+[00:46:26] Does it bother
+
+[00:46:26] swyx: you that they have like a style. I don't know. It, it seems like they're hedging themselves into a particular, like you want mid journey art, you go there.
+
+[00:46:33] Varun Mohan: Yeah. It's a brand of art. Yeah, you're right. I think they do have a style, but it seems more predictably good for that style. Okay. So maybe that's too, so just get good at, uh, domain specific thing.
+
+[00:46:41] Yeah. Yeah. maybe. Maybe I, maybe I'm just selling, talking to a booker right now. . Yeah. Uh, okay.
+
+[00:46:46] swyx: Uh, next question. Uh, favorite AI people and
+
+[00:46:48] Varun Mohan: communities? Yeah, so I think I mentioned this before, but I think obviously the open. The opening eye folks are, are insane. Like we, we only have respect for them. But beyond that, I think Elu is a pretty special group.
+
+[00:46:59] Especially it's been now probably more than a year and a half since they released like G P T J, which was like back when open source G PT three Curri, which was comparable. And it wasn't like a model where like, It wasn't good. It was like comparable in terms of perplexity to GT three curity and it was trained by a university student actually, and it just showed that, you know, in the end, like I would say pedigree is great, but in if you have people that are motivated know how computers work and they're willing to just get their hands dirty, you can do crazy things and that was a crazy project that gave me more hope.
+
+[00:47:34] Decentral training being potentially pretty massive. But I think that was like a very cool thing where a bunch of people just got on Discord and were chatting and they were able to just turn this out. Yeah. I did
+
+[00:47:42] swyx: not know this until I looked in further into Luther, but it was not a formal organization.
+
+[00:47:45] Was a company was a startup. It's not, yeah. Bunch of guys on Discord.
+
+[00:47:48] Varun Mohan: They gotta you, they gotta keep you research grant and they somehow just wrote some codes. .
+
+[00:47:52] Alessio Fanelli: Yeah. Yeah. Listen to APAC with Connor, who's the person, and basically Open Eye at the time was like, we cannot release G P T because it's like too good and so bad.
+
+[00:48:01] And he was like, He actually said he was sick, so he couldn't leave home for like a, a few weeks. So it was like, what else am I gonna do? And ended up getting through the Google like research programs through his university and they were like, oh, we'll give you TPUs. And he was like, cool. And that's how, that's,
+
+[00:48:17] Varun Mohan: that's amazing.
+
+[00:48:18] So I came to you. I love the story. Yeah, it's a great story. .
+
+[00:48:21] Alessio Fanelli: So a year from now, what do you think people will be most surprised by
+
+[00:48:25] Varun Mohan: In ai? Yeah. I think the thing people will be most surprised by is, I think they, the models are gonna, More good at SP special tasks for sure, but even the existing models, I think people will come up with more creative ways of leveraging them to build like world class products.
+
+[00:48:39] I think that's just like human creativity is gonna go wild. It seems like Cha GBT has already kind of unleashed that. I think I'm just excited to see what the future of these products look like. I guess law was not something I expected in such a short, well,
+
+[00:48:51] swyx: totally expected. I, I, I was actually watching a different company that I thought was gonna be the winner, and then Harvey just came outta nowhere,
+
+[00:48:56] Oh, wow. Okay. Okay. Well that's, that's awesome. But yeah. So my, my takeaway from what you're saying is like, foundation models have kind of shot way too far ahead of the apps and people need to build
+
+[00:49:05] Varun Mohan: apps. Yes. I think people should be building apps, but I. The reality is the model is like probably at a state right now where it can do crazy enough things.
+
+[00:49:12] Uh, and I think great apps will, will come out of this. Yeah.
+
+[00:49:16] swyx: AI thing you would pay for if someone else built it personal or work.
+
+[00:49:20] Varun Mohan: I think if, if someone else built like a proper assistant, like a proper like fitness assistant, I would probably pay for that actually. I know that, that sounds weird, but someone that actually tells me like, how should I end up, like, you know, doing fitness today, I ended up injuring my knee from over biking.
+
+[00:49:35] I ended up biking like 150 miles a week and I ended up just injuring my knee outta nowhere. So, so you need, you need an app to tell you to exercise less. Exercise less, but tell me what my training regimen is. Uh, tell me what I should do to prepare for things. I know that this is like a big niche, but I think the fact that Strava is such a big group of people and like swyx is a big group of people, seems to suggest that I think a lot of people would be willing to pay for something like this.
+
+[00:49:57] Alessio Fanelli: what's one thing you want everyone to take away about AI and our
+
+[00:50:01] Varun Mohan: conversation? Probably the most important thing to take away is there's probably a lot out there if people continue to tinker. I think that's probably like the biggest takeaway I've had. Uh, and it's, you know, being a pure infrastructure company, I think like, uh, six to eight months ago, I think it was like very hard to watch everyone tinkering and us just, you know, building, building infrastructure.
+
+[00:50:22] But I think there's gonna be some crazy things that come out over the next year or. Um, excited to just see what that looks like. Awesome. Yeah, man. That's it. This was fantastic. Thanks so much. Thanks for coming.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Alessio Fanelli
+
+Writes The Engineering Value Chain Revolution Subscribe
+
+Varun Mohan
+
+Writes Varun Mohan Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

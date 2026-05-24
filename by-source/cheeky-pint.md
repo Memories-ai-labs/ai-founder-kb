@@ -2,6 +2,8 @@
 
 **Entries**: 17
 
+**Local raw transcripts**: 32 episodes in [`raw-transcripts/cheeky-pint/`](../raw-transcripts/cheeky-pint/) — full archive from `cheekypint.substack.com`. See [README](../raw-transcripts/cheeky-pint/README.md) for index.
+
 ---
 
 ## Greg Brockman (OpenAI) — 2025-07

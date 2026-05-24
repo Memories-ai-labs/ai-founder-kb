@@ -1,0 +1,671 @@
+# Segment Anything 2: Demo-first Model Development
+# URL: https://www.latent.space/p/sam2
+# Date: 2024-08-07
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Segment Anything 2: Demo-first Model Development
+
+22
+
+2
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:03:29
+
+-1:03:29
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Segment Anything 2: Demo-first Model Development
+
+Don't bother keeping absolutely still: This vision model has memory now! Covering SAM 2 with Nikhila Ravi of Facebook AI Research, and special returning guest host Joseph Nelson of Roboflow
+
+Aug 07, 2024
+
+22
+
+2
+
+1
+
+Share
+
+Transcript
+
+Because of the nature of SAM, this is more video heavy than usual. See our YouTube!
+
+Because vision is first among equals in multimodality, and yet SOTA vision language models are closed, we’ve always had an interest in learning what’s next in vision. 
+
+Segment Anything Model and the Hard Problems of Computer Vision — with Joseph Nelson of Roboflow
+
+swyx & Alessio
+
+·
+
+April 13, 2023
+
+2023 is the year of Multimodal AI, and Latent Space is going multimodal too!
+
+Listen now
+
+Our first viral episode was Segment Anything 1, and we have since covered LLaVA, IDEFICS, Adept, and Reka. But just like with Llama 3, FAIR holds a special place in our hearts as the New Kings of Open Source AI.
+
+The list of sequels better than the originals is usually very short, but SAM 2 delighted us by not only being a better image segmentation model than SAM 1, it also conclusively and inexpensively solved video segmentation in just an elegant a way as SAM 1 did for images, and releasing everything to the community as Apache 2/CC by 4.0.
+
+“In video segmentation, we observe better accuracy, using 3x fewer interactions than prior approaches. 
+
+In image segmentation, our model is more accurate and 6x faster than the Segment Anything Model (SAM).”
+
+Surprisingly Efficient
+
+The paper reports that SAM 2 was trained on 256 A100 GPUs for 108 hours (59% more than SAM 1). Taking the upper end $2 A100 cost off gpulist.ai means SAM2 cost ~$50k to train if it had an external market-rate cost - surprisingly cheap for adding video understanding!
+
+The newly released SA-V dataset is also the largest video segment dataset to date, with careful attention given to scene/object/geographical diversity, including that of annotators. In some ways, we are surprised that SOTA video segmentation can be done on only ~50,000 videos (and 640k masklet annotations). 
+
+Model-in-the-loop Data Engine for Annotations and Demo-first Development
+
+Similar to SAM 1, a 3 Phase Data Engine helped greatly in bootstrapping this dataset. As Nikhila says in the episode, the demo you see wasn’t just for show, they actually used this same tool to do annotations for the model that is now demoed in the tool:
+
+“With the original SAM, we put a lot of effort in building a high-quality demo. And the other piece here is that the demo is actually the annotation tool. So we actually use the demo as a way to improve our annotation tool. And so then it becomes very natural to invest in building a good demo because it speeds up your annotation. and improve the data quality, and that will improve the model quality. With this approach, we found it to be really successful.”
+
+An incredible 90% speedup in annotation happened due to this virtuous cycle which helped SA-V reach this incredible scale.
+
+Building the demo also helped the team live the context that their own downstream users, like Roboflow, would experience, and forced them to make choices accordingly.
+
+As Nikhila says:
+
+“It's a really encouraging trend for not thinking about only the new model capability, but what sort of applications folks want to build with models as a result of that downstream.
+
+I think it also really forces you to think about many things that you might postpone. For example, efficiency. For a good demo experience, making it real time is super important. No one wants to wait. And so it really forces you to think about these things much sooner and actually makes us think about what kind of image encoder we want to use or other things. hardware efficiency improvements. So those kind of things, I think, become a first-class citizen when you put the demo first.”
+
+Indeed, the team swapped out standard ViT-H Vision Transformers for Hiera (Hierarchical) Vision Transformers as a result of efficiency considerations.
+
+Memory Attention
+
+Speaking of architecture, the model design is probably the sleeper hit of a project filled with hits. The team adapted SAM 1 to video by adding streaming memory for real-time video processing:
+
+Specifically adding memory attention, memory encoder, and memory bank, which surprisingly ablated better than more intuitive but complex architectures like Gated Recurrent Units.
+
+One has to wonder if streaming memory can be added to pure language models with a similar approach… (pls comment if there’s an obvious one we haven’t come across yet!)
+
+Video Podcast
+
+Tune in to Latent Space TV for the video demos mentioned in this video podcast!
+
+Resources referenced
+
+Show References
+
+https://sam2.metademolab.com/demo 
+
+roboflow.com/sam2
+
+https://github.com/autodistill/autodistill
+
+https://github.com/facebookresearch/segment-anything-2
+
+https://rf100.org 
+
+https://blog.roboflow.com/label-data-with-grounded-sam-2/
+
+https://arxiv.org/abs/2408.00714 
+
+https://github.com/roboflow/notebooks
+
+https://x.com/skalskip92/status/1818648396002951178https://x.com/skalskip92/status/1818648396002951178
+
+https://blog.roboflow.com/sam-2-video-segmentation/
+
+Timestamps
+
+[00:00:00] The Rise of SAM by Udio (David Ding Edit)
+
+[00:03:07] Introducing Nikhila
+
+[00:06:38] The Impact of SAM 1 in 2023
+
+[00:12:15] Do People Finetune SAM?
+
+[00:16:05] Video Demo of SAM
+
+[00:20:01] Why the Demo is so Important
+
+[00:23:23] SAM 1 vs SAM 2 Architecture
+
+[00:26:46] Video Demo of SAM on Roboflow
+
+[00:32:44] Extending SAM 2 with other models
+
+[00:35:00] Limitations of SAM: Screenshots
+
+[00:38:56] SAM 2 Paper
+
+[00:39:15] SA-V Dataset and SAM Data Engine
+
+[00:43:15] Memory Attention to solve Video
+
+[00:47:24] "Context Length" in Memory Attention
+
+[00:48:17] Object Tracking
+
+[00:50:52] The Future of FAIR
+
+[00:52:23] CVPR, Trends in Vision
+
+[01:02:04] Calls to Action
+
+Transcript
+
+[00:00:00] [music intro]
+
+[00:02:11] AI Charlie: Happy Yoga! This is your AI co host Charlie. Thank you for all the love for our special 1 million downloads Wins of AI Winter episode last week, especially Sam, Archie, Trellis, Morgan, Shrey, Han, and more. For this episode, we have to go all the way back to the first viral episode of the podcast Segment Anything Model and the Hard Problems of Computer Vision, which we discussed with Joseph Nelson of Roboflow.
+
+[00:02:39] AI Charlie: Since Meta released SAM 2 last week, we are delighted to welcome Joseph back as our fourth guest co host to chat with Nikhila Ravi, Research Engineering Manager at Facebook AI Research and lead author of SAM 2. Just like our SAM 1 podcast, this is a multimodal pod because of the vision element, so we definitely encourage you to hop over to our YouTube at least for the demos, if not our faces.
+
+[00:03:04] AI Charlie: Watch out and take care.
+
+[00:03:10] Introducing Nikhila
+
+[00:03:10] swyx: Welcome to the latest podcast. I'm delighted to do segment anything to our first, one of our very first viral podcasts was segment anything one with Joseph. Welcome back. Thanks so much. And this time we are joined by the lead author of Segment Anything 2, Nikki Ravi, welcome.
+
+[00:03:25] Nikhila Ravi: Thank you. Thanks for having me.
+
+[00:03:26] swyx: There's a whole story that we can refer people back to episode of the podcast way back when for the story of Segment Anything, but I think we're interested in just introducing you as a researcher, as a, on the human side what was your path into AI research? Why, you know, why did you choose computer vision coming out of your specialization at Cambridge?
+
+[00:03:46] Nikhila Ravi: So I did my undergraduate. Degree in engineering at Cambridge university. The engineering program is very general. So first couple of years, you sort of study everything from mechanical engineering to fluid mechanics, structural mechanics, material science, and also computer science.
+
+[00:04:04] Nikhila Ravi: Towards the end of my degree, I started taking more classes in machine learning and computational neuroscience, and I really enjoyed it. And actually after graduating from undergrad, I had a place at Oxford to study medicine. And so I was. Initially planning on becoming a doctor, had everything planned and then decided to take a gap year after finishing undergrad.
+
+[00:04:28] Nikhila Ravi: And actually that was around the time that sort of deep learning was emerging. And in my machine learning class in undergrad, I remember one day our professor came in and that was when Google acquired DeepMind. And so that became like a huge thing. We talked about it for the whole class. It kind of really stuck.
+
+[00:04:48] Nikhila Ravi: And I was kicked off thinking about, okay, maybe I want to try something different other than medicine. Maybe this is a different path I want to take. And then in the gap year, I did a bunch of coding, worked on a number of projects. Did some sort of freelance contracting work. And then I got a scholarship to come and study in America.
+
+[00:05:06] Nikhila Ravi: So I went to Harvard for a year, took a bunch of computer science classes at Harvard and MIT, worked on a number of AI projects, especially in computer vision. I really, really enjoyed working in computer vision. I applied to Facebook and got this job at Facebook, and I've now at Facebook at the time, now Meta, and I've been here for seven years, so very circuitous path, probably not a very unconventional, I didn't do a PhD, I'm not like a research, typical research scientist, definitely came from more of an engineering background, but since being at Meta, Have had amazing opportunities to work across so many different interesting problems in computer vision from 3D computer vision.
+
+[00:05:50] Nikhila Ravi: How can you go from images of objects to 3D structures and then going back to 2D computer vision and actually understanding the objects and the pixels and the images themselves. So it's been a very interesting journey over the past seven years.
+
+[00:06:05] swyx: It's weird because like, I guess with segment anything too, it's like 4D because you solve time, you know, you started with 3D and now you're solving the 4D.
+
+[00:06:14] Nikhila Ravi: Yeah, it's just going from 3D to images to video. It's really covering the full spectrum. And actually, one of the nice things has been, so I think I mentioned I, Wanted to become a doctor, but actually Sam is having so much impact in medicine, probably more than I could have ever had as a doctor myself. So I think, you know, hopefully Sam too can also have a similar sort of impact in medicine and other fields.
+
+[00:06:39] The Impact of SAM 1 in 2023
+
+[00:06:39] swyx: Yeah. I want to give Joseph a chance to comment. Does that also mirror your, we know your story about going into, into vision, but like in the past year, since we did our podcast on Sam what's been the impact that you've seen?
+
+[00:06:51] Joseph Nelson: Segment anything. Set a new standard in computer vision, you know recapping from from the first release to present Sam introduces the ability for models to near zero shot meaning without any training identify kind of perfect polygons and outlines of items and objects inside images and that capability previously required a Lots of manual labeling, lots of manual preparation, clicking very meticulously to create outlines of individuals and people.
+
+[00:07:25] Joseph Nelson: And there were some models that attempted to do zero shot segmentation. of items inside images, though none were as high quality as segment anything. And with the introduction of segment anything, you can pass an image with SAM1, SAM2 videos as well, and get perfect pixel perfect outlines of most everything inside the images.
+
+[00:07:52] Joseph Nelson: Now there are some edge cases across domains and Similar to the human eye, sometimes you need to say, like, which item maybe you most care about for the downstream task and problem you're working on. Though, SAM has accelerated the rate at which developers are able to use computer vision in production applications.
+
+[00:08:13] Joseph Nelson: So, at RoboFlow, we were very quick to enable the community of computer vision developers and engineers to use SAM and apply it to their problems. The principle ways of using SAM, you could kind of use SAM as is to like pass an image and receive back masks. Another use case for SAM is in preparation of data for other types of problems.
+
+[00:08:37] Joseph Nelson: So, for example, in the medical domain, let's say that you're working on a problem where you have a bunch of images from a wet lab experiment. And from each of those images, you need to count the presence of a particular protein that reacts to some experiment. To count all the individual protein reactions, You can go in and lab assistants to this day will still like kind of individually count and say what are the presence of all those proteins.
+
+[00:09:07] Joseph Nelson: With Segment Anything, it's able to identify all of those individual items correctly. But often you may need to also add like a class name to what the protein is. Or you may need to say, hey, like, I care about the protein portion of this. I don't care about the rest of the portion of this in the image.
+
+[00:09:26] Joseph Nelson: And, or what it encourages and asks for the user to do is to provide some visual prompting to say, hey, which part, like, Sam says, hey, I can find segments of anything, but which segments do you care about? And so you can do visual prompting, which is kind of a new primitive that Sam introduced. And so at RoboFlow, we have one portion of our tool stack enables users to very quickly label data.
+
+[00:09:48] Joseph Nelson: With segment anything, Sam can already provide, hey, here's where I see the outlines of objects. Or a user can click to prompt to say, Hey, here's where the outlines of objects matter. And I recently pulled statistics from the usage of SAM in RoboFlow over the course of the last year. And users have labeled about 49 million images using segment anything on the hosted side of the RoboFlow platform.
+
+[00:10:12] Joseph Nelson: And that's like 5 million in the last 30 days alone. And of those images, We did kind of like a rough bafka napkin calculation of like how much time that has saved. Because, again, the alternative is you're clicking individual points to create a polygon, and with SAM you just click once and it guesses where the polygon is.
+
+[00:10:32] Joseph Nelson: And I'm sure in a bit we can maybe screen share and show some examples of what this experience is like. And in that time estimation, it's like, On average saves, you know, maybe a dozen or so seconds. And we estimate that this is probably saved on the order of magnitude of 35 years of time for users.
+
+[00:10:53] Nikhila Ravi: That's incredible.
+
+[00:10:54] Joseph Nelson: So, I mean, basically like in the first, the first year of a model being available, not only can you say, Hey, I'm just going to go use this model, those numbers that like 49 million images. is an estimate directly related to just the hosted side. So imagine all of the users that are self hosting or using SAM for robotics applications or out in the field or offline where it's not even, like, the time or the image counts are tabulated.
+
+[00:11:20] Joseph Nelson: And we're probably talking about, you know, just a fraction of the amount of value that's actually being produced for a number of downstream tasks. So to say that the impact has been You know, people use terms like game changing and these sorts of things. It has changed the industry. It's set a new standard.
+
+[00:11:36] Joseph Nelson: And with the release of SAM 2, I think we're about to see an acceleration of those capabilities for a lot of reasons.
+
+[00:11:42] Nikhila Ravi: That's really great to hear. I think one of the, really SAM 1 was. How many fields actually rely on manual segmentation? I think we're not really exposed to that. Maybe you are at Roboflow because you get to see all the users of these tools.
+
+[00:11:57] Nikhila Ravi: But for me, it was, you know, people working on understanding coral reef bleaching or farmers counting their cows and so many different applications that as a researcher. You never get exposed to, but you can have impact towards. So I think that was really awesome to hear.
+
+[00:12:15] Do People Finetune SAM?
+
+[00:12:15] swyx: So as sort of audience surrogate, who knows less than the two of you, I'm going to ask a really dumb question maybe, but is everyone using stock, a segment, anything?
+
+[00:12:23] swyx: Are they fine tuning for the medical domain? Like how on earth could it work for the medical field without fine tuning, right? Like, is that a thing?
+
+[00:12:32] Nikhila Ravi: So I mean, I can give a quick perspective from the research side. So one of the things, design decisions we made in SAM was to not have class labels. And so all the data is annotated in a class agnostic way.
+
+[00:12:48] Nikhila Ravi: So anything that has a boundary, we consider to be an object. So for example, in any image, there's lots of small objects. We might not know what the name of them are, but they're If you can draw a boundary around it, so you can imagine that we have 11 million images in the SA 1B dataset, we annotated all the objects, there's many, many small objects.
+
+[00:13:12] Nikhila Ravi: And so if you think about cells, they're also kind of small objects, there's probably things in the training data. That looked like it, but we didn't have to label it. And so that means that even when you use SAM for applications that it wasn't really trained for, because we didn't restrict it to a certain set of categories, you can actually use it out of the box without custom adaptation.
+
+[00:13:35] Nikhila Ravi: But having said that, there's probably certain domains where you need some expertise in order to be able to segment something properly. And for those use cases, Having some extra fine tuning data would probably help, and we've sort of seen that there's some papers that have come out that do this, and, you know, we'd love to hear, Joseph, how people are collecting data with SAM and fine tuning for their use cases.
+
+[00:13:59] Joseph Nelson: Once SAM came out, there were adaptations that said, could we use SAM to be, you know, like, efficient SAM? Like, basically take SAM and maybe accelerate it. And then there were domain adapted SAMs, like CellSAM, for example, out of the UC system. Now, what's interesting is, there's, like, adapting SAM to a domain, there's kind of two ways by which that's done.
+
+[00:14:21] Joseph Nelson: One is, as you mentioned, like, potentially SAM doesn't have a good concept of The objects of interest. And so you need to do domain adaptation and increase the accuracy for zero shot prediction. The second way though, is it's not fine tuning. It's actually just prompting. It's just guiding the model existing knowledge.
+
+[00:14:42] Joseph Nelson: to say which segments you care about. And both those are actually kind of equally important on the application side. You need to, like, a priori ensure that the objects of interest can be correctly segmented and maybe collect data to do that. But even if you had, like, a perfect SAM, like an omniscient SAM that could see every segment in every domain with all pixels perfectly outlined, in production, you would still need some way to Almost like signal to the model what you care about like to paint this picture if you are like a retailer and you are providing Photos of models wearing your clothing on your retail site You may care about you know only the shirt and Sam by default might segment the full person And so there's you know visual prompting that you can do to ensure that you only outline Maybe the shirt for the purposes of swapping in and out different shirts for displaying a given model on a retail page You And so I think what's interesting is that's where, like I wouldn't call it domain adaptation, but that's where, like, when you apply to industry, like, one thing that's particularly important with tooling and enabling SAM to reach its full potential.
+
+[00:15:51] swyx: That's really encouraging to hear. I should also think, like, you know, the last time we talked about this, we wanted to, the very natural addition on the class labeling side is the grounding Dino work, right? So I think people, built a grounding SAM and all the other extensions.
+
+[00:16:05] Video Demo of SAM
+
+[00:16:05] swyx: I think it's, it's probably a good time to cut to a quick demo of SAM2 for people who are, who are tuning in for SAM2 and who better to demo SAM2 than Nikki.
+
+[00:16:15] Nikhila Ravi: Sure. So I'll try to narrate what I'm what I'm doing. So audio listeners can also understand. So we have a web demo where anyone can try SAM2 on a video. Here we have a video of someone kicking a football, and I'm going to click on the football to select the object in the first frame. But you can actually select the object in any frame of the video, and this will work.
+
+[00:16:40] Nikhila Ravi: The next step is to hit track. So the model's now tracking this in real time. We don't save any of this, it's all running in real time. And now you can see the ball has been tracked throughout the entire video. There's even like a little bit of a challenging case here where the shoe covers the football.
+
+[00:16:59] Nikhila Ravi: And actually, you know, the model makes a little bit of a mistake, but that's okay. Because we can actually, here, the model makes a little bit of a mistake here. But you know, we can actually add a refinement click. You can add negative clicks until we get the mask that we want on this frame. And then you can hit track again, and the model will track the object, taking into account the additional information I've provided at that frame.
+
+[00:17:25] Nikhila Ravi: We've also added a couple of other fun things you can do on top of the track, like add effects. We can add you know, foreground effects, background effects. And these are just ways of showing how we can use the output from SAM2 as part of other tools like video editing tools. Other systems, so this is just a preview of what you can do with SAM2, but the really cool use cases are places where we might not have even imagined SAM2 being useful.
+
+[00:17:54] Nikhila Ravi: So we have a number of examples of things you might want to use it for. There's like underwater videos that it works actually really well for even though we, models never really seen an octopus before and octopus have a lot of moving parts that SAM2 can actually quite effectively. Keep track of all the different tentacles and we can probably see it more clearly if I desaturate the background.
+
+[00:18:18] Nikhila Ravi: We can see that actually the tracking of all the different tentacles is Quite accurate. Another challenge with video is that objects can actually become occluded. They can disappear from view and reappear. And a really fun example here is the shuffling cup game, which many of you might have seen. And so here I can click on the ball in the first frame.
+
+[00:18:41] Nikhila Ravi: I can also, You know, click on a different cup. And so here, the additional challenge is that there's three cups that look exactly the same. And then there's the ball that will get occluded by the cup. So the ball's no longer visible, the cups are all moving around, they all look the same. But the model actually keeps track of the cup that we selected.
+
+[00:19:02] Nikhila Ravi: And, as you can see at the end, here I'll jump to the end so you can see. It actually finds the cup again. I wanted to point out a couple of fun demo UX features that we added that actually really helped with this. So if you can see at the bottom, there's these swim lanes and then the swim lanes, actually the thickness of the swim lane tells you if the object's visible or not.
+
+[00:19:22] Nikhila Ravi: So at the beginning, the object's visible,
+
+[00:19:25] swyx: the object
+
+[00:19:26] Nikhila Ravi: disappears, and then the object comes back. So you can actually visually tell. When the object's being occluded and when it's not, and so it's a nice way of like, knowing if you need to go in and fix the model prediction or not. And so these are some of the UX innovations that we came up with, as well as the model innovations.
+
+[00:19:46] Joseph Nelson: One thing that I think is really notable here, there's two things. One is that like, I'd love to have a little bit of a discussion about how the models keeping track of the embedded scene to keep track of the ball and the cup in different places. Put a pause on that for a second.
+
+[00:19:59] Why the Demo is so Important
+
+[00:19:59] Joseph Nelson: One thing that Meta has put an emphasis on here in a much greater degree than other model releases is the demo experience of recognizing that in addition to having a model that can do zero shot segmentation, you've created a web experience that allows folks to kind of experience both the video effects but the types of UX innovations that encourage usage and adoption.
+
+[00:20:23] Joseph Nelson: It's actually kind of reminiscent of The underlying technology of ChatGPT was available prior to the web experience of ChatGPT. Can you talk a bit about why that was a consideration to your team and how you thought about the creation of The demo experience in tandem with training and releasing a new model.
+
+[00:20:41] Nikhila Ravi: Yeah, absolutely. I think that's a really great example of how, you know, Chad, GPT was really more of a UX innovation. Obviously it was like a number of research innovations that helped to get to this point. But as you said, like the underlying technology was around for a while. And, you know, putting this UX around as a chat interface helped tremendously with the.
+
+[00:21:03] Nikhila Ravi: Adoption and people understanding how it could be useful for real world use cases. And in computer vision, especially, it's so visual. The best way to show how these models work. Is by trying it on your own image or your own video with the original SAM, we put a lot of effort in building like a high quality demo.
+
+[00:21:23] Nikhila Ravi: And the other piece here is that the demo is actually the annotation tool. So we actually. Use the demo as a way to improve our annotation tool. And so then it becomes very natural to invest in building a good demo because it speeds up your annotation and improves the data quality and that will improve the model quality.
+
+[00:21:43] Nikhila Ravi: With this approach, we found it to be really successful. And obviously externally, people really liked being able to try it. I think, you know, people in fields outside of machine learning would never have tried SAM if we didn't have that demo. And I think that definitely led to a lot of the adoption in, like, diverse fields.
+
+[00:22:05] Nikhila Ravi: And so because we saw that with SAM 2, like, the demo was a priority first class citizen from day one. And so we really invested in making that. And I think with SAM2 as well, we wanted to have like a step change in the demo experience. Interactive video segmentation, I think that experience is something that maybe has not had much thought given to it.
+
+[00:22:27] Nikhila Ravi: And we really wanted to be like, okay, if we are to design a step changing video segmentation experience, what would that look like? And that really did influence our model. And annotation design as well.
+
+[00:22:40] Joseph Nelson: It's a really encouraging trend for not thinking about only the new model capability, but what sort of applications folks want to build with models as a result of that downstream.
+
+[00:22:49] Nikhila Ravi: I think it also really forces you to think about many things that you might postpone, for example, efficiency.
+
+[00:22:55] Joseph Nelson: Yes.
+
+[00:22:55] Nikhila Ravi: For a good demo experience. Making it real time is super important. No one wants to wait. And so it really forces you to think about these things much sooner and actually makes us think about how to, what kind of image encoder we want to use or like other hardware efficiency improvements.
+
+[00:23:13] Nikhila Ravi: So those kinds of things, I think, become a first class citizen when you put the demo first.
+
+[00:23:19] SAM 1 vs SAM 2 Architecture
+
+[00:23:19] Joseph Nelson: That's one thing I was going to ask about, and this is related to the architecture change. So SAM1 and the SAM1 demo experience. You have the encoder that's creating the embeddings of all the potential spaces.
+
+[00:23:31] Joseph Nelson: That needs to be run on a GPU. That's a relatively intensive operation. But then the query of those embeddings can be run independently and on a cheaper process. So in the SAM1 demo, the way that it was structured, and also this is the way that we have our SAM tool structured in Robloflow as well, is images go to a GPU to get all the SAM based embeddings.
+
+[00:23:53] Joseph Nelson: But then for querying those embeddings, we do that client side, in the browser, so that the user can very quickly, you know, you can move your mouse over and you get the proposed candidate masks that Sam found for that region of the image. In SAM 2 you dropped that in the web demo. And I think that's because you made some notable improvements to the rate at which encoding happens.
+
+[00:24:16] Joseph Nelson: Can you talk a bit about what led to those speed increases and, again, how that interplays with providing a fast encryption? user experience for interacting with the model.
+
+[00:24:29] Nikhila Ravi: Yeah. So the SAM2 web demo is primarily focused on video. We, we decided to just keep it simple and focus on video and on GitHub, we have a Colab notebook that shows how to run SAM2 on images.
+
+[00:24:41] Nikhila Ravi: So if you're interested in using, replacing SAM with SAM2 for images, check out GitHub, but on the SAM2 demo, it's not as straightforward to adopt the same architecture as SAM. For video, because we can't send the per frame image embeddings for an entire video back to the front end. In SAM, each frame embedding was like four megabytes, but if you have a long video and that's like per frame, it would become impossible to send that back to the front end.
+
+[00:25:11] Nikhila Ravi: So, SAM 2 actually, in terms of the architecture details, I was actually just looking at this earlier, but SAM1 model was around 630 million parameters. It's a fraction of the size of these large language models, but very small. Actually, SAM2, the largest model, is around 224 million parameters. So it's actually One third the size of the SAM original model.
+
+[00:25:38] Nikhila Ravi: So we changed the imaging coder from A-V-I-T-H and SAM to a higher model, which has also developed by by meta. So that definitely was something that helped. And in terms of the efficiency compared to sam, so if we were to run SAM per frame on a video or run SAM two, it's around six times faster to run SAM two versus run SAM per frame.
+
+[00:26:03] Nikhila Ravi: A number of things improved the efficiency of SAM2 such that we were actually able to run this entirely on the server and not have any component in the front end. But I am very curious to see who puts this on device, like I'm pretty sure soon we'll see like an on device SAM2 or, you know, maybe even running in the browser or something, so.
+
+[00:26:25] Nikhila Ravi: I think that could definitely unlock some of these edge use cases that we were able to make a compelling web demo without having to do that.
+
+[00:26:34] swyx: Hugging face is probably already working on Transformers. js version of it, but totally makes sense. I want to talk about more about things from the paper, but I think we're still in this sort of demo section.
+
+[00:26:42] Video Demo of SAM on Roboflow
+
+[00:26:42] swyx: And so I want to hand it to Joseph for his demo to see what the RoboFlow site looks like.
+
+[00:26:47] Joseph Nelson: So I can, I can give some context into one key area that Nicola, you mentioned earlier, which is. Sam has made the decision, both Sam 1 and Sam 2, to be class agnostic in terms of its predictions. And that, you then have the ability to have a generalizable, model for zero shot capability.
+
+[00:27:05] Joseph Nelson: However, in a lot of domain applications, you do want the class wise name. And so a lot of the challenge can be adding that class wise name for the, at least the annotation to an experience that we've created. That's one of the key considerations. So I will similarly Share my screen and show an example.
+
+[00:27:27] Joseph Nelson: Here, I have a bunch of images, and there's a number of ways that I could annotate things, like I could prompt a large multimodal model with like grounding capabilities, you know, you could outsource it, or I can do manual labeling. And with the manual labeling, this is where we make use of models like segment anything.
+
+[00:27:45] Joseph Nelson: to propose candidate masks and make it faster. So we have, you know, this annotation pane and what we call the smart poly tool, which is powered by Segment Anything. This is currently Segment Anything 1. We're accelerating and seeing improvements from similar to what the paper shows of Segment Anything 2 performed better on E3.
+
+[00:28:06] Joseph Nelson: Images as well as video, but with a segment, anything I'm able to basically prompt regions of my image of interest. So for example, if like, I wanted to say, I want to like add the drum set. You'll see here that like, the original candidate proposal is just the base drum, but let's say I wanted the whole drum set.
+
+[00:28:26] Joseph Nelson: So the UX primitive of being able to add and subtract candidate regions of interest is really intuitive here. And now, great, I have this outline, but in fact what I want is, I want to name that as a class. Because maybe for the model that I'm building, I want to build like a task specific model, you know, like an object detection model or an instant segmentation model.
+
+[00:28:50] Joseph Nelson: Or, you know, maybe I'm even using like a multimodal model and I want that multimodal model to refer to regions of interest in the images as a specific thing. And so I think what's, you know, really powerful is, of course, like, I get this really rich zero shot prediction. And here we have our friend Rick.
+
+[00:29:10] Joseph Nelson: So I get this really rich candidate set of predictions. But then by adding the class wise label, I can, you know, very quickly make sure that any downstream tasks are aware not just of the segment, but also of the, what is inside that segment. Which actually takes me to A separate point of something that I predict that's probably going to happen and Nikhil, I'm actually kind of interested why maybe your team made a conscious decision to not do this initially with SAM2.
+
+[00:29:40] Joseph Nelson: There's been an emergent set of models that are also adding open text prompting capabilities to grounding models. So for example, like you've seen models like Grounding Dino or Owlvit, which, you know, you can do. Even image to image or text to image based prompting to find regions of interest. And maybe maybe I can actually give an example of that even in the context of this same data.
+
+[00:30:05] Joseph Nelson: So if I wanted to try out, you know, grounding dino on this same set of images, I could try out, you know, prompting grounding dino for a set of different classes. And what's notable is let's do, I don't know, let's prompt for person and we'll prompt for person and prompt for I don't know, microphone.
+
+[00:30:26] Joseph Nelson: NLASC or microphone. Here I can text prompt the image and then the understanding, in this case Grounding Dino's understanding, of where people are in this image allows me to create, in this case, bounding boxes, but, you know, soon you can do segmentations or in tandem with SAM do segmentations. And, you know, we've already seen applications of using SAM2 in tandem with models like Grounding Dino or Florence 2.
+
+[00:30:54] Joseph Nelson: So that people can basically text prompt and then get the benefits of the zero shot segmentation at the same time as getting the open form querying. And in doing so, you know, we maintain a framework called like autodistill so like folks can very quickly, you know, bring some images and then using autodistill to find some ontology and then prompt and say what you want from that ontology.
+
+[00:31:19] Nikhila Ravi: So you already do this for video as well?
+
+[00:31:21] Joseph Nelson: You can apply videos or groups of images, yes. So this is using a project called Autodistill. And the concept of Autodistill is, use a base model, like a big base model, which could be like SAM or Grounding Dino, and then you pass a directory of images, which also could be video, broken into individual frames, and you pass an ontology as well.
+
+[00:31:43] Joseph Nelson: So an example I was just showing was like the hello world we have, which is like a shipping container. And then the combination of the grounding capabilities of, in the example I was showing, Florence 2 plus SAM, looks for the concept of container, and then SAM does the rich segmentation of turning that concept of container into the candidate proposal of the region, so that a user could just say, hey, I want all the shipping containers, run this across a bunch of images or video frames, And then get back the class wise labels plus the regions of interest.
+
+[00:32:17] Joseph Nelson: And this feels like a natural extension. And in fact, like the open form grounding capabilities between SAM1 and SAM2 became something the field was broadly doing. So I'm curious, like, from your perspective, one of the things I thought maybe SAM2 would do is actually add this capability natively. So I'm curious to hear, like, the conscious decision to say, hey, we want to continue to be class agnostic.
+
+[00:32:39] Extending SAM 2 with other models
+
+[00:32:39] Joseph Nelson: We don't want to add yet maybe open form text prompting as a part of finding the segments and parts of images. And I'd love to hear about like the decision to think about it that way. And if you are encouraged or if you want kind of like what's happening here where people are naturally combining these capabilities as something that you would expect and encourage to happen despite not having it.
+
+[00:33:00] Joseph Nelson: In the base model itself.
+
+[00:33:02] Nikhila Ravi: Yeah, it's a great question. So I think it's really cool that the community is taking SAM and taking SAM 2 and building on top of it and coming up with cool applications. We love to see that. That's exactly why we open source our work. And then in terms of why we didn't put it into SAM 2, so as you've probably seen with SAM and SAM 2, it's a fairly narrow problem.
+
+[00:33:25] Nikhila Ravi: But we really tried to make it a step change in the capability. And so with each version, we are trying to limit the focus on one thing that we can know we can do really well. And in this case, like the first SAM, it was class agnostic segmentation, but can we do it so well that it's effectively solved?
+
+[00:33:47] Nikhila Ravi: And similarly, can we do that same thing, but with Video segmentation. So one step at a time, we are working on each of these problems one at a time so that we can actually deliver something that's really world class and step changing.
+
+[00:34:03] Joseph Nelson: So does that mean SAM 3 will have the text prompting? Problem is like the next challenge.
+
+[00:34:09] Nikhila Ravi: Who knows, who knows? Maybe the community will, will we'll build that too. So
+
+[00:34:15] Joseph Nelson: it makes sense to like very narrowly do something very well. And that's, I think, proven to be well accomplished.
+
+[00:34:21] Nikhila Ravi: It's like taking the, the, both the data, the model and the demo, and how can we push all three towards solving one thing really well?
+
+[00:34:30] Nikhila Ravi: So we found that. That's like a good recipe and that's what we've limited the focus of these, of each of these models.
+
+[00:34:38] swyx: This development reminds me of how, you know, when you do, and you break out the interpretability of ConvNets and you can see like, Oh, this is the edge detection one. I feel like SAM is the edge detection version equivalent.
+
+[00:34:51] swyx: And then you build up to whatever the next feature is on top of that.
+
+[00:34:54] Limitations of SAM: Screenshots
+
+[00:34:54] Joseph Nelson: Can I bring up one? Limitation of SAM. So like we've like even SAM one, SAM two, and the monitor is released at 4 PM Pacific on Monday. We're recording this on 11 AM Pacific on, on, on Thursday. So the, it's very fresh for a lot of the capabilities and.
+
+[00:35:09] Joseph Nelson: It is so clear that it is a stepwise change in the capability that, Nikhila, you mentioned your team wants to do, which is extend SAM's zero shot class agnostic capability to video, like, A plus, kind of mission accomplished. One thing that's interesting is finding, like, domain problems where there might be still domain applicability and domain adaptation that is available.
+
+[00:35:32] Joseph Nelson: One benchmark that we introduced at CBPR is this thing called RF100, which is like, seven different domain type problems that the industry commonly is working on in vision, like underwater document processing, aerial examples, medicine examples. And one place where interestingly segment anything maybe less performant than other models is handling screenshots.
+
+[00:35:57] Joseph Nelson: For example, like a lot of folks that are building agents to interact with the web are particularly interested in that challenge of given a screenshot of a computer, what are all the buttons. And how could I autonomously navigate and prompt and tell it to click? And I can show an example of like maybe what, how like Sam kind of performs on this challenge just to outline some of the context of this problem.
+
+[00:36:23] Joseph Nelson: But I'm curious like how you think about limitations like this and what you would expect to want to be the case. So here I just have a notebook where I run Sam on the source image on the left. Or the source image on the left and then Sam output is on the right. And this is just a screenshot of, of a website where we just grab like the top 100 websites by traffic and grab screenshots from them.
+
+[00:36:42] Joseph Nelson: One example of a place where I could see the community improving on Sam, and I'm curious how you think about this challenge and maybe why Sam is less well adapted for this type of problem. Is processing screenshots. So I'll share my screen to give an example for, for viewers that are participating here, you see like an example, a screenshot of a website on the left, and then right is SAM two running on that image.
+
+[00:37:06] Joseph Nelson: And in the context of agents, folks usually want to have like, Hey, tell me all of the buttons that a, an agent could press. Tell me like maybe the headlines of the articles tell me the individual images and Sam two behaves perhaps predictably, where it outlines like people in the images and like some of like the, the screen text.
+
+[00:37:22] Joseph Nelson: I'm curious, like, how you think about a challenge like this for a model that sees everything in the world, what about handling digital contexts? And Why maybe it could perform better here and how you would expect to see improvement for domains that might have been out of distribution from the training data?
+
+[00:37:40] Nikhila Ravi: Yeah, this is a good question. So fair, we don't really build with a specific use case in mind. We try to build like these foundational models that can be applied to lots of different use cases out of the box. So I think in this kind of example, potentially people might want to annotate some data.
+
+[00:37:59] Nikhila Ravi: Fine tune on top of what we release. I think we probably won't build things that are very custom for different use cases. I think that's not a direction we'll go in, but as you said, like the model is an annotation tool to improve the model. And so I think that's definitely the approach we want to take is we provide the tools for you to improve the model as well as the model itself.
+
+[00:38:27] Joseph Nelson: That makes sense. Focus on like as many. Multi or zero shot problems and then allow the community to pick up the torch for domain adaptation.
+
+[00:38:34] Nikhila Ravi: Yeah, absolutely. Like, we can't solve all the problems ourselves. Like, we can't solve all the different domains. But if we can provide a sort of base hammer tool, and then people can apply it to all their different problems.
+
+[00:38:48] SAM 2 Paper
+
+[00:38:48] swyx: If you don't mind, I guess we want to transition to a little bit on like asking more questions about the paper.
+
+[00:38:53] Udio AI: Sure.
+
+[00:38:54] swyx: There's a lot in here. I love the transparency from Meta recently with like LLAMA 3 last week and then, and was it last week? Maybe, maybe a little bit less than last week. But just like just really, really well written and a lot of disclosures, including the data set as well.
+
+[00:39:08] SA-V Dataset and SAM Data Engine
+
+[00:39:08] swyx: I think the top question that people had on the data set, you know, you release a diverse videos and there was, there's a lot of discussion about the data engine as well, which I really love. And I think it's innovative if you wanted. I think the top question is like, how do you decide the size of data set?
+
+[00:39:22] swyx: You know, what were you constrained by? People are asking about scaling laws. You had some ablations, but as a research manager for this whole thing, like how do you decide what you need?
+
+[00:39:32] Nikhila Ravi: Yeah. I mean, it's a great question. I think it's, as with all papers, you write them at the end of the project, so we can put these nice plots at the end, but going into it, I think, you know, the data engine design really follows.
+
+[00:39:47] Nikhila Ravi: So, this is sort of the model design, how we thought about the task, how we thought of the model capabilities. You can really see it's reflected in the different phases of the data engine. We started with just SAM, we apply SAM per frame. That's like the most basic way of extending SAM to video. Then the most obvious thing to do is to take the output masks from SAM and then provide it as input into a video object segmentation model that takes the mask as the first frame input.
+
+[00:40:19] Nikhila Ravi: And that's exactly what we did. We had SAM plus a version of SAM2 that only had mask as input. And then in the last phase, we got rid of SAM entirely and just had this one unified model that can do both image. And video segmentation. And I can do everything in just one model. And we found that, you know, going from each phase, it both improved the efficiency and it improved the data quality.
+
+[00:40:46] Nikhila Ravi: And in particular, when you get rid of this two part model, one of the advantages is that when you make refinement clicks, so, You prompt the model in one frame to select an object, then you propagate those predictions to all the other frames of the video to track the object. But if the model makes a mistake and you want to correct it, when you have this unified model, you only need to provide refinement clicks.
+
+[00:41:14] Nikhila Ravi: So you can provide maybe a negative click to remove a region or a positive click to add a region. But if you had this decoupled model, you would have to Delete that frame prediction and re annotate from scratch. And so you can imagine for more complex objects, this is actually adding like a lot of extra time to redefine that object every time you want to make a correction.
+
+[00:41:39] Nikhila Ravi: So both the data and the data engine phases really follow, like how we thought about the model design and the evolution of the capabilities, because it really helped us to do that. improve the data quality and the annotation efficiency as well.
+
+[00:41:54] swyx: Yeah, you had a really nice table with like time taken to annotate and it was just going down and down.
+
+[00:41:58] swyx: I think it was like down by like 90 percent by the time you hit stage
+
+[00:42:02] Joseph Nelson: three, which is kind of cool. We joke that when SAM 1 came out at RoboFlow, we're like, was this purpose built for our software? Like you have like the embedding, you have the embedding take like a big model and the querying of the embeddings A smaller model that happens in browser, which felt remarkably aligned.
+
+[00:42:18] Joseph Nelson: Now hearing you talk about how you think about building models with a demo in mind, it makes sense. Like, you're thinking about the ways that folks downstream are going to be consuming and creating value. So, what felt like maybe a coincidence was perhaps a deliberate choice by Meta to take into account how industry is going to take Seminal advances and apply them.
+
+[00:42:36] Nikhila Ravi: Yeah. And it's not just humans. Like it could also be a model that outputs boxes that then get fed into this model. So really thinking about this as a component that could be used by a human or as a component, as part of a, of a larger AI system. And that has, you know, a number of design requirements. It needs to be promptable.
+
+[00:42:56] Nikhila Ravi: It needs to be, have the zero shot generalization capability. We, you know, need it to be real time and. Those requirements really are very core to how we think about these models.
+
+[00:43:08] Memory Attention to solve Video
+
+[00:43:08] swyx: I cannot end this podcast without talking about the architecture, because this is your, effectively the sort of research level, architecture level innovation that enabled what I've been calling object permanence for SAM.
+
+[00:43:22] swyx: And it's memory retention. What was the inspiration going into it? And you know, what did you find?
+
+[00:43:27] Nikhila Ravi: Yeah, so at a high level, the way we think about extending SAM to video is that an image is just a special case of a video that just has one frame. With that idea in mind, we can extend the SAM architecture to be able to support segmentation across videos.
+
+[00:43:45] Nikhila Ravi: So this is a quick video that shows how this works. So SAM architecture, we have the image encoder, we have a prompt encoder, we have a mask decoder. You can click on an image. And that basically is a prompt, we use that prompt along with the image embedding to make a mask prediction for that image. Going to SAM2, we can also apply SAM2 to images because we can, you know, as I said, treat an image as a video with a single frame.
+
+[00:44:15] Nikhila Ravi: And so when we, in the SAM2 architecture, we introduce this new memory mechanism that consists of three main components. There's memory attention, there's a memory encoder, and then there's a memory bank. And when we apply SAM2 to images, these are effectively not used. And the architecture just collapses down to the original SAM architecture.
+
+[00:44:35] Nikhila Ravi: But when we do apply this to video, the memory components become really useful because they provide the context of the target object from Other frames. And so this could be from past frames. It can be from, there's two types of memory. So there's like the condition, conditional frames or the prompted frames, which are basically the frames at which a user or a model provides input like clicks.
+
+[00:45:01] Nikhila Ravi: And then there's like the surrounding frames. And say we use six frames around the current frame as memory of the object. So there's, there's those, those, both those types of memory that we use to make the prediction. Going into a little bit more detail about that, there's like two kinds of memory that we use.
+
+[00:45:18] Nikhila Ravi: So one is like spatial memory. So it's like this high resolution memory that captures the spatial details. And then we also have this like longer term object pointer memory that captures some of the sort of higher level concepts. And I think Swyx, you had a comment about how does this relate to sort of context window and LLMs.
+
+[00:45:37] Nikhila Ravi: And both of these types of memories have some relation to context window, so they both provide different types of information on the spatial side or in terms of the concept of the objects that we want to track. And so we found that having like six frame length for the spatial memory, Coupled with this longer period of the object pointer memory provides strong video segmentation accuracy at high speed.
+
+[00:46:01] Nikhila Ravi: So, as I mentioned, the real time aspect is really important. We have to find this speed accuracy trade off. And one way in which we sort of circumvent this is by allowing additional prompts on subsequent frames. So even if the model makes a mistake, maybe it loses the object. After an occlusion, you can provide another prompt, which actually goes into the memory.
+
+[00:46:24] Nikhila Ravi: And so the prompted frames are always in the memory. And so if you provide a prompt on a frame, we will, or the model will always remember what you provided. And so that's a way in which we can sort of avoid some of the model failure cases that actually is a big limitation of current models, current video object segmentation models.
+
+[00:46:45] Nikhila Ravi: Don't allow any way to recover if the model makes a mistake. And so, Joseph, going back to your point about the demo, that's something that we found just by playing with these models. There's no way to make a correction, and in many real world use cases, like, it's not going to be a one time prediction, but you actually want to be able to intervene, like, if an LLM makes a mistake, you can actually be like, no, actually do it this way, and provide feedback, and so, We really want to bring some of that thinking into how we build these computer vision models as well.
+
+[00:47:16] "Context Length" in Memory Attention
+
+[00:47:16] swyx: Amazing. My main reaction to finding out about the context length of eight input frames and six pass frames as their default is why not 60? Why not 600? In text language models, we're very used to severely extending context windows. And what does that do to the memory of your model?
+
+[00:47:35] Nikhila Ravi: So I think maybe one, one thing that's different is that the object in video, it is challenging.
+
+[00:47:41] Nikhila Ravi: Objects can, you know, change in appearance. There's different lighting conditions. They can deform, but I think a difference to language models is probably the amount of context that you need is significantly less than maintaining a long multi time conversation. And so, you know, coupling this. Short term spatial memory with this, like, longer term object pointers we found was enough.
+
+[00:48:03] Nikhila Ravi: So, I think that's probably one difference between vision models and LLMs.
+
+[00:48:09] Object Tracking
+
+[00:48:09] Joseph Nelson: I think so. If one wanted to be really precise with how literature refers to object re identification, object re identification is not only what SAM does for identifying that an object is similar across frames, It's also assigning a unique ID.
+
+[00:48:25] Joseph Nelson: How do you think about models keeping track of occurrences of objects in addition to seeing that the same looking thing is present in multiple places?
+
+[00:48:37] Nikhila Ravi: Yeah, it's a good question. I think, you know, SAM2 definitely isn't perfect and there's many limitations that, you know, we'd love to see. People in the community help us address, but one definitely challenging case is where there are multiple similar looking objects, especially if that's like a crowded scene with multiple similar looking objects, keeping track of the target object is a challenge.
+
+[00:49:03] Nikhila Ravi: That's still something that I don't know if we've solved perfectly, but again, the ability to provide refinement clicks. That's one way to sort of circumvent that problem. In most cases, when there's lots of similar looking objects, if you add enough refinement clicks, you can get the perfect track throughout the video.
+
+[00:49:22] Nikhila Ravi: So definitely that's one way to, to solve that problem. You know, we could have better motion estimation. We could do other things in the model to be able to disambiguate similar looking objects more effectively.
+
+[00:49:35] swyx: I'm just interested in leaving breadcrumbs for other researchers, anyone interested in this kind of architecture.
+
+[00:49:41] swyx: Like, are there papers that you would refer people to that are influential in your thinking or, you know, have, have other interesting alternative approaches?
+
+[00:49:49] Nikhila Ravi: I think there's other ways in which you can do tracking and video. You might not even need the full mask. I think that's it. Some other works that just track like points on objects.
+
+[00:49:59] Nikhila Ravi: It really, really depends on what your application is. Like if you don't care about the entire mask, you could just track a bounding box. You could just track a point on an object. And so having the high fidelity mask might not actually be necessary for certain use cases. From that perspective, you might not need the full capabilities.
+
+[00:50:19] Nikhila Ravi: of SAM or SAM2. There's many different approaches to tracking, I think I would encourage people to think about like what actually they need for their use case and then try to find something that that fits versus, yeah, maybe SAM2 is too much, you know, maybe you don't even need the full mask.
+
+[00:50:37] swyx: Makes total sense, but you have solved the problem that you set out to solve, which is no mean feat, which is something that we're still appreciating even today.
+
+[00:50:44] The Future of FAIR
+
+[00:50:44] swyx: If there are no further questions, I would just transition to sort of forward looking, future looking stuff. Joseph already hinted at, like, you know, our interest in SAM and the future of SAM, and obviously you're the best person to ask about that. I'm also interested in, like, How should external people think about FAIR, you know, like there's this stuff going on, this llama, this chameleon, this voice box, this image bind, like, how is, how are things organized?
+
+[00:51:09] swyx: And, you know, where are things trending?
+
+[00:51:11] Nikhila Ravi: Yeah, so in FAIR, we, you know, we have a number of different research areas. I work in an area called perception. So we built vision systems that solve basically, Look at all the fundamental problems in Compute Division. Can we build a step change in all of these different capabilities?
+
+[00:51:29] Nikhila Ravi: SAM was one example. SAM2 is another example. There are tons of other problems in Compute Division where we've made a lot of progress, but can we really say that they're solved? And so that's really the area in which I work on. And then there's a number of other research areas in language and in embodied AI.
+
+[00:51:49] Nikhila Ravi: And more efficient models and various other topics. So fair in general is still very much pushing the boundaries on solving these foundational problems across different domains. Well,
+
+[00:52:07] swyx: fair enough, maybe just outside of fair, just the future of computer vision, right?
+
+[00:52:10] CVPR, Trends in Vision
+
+[00:52:10] swyx: Like you are very involved in the community. What's the talk of the town at CVPR? Both of you went, who's doing the most interesting work? It's a question for both of you.
+
+[00:52:19] Joseph Nelson: I think the trends we're seeing towards more zero shot capability for common examples will accelerate. I think Mutu modality, meaning using, you know, images in tandem with text for richer understanding or images and video in tandem with audio and other mixed media will be a continued acceleration trend.
+
+[00:52:43] Joseph Nelson: The way I kind of see the field continuing to progress, the problem statement of computer vision is making sense of visual input. And I think about the world as the things that need to be observed follow your traditional bell curve, where like things that most frequently exist out in the world are on the center of that bell curve.
+
+[00:53:05] Joseph Nelson: And then there's things that are less frequently occurring that are in those long tails. For example, you know, as back as like 2014, you have the Cocoa data set, which sets out to say, Hey, can we find 80 common objects in context, like silverware and fridge and these sorts of things. And we also conceptualized the challenge of computer vision in terms of breaking it down into individual task types, because that's like the tools we had for the day.
+
+[00:53:29] Joseph Nelson: So that's why, you know, you have the origination of classification, object detection, instant segmentation. And then as you see things continue to progress. You have models and things that need to observe areas in the long tails. And so if you think of the Cocoa dataset as the center of that bell curve, I think of like the long tails, like really edge case problems.
+
+[00:53:49] Joseph Nelson: Some of our customers like Rivian, for example, only Rivian knows what the inside of like a Rivian should look like as it's assembled and put together before it makes its way to a customer and they're making custom parts. Right? So how could a model you've been trained on the things that go inside the componentry of producing a vehicle and Andreesen, What's kind of happening with computer vision is you're seeing models that generalize in the middle of the bell curve push outward faster.
+
+[00:54:17] Joseph Nelson: That's where you see the advent of like open text models or the richness of understanding of multimodal models. To allow richer understanding without perhaps any training, or maybe just using pre training and applying it to a given problem. And then, there's like, you know, kind of like the messy middle in between those two, right?
+
+[00:54:38] Joseph Nelson: So like, Akila kind of talked about examples where SAM does well out of distribution, where like, it finds an octopus, even though there wasn't octopi in the training data. I showed an example where, like, screenshots, where Sam isn't yet super great at screenshots, so maybe that's, like, in the messy middle or in the longer tails for now.
+
+[00:54:54] Joseph Nelson: But what's going to happen is there needs to be systems of validating the point of view that I think about, like, tooling to also validate that models are doing what we want them to do, adapting to datasets that we want them to adapt to. And so there's a lot of things on a forward looking basis that allow propelling that expansion of generalizability.
+
+[00:55:14] Joseph Nelson: That's for open text problems. That's where scaling up of training, of dataset curation, continues to play a massive role. Something that's notable, I think, about SAM2 is it's, what, 57, 000 videos? 51,
+
+[00:55:30] Nikhila Ravi: 000 videos? About 51, 000, yeah.
+
+[00:55:32] Joseph Nelson: And 100, 000 internal datasets. That's, like, not Massive, right? And the model size also isn't, you know, the largest, largest model being a couple hundred million parameters.
+
+[00:55:43] Joseph Nelson: The smallest model is 38 million parameters and can run at 45 FPS on an A100, right? Like the capabilities of, we're going to see more capable, more generalizable models. Being able to run on a higher wide array of problems with zero or multi shot capability on a faster, a faster rate. And I think the architecture innovations and things like SAM2 of memory, of increasingly like transformers making their way into division and probably blended architectures increasingly too.
+
+[00:56:15] Joseph Nelson: So my viewpoint of like on a go forward basis is we will have that bell curve of what humans can see both in the center of that curve and the long tails. And architectural changes allow richer understanding, multi and zero shot, and putting those into systems and putting those into industry and putting those into contexts that allow using them in practical and pragmatic ways.
+
+[00:56:38] Joseph Nelson: Nicola, I'd love to hear like your thought and perspective of like how you think the research trends map or don't map to that. And like maybe some of the key innovations that you saw at CVPR this year that, you know, Got you excited about the direction and maybe some promising early directions that you're thinking about researching or pushing the boundaries of further.
+
+[00:56:56] Nikhila Ravi: Yeah, I just wanted to actually reply to a couple of things that you said about so actually in video object segmentation, the number of classes. that are annotated in these, and then the size of these datasets are really small. So with SAM, it's, you know, we had a billion masks, we had 11 million images, didn't have class labels.
+
+[00:57:17] Nikhila Ravi: But even before that, there were a lot of datasets that have class labels and are annotated. With significantly more with, with like a lot of class labels, whereas in video datasets, the number of class labels are very small. So there's like YouTube VOS, which has 94 object categories, there's Mose, which has around like 30 or so object categories.
+
+[00:57:38] Nikhila Ravi: And they're usually like people, there's cars, there's dogs and cats and all these common objects, but not really, they don't really cover a very large number of object categories. And so while Sam learned this general notion of what an object is in an image. These video tracking models actually don't have that knowledge at all.
+
+[00:58:01] Nikhila Ravi: And so that's why having this data set is really important for the segment anything capability in video because if you just provide the mask as the input to an off the shelf Video object segmentation model. It might not actually be able to track that arbitrary object mask as effectively as a SAM2 model that's actually trained to track.
+
+[00:58:24] Nikhila Ravi: Any object across the entire video. So doing these sort of combining two models together to try to get a capability that will actually only get you so far and being able to actually create that the dataset to enable that anything capability, it was actually really important and we can actually see that when we do comparisons with baselines where we provide some two with the same input mask and the baseline model with the same input mask.
+
+[00:58:53] Nikhila Ravi: For example, the t shirt of a person, SAM2 can track the t shirt effectively across the entire video, whereas these baselines might actually start tracking the entire person, because that's what they're used to doing, and isolating it to just one part of the person is not something they were ever trained to do, and so those are sort of some of the limitations.
+
+[00:59:13] Nikhila Ravi: Another thing is, Segmenting an image and segmenting a video frame are actually two different things. So a video frame is still an image, but there might be motion blur, or it might have lower resolution. Or there's actually, we found that when, in the SAM2 paper, we have this study of where we look at the Sam image segmentation task on images and also on frames from videos.
+
+[00:59:39] Nikhila Ravi: And we find that actually SAM2 is a lot better than SAM when it comes to segmenting objects in video frames. Because they actually have a sort of slightly different distribution than images. And so I think that's maybe one learning from this project, is like combining two models and sort of just smushing things together might not actually be as effective as if you really think about how to build things in a, in a unified way.
+
+[01:00:06] Nikhila Ravi: And then another really interesting. The point is that from the COCO dataset, the last author, Piotr Dola, he's the head of our research group. And so he's really seen the whole decade of going from COCO to going from SAM to going from to SAM2. And so that's been very interesting to have that perspective as we build these models and as we think about the type of capabilities we want to build.
+
+[01:00:32] Joseph Nelson: We hosted this challenge at CBPR when we introduced RF100. Which is kind of meant to be the anti Cocoa. So if like Cocoa is common objects in context, RF100 is like novel objects in weird contexts, like thermal data and like aerial stuff, and you know, things we were talking about earlier. And so we challenged the community as a part of, it's called OD& W with Microsoft, Object Detection in the Wild.
+
+[01:00:56] Joseph Nelson: And it's basically like how well can you create models that either work zero shot, But really kind of what you end up measuring is how well things can learn domain adaptation. Like how quickly can something be retrained or fine tuned to a given domain problem. And what's really impressive about SAM and SAM2 from what you just described is even with the limited set, the class agnostic approach affords the generalizability even to Out of distribution examples, surprisingly well, like it's, it's like remarkably robust.
+
+[01:01:28] Joseph Nelson: And so that research direction seems extremely promising.
+
+[01:01:31] Nikhila Ravi: Yeah, and actually Piotr is always telling us, like, don't care about Coco, even though he built Coco. So that's, that's always fun. And really keeping that zero shot real world use cases in mind as we build and try to do things. In as general a way as possible.
+
+[01:01:49] Calls to Action
+
+[01:01:49] swyx: Okay, I think that just leaves us to calls to action for engineers, researchers, and personal recommendations. What do you have?
+
+[01:01:56] Nikhila Ravi: Yeah, so please try out all the resources we put out. We, you know, open sourced the SAV dataset, SAM2, various SAM2 models, the paper. The demo, the dataset visualizer, please try all of these things that we've released.
+
+[01:02:13] Nikhila Ravi: And also, as I said, DSAM2 isn't perfect, there are a number of limitations. Actually, in the blog post, we go through many of these in quite a lot of detail with examples. And so, if you have any ideas of how to improve these, like, please build on top of what we've released. We would love to see some of these problems get solved.
+
+[01:02:34] Nikhila Ravi: And, You know, maybe we can incorporate them back into, to future model versions. So really cool to, you know, use them too for all your different use cases, build on top of it, improve it, and, you know, share what you've built back with us. We'd love to hear from you.
+
+[01:02:50] swyx: Lovely. We'll definitely want people to comment and share their, Buildings on SAM and SAV and all the other stuff that's going on.
+
+[01:02:58] swyx: Thank you so much for your time. This is a wonderful and obviously the incredible open source that you've given us. Joseph, thank you as well for guest hosting. It was a much better episode with you than without you. So appreciate both of you coming on in. Whenever SAM 3 is out or whatever else you guys are working on, just let us know and we'll come back on again.
+
+[01:03:16] Nikhila Ravi: Thank you. Bye.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22
