@@ -1,0 +1,341 @@
+# The Virtual Biopsy Revolution with Dr. Tanishq Mathew Abraham (Part 2 of 2)
+# URL: https://www.cognitiverevolution.ai/the-virtual-biopsy-revolution-with-dr-tanishq-mathew-abraham-part-2-of-2/
+# Date: 2023-06-22
+# source: The Cognitive Revolution
+
+Transcript
+
+Dr. Tanishq Mathew Abraham: 0:00 I'd be very excited about medical applications of AI and using AI to improve patient care. I'm excited about using AI for education, being able to learn whatever we want to learn. There may be concerns of AI being used for polarization of society, but I also think that AI could be used for bringing society together and being able to connect with each other.
+
+Nathan Labenz: 0:21 Hello, and welcome to the Cognitive Revolution, where we interview visionary researchers, entrepreneurs, and builders working on the frontier of artificial intelligence. Each week, we'll explore their revolutionary ideas and together we'll build a picture of how AI technology will transform work, life, and society in the coming years. I'm Nathan Labenz, joined by my cohost, Eric Tornburg.
+
+Hello, and welcome back to Tanishq Week on the Cognitive Revolution. Today's episode is part 2 of my conversation with Tanishq Matthew Abraham. If you missed part 1 in which Tanishq and I discuss his fMRI to image project, which uses visual cortex activity data to reconstruct images that patients saw during an fMRI scan, I highly recommend checking that out. But today's portion of the conversation is quite self contained, so you can definitely feel free to choose your own adventure.
+
+Today, we're covering the other paper that Tanishq recently published, which introduces an AI powered technique to support medical diagnosis based on clinical assessment of tissues. In practical terms, in today's world, cancer screens are often invasive, expensive, and slow. To determine whether a particular tissue contains cancerous growths, the usual workflow is to biopsy the tissue, prepare thin slices of the tissue, stain the tissue with dyes to improve visibility of key structures, and then examine the stained tissue under a microscope, a process that often takes more than 8 hours from end to end.
+
+The new technique, in contrast, is far faster and cheaper, and can even be less invasive. Using 3D image data collected with a new technology called quantitative oblique back illumination microscopy, Tanishq and coauthors were able to use a technique called CycleGAN, which interestingly was introduced in 2017, making it a relatively old approach by today's AI standards, to take this entire process down to just 1 second. A virtual slice of the 3D tissue image is virtually stained and then can be immediately examined, even in the context of ongoing surgery.
+
+While this technique is new and will of course take time to work its way into general practice, the promise of more effective surgeries based on more effective diagnosis with less unnecessary damage is clear. Again, a picture is worth 1000 words, and I definitely encourage you to follow the link in the show notes to get a sense for the raw inputs and outputs before going on to listen to this episode in full.
+
+Special thanks to Tanishq for spending 3 full hours with me for these 2 episodes, and thanks also to all of you for listening. If you're finding value in the show, I'd very much appreciate a review on Apple Podcasts, Spotify, or the platform of your choice. And with that, I hope you enjoyed part 2 of my conversation with Tanishq Matthew Abraham.
+
+You've got a second paper, and these 2 came out within 3 or 4 days of each other. Second one is called label and slide free tissue histology using 3D epimode quantitative phase imaging and virtual H&E staining. That is a mouthful, but in the end, there's one diagram in the paper that I think kind of describes the before and after extremely well. And it definitely touches on, or at least alludes to, some themes that are kind of outside of your research, but definitely still of interest to our podcast audience, which is how are things going to be done in the future? What is work going to look like? What's going to happen with jobs and all these things?
+
+So, just the kind of before and after is, how's it done today? You guys have a diagram where it's an 8 hour process for somebody to take a piece of tissue that is biopsied out of a patient, perhaps, and do these real thin slices of it. Now we plate that on a slide. Now we put these chemical reagents on them to dye them colors. That is notably a destructive process where you really can't undo that. And for a lot of them, you can't go use that tissue for something else now that it's been stained one way. It's kind of used up.
+
+So then you plate a few of these things and stain them a few different ways. Then ultimately, somebody looks at it under a microscope and looks for different indicators, and all of this adds up to diagnostic. The after, 1 second. You don't even have to, with the new method, you don't even have to slice the tissue. You instead, and I want to hear a little bit more about this, but you instead use this new 3D imaging technology that can image whole tissue. So in this sense, it's kind of similar to the voxel fMRI thing from before where it's noninvasive against a certain piece of tissue. It doesn't have to destroy it.
+
+Then you can pull up these slices from this 3D imaging. You can apply the model that you've developed, which does a virtual staining of the image to convert it to what it would look like if you actually sliced it and stained it. And then a person can look at that, or you could potentially even train a classifier model, as certainly people have done prior to this as well, to automatically process these images. And we're probably gonna need one because that sounds like a lot more of this might end up happening if you are virtually doing all these stains instead of actually slicing and manually staining.
+
+Upshot of this is, at least, I would say, probably more like 2 orders of magnitude time reduction in what it takes to get a stained image out. And that just means explosion likely of how much of this sort of imaging work and diagnostic stuff can be done. What did I miss in my high level summary before we dig into some of the details about how you made it all happen?
+
+Dr. Tanishq Mathew Abraham: 6:28 Yeah. I think at a high level, that all sounds pretty accurate to me. The other thing worth noting is this sort of 8 hour process you can imagine is very impractical for some applications. So in a typical sort of diagnostic workflow, that's used, but there are some applications where it doesn't work.
+
+For example, during surgery, which is one of the examples that we are really interested in, where a patient may undergo some sort of tumor removal surgery. So the surgeon is at the surgical site within the brain and trying to remove as much of the brain tumor as possible. And it's often useful to provide some form of guidance to the surgeon so they know, okay, this is tumor or this is not, there's no more tumor here, we're done.
+
+A similar form of, okay, we take some sort of biopsy, and then we try to image it and tell, okay, if there is still tumor, then maybe that means there's still tumor remaining in the patient as well. So there needs to be some sort of similar guidance, and this is again using a similar sort of process, but you can imagine that 8 hours is way too long to be able to do this in a surgery.
+
+So there are some alternative processes that are like 30 minutes, so that's still kind of slow, but still much better than 8 hours, but that process also provides really low quality images and very hard to interpret slides and images, so it's not ideal either. People have been developing some of these alternatives that some of them are widely used in the clinic, but they're still very difficult to interpret and hard to use.
+
+So yeah, overall, people have been developing these, what are known as slide free microscopy methods that try to speed up that process altogether and don't require all that processing like you talked about and can do the sort of imaging in just a couple minutes, or in the case of this particular technology, it's not even, it's like you can even image directly, and it could just take just a second to image.
+
+So there are very slide free microscopy technologies, but this one that has been developed is actually a very unique technology as well that is quite promising. And this was actually developed by a lab at Georgia Tech, and so this paper was in collaboration with their lab at Georgia Tech.
+
+Nathan Labenz: 8:53 And that is the QOBM, the quantitative oblique back illumination microscopy?
+
+Dr. Tanishq Mathew Abraham: 8:59 That's right. That's the slide free technology, and it's also label free. So what that means is it doesn't require the staining. So there are some slide free technologies that do utilize some form of staining.
+
+Yeah. Itself, the staining isn't necessarily destructive. The most destructive parts are the sort of processing to get down to that single slice. So that's including the sort of formalin fixation, which basically makes it so that these structures are intact. The structures stay in place, but that's still some form of, you're basically applying formalin, formaldehyde, which, of course, can be you can imagine that can also be destructive. And then there's also this embedding in paraffin wax that allows you to section it into thin slices. So all that sort of processing can be damaging to the tissue, and it can take quite some time to be able to do all that processing as well.
+
+The staining itself can be a little bit damaging, but isn't necessarily the worst part of it, I would say. You can technically if you wanted to, you could actually remove the stain in some cases, but it may not be perfect. But because of that, there are some slide free microscopy methods that don't require all of these sorts of formalin fixation, paraffin wax embedding, and all those steps, but still do require staining. So there are some technologies like that that use some sort of dyes that label for specific structures and things like this.
+
+But the unique advantage of technologies like QOBM is that it doesn't even require that. And so you can imagine that's why it's called label free. It doesn't require any sort of labels, any sort of staining, any sort of dyes. So it's called a label free technology. And because it's label free, that allows for in vivo applications. Because you can imagine if you wanted to stain something, you would actually have to remove it. You cannot apply your stain. It'd be kind of difficult to do that, and you wouldn't want to label functioning tissue in your body. I don't think that's the most ideal thing to be doing.
+
+So, instead, with a label free technology that's able to image also in a sort of slide free manner, you could also do in vivo imaging, and that's actually made more practical by the use of a handheld probe. So, the QOBM technology has been miniaturized into a handheld probe as well by this lab in Georgia Tech. So then they can use this handheld probe to, for example, image in vivo.
+
+So, yeah, there's a lot of interesting advantages of this QOBM technology, compared to even other slide free microscopy technologies that may exist out there. So that's why we really think that QOBM is a quite promising and unique technology. And then in combination with these sorts of AI tools, it can become a very powerful system for diagnostic and in the case of these sorts of surgical applications as well. So, yeah, it's very powerful, I think.
+
+Nathan Labenz: 12:02 Yeah. The vision of being, I mean, everybody has had somebody in their life who's been through one of these tumor removal surgeries, and then it's like, well, how'd it go? And, well, the doctor thinks that they got the whole thing, so that's good, right? And it's like, well, how exactly did they determine that and how confident are they on things?
+
+And it sounds like, without jumping to the conclusion that I understand the current state of the art, which I certainly don't, it sounds like there's a lot of room for improvement in terms of being able to take a probe directly into the surgical site and be like, zap. Okay. Cool. Now we got a 3D image of this, and we can virtually slice, virtually stain, virtually classify, and see, is there any more tumor if it's detected in this process? You could do that right in line.
+
+Dr. Tanishq Mathew Abraham: 12:51 Yep. That's the hope. Yes. That's the goal.
+
+Nathan Labenz: 12:55 Let's talk about then how you did it. Again, a small data regime here by comparison certainly to what folks are used to hearing about with trillions of tokens. So, yeah, tell me, so I was reading the paper, I copied down 2,358 QOBM and 1737 H&E tiles. Is that basically you have that many thousand of the new kind of image and then 1,700 of the actually stained tissue samples that correspond to it?
+
+Dr. Tanishq Mathew Abraham: 13:27 Yeah. So these are actually 512 x 512 pixel tiles. So they're very small tiles that we're working with. And, yeah, that's pretty much correct. And they're only actually coming from a few actual subjects or, in this case, we had, we started out with a rat brain model, so there were maybe a few rats that we were working with. And then again with the human, we had some human examples as well, some human specimens that we were working with, again, just from a few patients. So they're just from a few patients, and then we were able to get several images from each of these patients or subjects or whatever. But, yeah, even with all that considered, it's still a quite small dataset that we are working with here.
+
+Nathan Labenz: 14:13 So 1737 H&E tiles, that essentially corresponds to some smaller number of actual tissue samples sliced, plated, stained, imaged, and then the tiles are just little sub bits of that larger tissue sample. So a handful of tissue samples, a handful of actual things, and then just zoomed in 512 x 512 squares from those samples.
+
+Dr. Tanishq Mathew Abraham: 14:45 That's correct.
+
+Nathan Labenz: 14:46 Yes. So that's really small data.
+
+Dr. Tanishq Mathew Abraham: 14:49 Yes. Exactly. Yes. Yeah. It's not much data at all.
+
+Nathan Labenz: 14:52 Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+If you had said to me, go build something like this, my knee jerk reaction would be, alright, I need to go find how am I gonna get a 100,000,000 input output pairs. And then I'm like, well, shit, I'm gonna be cutting a lot of tissue to get there, right? Probably not feasible. Or maybe not, certainly would take a lot more effort on the actual slicing than you managed to get away with.
+
+So you use a GAN based approach, which I think folks will probably have some familiarity with. Certainly, I've seen GANs used in the image generation days before the current crop of image generators. That was kind of the way. So I think folks will maybe have passing familiarity. But how did you decide to use that approach? Was it a direct consequence of not having that much data? Or were there other factors that went into it? Where did the inspiration from the architecture come from?
+
+Nathan Labenz: 14:52 Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+If you had said to me, go build something like this, my knee jerk reaction would be, alright, I need to go find how am I going to get a 100 million input output pairs. And then I'm like, well, shit, I'm going to be cutting a lot of tissue to get there, right? Probably not feasible. Or maybe not, certainly would take a lot more effort on the actual slicer than you managed to get away with.
+
+So you use a GAN based approach, which I think folks will probably have some familiarity with. Certainly, I've seen GANs used in the image generation days before the current crop of image generators. That was kind of the way. So I think folks will maybe have passing familiarity.
+
+But how did you decide to use that approach? Was it a direct consequence of not having that much data? Or were there other factors that went into it? Where did the inspiration from the architecture come from?
+
+Dr. Tanishq Mathew Abraham: 15:57 Well, yeah, first of all, going back to the concept of data datasets, of course, just wanted to point out, with the case of these sorts of medical datasets, these biological datasets, it's of course very hard to collect a lot of specimens, as you can imagine. In the case of the rats, that means that if you wanted to collect a lot of rats, you're going to have to sacrifice a lot of rats and you have to grow the tumors in the rats and you sacrifice all those rats. It's a very long and involved process.
+
+And the same with the humans, you have to wait for enough humans to have brain tumor surgeries, and then hope there's enough excess tissue around that can be used for research purposes. It's going to be very hard to collect a lot of specimens. So it's just not feasible to do that, unless you have, I guess if you were going into a clinical trial or something. So by then, you should already have somewhat of an established method anyway.
+
+So, I mean, overall, these are the sorts of issues that you have to worry about when applying AI to medical applications is that you do have to sometimes worry about the lack of enough data. And especially if you're trying to use AI in a medical application that's using novel technology, if you had something and you want to use AI just for histology. I mean, we can get thousands of H and E slides, the regular slides that is already being used. That's not hard to get because people are already doing that in the regular process, and they're already saving those and storing them. And so if that's something that you're working with and trying to apply AI for diagnosis or something like that, for example, then you could do that.
+
+But the problem here is that we're also working with a novel technology, and we want to apply this novel technology for all these different applications. And trying to bring a novel technology into the clinic is going to be a little bit harder, and so there's a lot of different challenges around that as well. So these are the different, I guess, considerations that maybe people don't necessarily think about when it comes to applying AI to medicine and especially in this case of a novel technology.
+
+Then in specifically for these slide free microscopy systems, one of the difficult things in terms of doing this virtual staining task is the idea is that, okay, these slide free microscopy images that we get don't look like standard H and E, which is the standard images, sort of standard visualization. The H and E represents is the of hematoxylin eosin. It stands for hematoxylin eosin, which are the exact stains that are often used for this tissues for the tissue slides, and that's what you typically the doctors are typically used to seeing. And so this typically got a kind of this purple and pink color sometimes is what they, yeah, it typically has purple and pink color. That's what the doctors are used to.
+
+And so my task is to take those slide free microscopy images where they may not have any color. So in the case of the QOBM, they're grayscale images, or in some cases, they may have very different colors. So there's various different slide free microscopy technologies. Actually, in my PhD research, I was working with QOBM, but I was also working with a couple other slide free microscopy technologies as well and trying to do a similar sort of virtual staining task of converting those images to look more like standard H and E so that it can be easier to interpret.
+
+So the issue in terms of collecting data for this is when you take your slide free microscopy system and image a piece of tissue, you're imaging a fresh piece of tissue, for example. This tissue isn't processed in any way because that's the whole point of the methodology is to take a fresh piece of tissue and image it. But then in order to get your ground truth, you have to process it. So you have to do this sort of formalin fixation, embed it in paraffin, slice it into thin slices, put it on the slide, and then stain it with your stains, and then finally, you can look at it under the microscope, image it with some sort of scanner, whatever you have, and you get a final image.
+
+The problem is all that processing causes significant changes to the tissue. So the tissue that you see at the beginning isn't going to be looking exactly the same as the tissue at the end. You're going to have different changes in these sort of spatial positions, maybe changes in some of the structures, maybe a little bit different. You won't be able to get a pixel match between the original slide free microscopy image and the final HNE image. A typical process would be have your input and you have your output, you can just kind of learn to transform that. But you don't necessarily have the output that corresponds to the exact same input now. They look they're slightly different.
+
+So this is what is known as an unpaired image to image translation, because you want to translate from the slide free microscopy image, like this QOBM image, for example. You want to translate from the QOBM image to the HNE, but you don't have exact pairs of the QOBM and the HNE. So this is why it's called unpaired image to image translation.
+
+So there are a few approaches for this, the most common approach being the CycleGAN approach. So that's the GAN based approach for doing this translation. There have been some other novel approaches that have been developed in the past few years, that I've also attempted, but they haven't worked as well. CycleGAN is actually a very old approach. It's actually was developed back in maybe 2016, 2017. It's actually very old, for, you know, this, I guess for AI it's old. Maybe in other fields, it's not as old. And I think AI is one of that unique fields where if something's 6 months old, it's already ancient. So in other fields, that's not the case. It's, in the field of medicine, for example, oh, something in 2017, that's still pretty new. So, in that field, they people think, oh, CycleGAN is actually quite new technology. But in the context of AI, CycleGAN is actually quite an old method.
+
+But it seems to work really well for these tasks, and in addition, I have tried some of the newer techniques, so there have been another, there was another approach that was actually based on contrastive learning, which is kind of funny, connecting to the previous stuff that we talked about. I tried that contrastive learning approach, it didn't work as well. I've also tried diffusion model approaches, and it hasn't worked as well. So I've actually tried a few different other approaches, and maybe it's possible with those other approaches that you can maybe design appropriate loss functions or maybe change the architecture or something and get them to work better, but CycleGAN seem to work very well right out of the box and also with limited data.
+
+I'm not a 100% sure why that's the case, but that's something I've observed throughout my research is that you can actually train these models with very limited data. They don't seem to overfit. They don't seem to have any issues. They seem to generalize fairly decently. Yeah. As long as you're passing in high quality data into the models, they seem to, you can train them quite well, and they work well for these virtual sitting tasks. So, I mean, that's kind of one of the first models I've tried. Every most of the models I've tried, afterwards seem to not be as good as this baseline, and so that's why I've kind of stuck to this CycleGAN approach.
+
+So sometimes, yeah, sometimes the newest things are not always the best for at least the specific tasks that you're working with. I think there are some different properties of histology images that make them unique, and some of these newer methods make different assumptions, implicit assumptions that maybe people don't realize that they do, and those sorts of assumptions don't work well. They don't correspond well to histology images, so, some of these newer methods don't seem to work well from what I've observed, but, within our case, the CycleGAN seems to work really well, which, you know, yeah, I'm still kind of surprised that this really old technology, I mean, we thought that, oh, you know, and I thought that, oh, we'd be working with diffusion models already, but I've tried diffusion models and they haven't worked as well either, and it's kind of surprising to me.
+
+Sometimes, yeah, it's worth even exploring some of these older techniques and seeing if they still may be applicable and maybe even better in some cases, and that seems to be the case here. So, yeah.
+
+Nathan Labenz: 24:00 Yeah. So how does it help you get over the lack of unpaired images? Because at the end of this, right, your kind of end state is we now have a technology where we can use this new kind of microscopy, even that can be used during surgery on a live tissue. It does a 3D kind of imaging. Then you can take slices out of that 3D space as 2D images, and then you can kind of apply this mask, so to speak. It's almost like if I went to Playground AI and said, make this an H and E image, except with a lot more rigor and actual usefulness behind it. But that's kind of you're sort of painting it over as if it had been stained.
+
+But I'm missing the trick that the CycleGAN architecture performs that allows you to do that without having the paired images in the first place. Nathan Labenz: 24:00 Yeah. So how does it help you get over the lack of unpaired images? Because at the end of this, right, your kind of end state is we now have a technology where we can use this new kind of microscopy, even that can be used during surgery on live tissue. It does a 3D kind of imaging. Then you can take slices out of that 3D space as 2D images, and then you can kind of apply this mask, so to speak. It's almost like if I went to Playground AI and said, make this an H&E image, except with a lot more rigor and actual usefulness behind it. But that's kind of you're sort of painting it over as if it had been stained. But I'm missing the trick that the CycleGAN architecture performs that allows you to do that without having the paired images in the first place.
+
+Dr. Tanishq Mathew Abraham: 24:58 Okay. So maybe it's worth talking about GANs in general because, like you said, maybe kind of an old technology at this point. Maybe some people are less familiar with it nowadays. But basically, a GAN is this sort of dual neural network framework. So you have a generator neural network, and you have a discriminator neural network. The generator neural network is trying to produce, trying to generate your images, whatever dataset you have. It's trying to generate images that look like they came from that dataset. And then you have a discriminator neural network that tries to determine which images are real and which images are generated. So it's being passed some random image. That random image could be from the original dataset, or it could be an image that was generated by the generator neural network. And the discriminator is going to try to figure out if this is a fake image or a real image.
+
+So basically, what you're trying to do is you're actually trying to train the generator to generate images that fool this discriminator. So you're training your generator to just try to make images that are more and more realistic such that it fools the discriminator. And the discriminator is being trained to continue to try to tell the difference between the generated image and the original image. So this is sort of like back and forth that's going between the two models. The generator is trying to fool the discriminator, the discriminator is trying to determine which one is generated, and it's just kind of going back and forth. And the idea is that eventually your generator is going to keep, it's going to through this process, it's going to improve and improve and improve, and finally give you really realistic images that look like they came from the original dataset.
+
+So that's just the general idea of GAN, and this was used very frequently for all kinds of applications. It was kind of, I'd say, the first primitive form of generative AI, I would say. I mean, these were being used for things like generating faces and generating, we had all these sorts of different GAN architectures. StyleGAN was very common at the time. So this was being used quite commonly, I guess before 2020 or up to 2020 or so.
+
+So the additional thing that the CycleGAN itself provides, in addition to this general GAN framework is that the CycleGAN adds, it actually has two generators and two discriminators. So the idea is that you have one generator that is taking in the original image. So in our case, that is the QOBM image. It's taking the QOBM image and it's trying to produce the H&E image. So it's going to produce some sort of fake H&E image. And we also have a discriminator that is going to try to figure out if it's a real image, a real H&E image or a fake H&E image. It just sees the H&E image from the generator, or it sees some real H&E image. So it's trying to learn how to classify between real and fake.
+
+That signal is going to the generator, and the generator is trying to improve itself and produce more real H&E images. So it's able to produce really nice, realistic H&E images. But that doesn't mean that it has to produce H&E images that correspond to the original QOBM image. It can produce any H&E image. It doesn't matter. As long as it's real, it will fool the discriminator. As long as it looks real, it will fool the discriminator.
+
+So that's why we have an additional generator that takes in the H&E image produced by the first generator, and it produces a QOBM image. And again, we can have another discriminator that can take in that generated QOBM image, that it's classifying and makes that second generator able to now produce really realistic QOBM images. But what's unique now is that we can compare that last QOBM image to the first original QOBM image. And basically, you want those QOBM images to be the same. You have your starting input QOBM image. It's going to that first generator to produce an H&E image, then it's going to the second generator to produce a reconstructed QOBM image. And you can map those two together, do some sort of MSE loss or some sort of direct comparison of these two images now. And you can say, okay, those have to be as close as possible to each other. They should be exactly the same.
+
+And the idea now is that in order to be able to reconstruct that QOBM image at the very end, the content has to be maintained throughout the entire process. The content has to be maintained throughout the entire process, so that means the QOBM image is being converted to an intermediate H&E image, and that H&E image should hopefully now maintain the content of the original QOBM image. So now you're able to get a realistic H&E image that maintains the content of the original QOBM image, and that's what you actually want. And so that's the general idea of CycleGAN.
+
+It's not perfect. You're just kind of hoping that it does maintain the content, but it seems to work most of the case. There are some cases where people see it doesn't actually maintain the content and it actually, there are some cases where it doesn't work perfectly. I won't go too much into that, but in most cases, if you also, if you have really high quality data that you're working with, a good dataset that you're working with, it seems to work quite well.
+
+And again, so that's basically in a nutshell how CycleGAN works. It's this idea of having the cycle where you're going from QOBM to H&E back to QOBM, and now you have something that you can compare directly because it's comparing basically to itself. So it's this sort of idea, it's called cycle consistency. So that's why the CycleGAN actually stands for cycle consistent generative adversarial network. So that's why it's called CycleGAN. So that's the general idea of a CycleGAN, and it's surprisingly powerful even though I'd say it's not the most sophisticated architecture, but it works. So yeah.
+
+Nathan Labenz: 30:46 So you've ultimately got four models. Right?
+
+Dr. Tanishq Mathew Abraham: 30:51 Yes. But at the end, you only need that one first generator that's used for inference. So it's actually you do have basically three models that you actually don't necessarily use anymore afterwards. So it feels like, okay, maybe there's, yeah, it's like maybe you're using extra computation, but again, I've tried some of these other methods that seem to be simpler, only use a single model, but they don't seem to work as well. It seems to work, but it's not ideal. You do have these four models that you're training with. And then at the end you just use that first generator for your desired virtual staining task.
+
+Nathan Labenz: 31:24 Still in there, there's not a conceptual guarantee that virtual stain will have exactly the same structure or whatever. The thing that is keeping it on the rails is the fact that you're then enforcing that it must be able to be converted back. So if it was too divergent, you'd lose that ability to convert back.
+
+Dr. Tanishq Mathew Abraham: 31:44 The issue can be sometimes, so for example, I don't, it's mentioned in this paper a bit, and it's actually discussed in another paper, a workshop where I wrote for another slide free microscopy virtual staining, is that sometimes the problem basically, the idea is you want to make your task as easy as possible for the CycleGAN in order for it to be able to do this. You want it to be as easy as possible, so the easiest possible solution is basically to maintain the content. That's what it's just kind of naturally you want it to be the easiest thing to do.
+
+Because what we've seen are some examples where, again, in the case of the QOBM and for some of the other slide free microscopy images that I've worked with, you can have sometimes in the H&E, the nuclei are dark because they're labeled with this absorbent dye, known as hematoxylin, and the nuclei, the cell nuclei, kind of show up as this dark purple color. But the problem is that in QOBM, they're kind of bright in the QOBM. The cell nuclei are kind of bright, especially mostly for the tumor cell nuclei, actually. They're kind of pretty bright.
+
+So this can cause issues because the CycleGAN is confused that in the H&E, the nuclei are dark, but in the QOBM, the nuclei are bright. So it may make some sort of H&E image, but that H&E image has the dark regions in the QOBM as nuclei, but they're actually not nuclei. They're just like other parts of the cytoplasm of the cell or some other region of the cell, because the nuclei in the QOBM are actually bright. But it's able to do that whole cycle consistency because it can still know how that maps then. It has its own way of mapping that to a regular QOBM image, that incorrect H&E. It's probably better to see this visually, and we do have a figure in the paper in the supplementary material where you can actually see that really visually. It's hard to really, it's hard to describe this sort of thing, but there are some cases because there's this difference between the QOBM images and the H&E images, so you have these issues.
+
+So the solution that we take is we simply invert the QOBM image. And so now if the invert in the inverted image, the nuclei are now dark. And so now the CycleGAN is like, okay, there are dark nuclei in the QOBM. There are dark nuclei in the H&E. The simplest possible thing to do in order to make H&E images while keeping the cycle consistency and the consistency going on is just to take those dark nuclei in the QOBM and convert them to dark nuclei in the H&E. So you got to make it as simple as possible for the CycleGAN.
+
+So that was kind of one of the key insights that we had when working with the CycleGAN. It's a bit of trying to understand what's going on, the sort of psychology of these sorts of models in a way. It's like, what are the things to get this to work? So one of the things we noticed is trying to make it as simple as possible for the model. And there's different things like this that we have to play around with in order to work with the models. So actually a lot of the work that we did was on the data side, data processing, data cleaning, and it turns out there's a lot you can actually do on the data side that can really improve the quality of the models.
+
+So I think this has a lot to do with what is known as data centric AI, where it's like you're focusing on the data development rather than the model development and trying better and better models, but you try to improve your data. And I'm a huge believer of that sort of practice in terms of the data is one of the most important things you should be focusing on. You can actually get really basic models to work really well if you've got really good datasets. And so knowing how those datasets are processed by the models and how the models work with those datasets and having all that and understanding that can help you to get good results with even really basic models.
+
+Nathan Labenz: 35:32 I was interested to see that to the degree that there are any points of confusion, it seemed to be that the system was flagging things as potential tumors even when they weren't. It did not miss any of the actual tumors.
+
+Nathan Labenz: 35:32 I was interested to see that to the degree that there are any points of confusion, it seemed to be that the system was flagging things as potential tumors even when they weren't. It did not miss any of the actual tumors.
+
+Dr. Tanishq Mathew Abraham: 35:48 Yeah. It wasn't something that we explicitly designed for. So again, I think this has to do with slide-free microscopy being different from regular H&E images and how to get an exact match. So we went through the errors, the ones that it failed with, and we noticed a few common factors.
+
+One of the factors was these blood vessels. You have these small blood vessels, these capillaries. In H&E images, you don't get continuous capillaries because you have these very thin slices. It's hard to get like - the capillary is going up and down or something. You may just get if you're going, think about a 3D - if it's going a little bit up and down and you just cut a very thin slice, you're not gonna get the full, you're not gonna see the full capillary. So you just get very small segments that you'll see. So we don't see full continuous capillaries.
+
+That was one thing that we do see, though, in the QOBM because this is an intact tissue. It's not necessarily sliced. You can see more of the full capillaries. And not only that, doing some of the processing with the H&E, some of these red blood cells in these blood vessels may fall out and all sorts of issues. So basically, some of these structures are intact in the original QOBM images, but not intact in the H&E. So sometimes that confuses the CycleGAN. It doesn't know what to do with those structures. Sometimes it's able to deal with it, sometimes it's not. And in this case, we had those capillaries in those images.
+
+Another thing is that we have these what I call white matter bundles, which are specific structures in the brain, and again, they look quite different in the QOBM compared to standard H&E. Because they look different, maybe in a more intact manner, this is maybe actually how they are supposed to look like. Within an H&E with some of the processing and some of these extra steps and the staining, it looks different. The CycleGAN is getting a little bit confused about the differences between the QOBM and the H&E.
+
+So those are some of the features that we see that happen, and because of these differences between QOBM and H&E, it can be a little bit hard sometimes to map them. So sometimes, occasionally, the CycleGAN will get a little bit confused about this. So it's not necessarily ideal, but it's a very difficult problem. You have things that look different like this, and it's hard to get an exact match, so it is what it is. But it's possible that with collecting more data and different datasets, it may be possible to improve this further.
+
+Ideally, you would want no false positives and no false negatives. So there's still room for improvement, obviously. Especially if you're working with something like a brain tumor, you don't want false positives because that means that you'd be removing perfectly healthy functioning brain tissue, and that's also something you'd like to avoid potentially. There's still room to improve, but it's still quite good right now. In the future there may be better approaches, maybe larger datasets or something like this that may be able to help solve some of these issues.
+
+Nathan Labenz: 39:07 What does the training process on this look like? How compute intensive is this?
+
+Dr. Tanishq Mathew Abraham: 39:12 Yeah. It's also trained on a single A100. Each of the models are just trained on a single A100 and it takes just a few hours. It's not particularly long again. So yeah, I can just put an experiment running and after 2 or 3 hours I can come back and see. So yeah, it's again, partly because the datasets are not very large, so it takes pretty quickly to go through the datasets.
+
+But also, yeah, I mean, I tried doing these experiments earlier, even with a V100 and things like that, and of course it used to take much longer back then. So also, part of it is also now the GPUs are getting better too, so it's much faster too. But yeah, it's pretty fast and it's doable on pretty simple, pretty limited hardware compared to a lot of these larger training runs.
+
+Nathan Labenz: 40:03 What do you think is the path to this sort of thing being actually used in a clinical setting and what are the bottlenecks?
+
+Dr. Tanishq Mathew Abraham: 40:12 So, of course, there are certain potential model developments that could be made to the virtual staining. So you can try to improve that further. But also it's very important to further validate this technology. We only trained, we only played around with a few human specimens. So, for example, we only got a single human healthy image, which you can imagine, you wouldn't want to be taking out healthy tissue from a patient anyway. So there weren't many human healthy images that we could play around with.
+
+So we weren't able to validate how well the model works if it saw a healthy image, how well it would do. For the one single healthy image that we did use, it actually worked perfectly fine, even though the model was trained mostly on tumor images. That was actually kind of interesting and kind of surprising. It's like, okay, it generalizes to this healthy image, which I thought was kind of neat. But again, those are the examples of things that need to be validated more carefully.
+
+Again, we used only a subset of types of tumors. So we used these grade 2 and 3 astrocytomas, but there are various other types of brain tumors that would undergo the same sort of tumor removal surgery and would benefit from the same technology. But we didn't get a chance to image and utilize and train our models on those sorts of images and validate our technology for those sorts of tumors. So there's a lot there that just kind of scaling this up basically, getting more specimens, getting more images, training them on these different images and specimens, validating them, and just trying to do some sort of clinical trial at the end. That's gonna obviously be necessary if you wanted to actually get this into the clinic.
+
+So you would have to, yeah, there's a lot of scaling up of this research that would need to be done before you can properly validate it and have confidence that this is something that would be safe to use and accurate for clinical applications. And then in terms of the actual hardware, it's still kind of in the research stage. There is a handheld probe that has been developed, but there may need to be more work in terms of just ensuring that it's reliable and things like this. And then I guess once that's developed, again, it probably has to go through its own form of clinical validation.
+
+And the medical side of things, it can be quite intensive in terms of the sorts of testing that needs to be done in order to validate the technologies, which of course is important because you're using this in life and death scenarios, so you want to make sure it's working properly. So it would take a while for it to be able to be finally utilized in the clinic, but the eventual promise is definitely very appealing, and the eventual benefits that it could have in terms of really speeding up the workflow and improving the patient care is really exciting.
+
+One of the main takeaways for me during my entire PhD has been the importance of data, of high quality data and the focus of data-centric AI. And that's something that I think people haven't been focusing on as much. I think we're now starting to see that become a focus these days, even in the context of training large language models or some of these other fields. I know that there've been some recent papers that have talked about the importance of data filtering for training large language models and things like this. So I'm really glad to see that sort of focus of high quality data. And that's something that I've learned from my time as a PhD student and something that I will continue to focus on throughout any of these sorts of ML projects that I will work on.
+
+Yeah. I think that's the key takeaway for me. Having the most advanced models is not gonna do you any good if you don't have high quality data. My PI, my adviser liked to say garbage in, garbage out. So that's a common saying that people have. So that's, I think, a very important point to make.
+
+Nathan Labenz: 44:36 You have these affiliations with Eleuther and with Stability. Anything you would just tell us about those organizations that may not be obvious from a public viewpoint?
+
+Dr. Tanishq Mathew Abraham: 44:46 Yeah. I mean, my affiliation with Eleuther is just being part of the general research community, and I think it's definitely a very great research community in terms of focusing on that sort of open collaborative nature. And I think MedArc took a lot of inspiration from communities like Eleuther.ai, some of the other communities, Lion, ML Collective. There's so many now, lots of great open source research communities, and all those have really inspired MedArc. And now I think we're seeing that this seems to be a really promising approach for medical AI research as well. So yeah, I'm just really happy to be part of some of these communities and be involved. And yeah, that's the extent of my Eleuther AI affiliation.
+
+And then in terms of Stability AI, Stability AI, I'm a part-time employee of Stability, and they are basically supporting my work at MedArc and the research that I'm doing there. And yeah, they've been really a great support for the community, and yeah, providing compute to run all these experiments and to support this research has been really appreciated. Yeah. They've also supported my PhD as well. So they provided a fellowship for my PhD as well. So they were supporting my PhD research as well. So yeah, but yeah, there's lots of interesting research that's been going on at Stability. And so I'm really excited that I've been part of that. And yeah, I'm excited to continue the research at MedArc in these directions.
+
+I think why Stability is interested in this area is to see how these sorts of advances in generative AI that Stability AI is making and other companies and other research institutes are making, how these can be applied to medicine. And that's the focus of MedArc and the focus of my research is to see how can generative AI be applied to medical applications. Because yeah, I don't think many people realize that that's something that's even worth looking into. It's like, you think like, oh, it's AI art, how's AI art going to be any useful in medicine. What's the point of that? But it turns out these sorts of models can be used for all kinds of interesting applications in medicine. Similarly with language models, that may be a little bit more obvious why that might be useful for medicine, but it's still lots of unexplored opportunities there. So that's what we're focusing on at MedArc and really glad that Stability is supporting me to be able to do that as well and supporting the research at MedArc.
+
+Nathan Labenz: 47:32 You're not returning anything in an exclusive way to Stability. Sounds like.
+
+Dr. Tanishq Mathew Abraham: 47:36 Yeah. That's correct. There isn't anything necessarily exclusive to Stability, and they're just willing to provide their compute resources. And of course, I mean, they're providing this not just to MedArc, but to other academic research projects and all kinds of research projects. But I think also being part of Stability also enables us to take advantage of some of the research that Stability is actually doing. So there are some projects that we're working on that is able to take advantage of the stuff that Stability is working on, collaborating with Stability AI researchers. So that is also enabled by being part of Stability.
+
+But yeah, apart from that, I mean, it's just a research organization. There's nothing necessarily that Stability is gaining out of this. And again, this is something that Stability has been doing for various different academic research projects. It's possible, of course, that some of the developments that we see in the medical AI field may help out for other potential applications. We've seen this happen in the past, for example. The original UNet architecture was developed for cell segmentation, actually. That was the original application, and now we're seeing it being used for all kinds of segmentation, but also image-to-image thing, any sort of, even for diffusion. It's used in the diffusion models all the time.
+
+And then another great example is the CLIP model. So actually, the CLIP model was originally developed by Stanford for medical AI applications, but it was then scaled up by OpenAI for CLIP. So CLIP was actually, I think it was called ConVert or something like this. It was actually developed for looking at image-text representations of radiology reports and these sorts of datasets. And then I think some researchers at OpenAI discovered that and decided to scale it up. And now that's how we got CLIP.
+
+So I think there's lots of interesting opportunities in the medical AI space, because the research that comes out of that space could be utilized for other applications too. So I think this is going both ways in terms of the research in generative AI may be useful for medical AI, but it's also possible that the research in medical AI may be useful for more general AI applications as well. So this is sort of feedback that's going on there that I think is really exciting to potentially explore further. And so that's why I think that maybe some of these organizations like Stability have picked up on that and are willing to support some of this research as well.
+
+Nathan Labenz: 50:21 What do you think is the future of radiology work? Is the stuff that you're developing going to change that in a fundamental way? Is it all just a tool? Nathan Labenz: 50:21 What do you think is the future of radiology work? Is the stuff that you're developing going to change that in a fundamental way? Is it all just a tool?
+
+Dr. Tanishq Mathew Abraham: 50:33 In the short term, it definitely seems like it's just going to be a tool for various applications. There's so many ways that AI can help in medical applications and even specifically in radiology. There are various questions of how reliable AI systems are currently. I mean, we see this, of course, with systems like ChatGPT and these sorts of large language models that are known for hallucinating and having these issues. But they are still extremely useful if you use them as a starting point. So I think the question is if we can make these systems more reliable. And right now, it's unclear what the status of that is.
+
+The current systems I can see being used for various applications that still require the doctors to be in the loop. So the sort of human in the loop process. I think that's still going to be extremely valuable. I mean, the sort of general applications include just having AI systems provide some sort of diagnosis that the doctors can see that this is a potential diagnosis that the AI provided, for example. And I've seen some papers that have described the sort of combined AI doctor system as actually outperforming even the AIs themselves. So this is something that's possible because the AIs may pick up on certain things, and the doctors, based on their years of experience, may pick up on other things as well.
+
+And then in addition, I think the AIs could also be there are various applications for AI to be used in clinical education settings as well. So even using AI to better educate doctors as well is a very interesting scenario that I think will be really promising in terms of, for example, one of the interesting things that we worked on recently was the sort of fine tuning stable diffusion on chest x-rays. So using generative AI tools to generate medical images, and you can use that to, for example, train doctors on certain images. Maybe there are some images that the doctors are less familiar with. They can utilize these tools to generate some images and use that to help train them better. So there are various applications like that.
+
+One application I'm also very interested in how AI can be used would be actually discovering things that doctors didn't know were originally there in images, for example. So that's something that I think is really exciting is that there are actually a lot of interesting biomarkers that are hard for people to actually pick up on, but that information is actually there in the images. So I'm coming from this, I was working a lot in pathology, and my PhD research is microscopy and pathology, applying AI to these applications. So one of the interesting applications that I read about, that there's a lot of research in, is actually picking up on molecular biomarkers from H&E images. So these sorts of molecular signals, maybe if cells are presenting specific receptors, specific proteins, or things like this. You wouldn't think that that kind of information would be available from an image. You think that you have to actually go and do those molecular tests in order to get that information. But the cells show certain sort of different morphology and different shapes and sizes based, very minute differences, but those differences are still there that AI systems can pick up on that.
+
+So being able to use AI systems to actually pick up on information that regular humans cannot, that I think is also a very interesting application. And that's something that the AI systems can provide that information to doctors, and they can use that for clinical decision making. So overall, there's lots of interesting applications, but again, the question comes down to how reliable are these systems that can be used to supplement what's already going on and kind of maybe alleviate the burden of existing doctors. But if the systems are not reliable enough, I don't see them fully replacing the doctors. But it depends on how this research goes, and we'll see how the field goes. And it's very hard to predict the developments. I mean, I don't think any of us would have been able to predict where we would be now five years ago. So it's very hard to predict these developments, but based on what I've seen right now, this is where I see things going in the future.
+
+Nathan Labenz: 54:53 But I wonder if there was any sort of interesting elements to your early childhood education that maybe were not scalable or not very repeatable that you think AI could start to make more broadly available to more kids?
+
+Dr. Tanishq Mathew Abraham: 55:07 I mean, I think part of it is just a lot of why I was able to do what I was able to do is, of course, the availability of resources online. I think there's a lot of great online resources. I don't think this would have been possible 20, 30 years ago. And I think also, yes, part of it is people learn at different rates. And I think AI, that's something that AI could definitely help with is because, yeah, going back to what's scalable and what's not scalable is that there's this sort of assumption that everyone's learning at the same rate. That's kind of the implicit assumption of most education systems. And this is something that has caused a lot of problem for me was the idea of, may I'm, I learn at a faster rate compared to most people. And then, of course, there are people who learn maybe at a slower rate than other people.
+
+So it's like there are people learning at different rates and giving the same homogenous education for everyone doesn't make much sense. So I think that's something where AI could help with is trying to provide more personalized education for people, providing the sort of personalized education programs that meets them at the level that they are at and allows them to progress at the rate that they are comfortable with. Whether or not it's a slow rate or at a fast rate, it doesn't, it shouldn't matter. And so that's kind of, in my case, I had to do a lot of, I guess, trying to get through the system to be able to go at the rate that I was interested in going at and was comfortable with going at, so that I wasn't bored out of my mind, I guess.
+
+And so that was, I think that there's definitely some interesting potential for AI to help with that. But I also think a lot of it has to do with how much people are willing to implement those sorts of systems. It feels like that's, again, kind of a complete overhaul of the education system. It's like this idea of, oh, personalized education. You mean we're not going to just have regular classrooms or how does that work? There's lots of these sorts of things that, I think there's also that kind of societal aspect that is definitely hard to solve. So there's a lot of, again, lots of interesting AI applications. And I mean, this is true for any field. It's like there could be lots of interesting AI applications, but the sort of societal reaction and how the society implements it, that's itself kind of a different question, and something that's also worth thinking about and worth trying to solve as well.
+
+Nathan Labenz: 57:41 Neuralink just got initial approval for FDA approval for a human trial. Let's imagine a future state where they've gone through all that, they're approved, and a million people have a Neuralink device implanted. Would you be interested in getting one at that point?
+
+Dr. Tanishq Mathew Abraham: 58:03 It's a good question. In theory, this sounds like I would love to get one, but I would be more concerned about the security issues. So I guess it would, let's assuming security is not an issue, I would definitely get one. But I think it has a lot to do with I don't want people hacking my brain. So that's definitely an important concern, but yeah, I guess if as part of your hypothetical scenario, if that's not a concern, security, I would love the idea of being able to connect to, have these sorts of brain computer interfaces, being able to augment myself in that way. That sounds amazing.
+
+But so I would definitely do that if that was in the sort of hypothetical scenario. So yes. But, of course, in reality, it's a little bit more messy than that. So we'll see how this technology progresses. But yeah, I mean, it's still very interesting, and I look forward to seeing how all that kind of progresses.
+
+Nathan Labenz: 59:04 What are your big hopes for and fears for society at large as AI kind of permeates society at large and begins to touch everything?
+
+Dr. Tanishq Mathew Abraham: 59:16 Yeah. I guess let's start with fears. In terms of fears, of course, I think my fear in terms of AI and society is just maybe how much polarized our society may become because of AI. That seems to be a big concern. The concern of biases as well being made worse because of AI technology. There's a lot of concerns like this and just overall concerns of the reliability of AI tools and what kinds of dangerous circumstances that could lead to.
+
+In terms of what I'm excited about AI, I think I'm really excited, well, of course, as you can imagine, I'd be very excited about is the medical applications of AI and using AI to improve patient care. I'm really excited about all kinds of applications there. I and, of course, I'm excited about using AI for education, being able to learn whatever we want to learn. I think AI is going to be extremely valuable for that.
+
+Yeah. I mean, I think AI is, AI can be used in various different ways. And I think there may be concerns of AI being used for polarization of society, but I also think that AI could be used for bringing society together and being able to connect with each other. I mean, there's so many ways that it could be able to, I mean, it's happening even now with very primitive forms of AI. We have social networks. We have things like, for example, translation that's able to connect us with people from other cultures. There's so many forms of even primitive AI tools that are being used nowadays that are helping us connect with other people. So I'm hoping that that kind of trend continues even with the current AI tools.
+
+And I'm also really interested in how AI will help enable people's creativity, and I think we're starting to see this already with some of these AI art tools. And so I think there's lots of interesting creative applications of AI and just being able to bring ideas that people have into the real world with AI. I think that's really exciting. Of course, maybe that will soon happen with mind reading and things like this that will then immediately take it from the idea stage to something that's physical, something that's happening right in front of you. But yeah, I'm really excited about just how AI can enable people to bring their ideas and actually augment their creativity.
+
+So yeah, I think there's a lot of really interesting applications, but yeah, it's always a, it can go both ways and, it's a very nuanced topic in terms of the both the benefits and the opportunities of AI as well as the risks and concerns.
+
+Nathan Labenz: 1:02:08 Tanishq Mathew Abraham, happy twentieth birthday in just a few days, and thank you for being part of the Cognitive Revolution.
+
+Dr. Tanishq Mathew Abraham: 1:02:15 Thank you for having me. It's been really fun.
+
+ Published in:
+ Episode
+
+ Author
+
+ Nathan Labenz
+
+ View articles
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

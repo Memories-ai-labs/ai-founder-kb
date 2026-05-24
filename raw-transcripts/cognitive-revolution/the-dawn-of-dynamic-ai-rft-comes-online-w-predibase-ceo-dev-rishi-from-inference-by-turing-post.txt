@@ -1,0 +1,385 @@
+# The Dawn of Dynamic AI: RFT Comes Online, w/ Predibase CEO Dev Rishi, from Inference by Turing Post
+# URL: https://www.cognitiverevolution.ai/the-dawn-of-dynamic-ai-rft-comes-online-w-predibase-ceo-dev-rishi-from-inference-by-turing-post/
+# Date: 2025-07-16
+# source: The Cognitive Revolution
+
+Transcript
+
+Sponsor - Paige Bailey, Google DeepMind (0:00)
+
+This podcast is supported by Google. Hi, folks. Paige Bailey here from the Google DeepMind DevRel team. For our developers out there, we know there's a constant trade off between model intelligence, speed, and cost. Gemini 2.5 Flash aims right at that challenge. It's got the speed you expect from Flash but with upgraded reasoning power. And, crucially, we've added controls like setting thinking budgets so you can decide how much reasoning to apply optimizing for latency and costs. So try out Gemini 2.5 Flash at aistudio.google.com, and let us know what you built.
+
+Nathan Labenz (0:31)
+
+Hello, and welcome back to the Cognitive Revolution. Today, I'm excited to share a special crossover episode from Inference by Turing Post, featuring a conversation between host, Kasenya Seh, and Dev Rishi, CEO and cofounder of Predibase. I've really been appreciating Kasenya's work recently, both in podcast and newsletter form. She has an exceptional talent for topic selection, repeatedly covering subjects that I've been pondering and wanting to understand more deeply. And her interviewing style is something I'm sure many of you would agree that I could take a lesson from. Short, pointed questions that let the guest do most of the talking.
+
+In this episode, Kasenya and Dev tackle one of the few remaining grand challenges on the road to transformative AI: continuous learning. Or as Kasenya's original episode title puts it, when will we train once and learn forever? As we've seen in our recent episode with Ambiance Healthcare, we're already in a world where reinforcement fine tuning, aka RFT, can turn even modest datasets into dramatic performance improvements, at least on specific narrow tasks. And already, as Dev explains, some companies are beginning to close the loop, allowing the model to learn not just once from expert curated data, but on an ongoing basis from reward signals, including feedback from production users.
+
+The implications of this shift from static to dynamic models are highly uncertain, but almost certainly profound. Considering that reinforcement learning has famously delivered superhuman performance on narrow tasks from Go playing to protein folding, the upside is undeniably massive. And from an AI safety standpoint, widespread deployment of what Dev calls practical specialized intelligence might offer us a relatively stable AI future. Because by filling economic niches well and cheaply, they would leave less greenfield for AGI systems to colonize and thus partially, though not entirely, undercut the economic rationale for continued hyperscaling. For more on that line of thinking, I recommend Eric Drexler's Reframing Superintelligence.
+
+On the other hand, reinforcement learning remains unwieldy, issues of reward hacking loom large, and as we've seen from recent research like the emergent misalignment project, to which I was privileged to make a very minor contribution, out of domain behavior can be shockingly problematic. And plus, we still have precious little insight into the dynamics of a world full of continuously evolving specialist AIs.
+
+In any case, what makes this conversation particularly valuable is Dev's grounded perspective from the cutting edge of enterprise AI deployment. While so many discussions of online learning remain theoretical, Predibase has been shipping these systems to real customers in health care and finance and has real insight into what works and what challenges remain. Beyond this episode, I also recommend Kasenya's conversation with Pinecone CEO, Ito Liberty, called when will we give AI true memory. You can find that on the Turing Post YouTube channel by searching for inference by Turing Post in your favorite podcast app or by visiting the website turingpost.com, where you can also sign up for the newsletter.
+
+Now I hope you enjoy this visionary but practical preview of continuously learning AI systems with Dev Rishi of Predibase and Kasenya Seh, host of Inference by Turing Post.
+
+Dev Rishi (3:46)
+
+We aren't gonna live in a world where one model rules at all, but it's incredible at the rate of innovation that we've seen in open source. The world that I see tends to be like rather than artificial general intelligence, it's like practical, specialized intelligence. The pace here is truly that you will have a breakthrough on expectation about every week.
+
+Kasenya Seh (4:09)
+
+Hello, Dev. Thank you so much for joining me today.
+
+Dev Rishi (4:12)
+
+Of course. Happy to be here, and thanks for having me.
+
+Kasenya Seh (4:14)
+
+Well, let's start with a big picture, if you can draw me a big picture. When will we train once and learn forever?
+
+Dev Rishi (4:21)
+
+It's a great question. I think that world is actually here today. Most of the time when we see customers using models in production, they're taking a model someone else has done 99% of the heavy lifting on, and then they're doing a last mile 1% customization. The trend that I think that's going to go towards what you said, which is like train once and then learn forever, is going to be a shift though, where people stop using a static model, you know, this one model someone else trained, and instead have a pipeline that allows them to improve the model continuously while it's in production. So we've started to see some of our early customers already put these types of pipelines in practice, and that's what, you know, I'm most excited towards being able to build towards as well.
+
+Kasenya Seh (5:03)
+
+Well, that's super cool. One of the things that you - I don't know if you initiated it in Predibase - was post training technique RFT.
+
+Dev Rishi (5:13)
+
+Yes.
+
+Kasenya Seh (5:13)
+
+Can you tell us a little more about it? Do you think it's the big unlock, or is it just like another tuning trick?
+
+Dev Rishi (5:19)
+
+Yeah, that's a great question. I think we were the first end to end platform to offer reinforcement fine tuning, RFT, when we released it just about a couple of months ago.
+
+Kasenya Seh (5:28)
+
+Sorry for interrupting. If you also can briefly explain what it is for...
+
+Dev Rishi (5:34)
+
+So reinforcement fine tuning takes a different approach towards the way that you can fine tune or customize models. The real kind of underlying intuition is rather than needing large amounts of labeled data, which is what you need for traditional supervised fine tuning, you can actually do fine tuning with really small quantities of data. Think about a dozen examples or so. And you add in, instead of labeled data, this concept of reward functions.
+
+Now reward functions are essentially like rubrics that any individual customer can write that helps you grade a model's output. And the idea is that the model will learn how to be able to actually adapt its behavior towards the types of things that you wanna incentivize or reward. So as an example, if you're teaching a model how to write code, you might write a reward function that says you'll get plus 5 points if you get the formatting correct, and another 10 points if it compiles, and another 20 points if the unit test pass. In this way, you kind of teach a model how to be able to actually generate its outputs based on really kind of objective criteria. So the goal with reinforcement fine tuning is if you can measure it, you can improve it.
+
+And then I think you asked, is it a large shift that we see for the future or is it just another tool in the toolbox? I think honestly today, reinforcement fine tuning is one of a few different techniques that is really helpful for where customers can start to tune their models. But I think where we're going to go with reinforcement fine tuning is going to fundamentally shift the way that people customize models. Today, reinforcement fine tuning is a one off training process you do, but where I see RFT really going is becoming part of this continuous feedback loop where models are getting better online, and I think that is gonna be a paradigm shift in how customers are tuning and training models.
+
+Kasenya Seh (7:16)
+
+Do you see it already? Companies implementing this feedback loop?
+
+Dev Rishi (7:19)
+
+The very early end of cutting edge companies, yes. So I'm working with a couple of companies in the healthcare domain that are building co-pilots and assistants for their end patients. And what they do is they have a lot of interaction data with their end patients. And they actually are bringing right now a combination of LLMs as judges to be able to verify how good was conversation, but also clinicians that are able to actually label different conversations and bring that in as kind of continuous feedback. So rather than needing to take the months of labeling that you'd have, just starting to take the labeling that could be done over a handful of conversations and feeding that into an RFT loop. Today, it's very early, and I only see the most cutting edge companies really doing it. But this is the type of pipeline that I think more and more companies are going do as we get into more continuously improving models.
+
+Kasenya Seh (8:07)
+
+What's on the way for them to start doing it?
+
+Dev Rishi (8:10)
+
+Yeah, that's a good question. I think the biggest thing is a feature that we're working on. Yeah, there's actually two things, I think. One of them is a feature that we just launched in front of us, which is a very simple thing that allows you to be able to collect prompts and responses from any of your production deployments automatically. One of the key things with tuning and training models always tends to be data. So the very first feature that we have is one that makes it easier to construct these data sets using live production traffic.
+
+The second thing is making it easier to be able to learn from feedback. So rather than needing large amounts of labeled data, how do you directly nudge your model with small amounts of feedback? Now there's lots of techniques here in the platform like DPO, direct preference optimization and others that help you learn from feedback. But we're also working on some novel techniques that are more on the research side of Predibase today for how you can use reinforcement fine tuning with user feedback data.
+
+Kasenya Seh (9:02)
+
+Is anything coming soon?
+
+Dev Rishi (9:04)
+
+I think you can expect that we're going to be publishing a little bit more about this in the next few months. And really what we're going to be talking about is seeing what we've experienced with real life agentic applications in particular, and the type of feedback that users are looking to be able to give, how do you systemize that into a continuous stream? So the very first thing we'll release is just gonna be showing how small amounts of feedback can make performance impacts. And then you can scale out those performance impacts with the more and more feedback you get.
+
+Kasenya Seh (9:31)
+
+What's your perspective on agent workflows and agents in general?
+
+Dev Rishi (9:35)
+
+My perspective on agent workflows is that they're in the very early innings, and so a lot of things that people are building are a little bit brittle today. The very first thing we need to do when we talk about agentic workflows is really define what an agent in our agentic workflow is. I think about an agentic workflow as having two key components. The first is having a chain of multiple LLM calls. You know, if you think about a single - let's imagine you're just doing document classification. We don't think about that as an agentic workflow because it's a one shot like process. Whereas if you're having a conversation with a bot, for example, to understand your medical diagnosis a little bit better and schedule a follow-up, that involves multiple turns. So the first piece is I think it's multiple turn multi call. And then the second piece of the agentic workflow is that it will likely have the agent be able to do tool calling, make calls towards other functions that it can actually use to fulfill a request on behalf of user.
+
+My view is that right now the way that these agents get built are quite brittle. A lot of times people have built, I think, really compelling demo that works well if you are on the golden path. But if you go off the golden path, then, you know, the model is triggering a number of different care areas. It's a very simple thing. If you're only 90% accurate on a given LLM call and your LLM has to make, you know, five different calls, you're already sub 50% in terms of the user experience. So that last mile of quality with agentic applications becomes really, really important. I saw this. I was a product manager on Google Assistant back in the day, which was one of the first AI agents not using generative AI, but using more classical NLP methods. The bridge we need to make as an industry is getting to more robust agentic workflows.
+
+Kasenya Seh (11:13)
+
+Thank you. Yes, speaking about Google and your previous experience, you are a product first founder in a very heavy, research heavy space. Is it hard for you? How do you keep up? And what areas of research are you following most closely?
+
+Dev Rishi (11:28)
+
+I really enjoy it, actually. So my background was, did my undergrad and master's in computer science and had done some initial research as well in CS. Before, I like to say, I sold out and became a product manager. My real interest in product was because I saw it have kind of like the most cross functional impact. In research, you usually go very deep into an individual space, whereas in product, you get to see how a combination of research works with engineering and design. And so that was my main intent.
+
+Even when I was at Google, though, was working closely with research teams. And so I've always felt very comfortable working in areas that are fundamentally based on things that are still developing and core research that's happening. I will say this space moves much faster than anything else that we've seen. Much faster than I think when we were talking about some of the shifts to clouds, shifts to mobile. The pace here is truly that you'll have a breakthrough on expectation about every week.
+
+When we were planning our reinforcement fine tuning launch, one of the most stressful things was knowing, you know, is OpenAI or Anthropic or Mistral or DeepSeek or Google, Amazon, Meta, or they want them to put out something massive on the same week and just suck all the oxygen out of the room.
+
+So it is dizzying to be able to keep up, but I think some of the core background and research that I had helps a lot for just being able to understand some of core techniques people are employing here.
+
+Nathan Labenz (12:47)
+
+Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+Sponsor - Labelbox (12:52)
+
+AI researchers and builders who are pushing the frontier know that what's powering today's most advanced models is the highest quality training data. Whether it's for agentic tasks, complex coding and reasoning, or multimodal use cases for audio and video, the data behind the most advanced models is created with a hybrid of software automation, expert human judgment, and reinforcement learning, all working together to shape intelligent systems. And that's exactly where Labelbox comes in. As their CEO Manu Sharma told me on a recent episode. Labelbox is essentially a data factory. We are fully verticalized. We have a very vast network of domain experts and we build tools and technology to then produce these datasets. By combining powerful software with operational excellence and experts ranging from STEM PhDs to software engineers to language experts, Labelbox has established itself as a critical source of frontier data for the world's top AI labs and a partner of choice for companies seeking to maximize the performance of their task specific models. As we move closer to superintelligence, the need for human oversight, detailed evaluations, and exception handling is only growing. So visit labelbox.com to learn how their data factory can be put to work for you. And listen to my full interview with Labelbox CEO Manu Sharma for more insight into why and how companies of all sorts are investing in Frontier Training Data.
+
+Sponsor - Oracle Cloud Infrastructure (14:17)
+
+In business, they say you can have better, cheaper, or faster, but you only get to pick two. But what if you could have all three at the same time? That's exactly what Cohere, Thomson Reuters, and Specialized Bikes have since they upgraded to the next generation of the cloud, Oracle Cloud Infrastructure. OCI is the blazing fast platform for your infrastructure, database, application development, and AI needs, where you can run any workload in a high availability, consistently high performance environment, and spend less than you would with other clouds. How is it faster? OCI's block storage gives you more operations per second. Cheaper? OCI costs up to 50% less for compute, 70% less for storage, and 80% less for networking. And better? In test after test, OCI customers report lower latency and higher bandwidth versus other clouds. This is the cloud built for AI and all of your biggest workload. Right now, with zero commitment, try OCI for free. Head to oracle.com/cognitive. That's oracle.com/cognitive.
+
+Kasenya Seh (15:28)
+
+I remember working with a few ML companies before ChatGPT moment, and when it happened, so many needed to pivot. If we go back to that November, December 2022 - 2022, right, when it initially came out - right, right. It's just so fast, seems a long time ago. What changes did you have to make when everything started to just explode?
+
+Dev Rishi (15:50)
+
+It was a really interesting moment for us because when we started the company, we had a mission to democratize deep learning. And so we had built interfaces and a product and infrastructure to make it easy for people to train their own deep learning models. And then the way I like to just reflect on it is in 2022, OpenAI democratized deep learning more than any of us. And, you know, it had done it through these large pre-trained deep learning models that were able to start having conversations in one shot.
+
+The reason I say it was a really interesting position for us was that as a deep learning oriented company, we had started to see these types of workflows already be popular in our platform, but at a much smaller scale. In early 2022, the most popular piece of functionality on our platform was you could pick a pretrained deep learning model like BERT as an example, and you could fine tune that model on your data. And so the reason that people were coming to us was already because they wanted to start to adopt some of these pretrained transformers and adapt them towards their data.
+
+But the types of use cases, the user journey, and the persona just fundamentally shifted. When we were talking in 2021 and 2022, it had to be an NLP engineer, someone who understood the intricacies of, you know, of a BERT or a T5 or an image in computer vision like ViT in order to be able to really understand the platform. And fast forward to today, I think some of the most prolific AI engineers are ones that just got started in the field a year or two ago.
+
+You know, we really needed to - depending on how you think about it, I often think about it as a complete pivot, but it was a real focusing in on our product to say, rather than, like, we're gonna help you build deep learning models across the world in general, we decided to really pick and make the bet at the beginning of 2023 on just this one technology, large language models. And we decided to make the bet that the future of LLMs in production were going to be specialized and customized. So we wanted to build that tuning and post training stack to make that happen. And then what we quickly found out was inference was going to be a huge part of this game. And so we went really big in that world as well later on in the year.
+
+Kasenya Seh (17:49)
+
+So many things to unfold here, but let's start with more narrow AI. Do you think - what is the future for the companies? Is it more smaller models that will use for their specific cases? How do you think about it?
+
+Dev Rishi (18:03)
+
+Yeah. I think that, genuinely, the entire pie of AI use cases is gonna grow. So if you ask me today versus in 2027, you're going to see more use cases of every breed. The difference that I think you're gonna see is that, you know, my favorite customer quote is, generalized intelligence is great, but I don't need my point of sale system to recite French poetry. It's this idea that most customer use cases look like something like one of our customers, Checkr, does. They look through employee background checks and are looking to be able to extract out very specific information with respect to criminal codes and violations, previous things that, you know, employee backgrounds. It's not like they need the model to be able to do French poetry and write Python code. They need to be able to do a really high quality job on one particular set of task.
+
+So in enterprise, I think that the majority of use cases are gonna move and have already started to shift towards a lot of these narrow use cases that are gonna be automation oriented. Not to say that these general purpose agents where you can talk about it with anything in the company won't exist and won't be great demos, but some of the high value use cases are gonna look like being a really prescriptive specialized agent that understands how to be able to solve a series of tasks very well.
+
+And I think in enterprise, that's gonna be true. In consumer, I think it's a little bit harder to say, actually. Think the versatility is actually very helpful when it comes towards consumer. But I think regardless, one thing we've seen that wasn't obvious in 2023, but I think is obvious in 2025 is we aren't going to live in a world where one model rules it. You're going to see a mix of open source models, closed and commercial models, different size parameter ranges. And just like any software tool, people are gonna choose the best tool for their individual task. And it's like the thesis we have is the types of tasks that require narrow AI are going to grow at an even faster rate than the type of tasks that the rest of AI worlds are dominating with today.
+
+Kasenya Seh (19:50)
+
+In this crazy race, do you have a plan? How long in the future is it? 2026, 2027? What's your strategy and planning?
+
+Dev Rishi (20:00)
+
+Yeah, it's a good question. I think there's the famous quote from the boxer, and I think everyone has a plan until they get punched in the face. And that's probably true in AI as well. We absolutely have a plan that we think about extending through the end of this year and through 2026. But the truth is AI changes on a weekly basis. And so you need to be able to have a framework that allows you to make decisions as things come in more quickly.
+
+It's all guided by, like, I would say, North Star vision, which is, like, our vision is to help customers develop specialized AI and help them tune their models and serve and deploy the models. The pieces that are more dynamic is what are the best ways that people will tune their models? We're not religious to say supervised fine tuning is be all, end all. We just think it's the best technique today if you care about getting the best performance out of your models. But in a year from now, you can see a completely new technique come up. And obviously in 2025, the biggest new technique is reinforcement fine tuning, which we pioneered kind of at the beginning of this year and had kind of talked about earlier too.
+
+And so I think from our standpoint, our vision is really gonna be predicated towards two things on the goal of helping customers develop specialized AI to those models and then run highly performant model deployments in production. So that means we're gonna continue to build infrastructure and training and inference and serving. And we know the things that are gonna come out through the rest of this year, advanced techniques and how we specialize models and customize them, advanced techniques and how we run inference the better, and then expansion to modalities. We're seeing more customers ask us about things like multimodal and vision or voice today. And so we're gonna want to continue to expand that. You know, within this broader framework of tuning and serving, we'll see where the research really leads and be able to adapt that back into the platform.
+
+Kasenya Seh (21:35)
+
+Let's go to inference. Why is it so hard for the enterprises and what could make it easier?
+
+Dev Rishi (21:41)
+
+Yeah. Inference is a phenomenal example of something that starts off being very easy and then gets hard as you actually peel back the layers of the onion. Why is inference hard? It gets hard between the different stages that an organization ends up being in.
+
+Yeah. There's the crawl stage where I'd say the difficult part of inference, it's not so much needing brilliant software engineering, but it is that GPUs, for example, might be hard to get. So if you have the largest possible model, you might need 8 or 16 H100s running to just have a single replica of a model deployed, which means you're gonna have to procure them and then decide if you're able to auto scale them up or down inside of your environment. And you need to set up an initial inference server and framework. Now a number of companies, including us, have tried to make that easy by open sourcing inference frameworks and servers. So we've open sourced LoRAX, which is the underlying inference technology that we use, so that anyone can stand it up themselves.
+
+I think what I see though is if you're a smart engineer, you can set up your own inference framework and server. You can get that working, and it'll work well to, you know, start to feed your initial prototype application. What's really hard though, and what I think a lot of customers don't want to do is maintain production inference. And production inference is another ballgame. That doesn't mean that the model works and is up 95% of the time or even 99% of the time, it means it's backed by like 99.9 or 99.999% SLAs. That means you need to have resilient fall tolerance, be able to do blue green deployment updates. That means you need to be able to do multi region replication in case you have these model deployments set up. And then most critically, GPUs are expensive, which means you need to be able to optimize the models such that you're actually getting the most for every individual token that comes out. And so you're optimizing for total cost of ownership, whether that's using a small model or using some of the techniques we have in our platform like TurtleLoa, which are just software defined ways to be able to increase your model throughput by 2x.
+
+All of these factors come in when you make that shift from I'm prototyping and able to get inference going versus I'm actually going into production. And it's monitoring SLAs, high performance throughput, all the other functions that will go with the fact that this is feeding a business critical application.
+
+The last thing I'll just briefly say with inference is I think that while those are challenges, there's a view that inference is going to get increasingly commoditized as a market. And I don't disagree with this on base model inference in particular. Like there's no reason that so and so's DeepSeek endpoint is way better than another company's DeepSeek endpoint. What I think is going be really interesting is the trend towards what we kind of call internally intelligent inference. And intelligent inference, in my view, is back to that initial conversation we were having about, do you have an inference pipeline that hooks into a post training stack that lets your models get better over time?
+
+That's really the future of where we see inference going.
+
+Kasenya Seh (24:25)
+
+Yeah. It's super interesting. Intelligent inference.
+
+Dev Rishi (24:27)
+
+We'll work on the branding and marketing for that one, but, you know, it's definitely the biggest trend that we see get unlocked by having a single place you can do post training in inference.
+
+Kasenya Seh (24:35)
+
+If we speak about open source, and you are such a proponent of open source AI models, what is missing in the open source AI stack, and what are the gaps between this model zoo and the production?
+
+Dev Rishi (24:46)
+
+I think that the open source model stack has gotten pretty good for some of the core infrastructure that you need to be able to do to set up. So I think open source fine tuning frameworks like ours, Ludwig as an example, are pretty good at being able to help people start to run experiments. Open source inference frameworks like ours, like LoRAX, are pretty good at helping people do some of the initial serving. And then when you want to make the shift towards a managed platform, you have a pretty easy on ramp to a platform like Predibase that gives you the batteries included, GPUs and infrastructure out of the box.
+
+I think one of the things that is missing is a really resilient way to be able to do evaluations. This is something that has been talked about quite a bit, I think, in the LLM space, and the truth is it's a challenging problem because LLM outputs at times can be objective and at times can be quite subjective. What's to say if someone thinks it's a good summary versus if you got decent classification accuracy traditional machine learning. So I think I've seen a number of friends with a number of folks that have started frameworks or even companies in LLM evaluation, but I still think it's an open problem.
+
+Kasenya Seh (25:45)
+
+A lot of companies build their in house evaluation systems, and the leaderboard illusion showed us that crowdsourced evaluation cannot really work at this moment, right?
+
+Dev Rishi (25:57)
+
+Yeah, I see people tackle evaluation in a number of different ways. Most people I see do evaluation in house. I'll just start off by saying that. Most common thing that I see.
+
+I've seen three versions of evaluations. The first is like they rely heavily on existing data and like some proxies. So a good example is like if you're doing document classification, you look at some historical holdout data and you're able to see how did that model perform. That's the cleanest simplest way, but isn't always possible because that works for use cases where you have that historical data.
+
+The second way of seeing evaluations done is to leverage GenAI itself more heavily. And so here we see people use LLMs as a judge as the most common technique, but they start to use larger models as graders to understand this response answer the customer's question. Was this a good summary for the output that we were looking for? And so forth.
+
+And then finally, I would say that when it comes to evaluation, the third way that we see it is it sort of feels like vibes in some way, but you'll ship the product and you'll try and collect some sort of product feedback to help you understand whether or not the model was doing the directional type of behavior that you were anticipating. I think the truth is a lot of evaluation is in house, and we should not underestimate how much of it is vibes today. But getting good evaluation is going to be critical towards building this kind of continuous improvement loop.
+
+Kasenya Seh (27:14)
+
+I agree, but it's so hard, especially with the closed models, because they publish a new model, it's a new persona, and you need to develop basically a new vibe to understand it. So it's really tricky.
+
+Dev Rishi (27:27)
+
+Yeah, I think open source is helping a lot. In particular, with open source reasoning models, one of the big things was exposing the reasoning tokens themselves. That happens with, like, if you use DeepSeek R1 versus if you're using the earlier generation of reasoning models from a closed provider. You can actually start to run evaluations, not just on model output, but what were the series of steps that it was taking in order to be able to get there.
+
+Look, I think the point was actually much less obvious in 2023, but I think it's become really obvious for most companies now, which is open source is here and, like, going to be here to stay. In 2023, when we talked about the future being open source, the best open source model at the time was GPT-J. And, you know, it was a far gap from where you thought about GPT 3.5 at the time. Today, DeepSeek R1 or V3, Qwen 3, Llama 4, these models are not only on par, but many times actually in the benchmarks doing even better than, like, the leading commercial models. To me, that's actually six months ahead of schedule. I would have thought, like, 2025 would have been the earliest that we'd see open source models beat commercial models. I thought they would be on par this year, but it's incredible at the rate of innovation that we've seen in open source.
+
+Nathan Labenz (28:31)
+
+Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+Sponsor - The AGNTCY (28:35)
+
+Build the future of multi agent software with Agency, A-G-N-T-C-Y. The Agency is an open source collective building the Internet of agents. It's a collaboration layer where AI agents can discover, connect, and work across frameworks. For developers, this means standardized agent discovery tools, seamless protocols for inter agent communication, and modular components to compose and scale multi agent workflows. Join Crew AI, LangChain, Llama Index, Browserbase, Cisco, and dozens more. The agency is dropping code, specs, and services, all with no strings attached. Build with other engineers who care about high quality multi agent software.
+
+Sponsor - NetSuite by Oracle (29:27)
+
+It is an interesting time for business. Tariff and trade policies are dynamic, supply chains squeezed, and cash flow tighter than ever. If your business can't adapt in real time, you are in a world of hurt. You need total visibility from global shipments to tariff impacts to real time cash flow, And that's NetSuite by Oracle, your AI powered business management suite trusted by over 42,000 businesses. NetSuite is the number one cloud ERP for many reasons. It brings accounting, financial management, inventory, and HR altogether into one suite. That gives you one source of truth, giving you visibility and the control you need to make quick decisions. And with real time forecasting, you're peering into the future with actionable data. Plus with AI embedded throughout, you can automate a lot of those everyday tasks, letting your teams stay strategic. NetSuite helps you know what's stuck, what it's costing you, and how to pivot fast. Because in the AI era, there is nothing more important than speed of execution. It's one system, giving you full control and the ability to tame the chaos. That is NetSuite by Oracle. If your revenues are at least in the seven figures, download the free ebook, Navigating Global Trade, Three Insights for Leaders at netsuite.com/cognitive. That's netsuite.com/cognitive.
+
+Kasenya Seh (30:51)
+
+You never speak about AGI. What is your stand on that?
+
+Dev Rishi (30:56)
+
+I think AGI is something that's far from the world that I see, in honesty. The world that I see tends to be, rather than artificial general intelligence, it's practical, specialized intelligence. And so I think that AGI oftentimes think about in the research labs, folks that will come up with good definitions. If we take a definition of AGI as like, can a model pass a Turing test? I would suggest that we're probably in that ballpark already.
+
+What's the practical implication of that? I don't spend too much of my time thinking about the Terminator style scenarios, but I do spend a lot of my time thinking about what does having this generalized intelligence look like when you actually have businesses processes like a company Fortune 200 like Marshall McLennan or another organization that I mentioned earlier, Checkr, or any of these other companies that have a lot of productivity that they've unlocked via business practices over the past previous decades. And that productivity is about to take a step function change.
+
+To me, that's really kind of like the interesting area for where this is going to go. I think there's probably some deeper philosophical questions about what will happen, like over a five, ten, twenty year period. We found it pretty hard to even predict what's going to happen eighteen months from now in AI. And so I think that's really where a lot of my focus has been, is what's gonna be the practical implication on both enterprise and consumer.
+
+Kasenya Seh (32:13)
+
+That's a very nice perspective. What does concern you and excites you the most about the future that you build with Predibase?
+
+Dev Rishi (32:22)
+
+I think what concerns me - probably it really comes back actually initially to the evaluations piece. So what concerns me is people see an incredible amount of value. I see these statements from analyst reports and others from time to time, which often ask, is generative AI a bubble? Are people actually seeing real business value? I never get that question from a CIO at a Fortune 200 that's actually working on generative applications. I think when you're on the ground and you actually see what these models can do, I think that the question of is there going to be an ROI there versus the fifty cents or a dollar that the million tokens are going to cost to process, it's not even a question in the vast majority of situations. And if it is, it's really just a question of selecting the right use case.
+
+But what does concern me is we might go through a little bit of a hype bubble where people are really excited about these far fetched French poetry style use cases where the model is doing these amazing multi agent step demos. And then you enter into a little bit of a crash of disillusionment where people have gravitated and attached towards use cases that were probably not the high value business impact use cases that the models can do today.
+
+The high level thing of what concerns me is if people end up essentially going to and shooting too far ahead and not realizing the business impact that they can have with LLM use cases today, and then they enter a little bit of disillusionment out of that.
+
+I will say though, just given how quickly people have been able to iterate, I think I'm a lot less concerned about that than I was five or ten years ago. I've been in the AI space for over a decade, right? And I think that genuinely AI has probably been a place that for outside of the top one percent of organizations has over promised and under delivered between 2012 and 2022. It was an area where we talked about you're gonna have, you know, look at how YouTube does recommender systems. You can bring that to your small and medium sized business. That never really translated right.
+
+I don't think that's true for the current wave of AI that we're in right now. And, like, the thing that would concern me is if we started to adopt paradigms that make people think that way. The trend that I'm most excited about is it used to be the way in like software development that you'd sort of like perfect and then ship. Right? Like you'd go ahead and build and then you'd test, test, test. You'd do some dogfooding and then you'd go ship out your product.
+
+As a startup entrepreneur, I think a lot about how do you get really fast feedback from the market as quickly as possible. And one of my previous mentors had said, if you ship something that you're not at least a little embarrassed by, you've waited too long. And the thing that I think I'm excited about in AI is you've actually started to see a shift in how people develop too, where they're putting out, honestly, sixty percent solutions today. And the reason they're putting out sixty percent solutions is they wanna test, do I have product market fit with this solution? And then also start to collect data such that they can improve those models over time. And so I'm excited to see what this more startup way of thinking is going to mean now that it's being adopted, not just by twenty, fifty person organizations, but also some of the larger adopting GenAI.
+
+Kasenya Seh (35:16)
+
+Thank you. That's very insightful. My last question is a complete change of gears. What is a book or idea that shaped your thinking? And it can be related to machine learning or completely unrelated.
+
+Dev Rishi (35:28)
+
+Completely unrelated. I would say a book that I like is called The Happiness Advantage by Shawn Achor. And so it's a psychologist at Harvard that basically studied behavioral psychology in the context of organizations oftentimes. But what he found was it wasn't necessarily that success brought happiness in all cases. It was that happiness actually made you much more likely to be successful.
+
+The book really covered two key things. The first was how just having more positive and happy outlook allows you to be able to do better in terms of the different tasks that you're trying to do, whether it's work or personal. And the second is ways that you can sort of - I don't want to say hack happiness. That sounds very San Francisco biohacking. But the ways that you can essentially put yourself in a position to be a lot happier without having to be reliant on these external factors. I think the happiness advantage is definitely one that I think I really enjoyed kind of as an overall read and kind of an idea that also extends towards both personal and professional work.
+
+Kasenya Seh (36:22)
+
+So you think Predibase is a happy organization?
+
+Dev Rishi (36:25)
+
+I hope so. I mean, I think the, you know, the truth is if you're working in generative AI today, it's a noisy environment. It's fast moving. It's competitive. Players, including us, are well funded, which means that, you know, you have a lot of cards on the table. But I think that we and other organizations will also do, like, our best work if we're excited about the future that we're running into rather than if we're, you know, operating out of, like, for example, predominantly concern or other things like that.
+
+Kasenya Seh (36:50)
+
+Great. Thank you so much. That was wonderful.
+
+Dev Rishi (36:53)
+
+Of course. Yeah. I really enjoyed the conversation today, and thanks for, again, having us on.
+
+Nathan Labenz (37:06)
+
+If you're finding value in the show, we'd appreciate it if you'd take a moment to share it with friends, post online, write a review on Apple Podcasts or Spotify, or just leave us a comment on YouTube. Of course, we always welcome your feedback, guest and topic suggestions, and sponsorship inquiries either via our website, cognitiverevolution.ai, or by DMing me on your favorite social network. The Cognitive Revolution is part of the Turpentine Network, a network of podcasts, which is now part of a16z, where experts talk technology, business, economics, geopolitics, culture, and more. We're produced by AI Podcasting. If you're looking for podcast production help for everything from the moment you stop recording to the moment your audience starts listening, check them out and see my endorsement at aipodcast.ing. And thank you to everyone who listens for being part of the cognitive revolution.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

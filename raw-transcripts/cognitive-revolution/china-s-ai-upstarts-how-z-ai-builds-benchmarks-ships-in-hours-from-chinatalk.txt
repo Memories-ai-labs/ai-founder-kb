@@ -1,0 +1,439 @@
+# China's AI Upstarts: How Z.ai Builds, Benchmarks & Ships in Hours, from ChinaTalk
+# URL: https://www.cognitiverevolution.ai/china-s-ai-upstarts-how-z-ai-builds-benchmarks-ships-in-hours-from-chinatalk/
+# Date: 2025-12-03
+# source: The Cognitive Revolution
+
+Transcript
+
+Introduction
+
+Hello, and welcome back to the Cognitive Revolution!
+
+Today, Iâm honored to share a special cross-post from the ChinaTalk podcast, hosted by Jordan Schneider, Chinatalk analyst Irene Zhang, and Nathan Lambert of Ai2 and the Interconnects substack, featuring a conversation with Zixuan Li, Director of Product and GenAI Strategy at Z.ai, also known as Zhipu AI, about the culture, incentives, and constraints shaping Chinese AI development.  
+
+I imagine that many, even in our AI-obsessed audience, will not be familiar with Z.ai, but their model releases demonstrate that they are a significant player worthy of our attention.
+
+As of today, their latest GLM 4.6 model holds the #19 spot on the LMArena Text leaderboard.  Its Elo rating is roughly 65 points below the current leaders, which means that it still wins 2 out of 5 head-to-head comparisons with the leaders, and it happens to sit right next to Qwen 3 Max, Kimi K2 thinking, and DeepSeek's v3.2 â these 4 models, all from China, are indeed the top 4 open source models available today, though it should be noted that Mistral is not too far behind.   
+
+On the Web Development leaderboard, GLM 4.6 does even better, coming in at #9, making it competitive with GPT-5.1 and meaningfully behind only Gemini 3 and the new Claude 4.5 Opus.
+
+That said, this conversation goes far beyond benchmarks, touching on topics including:
+
+why we should understand Chinese companies' open weights strategy not so much as an ideological commitment, but a practical marketing tactic from companies seeking to gain global mindshare while recognizing that Western enterprises will never use their APIs
+
+the culturally distinct AI use cases such as "role-play" that matter in China, and how they drive different fine-tuning priorities than we typically see from Western companies. 
+
+the role that Silicon Valley thought leaders play in establishing credibility for Chinese companies, even in their home market
+
+the market for AI talent in China, and why very few people at Z.ai even know that Zixuan studied at MIT,
+
+Zixuan's view that "there is a wall" and that architectural breakthroughs are still needed
+
+The extreme velocity with which Z.ai releases models, which often involves shipping within hours of completing training
+
+What, if anything, people in China fear about the AI future,
+
+And how Chinese companies generally still view themselves not as peers or rivals with leading American AI companies, but as upstarts that are just trying to keep pace and who will be quite happy if they can secure a meaningful niche within the broader global AI market.  
+
+This is a fascinating, detail rich conversation, and regardless of your attitude on US-China competition, it's clear to me that we in the West don't hear nearly enough from the actual builders inside Chinese AI labs, so I appreciate Jordan for allowing me to cross-post this episode, and of course I encourage everyone to subscribe to Chinatalk, which is online at chinatalk.media
+
+With that, I hope you find as much value as I did in this behind-the-scenes look at frontier AI development in China, with Zixuan Li of Z.ai, from the ChinaTalk podcast.
+
+Main Episode
+
+Jordan Schneider: Zhishan Li, who studied in the US before moving back to China, works at Drupu AI or Z.AI. We're going to let him introduce himself and his role. Co-hosting today, Irene Zhang, a longtime China Talk analyst, as well as Nathan Lambert of AI2 and the Interconnect Substack. Welcome to China Talk, everyone.
+
+Nathan Lambert: So personally, I've known of Drupu AI or Z.AI for at least over a year, and I've been following the work there. And then this summer, it was like, kind of in my mind, it was like, well, there's another deepseek when they released GLM 4.5. You'll have to correct me on whether or not it was before or after the Kimi K2 model. My guess is after. And that was like this, the sequence of order of weeks or days after Kimi K2, and it's just like, wow, like, okay, there's a lot of people building great models. And it's Fun to get to learn about some of them and how it compares between US labs and Chinese labs. And I think a lot of it is more in common than different.
+
+Zixuan Li: Hi everyone, I'm Zixuan Li from ZDAI and I manage a lot of stuffs like global partnerships, ZDAI chat, model evaluation, and our API services. So if you have heard of GLM coding plan, I'm actually in charge of this thing too. Yeah, nice to meet you everyone.
+
+Irene Zhang: Yeah, this link is for introducing yourself. I'd love to hear more about how you ended up working in AI after moving back to China and CIA specifically.
+
+Zixuan Li: Yeah, actually, I applied for multiple roles and companies like Moorshot, like other Minimax, but got rejected or got neglected because there are so many resumes going to them every day. And I studied AI for science and also AI safety at MIT. So I do a lot of research on AI application and AI alignment. That's not very relevant to what we're doing right now, but actually it gave me a sense of what's going on in the frontier area. So it helped me a lot, like gaining aspects in what OpenAI and Anthropic are doing. at that time. I think it's very innovative to have this sort of idea and experience.
+
+Jordan Schneider: Was it ever a debate for you whether to stay in the US or did you always know you were going back to China after grad school?
+
+Zixuan Li: Yeah, I already know, like, I'm going back because my family's here. Yeah, but I got the job after the graduation because It's hard to get a job. I continuously apply for jobs, but finally after one month, yeah, I got an opportunity to interview with Z.ai. And at that time, I'm not in charge of the overseas department because our focus is in the domestic area, domestic chatbot. So I'm responsible for the strategy of developing a domestic Chatbot. It's called ChatGOM.
+
+Jordan Schneider: Gotcha. So maybe let's do a little bit of Drupu AI backstory. Kind of when was it founded? How would you place it within the broader landscape of folks or teams developing models in China?
+
+Zixuan Li: Great. So the Drupu and also like Z.AI was founded in 2019 and we are chasing AGI at that time, but not with LLMs, but with some graphic network or graphic compute. So we did a thing like Google Scholar and it's called A Minor. So we use that type of thing to connect all the data resources on the journals and like research papers and into a database and people can easily search and map these scholars and their contributions. So it's very popular at that time, but we shipped it to exploration of large language models in 2020, and we launched our paper, GLM, in 2021. So that's, I believe, one year ahead of the launch of GPT-3.5. So very, very early stage. And we were one of the first companies to do the exploration of large language models. And after that, we continuously improved the performance of our models, tried new architecture. GLM is a new architecture, actually, but we were going to explore more in the future. And I believe that we got famous by the launch of GLM 4.5 and also 4.6 because I think it's very capable in coding, reasoning, and agentic tool use. So yeah, that's more useful compared to the previous version. And like people may know us through clock code, kilo code, and other tools. So we need to combine with these top products. and got us famous.
+
+Jordan Schneider: Yeah. let's talk a little bit more about the evolution of GLM 3.5. Sort of, I don't know, Nathan, this is your question. Well, why am I asking this question?
+
+Nathan Lambert: Well, it's like, okay, what does it take to transition from the models that you were early to this to things that get international recognition? So like I have known of Z.ai at your work for years. and then it's like snap of the fingers and you're like, okay, now this model is on everybody's radar that's paying attention. And does this feel like something that was just going to happen for you overnight in developing the models or any like, what does that feel like when you go through it or how do you get to that moment? Because there's a lot of people that want to do that at their companies.
+
+Zixuan Li: Yeah, that's a very, very interesting point because in 2024, Everyone is interested in Chatbot Arena, right? Like we see GPT-4, we should see Gemini performing very well on Chatbot Arena. So that's our interest because we pay attention to end users' experience. Like when there are two answers, which one you prefer. So we did a lot of thing on that and we did perform very well on Chat Arena. So ranked maybe 6th or like 6th to 9th on Chat Arena. But in 2025, with the launch of MANA's Cloud Code, we realized that like coding and genetic stuff are more useful or they can contribute more economically and also in terms of the efficiency for people. So chat, I think we're no longer put that as our top priorities. Instead, we do more exploration on the coding side, on the agent side. So we observe the trend and we do a lot of experiments on it. Yeah, we need to follow the trend and also predict the future.
+
+Nathan Lambert: Do you feel like you're better at executing for code versus chatbot arena? Because like I like GLM 4.5 and like I think the error version and 4.6 are like extremely renowned for this. And I think like when you train these models, the process can look very similar depending on what your target is. And I'm just wondering of like, do you feel like it was a shift or is just like sometimes things work out better than others?
+
+Zixuan Li: It's a shift, actually. Yeah, we pay more attention to the coding stuff. And like on the ZWS chat, we are free, right? So nobody's paying for the chat. Yeah, people pay for cloud code use and for agentic stuff, but we just let users chat with the chatbot freely. Yeah, so that's a shift. But we need to like continuously improve the performance in like normal chat and maybe role-playing, but not our top priority.
+
+Jordan Schneider: So yeah, let's talk a little bit about the sort of the talent and the internal culture that allowed you to put out GLM 4.5. What do you think is different about, or what distinguishes Drupal AI from other labs, both in the US and China?
+
+Zixuan Li: I think the first of all, we are more collaborative, like inside the company. So everyone is working on a single target. And maybe we have some head of separate teams, like pre-trained team, a post-trained team, but they're working very closely. They just sit next to each other and working on a single target is trying to build a unified reasoning, agentic encoding model. So we have built three separate models as we have illustrated in our tech report. And we then distill these three teaching models into one single model. It's John 4.5. So that's our goal. And that's like, I believe that that's how we built GLM Formula 5 more efficiently compared to other companies. And they are super young, right? And another point is that, like you mentioned, talent. I believe that nowadays you need to do the research yourself. You need to do the training yourself as the head of the team. So you cannot let others do this stuff for you. Why is that? Because things change really fast. Like maybe during your training, there comes Squawk 4, there comes like GPT-5, anything can happen. So you need to feel the trend yourself. Like you need to combine the results from experiments, the trends, like what's going on within your competitor's team. and to feel the move yourself. It's super important. Like even our founder, he did the experiments himself. He looked at the papers. Yeah, you need to do things simultaneously, not just set goals for people and let others do the stuff for you.
+
+Nathan Lambert: Yeah, it seems very fast-paced. I think before we started recording, you were also mentioning that there's a lot of PhD students involved. I was just wondering if these are people that are actively pursuing their PhD or kind of new grads or a mix of all of them. Because I think that I work at a research institute, which is very open source, and we have a lot of full-time students that are part of it. But where you look at other closed labs in the US, there's not nearly as much intermingling with the academic institutions. And I think that could be a really powerful thing if you have this, because there's a lot of extreme talent there. So I'm just wondering if you feel like it's a kind of open door between some academic institutions in your work?
+
+Zixuan Li: Yeah. Definitely, there are a lot of ongoing PhD students here, and I believe that they are both chasing their academia and the work of GLM simultaneously. But they can combine them together, right? If you are doing a really innovative job, like training a unified agentic encoding model, it's one of your greatest achievements ever, right? So People won't say, okay, I need to do another research and let me finish this first and then we'll go back to the GLM. Like they will try to treat GLM as their single biggest achievement. So everyone is really devoted to this stuff. And yeah, we hardly see anyone not devoting to training GLM.
+
+Jordan Schneider: Could you talk a little more broadly about the talent market? I mean, you mentioned earlier that you had to put your resume in a lot of places. What does it look like right now? What's the kind of like hierarchy and what are, you know, what are folks looking, what are, what are employers looking for and what are, and what's the talent looking for?
+
+Zixuan Li: So on the research and engineering side, I think they're looking for papers, looking for like GitHub code, looking for competitions, yeah. And also your experience on using like GPUs, right? Your experience on like training models. But for the non-technical side, they're looking for how you gonna growth the model performance, expand your branding, and also a lot of stuff. Like if you're going to be a product manager, like your vibe coding skills, your vision on this area, and also how you do the stuff yourself. Yeah, those are very, very, very important. I think it's pretty similar, but you mentioned hierarchy, right? So in terms of hierarchy, large companies choose the people first because they have more money. They can pay more, like ByDance, Alibaba. But for startups, like we need people to fight together. You need to like fight against other competitors. You need to drive yourself to finish the goals because you don't get paid that much. Like you need ambition. You truly enjoy like working with really young, talented people and try to build something like GOM. Like it seems come from nowhere. and try to beat other competitors' models.
+
+Nathan Lambert: Yeah, how big would you say the T, like the number of peoples that are actually training the model is? I think in the US it's accepted that the core researcher engineering staff normally doesn't get to be more than one to 200 people at the likes of like OpenAI or something. And then there's a lot of support around them in terms of product and distribution and stuff like this. Do you feel like this is similar or this kind of a core small research team?
+
+Zixuan Li: And it's similar, like 100 to 200 people. I think that's enough. Yeah, because you need to be focused, right? Like there are people preparing data and there are people doing the product stuff. But for the core team, you don't need that much because you need to stay focused. And these people need to be really talented. They cannot make many mistakes, right?
+
+Irene Zhang: Do you know that's different at bigger companies?
+
+Zixuan Li: I think for bigger companies, there might be different groups, right? They have like more GPUs and they can do more exploration. Like for example, like in Bytedance, they're chasing the top performers not only in text generation, but also in video generation, speech, other areas. So they can allocate the resources to multiple teams. But Inside these teams, the core members, I think, is still the same, maybe 10 to 20, and the other like 80 or 100 doing the, training stuff or data preparation.
+
+Jordan Schneider: There was a lot made in Chinese and Western media about how Deepseek, like, was biased against people who'd studied abroad. I'm curious about the any other broader dynamics you see with relation to sort of returnees versus people who did their whole education in China?
+
+Zixuan Li: I think there's no bias, like because they want the best people. And usually the interviewees, like only like stay in China, like perform the best in their interviews. Yeah, they have no bias. But maybe people coming from US or other countries just did worse in their interview. Yeah, I believe that that's not a bias because they're, I think they're judging very well. They have their standards, maybe their standards different from like what you do like around the world. But actually, I believe that that's not an issue. even inside China or inside our team is the same, same standard. Because I, like I joined Z.ai after coming back from the US, but I think nobody actually knows. And people will never ask, like, are you studying like abroad? Or like, have you ever like master degree from MIT? I believe that maybe just 10, 10 people know about this. in Z.ai. So there's no bias because people don't care.
+
+Jordan Schneider: Yeah. Let's talk a little bit about open versus closed source in Chinese model developers broadly and with Z.ai in particular. How do you think people, what's the thought process behind so many models going open source in recent years?
+
+Zixuan Li: Yeah, first I think, like maybe generally, we need to devote more to the research area. Like Lama's doing this, Quinn's doing this, and Kimi's doing this. We are also doing this. We want to contribute more to the academia and also the exploration of all possibilities. I think that's our top priority, right? But beyond that, as a Chinese company, like we need to really be open to get accepted by some companies, right? Because people will not use your API to like try your models. Maybe they deploy on fireworks, maybe they use it on rock, and maybe they download to their own chips, right? So I think it's not easy to get famous in the US states because yeah, people just don't accept your API. They need to be stored in the US. So I think it's necessary to be open right now for people to use GOM.
+
+Nathan Lambert: I mean, this is like, this is what our company does. It's like where I work, it's like I wouldn't be able to sign up for the API service of the enterprise, but like I distill for multiple Chinese models when I'm training. It's like I'm using multiple models and might come across this. So it's not, it's not surprising, but. It's good to articulate it.
+
+Zixuan Li: Yeah, we also learn from DeepSeek because we have closed source version in 2024. Like our flagship model is closed source back then. But when DeepSeek R1 launched, we realized that, oh, you can do this thing simultaneously. You can be really famous for open sourcing your model. while get some business return, like through API or other stuff or collaboration. Yeah, you need to expand the cake 1st and then take a bite of it.
+
+Jordan Schneider: Maybe taking one step back, like why is it so important for Chinese model makers to get, I don't know, famous in the US or just global adoption more broadly?
+
+Zixuan Li: Yeah, because I think there's better ecosystem for developers research still in this United States. Yeah, you need to get accepted by the top researchers or you, right? Because if we don't open source our models, we'll never have opportunity to join this conversation. Yeah, it's also important. Yeah, because we learn from X from YouTube, Reddit every day, and all the Chinese tech media is also paying attention to US, like KOLs or influencers.
+
+Jordan Schneider: This was very surprising, I think, both to Nathan and I, how kind of recursive it was, where like the Chinese media covers the models covers the Chinese models that the Americans are talking about. It's just, it's a very curious trend.
+
+Zixuan Li: Yeah, because you have like people like Andrew Karpathy and also Sam Olema, Elon Musk, they not only talk about their own models, but also what's going on there. So everyone knows. Yeah, if they post a tweet, everyone knows what's going on. What models they're picking. what preferences they have, their views on maybe CloudCo versus Kodaks, all the social media will trying to grasp their core idea immediately. So that's very important. We will also learn this from Deepseek. Yeah. Frankly speaking, we used to neglect the importance of global economy previously. because we think we need to sell our products, sell our APIs directly to Chinese enterprises. But nowadays, Chinese enterprises are still paying attention to the global brand and your global performance.
+
+Irene Zhang: Yeah, this reminded me of something I've been curious about, which is we know the conversation is recursive. We know that Chinese tech pays to call attention to what American, like Silicon Valley is looking at. But is there anything about the AI debate or discourse in China that Western media tends to miss, in your opinion? Are there any kind of issues or debates or things that people are really interested in that people in the English-speaking discourse tend to not understand?
+
+Zixuan Li: Yeah, so I just talked to a professor from Germany yesterday. And he mentioned some models that he knew people are talking about these days, like Llama, Quinn, even Mistral, but not GLM. So there are many people still missing a lot of date.
+
+Nathan Lambert: In the SF circles, more people are talking about GLM than Mistral and arguably Llama these days. So you've made a lot of progress.
+
+Zixuan Li: Yeah, we've made a lot of progress. But we track, we also track the discussion on Reddit, other social media, but we still see a lot of people talking about what is GOM? Like is it a good model? Like where it comes from? It comes from nowhere or similar stuff. Yes, still need to do a lot of things because we only have 20K followers on X. So that's That's quite a few, right? Yeah, so nobody actually get a very deeper understanding of GOM compared to other models?
+
+Nathan Lambert: I think Deepseek has like a million. It's crazy.
+
+Zixuan Li: Yeah, a million.
+
+Nathan Lambert: I like that's even big for a whole lot of American, like for that, like for a new American tech company, that would even be big. It's remarkable.
+
+Zixuan Li: Yeah, also like Mistral, Cohere, I think they get much more attention compared to Kimi and Zido AI. So we still need to do better in our branding or our engagement in the technical community.
+
+Jordan Schneider: You mentioned selling API access to Chinese companies. I don't know. Tell us a little bit about adoption in China, what the sales process is like. Do they all just have VPNs and use Claude code anyways? Like what's the, what's it like trying to, do enterprise sales in China?
+
+Zixuan Li: Yeah, so you have like 2 type of enterprises. One is the companies that can use API because there are companies that need to deploy the model on their own chips and they cannot accept sending data to other companies, even Zidoya or even Alibaba. So that's a requirement. For those companies, they require Deepseek. So they're a team like deploying Deepseek for them, not from Deepseek or any companies can deploy Deepseek, right, for them. And they usually built on top of the deepseek model with RAG, like data storage and workflows and other things. Yeah, and the other one use APIs, maybe from tech companies and like media companies. Yeah, these companies accept API because they need to standardize their workflows. So for the API company, I think they choose between the balance, the performance, and the price. So ByteDance is doing great in that area. ByteDance, I believe, dominates the API services. And also, like Quinn is still trying to sell their APIs because Quinn 3 Max is a closed source version, right? If you have, you have like heard of it. So they have open source some models, but also keep some thing cold source for selling. Like for we, have open source or fraction models. So we are always frequently asked, like, what's your service different from the open source version? Because we can deploy the open source version ourself. So we need better engineering team. We need faster decoding speed, right? So we need to do more on top of just a good model. So that might be our unique selling point. We need to do searches. We need to build our MCP. Yeah, trying to get a competitive advantage over other GLM providers.
+
+Jordan Schneider: Is that annoying?
+
+Zixuan Li: I think it's- Or fun. It's fun, it's fun, because I think it's necessary to open source your models. So how you get a bite in that case is really important. Yeah, because we have figured it out for a long time, but recently we found subscription is a good idea, a GLM coding plan, because with subscription, your users will become more sticky and Yeah, they love this area because you don't have to worry about like how one prompt consumed in your dialogue. Maybe inside cloud code, a round of interaction will consume a million tokens, but you don't have to worry about it. So we'll figure it out for our users.
+
+Nathan Lambert: Do you think you have meaningful adoption there? Because in the US market, it's like I could start using Claude, Codex, Gemini, and whatever, all for free, like some basic cursor. And that's why I was wondering, like, are people in the US actively, like, is this a growing market that you think you're going to eat into? Because I mean, Quen has one. And I might have tried them, but I think I'm always like, I have my own ChatGPT subscription. And I'm just wondering if you're like on the ground, if it feels optimistic as something that is like really shifting the needle?
+
+Zixuan Li: It's definitely very optimistic because we don't have to persuade 50 people, 50% of people doing this. Maybe you only need 5%. Yeah, but 5% is a huge market. If 5% of Cloud Code users ship their model to GLM, it's a huge market.
+
+Nathan Lambert: Yeah, and it's growing so fast.
+
+Zixuan Li: But not for Cloud, not just for Cloud Code, because we're trying new ideas like role-playing. Yeah, many, many people on set the targets are using GLM, generator AI, because we did very good in role-playing. Yeah, so we were trying to have more markets, coding markets, agenetic markets. I mean, maybe one day, like Matt is using our model.
+
+Jordan Schneider: All right, we got to take a step back and explain role-playing. What is it? How do you make a model that's good at it? What are people using it for?
+
+Zixuan Li: So before GM 4.6, for models like Geom 4.5, we are relatively weak in role-playing because we have a train on those data. So we need to create some data and let the model follow the instructions because for role-playing, like very long system prompt. If you don't train on that kind of stuff, it will forget who it is. And for that, forget all the instructions and just use his general performance to do the conversation. But for role-playing tasks, if you give them very long instructions, it will strictly follow these instructions and show more emotion or show more behavior, like following these instructions. Yeah.
+
+Jordan Schneider: So just to be clear, this is this is, you know, people having a conversation saying, you know, I'm a Japanese pirate. I'm raiding the coast of Taiwan and, you know, 1570 and I want to plan an attack to defend the fort. And but like people write out like five pages of background. And then, you know, these are chatbots, right? So you're having conversations where you're, you know, it's like playing like a text-based RPG from the 1980s, except it's AI and it just generates. All right, sorry. To be clear, I'm not sure everyone knows what role-playing means when it comes to AI.
+
+Zixuan Li: Yeah, and also, like, we try something very interesting, like Family Guy. we have our own Stewie. You just give a description of what Stewie does in history, and then you can create your own Stewie. But we perform very well in text generation, but like if we have some speech model, like we can recreate a Stewie.
+
+Jordan Schneider: Was there a specific kind of pre-training data or RL that you needed to do to get this? Or did it just all of a sudden you're like, oh, wow, like this is really good at pretending to be cartoon characters.
+
+Zixuan Li: Yeah, I believe it's mainly post-training data.
+
+Jordan Schneider: Okay. There's a big discussion of late in the US about people being worried, folks are falling in love with AI. There's this whole discussion about like AI psychosis where ChatGPT kind of like convinces people who like trusted too much to harm themselves. I'm curious, your broad sense of that type of discussion in China broadly and then internally in your firm about these sorts of questions where people are using AI to play or for emotional support.
+
+Zixuan Li: Yeah, I just read the post from OpenAI yesterday. Because they invited a lot of experts on trying to train a model that I think are not addictive. They like train data to ask ChatGPT to say it's an AI instead of us saying it's a human being. Not letting people attach to ChatGPT anymore, right? So I've read this, a bunch of people read this so we can discuss I think it's internally discussed when people find the relevant stuff. Yeah, we had the news, it's a hot topic and we can discuss. But from a broader, broader audience perspective, I think not people, not many people are looking into this. Yeah, because we are not there yet. If we have a model that can perform like GPT-5, then we can move on to remove the addiction. But still performance is not on par with these like top closed source models. We need to chase first. Yeah, because when we chase these models, we'll shift our focus on the data collection, data preparation, And sometimes the model behavior will change dramatically. So if we do some similar things on our previous model, it will be outdated in the next version. So the performance is still very, very relevant currently.
+
+Nathan Lambert: I'm guessing this is somewhere in the rundown, but like how is the, how is the balance of optimism versus fear of AI as like a long-term trajectory in your lab versus China generally, because I think there's a very big concentration in the US of people that worry deeply about the long-term potential of AI, whether it's like a powerful entity or concentration of power or other things. Like there's people that just think that this is the most important technology that has ever been invented. Like, we have to be really serious about it. Like, I'm just wondering where on this kind of spectrum you think the lab has a culture of, or if it's not really something that's debated and you're just like, we're building a useful thing and we're going to keep making it better.
+
+Zixuan Li: I think developers fear the most. Yeah, because when you use call code, when you use Codex, you get the fear very, in a very concrete way. you can do all the tasks for you, especially for junior developers. Yeah, but like for writers, for other managers, I think it's simple because we have SAS, like we have junior, we have like other technologies. technology is helping them already. So large language models like ChatGPT just another helper for them. So I cannot fear feel fear coming out from the general public, but specifically for developers. Yeah, but for developers or data analysts. So they fear the most because they try out the the new models, the new products more frequently than the general public. So they can feel the power. So if you don't use tools, because many people use Deepseek and other chatbots, but Deepseek can help you brainstorm the ideas, can help you polish your writing, can do the translation for you. But they don't believe that this work can replace them. But for developers, it's a different story.
+
+Jordan Schneider: So what are the main fears? Just people's jobs getting taken away, AI taking over the world? For the people who are worried, what are they worried about?
+
+Zixuan Li: Maybe jobs, jobs taken away.
+
+Nathan Lambert: Like those are pretty different than the US. There's definitely a huge culture. Like there's not a majority in terms of the people, but a very vocal minority that influences a lot of the thinking of like the risks of AI well beyond just job loss. Like job loss is almost an assumption for many people in the US. And that there's like added fears on top of this. And I think that's like, it's a very different media ecosystem and thought ecosystem.
+
+Zixuan Li: Yeah, I definitely know about this because I did the research.
+
+Nathan Lambert: You lived here. You lived through some of this, obviously.
+
+Zixuan Li: Everyone at MIT are talking about like how way I will change the world. Not on the positive side, but on the like negative side.
+
+Irene Zhang: Why do you think that's this? Is it that Chinese society is a little more practical or just that job loss feels more imminent or is it because it's less of a market driven economy?
+
+Zixuan Li: I believe that people just know about Deepseek, because maybe just one million people follow the latest trend, and there are a billion people do their work daily and not impacted by AI. Yeah, so the more you learn, the more fear you will have.
+
+Irene Zhang: And then what's the vibe among these younger engineers that you're talking about, like junior folks who are a little scared? I'm generally just curious what gets them into this work in the 1st place and what makes them want to work at places like ZAI.
+
+Zixuan Li: ZAI, I think we lack people. Yeah, so there's no fear about losing jobs here because we have a lot of things to do. But for other companies, especially the large enterprises, They have maybe 10,000 of people doing the similar things, like data analytics and also like backend engineering stuff. So they might think if other people are using cloud code or authentic tool, maybe they just need 50% of the people. Yes, but they can do nothing. They need to wait for their bosses or the founders to make the decision. Like what's happening at Amazon, right? So for layoffs, you can do nothing. You just wait for the results.
+
+Irene Zhang: I wanted to jump in here and also ask about translation because the models are very strong in making very contextually rich translations from Chinese to English. and the point on to social media. Could you talk a bit more about the process point now, if you know, and what's the secret sauce to translating memes?
+
+Zixuan Li: Yeah, exactly. We are doing very great in translation. And especially the translation for Chinese and English. I think we are on par with Gemini 2.5 Pro. but you mentioned memes. Memes is also one of our weapons because we just prepared the day and we understand the culture. We can even translate emoji. Yeah, for example.
+
+Irene Zhang: What does that mean? How does that work?
+
+Jordan Schneider: Yeah, because if you- You mean like 10 cent, like, 10 cent emojis to apple emojis.
+
+Zixuan Li: No, you can, if you enter a sentence talking about AI and you use a whale to replace deepseek, we might translate this back to deepseek. And if the sentence is about animals and we will translate into a whale, yeah, you understand the context.
+
+Irene Zhang: Is this because Chinese internet talk is just so cryptic?
+
+Zixuan Li: Yeah, because people are very, they're very novelty. They're naughty. They sometimes use emoji. And there's a lot of companies, including some animal names in their brand, in their logo. And we're trying to use that to replace what actually people use. And also people use abbreviation, right? So all those things need to be translated right?
+
+Jordan Schneider: I remember a few years ago, there was all this discussion like, oh, it's going to be really hard to train Chinese models to speak colloquially because all the data is behind, walled gardens and like, you can't get the Tencent. Tencent has the Tencent data. Xiaohongshu has the Xiaohongshu data. Ali has the, I mean, I don't even know what data they have. But like, is that Was that a problem for you guys doing this more kind of like colloquial internet speak or is there enough out there and you can just scrape stuff and figure it out?
+
+Zixuan Li: We need synthetic data, right? We don't have the actual data. We cannot scrape something from other WeChat user per style talk. But we know people are talking about, especially in the public area. So in the open area, we can observe what's going on. right on TikTok, on other things, we especially pay attention to their comment area because people are really naughty there in their comments. So actually, when the TikTok refugees thing happen, we benefit from it because more people or more softwares need auto translation. And we're trying to conquer some large customers. like through our translation capabilities.
+
+Jordan Schneider: Does anyone train on like a demo data?
+
+Zixuan Li: Like definitely, definitely. Yeah, all the memes we try, we're trying to collect memes from everywhere, especially for our visual model. Because like for, for, for the memes, they're always in, in the like image format. I'm trying to understand it from with our visual model. I think it's very interesting. And it's also very necessary, because if you cannot translate the comment in a very accurate way, they will not purchase your model. Unlike YouTube, because if you use YouTube's auto translation, it won't grasp the exact meaning, because people will just need to understand, oh, this English version is about this, and I can read it in Chinese, oh, 80% is enough for me. But for apps like X, Randall, Xiangshu, WeChat, you need to understand like 100% of the common area.
+
+Nathan Lambert: Is it a challenge to balance? Like, I mean, not let alone culture, but data across like you, like you're marketing to Western users as well, and you have a domestic market. Like is that a technical challenge to feel like you have to do both excellently?
+
+Zixuan Li: I think it's a challenge. But we can do very well in Chinese and English. And we're trying to explore more in French and even Hindu. So we have data on Hindu. So we can perform very well in, I believe, in 20 languages. But beyond that, we're still exploring the data, their software. So we need to register for their software to see like what people are doing out there. Yeah, sometimes it's hard to figure out. I'm trying to like learn from Gemini and GPT-5, like Why do why they do so great in translation?
+
+Jordan Schneider: Could we talk a little bit about compute? There's all these rumors. We're recording this October 29th, the evening US time. Are you excited to buy some Blackwells if they come on the market in the next few weeks?
+
+Zixuan Li: Blackwells is great because not only the chip, but also FP4, right? So FP4 can reduce a lot of cost. And yeah, we're trying to use the best we can get. Yeah, that's a strategy. I think it's pretty clear. Yeah. For the model training side, for the architecture, we use the best. For the chips, not the best, but I think like we do the best trade-off between the performance and the cost.
+
+Jordan Schneider: Do you guys train outside of China as well, or only on domestic clouds?
+
+Zixuan Li: Yeah, we do the inference from outside China. Yeah, but all the framing is going out here.
+
+Jordan Schneider: How do you feel about Huawei chips and software? Are they going to make it?
+
+Zixuan Li: Yeah, we are going to, because we have multiple models like GOM, 4.6. and the upcoming 4.6 Air and also our previous version. So we need to find the best use case for all sorts of chips, domestic chips and Nvidia chips. Yeah, we need to classify the use case because for one customer, maybe it needs like 30 tokens per second and for another customers need 80 tokens per second. so maybe for one customer or one use case, some chips are enough, and for others, we need better chips and better inference techniques.
+
+Irene Zhang: Do you try to do any API sales or just enterprise sales in general outside the US or China? Because we mentioned having a lot of languages and whatnot. Do you see the use cases coming from other places?
+
+Zixuan Li: We have two platforms. Like in South China, our platform is called Big Model. big model. It's like large language model itself. It's a simple translation, big model.cn. And we also have a z.ai. It's called api.z.ai. It's our overseas platform. So I'm actually in charge of api.z.ai. So already from all of our services are hosted in Singapore. Yeah. So actually I'm a employee of a Singaporean company.
+
+Irene Zhang: Oh, sorry, I wasn't clear. I meant, do you see much demand coming from, for ZDOT AI, coming from non-US countries, like other countries?
+
+Zixuan Li: A lot of countries, like India, Indonesia, even Norway, and also Brazil. Yeah, but it depends on who's using Reddit. Who's X, because we basically dealt with growth on X, on Reddit, maybe some on YouTube, like if people are watching these materials or videos, like they will purchase it. But we're trying to do Telegram or other things. So it might shift the proportion of our users. but India, Indonesia are huge markets. So, but there are more revenue coming from US compared to other countries because they pay more. So they buy like pro plan, MX plan instead of the light plan. So yeah, in terms of users, I think India has the most number of users, but like you as market generate 50% of overseas revenue.
+
+Nathan Lambert: Jordan, are you on the Chinese plans yet? What's your AI bill? How do we diversify this internationally? I'm on like $500 a month. It's not good.
+
+Jordan Schneider: I don't know. Just charge it to the firm. Charge it to the Allen estate, Nathan. Come on. We got to save you. Irene, what was your question earlier?
+
+Irene Zhang: Building off of what we were talking about earlier with, like, turns out walled gardens didn't matter, which is that, with whether Zero AI has any thoughts about doing AI search on the Chinese internet and what that would look like in China, where there increasingly is no unified open the internet.
+
+Zixuan Li: I think that's a challenge also for US product builders, because Google don't have a API, search API, and Bing is trying to stop its search API. So there are other third-party providers like SERP, and they basically just scrape the data, and they quickly send a request to Google and scrape the page, right? So also very challenging for builders like Perplexity and even ChatGPT. So we need to do the technical side nowadays using our own technology or trying to grasp multiple resources from different platforms. I think that's very reasonable. And there are other technologies like Manus, like they just browse the internet themselves. without using API. I think that's more doable these days when you want to see multiple resources and trying to distinguish the best use case, the best resources you need to really log into account and see the data yourself, read the page yourself, instead of just using whatever API gives you.
+
+Jordan Schneider: Nathan, maybe you want to ask some like broader research direction type stuff or whatever else is on your mind?
+
+Nathan Lambert: Where are you planning to take your models next? I think less in domain, but like how do you make models better given that everybody has limited compute and data resources and we're changing from chat to agents and it's just like, how do you, like how far out do you think or? Do you think about the very short-term problems? There's just so many directions that you can take it. I don't know.
+
+Zixuan Li: Yeah, I can give some names of the idea we are exploring right now, like on-policy training, on-policy reinforced learning, because we are quite mature in off-policy reinforcement learning. But for the on-policy learning, we still need to explore more. and also multi-agents. Yes, so when you look at the ZUI chat, it actually acts like a single agent. So one model do the search itself, comes back, and do another round of search, then come back, and it can generate slides, generate presentation, or generate a poster, things like that. But it's all performed by a single actor, the one GOM 4.6. But maybe for?
+
+Nathan Lambert: Do you think our models are like, do we think you have to change our models a lot in order to do this? Because I think like so much of 2025 has been changing the training stack away from like we are a chatbot to now we are an agent. And it's just like, what do you think we should change the most about our models given that is like, it's almost like the air model, the faster model might be more useful because you can have more of them. and things like this.
+
+Zixuan Li: So that's the reason why we need to do a very solid evaluation, because we have different product solutions. And currently, the single agent works very well on our platform. But we need to do more, to try out different ideas and see whether we can improve the speed, the performance with multi-agent architecture. and other possibilities. Because for single agents, it has better context management. Because you have the best model that can see all the contexts ahead of the current conversation and follow the instructions maybe up there. But for like multi agents, you need to compress the context for each agents and.
+
+Nathan Lambert: Or like orchestration is hard, where it's like if you have all, you give 4 agents the same context, they might all try the same thing and they might not work together well and stuff like this.
+
+Zixuan Li: Yeah, and maybe even one agent has hallucination, it will like ruin all of the research. But also like we are trying to make a longer context window and a longer effective Context window, because we all know that you said, like you, your model can do 1,000,000 contact window, but actually it just performed very well inside 60K or like 100K.
+
+Nathan Lambert: You can release whatever size of context window you want, but it's like whether or not it actually works.
+
+Zixuan Li: Yeah.
+
+Nathan Lambert: Like, do you see, like, how much, I guess another question that people... we debate a lot. It's like how much do you think it's going to be scaling the kind of transformers that we have, which is like making the long context better, like just improving the data versus if there's like fundamental walls that this is approaching. It's kind of like the low hanging fruit question. Like do you just think there's a ton to keep improving it? Is it kind of easy to find the things to do and you just don't have time?
+
+Zixuan Li: It's not easy. It's not easy. We believe it's the architecture thing. Yeah, data can improve. but it cannot like cross the wall. There is a wall. So we need to need better architecture for training data and also post training data.
+
+Nathan Lambert: Do you think you're starting to hit this wall or do you kind of see it coming already? Like is this like something you're forecasting or you're like, oh, this specific thing, like data alone is not solving it for us? Because people in the US that are training these models just don't talk about it. They're like, I don't, I can't say it. So I'm like curious. And it's like the models I train are smaller. I think our biggest model is like 30B scale. So it's like when you scale up, you start to see very different limits of what's happening.
+
+Zixuan Li: But we need to do some experiments. Like GOM is a 355 billion parameter model, right? But we cannot do experiments with this large model. Like we need to do experiments with some smaller models, maybe 9 billion parameter or 30 billion parameter. And we test our hypothesis. 90% of the time, we just failed. Because experiments, you cannot win every time. But you need to do a lot of scientific stuff to finally get the right answer. Yes, so if you're talking about whether the GMF 4.6 architecture will hit the wall, actually there's a wall, but we need to shift our focus and start from maybe a new architecture or a new framework for doing this stuff.
+
+Nathan Lambert: So it sounds like dealing with these bigger runs where I don't know, it's not necessarily barely making it, but definitely stressful for you.
+
+Zixuan Li: Yes, it's stressful, but we're going to use some engineering stuff to try to compress the text windows to make our users happy because you don't normally need that much. You don't normally need 1,000,000 tokens. Yeah. So if it cannot performs very well, you can compress the context window to 60K or like 30K to make it work.
+
+Jordan Schneider: You mentioned earlier that you guys, you all the inference, the inference is abroad, but training is at home. What's behind the rationale of that decision there?
+
+Zixuan Li: I think the rationale is very simple because we provide services to oversee customers. So I think it's a requirement to store the data overseas, right? So it's a very strict policy. for our Z.AI endpoint. Yeah, we changed that. We changed that privacy policy every month to make it stricter and more coherent to people's expectation. Yeah, but for inference, for the training, I think it's more simple because we don't have many resources. So we only have these resources and we need to utilize it.
+
+Jordan Schneider: But doing it on Nebius or AWS and Malaysia or Singapore, it's too expensive. It's too slow. You guys already have enough chips at home. What's the thinking there?
+
+Zixuan Li: I think it's not it's not very slow. It's fast because we don't we not only change the location of GPU, but also CPU. Yeah, and like database. So if they're all in Singapore, it's still very fast. But if you like have to go back from Singapore to mainland China and then go back to Singapore, it will be slow.
+
+Jordan Schneider: Okay. But on the training side, it's on the training side in particular.
+
+Zixuan Li: On the training side. I think it's very simple because we're not open AI, we're not anthropic. We don't have to like choose between Amazon, Google and their own infra. So they're doing very complicated stuff. But for us, I think we're still in the initial stage. Yeah. Don't have many like complicated structure with these large inference providers. So things just very simple here.
+
+Jordan Schneider: For now.
+
+Zixuan Li: For now, for now.
+
+Jordan Schneider: Irene or Nathan, any more training questions before Irene wraps us up?
+
+Nathan Lambert: Only sensitive questions that no one that I don't expect to have an answer to. How big is your next model? How many GPUs do you have? It's like, I don't know. It's not a real question. It's just the curiosity.
+
+Zixuan Li: So for our next generation, we are going to launch Fork on 6 Air and I don't know whether it's called, it's maybe mini, it's a 30 billion parameter model. So it becomes a lot smaller in a couple of weeks. And I think that's all for 2025. And for like 2026, we are still doing experiments. Like what I said, I'm trying to explore more, but we are doing experiments on smaller models. So they will not be put into practice in 2056, but it gives a lot of idea on how we're going to train the next generation. Yeah, we will see. So when this podcast launched, I believe we already have like 4.6 Air, 4.6 Mini, and also Vision model, the next like 4.6 Vision model.
+
+Nathan Lambert: Yeah, I guess a good question is like, how long does it take from when the model is done training to you release it? what is your thought process in getting it out fast versus like?
+
+Zixuan Li: Get it fast, get it fast, several hours. Yeah, several hours. Yeah. That's awesome. We just open source it.
+
+Nathan Lambert: I love it.
+
+Zixuan Li: So when we finish the training, we do some like evaluation. And after the evaluation, just, so we don't have some arrangements like, sending the endpoint to LM Marina or to artificial analysis and trying to let it evaluate 1st and then release the model. We don't have this and we don't have a nano banana thing that trying to make it famous before it's launched. Because we are very transparent and we believe that like if you want to open source the model, the open source itself is the biggest event.
+
+Irene Zhang: So you just want to tie it to something or anything?
+
+Zixuan Li: Yeah, because. We're trying to do some marketing thing. From my side, I want to make it longer. We want like a week for me to collaborate with inference providers, like benchmark companies, coding agents, and let everyone trial the model before it's released. But from the company's perspective, if open source is the most important thing, you need to You need only prepare for the like materials for open source. You need the benchmarks. You need maybe a tech blog. And it's very stressful for me because I need to like negotiate with multiple partners within several hours. Like we have a new model. It's coming in two hours, maybe 3 hours. Maybe you're sleeping. But this is huge. Yeah, sorry. Don't give you enough time for you to connect to the model or do the integration. But yeah, we're trying to post your tweet afterwards.
+
+Jordan Schneider: Can you talk a little bit about ours? I mean, this was, we now have America. We got our own thing, 002.
+
+Zixuan Li: What is 002?
+
+Jordan Schneider: Nathan.
+
+Nathan Lambert: Midnight to midnight with a two hour break. It's so dumb.
+
+Zixuan Li: I think hours vary a lot, even inside the company. Like someone would just leave the company at 7 P.m. Someone will never leave the company. Yeah, for me, I work 18 hours a day because I need to negotiate with like US large firm CEOs or I'm the founder of Coding Agents. I need to discuss with Fireworks, with Alan Marina, and with maybe Kilo Code, their CEOs. So I need to follow their time and do the meetings maybe at 2 A.m., 3 A.m., it's all possible. Yeah, but like 4. for our researchers or for the engineering team, I think your brains can only work maybe 8 hours a day. So if you feel tired, you need to get some rest. Yeah, I think it's impossible to ask a top researcher to work 40 hours a day because yeah, that means that you are working really not efficiently or you just, yeah. attend meetings, right? Because if you join meetings, you can join like 20 hours a day. You just sit here and listen to other people talking. But if you want to read papers and do experiments and write code, I think 8 hours is enough.
+
+Irene Zhang: It's very sensible.
+
+Nathan Lambert: My PhD advisor always said that you can do like totally change the world if you do 4 hours a day of top technical work. Just like go walk in the sun after that. You did a good job.
+
+Irene Zhang: Guess I'll ask a couple of final questions then. I've always been curious. I've always wanted to ask Chinese AI folks this because I feel like the conversation on value propositions can be really Western centric. How do you explain the kind of value of your work to Let's say like kids in high school in Beijing or your grandmother or...
+
+Zixuan Li: My work.
+
+Irene Zhang: Yeah, or ZAI's work or the industry's work. How do you explain the value of that to other people, like to kids, to older people in China?
+
+Zixuan Li: It's hard, it's hard. I can only say I do the similar thing like Deepsea. So we are just a company like Deepsea. We do the similar thing because Deepsea is so famous, everyone. in high school and even in kindergarten knows about Deepseek. For other companies, even Quinn, yeah, let's say Quinn cannot explain itself to kindergarten kids or high school students. Yeah, because you can see I'm just an alternative of Deepseek or other stuff. But for like developers, it's simple. We are like one of the best coding, LLMs, you can find, especially in China. Yeah, but for high school students, they always ask, like, we at DeepSea, like, what we're doing, so why we need you? So are you doing a similar thing, or are you better, are you faster? Like, If you, if I'm not using Deepsea, I have Doubo, I have other apps, like why do I need your app? Yeah, that's very top. So we still need to improve the model performance. I think that's the top priority. Yeah, product is the second, or your experience, the product experience is the second. Yeah, but without a solid model, nobody will try to pay attention to you because we are at the same level. Only the most famous one get all the attention.
+
+Irene Zhang: So you think the salience of AI models in generation in society came straight out deepseek and the kind of nationalism associated with that?
+
+Zixuan Li: Yeah, I think there is a hype. Yeah, they got so famous even in China. So we got unknown even here. Yeah, I believe that a lot of students in Tsinghua University haven't tried GOA or even haven't heard of this company. Yeah, because everybody read news, but not everyone like goes to this building like to visit ZOAI, right? But like deep seas all over the news and social media. So it's really tough to explain over contribution, over value, because like we said, we have a genetic model or a genetic tool use model. So what is tool? What is search? Yeah. But we're trying to do more in the future.
+
+Irene Zhang: Do you think Chinese society is starting to find AI to be more valuable or scarier to kind of assess?
+
+Zixuan Li: Valuable. Yeah. Because we are not there yet. So AI is not so strong to make people fear about it. Because there's still hallucination, still like not following the instructions. So all those issues make people feel, oh, it's still very silly for me. Or there's an agent, but it has hallucination. How can I use it? Yeah, so still a lot of issues to solve before it get more fearable or terrifying for people.
+
+Jordan Schneider: So we end every episode with a song. Does Drupu have like a theme song or what do people listen to when they code around the office?
+
+Zixuan Li: No, actually, because our founder loves running. Like he is he's a pro in marathon. Yeah.
+
+Nathan Lambert: What's his time? What is he? What is this? What's his marathon time?
+
+Zixuan Li: Marathon time like below 3 hours.
+
+Nathan Lambert: It's a solid run.
+
+Zixuan Li: The founder of Moorshot really loves Song, but like our founder doesn't have much interest into Song. So for our anniversary, we have 1/2 marathon. Yeah, to celebrate the anniversary. It's crazy.
+
+Nathan Lambert: I got to go do this. I'm going to go run the ZAI half marathon next year.
+
+Zixuan Li: So I have an intern who did Three hours and 15 minutes. It's a girl to finish the half marathon. It is crazy. I just waited for her at the finish line and she's almost dead. It's super crazy, but yeah, we need to work very long hours. So energy is very important.
+
+Jordan Schneider: I don't know if this makes you a good boss for waiting or a terrible boss for making her do it in 1st place. Those interns, man, they got to earn their slot, show their dedication.
+
+Nathan Lambert: I love it.
+
+Zixuan Li: She is, she is actually, she is actually the product manager of Z.A at chat. So she built this.
+
+Jordan Schneider: Good. She earned it. Well, after making her do the half marathon, I'm glad you guys gave her a job at the end.
+
+Zixuan Li: She ate 2 hamburgers after that.
+
+Jordan Schneider: Okay, good. All right. Well, this was really fun. Thank you so much for joining the show.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark
