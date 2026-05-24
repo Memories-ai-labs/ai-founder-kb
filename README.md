@@ -100,6 +100,16 @@ Start with these two folders:
 
 ---
 
+
+
+### 🎙 20VC Podcast — Full Archive (added 2026-05-24)
+
+- **[raw-transcripts/20vc-podcast/](./raw-transcripts/20vc-podcast/)** — 869 episodes of 20VC with full transcripts + structured summaries
+  - 881 raw transcripts (`transcripts/*.txt`)
+  - 879 per-episode summary JSONs (`summaries/*.json`)
+  - `guests.json` + `index.json` with guest / company / topics / key_insights metadata
+  - Categories: SaaS (172), Enterprise (130), AI/ML (117), Consumer (96), Fintech (68), and more
+
 ## Related Files (Outside This Folder)
 
 - `/Users/junxiaoshen/Desktop/memories-ai-api-gaps-2026-05-24.md` — Memories.ai public API gap report (12 empirically tested gaps; standalone Markdown, for the engineering team)
