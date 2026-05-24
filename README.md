@@ -19,12 +19,22 @@
 
 ## How to Use This Knowledge Base
 
-Everything is Markdown. You can:
+### Install as a Claude Code plugin (recommended for teams)
+
+```
+/plugin marketplace add Memories-ai-labs/ai-founder-kb
+/plugin install ai-founder-kb@memories-ai-labs
+```
+
+Then ask Claude anything — `/kb`, `/kb-person <name>`, `/kb-source <podcast>`, or just plain English. See [INSTALL.md](./INSTALL.md).
+
+### Other access patterns
+
+Everything is Markdown. You can also:
 
 1. **Grep it directly**: `grep -r "hiring" .` to find anything about hiring
-2. **Load as a Claude skill**: Put the whole folder under your skills directory so Claude can query it in conversation
-3. **Import to Notion**: Drop the folder into Notion — it becomes a page tree automatically
-4. **Read by hand**: Start from the index below
+2. **Import to Notion**: Drop the folder into Notion — it becomes a page tree automatically
+3. **Read by hand**: Start from the index below
 
 See [HOW-TO-USE.md](./HOW-TO-USE.md) for details.
 
