@@ -1,0 +1,152 @@
+# Notes on Space GPUs
+# URL: https://www.dwarkesh.com/p/notes-on-space-gpus
+# Date: 2026-02-05
+# source: Dwarkesh Podcast
+
+Blog
+
+Notes on Space GPUs
+
+Turning my Elon prep into a blog post
+
+Dwarkesh Patel
+
+Feb 05, 2026
+
+318
+
+2
+
+37
+
+Share
+
+John Collison and I just interviewed Elon. The interview was recorded before we knew that SpaceX was acquiring xAI, so the fact that our first topic was space GPUs now feels all the more relevant.
+
+As I was preparing to interview Elon, I put together some notes and a spreadsheet to help me think through orbital datacenters. I turned those notes into this blog post.
+
+Even if orbital data centers don’t make sense yet, in the long run the singularity is clearly moving into space. Earth intercepts about one two-billionth of the sun’s total output. If AI scaling continues, compute will eventually move to where the energy is. So space GPUs are fun to think about, because they give you a sneak peek at the future. Whether that future arrives in 2030, 2040, or 2050 is another question.
+
+Please take everything below with grains of salt—grains so big that you might confuse them for rocks. Assume all the numbers are wrong. Every paragraph below covers a topic that would take an actual expert a week to properly evaluate. What you’ll find here is what a professional podcaster has pieced together from conversations with LLMs and some very generous people who talked to me before the interview. Thanks to Casey Handmer, Philip Johnston, Ezra Feilden, Andrew McCalip, Vinay Ramasesh and the team at Kinetic Partnership for all their help.
+
+Why orbital data centers?
+
+The whole reason to go to space is energy. Yes, panels in space get about 40% more irradiance—but the real advantage is that you can put your satellites in sun-synchronous orbit, where they face the sun continuously. No nights, no clouds, no need for batteries (which is the majority of cost in a solar-storage system). Solar on Earth has a roughly 25% capacity factor, meaning panels only generate a quarter of their peak output on average. In space, you get close to 100%.
+
+The logic is that if the launch costs continue to drop, it will become cheaper to put GPUs in orbit than to build power plants and batteries on Earth. And there’s a lot of room for launch costs to fall—propellant is cheap, and the main expense is the rocket, which you can now reuse. Falcon 9 is around $2,500/kg with a disposable upper stage. Starship with full reusability could get below $100/kg.
+
+But here’s the problem with this argument. Energy is only about 15% of a datacenter’s total cost of ownership. The chips themselves are around 70%. And you still have to launch those to space!
+
+It gets worse. On Earth, GPUs fail constantly. In the Llama 3 paper, Meta reported a failure roughly once every three hours across a 16,000 H100 cluster. When a chip dies, a technician walks over, swaps it out, and the cluster keeps running. In space, you can’t do that—at least not until we have Optimus robots stationed on every satellite.
+
+What about radiation? It’s actually less catastrophic than you might expect. Google’s Suncatcher paper found that their TPUs survived nearly 3x the total ionizing dose needed for a 5-year mission before showing permanent degradation.
+
+I asked Elon about this. He responded:
+
+> “Actually, it depends on how recent the GPUs are that have arrived. At this point, we find our GPUs to be quite reliable. There’s infant mortality, which you can obviously iron out on the ground. So you can just run them on the ground and confirm that you don’t have infant mortality with the GPUs.”
+
+> “But once they start working, their actual reliability—and you’re past the initial debug cycle of Nvidia or whatever, or whoever’s making the chips, could be Tesla AI6 chips or something like that, or it could be TPUs or Trainiums or whatever—is actually quite reliable past a certain point. So I don’t think the servicing thing is an issue”
+
+Consider what’s actually being proposed here. You assemble your GPUs into racks on Earth, run them for a few hundred hours to catch the duds, disassemble everything, pack it into a satellite, launch it, and get it operational in orbit. Throughout this entire process, the most expensive part of your system—the chips—are just sitting there not doing useful work.
+
+Is this just not possible on Earth?
+
+Throughout the interview, Elon kept returning to one point over and over again: Look, forget the economics! It will simply not be physically possible to scale power production to the scale needed for AI on Earth. He went on:
+
+> “The only place you can really scale is space.”
+
+> “All of the United States currently uses only half a terawatt on average. So if you say a terawatt, that would be twice as much electricity as the United States currently consumes. So that’s quite a lot. Can you imagine building that many data centers? That many power plants? It’s like those who have lived in software land don’t realize they’re about to have a hard lesson in hardware.”
+
+Elon kept pointing out the bottlenecks we’ve already run into on Earth. You can’t plug into the utilities—the interconnect queues are too long. You can’t do behind the meter and generate power yourself—lead times for turbines stretch past 2030. You can’t do solar on Earth, because of permits, and because of the tariffs. And Earth has clouds and nights, requiring overbuilt solar and batteries. In space, you can just put the satellites in sun synchronous orbit!
+
+Look, at some level, it is true that we can’t keep scaling on Earth. But keep in mind that the Earth is really fucking big. 1 TW of solar (with 25% capacity factor, so really 4 TW of panels) is around 30,000 square miles. That’s like 1% of the US—about the size of South Carolina. For context, AI datacenters currently consume only ~20 GW globally.
+
+By the time we’re talking about multiple terawatts, we’ll have had to massively scale leading-edge wafer production. And that’s the really hard part. Fabs are the most complicated manufacturing facilities humans have ever built. In order to believe that we need to go to space in order to find the power turn on all these chips, we’ll need to assume a few things:
+
+We’ll manage to produce a lot more chips.
+
+Every single relief vessel for power generation on Earth will fail to scale.
+
+But semiconductors are so much more complicated than solar panels! They’re even more complicated than the blades on a turbine. It feels quite unlikely to me that the thing we manage to solve is building terawatts worth of leading edge wafers, but in that world we can’t figure out how to pave Nevada (or if regulation proves to be a problem, then the UAE) with solar panels.
+
+100 GW into space
+
+How many Starship launches will it take to launch a 100 GW into space?
+
+An orbital datacenter satellite has three big components: solar arrays, computers, and radiators. And the key constraint is that for every watt of compute, we need roughly one watt of solar and one watt of thermal rejection capacity.
+
+The W/kg of each component determines how the mass budget gets split—and how much compute you can bring along. The figure that matters most here is the specific power of the whole satellite: after you account for solar panels, radiators, and chassis, how many watts of compute do you actually get per kilogram launched?
+
+For Starlink satellites, this works out to roughly 50 W/kg. The people trying to build orbital datacenters are currently targeting 100 W/kg. There are only two ways to get there: lighter solar panels (more watts generated per kg) or lighter radiators (more watts rejected per kg).
+
+The numbers below are super rough. Reliable figures for space-grade components are hard to come by. But even rough math reveals which variables must improve—and by how much—in order to hit 100 W/kg.
+
+Solar: There are apparently companies that are targeting next gen thin film that reaches upwards of 500 W/kg, but the state of the art is 150 W/kg, and most missions right now fly 30 W/kg. Let’s be generous and assume 200 W/kg.
+
+The trouble here is that there’s obviously a tradeoff— denser panels costs more money, but reduces launch cost. And it’s difficult to calculate what that implies for these next gen panels, because their prices are not listed anywhere.
+
+Compute: I’ve heard that a stripped down GB200 NVL72 with no cooling equipment is around 100 kg. They draw 132kW of power, but let’s add 10% overhead for the intersatellite lasers and so on. That gets us to 1,452 W/kg.
+
+Radiators: In space, you can’t convect heat away, because there’s no air. You can only radiate it, which means your panels glow infrared until the heat leaves. The Stefan-Boltzmann law governs how much power a surface can radiate.
+
+GPUs typically run up to 90° Celsius. There’s some temperature drop through the heat pipes and fluid loops that carry heat to the radiator surface. Call it 30°C. So your radiators end up operating around 60°C. Plug that into Stefan-Boltzmann (assuming you’re using aluminum panels that weigh around 2 kg per square meter of surface area, that works out to roughly 320 W/kg.
+
+Since radiated power scales with T⁴, running your chips hotter can help you save a lot of radiator mass. For space, people will have to figure out how to build GPUs that tolerate higher temperatures.
+
+Assuming the numbers above—and also assuming that a fourth of the mass of the satellite has to be the chassis—I get 85 W/kg for the whole system. Again, I want to emphasize these are rough calculations; feel free to plug in your own numbers in the spreadsheet here.
+
+At 150 metric tons to low earth orbit per Starship (Elon’s target), you’re looking at around 10 MW per launch. That means roughly 100 Starship launches in order to put 1 GW of compute in orbit. To hit 100 GW in a year, you’d need roughly 10,000 launches, or, about one launch every hour.
+
+This is insane! A single Starship produces around 100 GW of thrust power at liftoff. That’s about a fifth of total US electricity consumption, concentrated in one rocket for a few minutes. And the plan would be to do that once an hour, every hour, every day, for a year.
+
+I asked Elon what that world looks like:
+
+I don’t think we’ll need more than... I mean, you could probably do it with as few as 20 or 30 [Starship vehicles]. It really depends on how quickly the ship has to go around the Earth and the ground track before the ship has to come back over the launch pad. So if you can use a ship every, say, 30 hours, you could do it with 30 ships. But we’ll make more ships than that. SpaceX is gearing up to do 10,000 launches a year, and maybe even 20 or 30,000 launches a year.
+
+Workloads and comms
+
+Starlink satellites already communicate via inter-satellite laser links at 100 Gbps—and Google’s Suncatcher paper suggests off-the-shelf transceivers could potentially hit 10 Tbps. For context, Infiniband links between nodes in a terrestrial datacenter run at 400 Gbps. The gap isn’t as large as you might expect. So, could you do synchronous training in space?
+
+Even the most bullish analysts don’t claim that orbital data centers will be used for training. I don’t know any of the relevant orbital mechanics, but obviously satellites at different altitudes move at different orbital velocities, which means the satellites are desyncing relative to one another. Google came up with a clever solution for this in their Suncatcher paper—keep lots of satellites in a single tight cluster at the same altitude. Google’s researchers proposed eighty-one satellites in such a synchronized constellation. If each constellation had a GB200 NVL72, then that’s only 15 MW parcels of coherent compute.
+
+Defenders of orbital datacenters say that most compute is going to shift to inference (and with RL, most training is also inference). Maybe the legacy terrestrial datacenters do end up doing the pretraining runs, and then whatever mixture of RL environment training and continual learning happens in the future does happen in space. So, the argument goes, it’s not a big deal that the scale ups in space are isolated. But there’s still the question of how hundreds of gigawatts of inference are beamed back to Earth.
+
+For a moment, let’s imagine a world where as we see the sunrise and sunset we also see a Saturn-like belt of GPU satellites passing over us. That’s already really cool. But then there’s another sci-fi premise, which I really wanted to be plausible, and which turns out not to make any sense: Imagine that every 12 hours, as this country of geniuses in space passes over us and shoots down half a day’s worth of new ideas, our code finally starts working and our factories buzz alight and become more productive. Unfortunately, it’s just science fiction. Inference doesn’t take that much bandwidth. One hundred gigawatts of a 5T model is roughly 58 billion tokens per second, resulting in ~ 230 GB/s.
+
+That’s nothing. That many tokens can easily be beamed using lasers from GPUs in the orbital plane through to Starlink satellite network and then down to Earth.
+
+Latency might be an issue, up to fifty milliseconds from any given spot on Earth through the Starlink network to the sun synchronous orbit and then back again. But as we move towards a world of true remote coworker AIs, where the agent works for tens of minutes before coming back to us, the marginal milliseconds of latency matter less and less.
+
+So why is Elon doing this?
+
+I’m willing to accept Elon’s argument that if launch costs become sufficiently cheap and we can repair GPUs in space, then there’s a viable path toward orbital data centers. But it seems especially difficult to imagine a situation in which orbital data centers end up significantly cheaper, because, again, most of the cost of a data center is the GPUs.
+
+For most compute to shift to space, all of the following things would need to be true:
+
+Power generation on Earth hits a ceiling, or AI demand outstrips every terrestrial option.
+
+Chip production scales faster than anyone expects, so we have the silicon but not the electricity.
+
+Starship reaches thousands of launches per year.
+
+If Elon’s right, he wins the AI race outright. SpaceX is the only entity that can launch at that scale. xAI would have unlimited power. Everyone else will be stuck fighting over grid interconnects and turbine orders.
+
+And if Elon’s future doesn’t materialize? xAI is just another lab in the pack. Which means xAI loses. The AI race is a winner-take-all competition, and xAI isn’t in first place. Elon’s comparative advantage was never going to be navigating utility interconnect queues or filing permits faster than Google. His advantage is SpaceX. So why not bet on the world where SpaceX becomes the kingmaker?
+
+This might sound reckless. But that’s how SpaceX got here. Their whole business plan seems to be one in which they conjure new wells of demand for each generation of rocket on the path to the Dyson swarm. Falcon 9 first flew in 2010. Starlink didn’t launch until 2019. Maybe orbital datacenters end up being for Starship what Starlink was for Falcon 9.
+
+Sometimes, during the interview, I found my thoughts drifting toward Elon’s vision for this big, interconnected future. So I paused a moment and said:
+
+What I find remarkable about the SpaceX business is the end goal is to get to Mars, but you keep finding ways on the way there to keep generating incremental revenue to get to the next stage and the next stage.
+
+Elon nodded his head slowly. And then he said:
+
+You can see how this might seem like a simulation to me.
+
+318
+
+2
+
+37
+
+Share
