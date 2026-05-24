@@ -1,0 +1,429 @@
+# AI & Identity, from East and West, with Yohei Nakajima, GP at Untapped Capital and BabyAGI Creator
+# URL: https://www.cognitiverevolution.ai/ai-identity-from-east-and-west-with-yohei-nakajima-gp-at-untapped-capital-and-babyagi-creator/
+# Date: 2024-02-01
+# source: The Cognitive Revolution
+
+Transcript
+
+Yohei Nakajima: (0:00)
+
+I think Western identity tends to think of my thoughts as who I am, and so my mind and my thoughts are my identity. I feel like Eastern cultures tend to treat the mind and the brain as more of a tool to control, and your thoughts as an output of that tool. And so meditation and enlightenment is really about harnessing how to leverage that tool. As I get emails, as I get texts, as I follow people on Twitter, as I read websites, if I could just convert all that into a structured knowledge graph of the people and entities and events, it should be easier to identify potential people to reach out to, to connect with, introductions to make amongst people. I've seen a couple of early tools helping people understand each other that previously wouldn't, or helping find commonalities between two groups of people that might not be intuitive. And I think if we can start to think about AI as a tool for that, new ideas will emerge that can hopefully create a future that's not as bleak as some people see it.
+
+Nathan Labenz: (0:55)
+
+Hello, and welcome to the Cognitive Revolution, where we interview visionary researchers, entrepreneurs, and builders working on the frontier of artificial intelligence. Each week, we'll explore their revolutionary ideas, and together, we'll build a picture of how AI technology will transform work, life, and society in the coming years. I'm Nathan Labenz, joined by my cohost, Erik Torenberg. Hello, and welcome back to the Cognitive Revolution. Today, we've got a special bonus episode with returning guest Yohei Nakajima, general partner at Untapped Capital and creator of the pioneering BabyAGI project. Our first episode with Yohei came out in October, right after he had spoken at the TED AI event, but before the talk was available to watch online. We covered Yohei's many experimental open source AI projects as well as his investment philosophy in that episode. Today, with the talk live on the TED website, we're back to watch it together and to explore the key themes more deeply along the way. In the first half, I could not resist digging into more of the details of how Yohei is building today now that OpenAI has launched the GPT store and the Assistants API. In the second half, we unpack his reflections on identity and discuss how different cultural contexts seem to be shaping individuals' and societies' responses to and relationships with AI technology. This sort of reaction video is a new format for me, but I think it came out extremely well. And I want to thank you, the listeners, for making it possible. Yohei is one of a few guests who have recently told me that they've heard far more about their Cognitive Revolution episode than they'd heard about any other podcast that they'd done. And so it was an honor to spend an hour with Yohei on the morning of his birthday for a conversation that touches on some of the smallest technical minutiae and also some of the biggest philosophical questions in AI today. Please do continue to share the show with your friends, and I hope you enjoy this special part two with Yohei Nakajima. Yohei Nakajima, welcome back to the Cognitive Revolution.
+
+Yohei Nakajima: (2:57)
+
+Thanks for having me.
+
+Nathan Labenz: (2:59)
+
+As we kind of teased in the last episode, you have recently put out a TED Talk, and now it is available to the public. And just as a fun experimental idea and a way to get a little deeper into your philosophy as it pertains to AI, we're going to just roll the TED Talk and then pause it as we go and discuss and allow you to expand on some of the ideas that you only had, I guess, nine minutes to deliver live, but we've got the full hour today. So excited to play it, we'll just pause and discuss as we go.
+
+Yohei Nakajima: (3:33)
+
+Let's just dive in and take it from there. In my office, I have a stack of index cards that I call my "you are who you've met" book. On one side of each card is a name of somebody from my past, and on the other is one lesson I learned from them. It includes friends, teachers, enemies, real people, and fictional characters.
+
+Nathan Labenz: (3:53)
+
+Okay, first question, enemies?
+
+Yohei Nakajima: (3:56)
+
+Yeah, I mean, you learn as much from your enemies as you do your friends, right? And when I say enemies, I'm thinking like high school rivals and whatnot that I eventually became friends with, but I do think you learn just as much from the people that you battle with as those who are standing by you. And fictional characters too, right? You learn a lot from where we are heavily impacted by the stories we watch growing up.
+
+Nathan Labenz: (4:20)
+
+Interesting. Well, will make more sense as we go, so I'll keep playing.
+
+Yohei Nakajima: (4:23)
+
+It was a thought exercise I started in college and kept up. So on behalf of everyone I've ever met, it's nice to meet you. My name is Yohei. I'm a venture capitalist by day, builder late at night. I'm a dad of three kids and I'm obsessed with my wife. Within the AI community though, I'm best known as the father of BabyAGI. For those of you not familiar, BabyAGI was the first popular open source autonomous agent with task planning capability. You could give it an objective and it would generate its own task list, executing them one by one, adding new tasks based on previous task results and continuing until you stopped it. All in 105 lines of code. Probably due to its simplicity, it inspired developers from all over the world to start building their own autonomous agents and that's what's been most amazing about this. It's hurled me into the center of this incredible AI community and I couldn't be more grateful. It's what brought me here today. But as I thought about what to talk about, I kept coming back to this idea of identity. See, BabyAGI was a weekend project that unexpectedly went viral. The quick backstory is I actually challenged myself to build an autonomous startup founder, and when I shared a video online, people went wild asking if it could do more, which it could. My friend Jenny commented, "Bro, did you just build BabyAGI?" Which is where the name came from. Relevantly, the development of BabyAGI itself has been weirdly introspective. I'm trying to get it to do all my work, so a lot of the ideation is watching it do things, thinking about how I do it better, and trying to close the gap.
+
+Nathan Labenz: (6:02)
+
+I want to ask a couple questions about that. I'd love to hear a little bit more about that cycle. I think that's something that all manner of AI developers and AI engineers are going through. I imagine you have some interesting best practices. And I'm also interested in your latest feelings on just how far we can go with that paradigm even on today's models. And as I'm sure you're aware, quite a few notable papers put out recently using increasingly sophisticated prompting techniques and the state of the art continues to advance. But maybe for starters, take us a little bit more behind the scenes of literally how do you do that work procedurally.
+
+Yohei Nakajima: (6:44)
+
+When I'm thinking about building a next mod of BabyAGI or any AI tool for that matter, after I build a first prototype, I will run it over and over again with multiple different prompts and examples, and I'll watch it do things. And I just watch it over and over and over again until something clicks for me when I'm like, wait, here's something I do that this isn't doing. Right? As an example, self reflection. When I added that, I was noticing that if I ran the same objective multiple times, it was not learning from previous objectives, so I thought, how do I do that? Well, after I try something and I go through that process and it doesn't work well, I'll reflect on it and say, why didn't it go well? So that's a step I literally just ask a large language model to reflect on it. But then I need to use that somehow the next time I'm running a similar objective. So I was like, okay, let's do a reflection on the task output after an objective, and then let's store it. And then I guess when I'm going to do an objective, I only really need that if I'm running an objective that's similar to it. So let's store all of these and embed them so that whenever I'm running the next objective, I'll do a similarity search and find the five most relevant reflection nodes and then use that to guide the task list creation. And that I'm just thinking out loud exactly how I went from, okay, let's add this. And that's just one example. Right? Watch it over and over again, and I notice that if I run the same objective multiple times, it does get better at building better task lists.
+
+Nathan Labenz: (8:10)
+
+Do you have any tools that you use to do this? Are you literally just printing stuff out and scrolling logs and watching it roll by?
+
+Yohei Nakajima: (8:18)
+
+I should probably have a tool to do it. No, I am literally just watching it do it. I guess if I keep using the tool over and over again, I'm just waiting for something to click and inspire me to want to add to it.
+
+Nathan Labenz: (8:29)
+
+I'm a big believer in the importance of exactly this, just reading raw logs, whether it's in real time or just establishing the discipline of going back to the raw outputs and also the raw inputs, especially depending on the context. You may not have full command of what those raw inputs are depending on what you're building. But just reading the raw logs, I think, is super important for just about every AI development use case. The surface area is so broad, the surprises are so weird, the strengths and weaknesses are so unintuitive in some cases that I think that is really important. You mostly do this stuff with GPT-4. Have you seen a lot of difference in how things behave depending on which model you use? Have you tried, for example, different versions of GPT-4 or Claude 2 or Llama 2? There's multiple dimensions of this. One is just the capabilities question of how good is it? There's also a little bit of how is it RLHFed? How different do you feel like the character of the leading models is today if this is something that you've spent enough time with to have a sense for?
+
+Yohei Nakajima: (9:40)
+
+My honest answer is I don't think I do. As a matter of fact, I actually use GPT-3.5 more than GPT-4 for most of my autonomous agents. The way I see it is if I can get it working with GPT-3.5, which is where I started, I can always upgrade to GPT-4 if I want a better answer. But if I can get it working with GPT-3.5 on the flow, the operations, the logic, the JSON outputs, all that, I think of GPT-4 as the super power, super mode, the super saiyan mode of my autonomous agents. But practically, it's cheaper and faster, which is probably why I use GPT-3.5.
+
+Nathan Labenz: (10:09)
+
+Yeah. Certainly, when you're developing the scaffolding and you want it to just run fast, you're not waiting for long generations. The GPT-4 generations often are north of 30 seconds, depending on what you're trying to do. I know that threshold well because that's the threshold for Google Sheets. I've had a hard time, in many cases, getting GPT-4 to finish in time for the Google Sheets custom functions to not just error out at the 30-second limit. I've been thinking about this from the other angle recently of there's so much effort, so much investment going into scaffolding. And we're going to have these systems already built and developed to a significant extent. And then there's going to be a model upgrade. And so I'm kind of like, man, a lot of these things that don't work today may really start to click into place and perhaps rather suddenly when a new model comes online. The flip side of that would be if you are building this with a model that is less powerful than the most powerful model that you have access to, maybe you're unnecessarily limiting not yourself, but maybe you end up building more scaffolding than you need to, for example. Have you had any experiences where you felt like, actually, I didn't have to build any of that kind of stuff because if I did want to upgrade to GPT-4, then it would just not get stuck in those places or whatever.
+
+Yohei Nakajima: (11:28)
+
+I think I've avoided making my scaffolding too complex. I just love simple code, so I'm constantly just trying to simplify everything. That being said, I've probably done a little bit in the prompting, where the prompting for it to get the right task list output on GPT-3.5 is probably more work than GPT-4. So I probably did put a little bit of extra work into the prompting to make it work with the lower model, but I don't think it was necessarily wasted because I do think that better prompt also just makes GPT-4 and the better models work better. But to some extent, there's probably some wasted energy there. And that is something I'm conscious of with everything I build is like, how much time am I going to put into a problem that I might not need to solve eventually. And I think a good example is reading pitch decks, for example. As soon as GPT-4V was coming, I dropped all efforts to look at OCR and figuring out how to OCR PDFs. I was like, I'll just wait till GPT-4V comes out and I can just give it the whole deck. And so I do a lot of that where I'm just trying to figure out what's going to be in the next models and try to build stuff that might take advantage of it. And so when GPT-4V came out, I had three or four prototypes of code where all I needed to do was swap out the API because I was building towards what I thought would be in the models next.
+
+Nathan Labenz: (12:40)
+
+Do you have a wishlist or a sort of taxonomy in your mind of things that you are looking for in the next model along the lines of a vision capability where you're like, yeah, I definitely don't need to build this because it's going to happen. Then maybe not even with that much confidence, but are there things that you're kind of discrete things you could describe that you could say to the model developers, like, if it could do this, it would be a huge unlock for the kinds of things I'm trying to build.
+
+Yohei Nakajima: (13:08)
+
+I'm unsure. I try not to speculate too much, but I'm very curious about, at a high level, what part of the orchestration can get sucked into the model itself, I guess, to some extent. Right? If you look at GPT-4V, it's not just looking at the picture, but it is obviously reading the words, which means there must be some OCR, right? There's probably a couple of things. And then you see mixture of experts coming out, which is almost right. If you think of how mixture of experts works, before I knew about it, I would have thought that would have been an orchestration problem where I could use an LLM as a tool and give it a couple of expert descriptions and say, I'm just oversimplifying, but then having the model route it. But now that's kind of baked into the model. So I'm always curious as to what parts of what we see in the orchestration eventually get baked into the model. And I don't know the answer to it, but I'm very curious. It's one way I'm thinking about it. Tool usage, retrieval, those are orchestration problems today, but do those eventually become model problems? Are those eventually baked into the models? I don't know the answer.
+
+Nathan Labenz: (14:07)
+
+We're seeing, I think, some definite suggestions that retrieval could go that way. Perplexity's online models, I don't know exactly how they work, but if I know them, I think they're pushing that direction. They're embracing the bitter lesson and trying to train more end-to-end. And I would maybe look at the Google paper Retro, which I think is maybe 18 months old now, making it almost ancient in current AI discussions, but still a very interesting setup there where the retrieval was part of the core system. It wasn't like a separate generate keywords and go search or even a very distinct external embedding thing that would return the document and then feed the document into context, but rather information entered into the language model in the middle layers in that setup. So it's entering in high-dimensional space and well above the sort of prompting, everything's already been worked up at that point. Hey, we'll continue our interview in a moment after a word from our sponsors.
+
+Yohei Nakajima: (15:13)
+
+And then tools too are still, from what I can tell, it's still not part of the model. But I mean, from Claude to OpenAI, they're at least embedding tool usage as part of their API. From a developer standpoint, to some extent, it doesn't really matter if it's in the model or the API itself. If I'm using an API and it has tools, it has tools. That was an example of trying to build. I've been playing around with a BabyAGI concept that's using the OpenAI Assistants API, which has tools, function calls built into it, so that's been an interesting experiment. It definitely decreases the cost of building, although similar to letting a model do the retrieval, you lose a little bit of control there. It's an interesting trade-off.
+
+Nathan Labenz: (15:55)
+
+What has your experience been with the Assistants API? Mine, for what it's worth, has been that the, and I've done it more on the GPTs side versus the Assistants API side, although I basically understand those to be the same core infrastructure. I have found their retrieval to be not very effective, honestly, for at least the use cases that I've tried. Have you had better luck, or do you have any tips or tricks?
+
+Yohei Nakajima: (16:19)
+
+I enjoyed using both the Assistants API and GPTs, but for neither have I used the baked-in retrieval.
+
+Nathan Labenz: (16:26)
+
+Yeah. In my experience, it's been just not enough context loaded in.
+
+Yohei Nakajima: (16:30)
+
+I use web browsing a lot in the GPTs. And I mean, a lot of the stuff I would want to retrieve is online, I guess. Right? A lot of my work is I'm doing web research all the time. And so I did find that with GPTs or with assistants, you can actually just tell it to do a web browse with a site-specific search, for example, and it's kind of like you built a retrieval over a website. And it works well enough. That being said, I don't know if I've, yeah, I haven't really played with the actual retrieval where you upload a PDF and it does the chunking for you.
+
+Nathan Labenz: (16:57)
+
+Listeners will know I've been on a bit of a knowledge graph kick recently, and the experience with the GPTs was kind of the reason for that. I've uploaded a code repo, and you have this kind of opacity problem where you don't really know how it works, and you kind of have to try to fill in the gaps in your knowledge of how it works based on how it behaves. But it seems like they're chunking things pretty small. And then, at least for the things I was trying to do, when you match on a small chunk and you look at that small chunk in the context, it just wasn't enough context. So that got me thinking about knowledge graphs of, okay, that localized search, I'm sure there's a good reason that they're chunking small to search small. But I kind of need the whole Python file from which it came in order to, because then I've run into a lot of these problems that have probably multiple origins of like, you can implement this or whatever. And it's like, I have implemented this, but I need you to find it in the thing to load it in. So I think there remains definitely some opportunity for improvement in that system. And it is funny how little knowledge we have about just how it works.
+
+Yohei Nakajima: (18:07)
+
+You know that I've been on the knowledge graph kick too, probably from September or so with Instagraph and whatnot. But I have a prototype autonomous CRM that I've been testing, which I'm testing it with Game of Thrones episode descriptions from Wikipedia. And so I'll upload one episode description at a time, and the idea is that it's on the back end building a knowledge graph of all the information.
+
+Nathan Labenz: (18:26)
+
+This is something I actually want to do more custom development on because I haven't seen anything that has really killed it for us, to be honest. Are you storing that in a traditional knowledge graph database?
+
+Yohei Nakajima: (18:38)
+
+I mean, it's whatever ChatGPT suggested I use, honestly. It started with Instagraph, which was just converting any text input into a knowledge graph, and then converted that so that I'm deduping nodes as I add new information. So I do a search against existing nodes and then send the five or 10 most relevant sounding nodes with the new node to an LLM to quickly assess whether the node exists already or it doesn't. And then if it exists, it'll map the ID to it. If it doesn't exist, it'll create a new ID. And then it does the same thing for edges. So if I just keep adding more and more episode descriptions, the first one might find the relationship between Sansa and Ned Stark, but the next one will find the relationship between Sansa and someone else, and then it'll continue to build on it. It's working okay. It's still, I still need to prompt it better because sometimes Ned Stark and Eddard Stark end up as different nodes, which, you know, again, small things like that just need to be fixed. But the reason I'm working on it is I just want this knowledge for myself, right? As I get emails, as I get texts, as I follow people on Twitter, as I read websites, if I could just convert all that into a structured knowledge graph of the people and entities and events, it should be easier to identify potential people to reach out to, to connect with, introductions to make amongst people.
+
+Nathan Labenz: (19:50)
+
+One of the big challenges I see with these kinds of systems is that there is a time element to, obviously, life. With something like Game of Thrones, you could treat that as a crystallized thing and build out a graph and it wouldn't have to change. But as we move through our lives, it's more like we're going through episode by episode, season by season. And you would perhaps want a history of this person is aligned with this person and then they're enemies. It's not just one fixed description. Any kind of experiments or techniques that I might be able to borrow from on that time dimension?
+
+Yohei Nakajima: (20:29)
+
+I haven't added it to my knowledge graph, but when I'm doing retrievals on self-improvement that I was mentioning earlier, I added a timestamp to it. And then when I'm doing a retrieval, I actually use the timestamp as a decay. I do a decay function. I forgot what the exact decay function is, but the older an item is, it multiplies it by something less than one, so the similarity score slowly drops over time to an embedding. So that was an interesting way to do a retrieval that took time into account. I haven't really applied it to knowledge graphs, but I guess similarly, you can imagine a timestamp being on nodes and edges and them slowly getting faded over time to some extent, or if there's a new edge that overrides an existing edge, so there might be some logic that you need to figure out there.
+
+Nathan Labenz: (21:16)
+
+I love how you're scouting out the frontier of these capabilities constantly. Happy to be riding in your wake on some of this stuff. The talk's going to move from technical to largely philosophical. Any other technical comments before we move on to the higher-dimensional analysis?
+
+Yohei Nakajima: (21:31)
+
+No, I think that's a good start. I mean, it was interesting coming up with a talk concept, right? Obviously, I was invited because of BabyAGI, but BabyAGI was such a recent thing. Actually, the TED experience was great. They hooked us up, connected us with a great speaker coach who helped with everything from ideation all the way to the delivery. And really, it was the ideation questions that she gave me at the beginning that really guided the topic of the TED Talk, which I felt like was a good one that tied BabyAGI, my other work as a VC, and my personal history together.
+
+Nathan Labenz: (22:05)
+
+Alright. Cool. Let's roll it.
+
+Yohei Nakajima: (22:06)
+
+I often joke about replacing myself at work with AI someday, but I'm pretty sure I'm not joking. I have an experimental chatbot called MiniOhHey that startup founders can talk to and it sends me summaries of its conversations. Is MiniOhHey an extension of who I am? These seem like conversations worth having. So let's talk about identity, and we shall start at the beginning. I talk about MiniOhHey chatbots. This month, I released a GPT VC associate chatbot. I just thought it was relevant because it's fresh and it's similar to what I just mentioned. But I think it's had 7,000 chats, which is extremely wild if you think about how many conversations I have with founders each year. It's pretty fascinating what AI can do in terms of just scaling somebody's impact.
+
+Nathan Labenz: (22:49)
+
+I've built the GPTs as we discussed, but I've not actually shared GPTs publicly. When you do share them, do you get anything beyond those headline numbers of just raw usage? Can you see anything about how people are using it or what sorts of questions they're asking?
+
+Yohei Nakajima: (23:05)
+
+No, and that's definitely a loss from a builder perspective. I encourage people to send it to me, so my GPT, the VC associate, will give founders a downloadable investment memo. And so a good dozen of those have ended up either in my inbox or DMs. There is a way to store it, and so I'm kind of working on that, but as of now, I'm not storing any of the information, so it's just truly a founder-facing tool. But the benefits are distribution, right? I did the VC associate because I knew the marketplace was coming out, and as a result, it was listed in the top six within research. So I think that drew a lot of people I didn't have reach to. And then two is the cost, right? I mean, using GPT-4 for a chat, for thousands of people across two weeks can quickly add up, but I didn't pay a dime because they're all paying OpenAI $20 a month. So it's a great MVP.
+
+Nathan Labenz: (23:55)
+
+Are you specifying what model it uses, and then is that something that only paid users could come in and use? What if somebody's not paid, but you had it set on GPT-4? Do they just get the 3.5 version?
+
+Yohei Nakajima: (24:07)
+
+So as of now, I don't think you can even set it. And if you can, I haven't found it. So I'm just using GPT-4, all of my GPTs use GPT-4. So people who are not paid users cannot use the custom GPTs. It's a very interesting dynamic because what may have been a startup previously with a signup page where they might actually get email addresses, OpenAI is capturing some of that market by opening this GPT store and converting those potential users of other startups into just OpenAI subscribers.
+
+Nathan Labenz: (24:36)
+
+So that's pretty significant usage that you've had. I mean, 7,000 obviously is not a massive number in the grand scheme of the world, but if you figure all of those people had to be subscribers, and I don't think we know what the paid subscriber count is for ChatGPT. But if it were a million, you would be approaching 1% of paid users, which is not small. I mean, that's really, for these little, I mean, there's so many of these platforms over time have launched their app store and very few of them really work. Would you say this experience leads you to be bullish on the GPT store overall?
+
+Yohei Nakajima: (25:15)
+
+Not really. I'm definitely approaching it with a cautious, this might go away. For all I know, OpenAI might just shut it down like they did plugins. And I'm kind of approaching it in a way that I would be okay with it. I think it's a tough place to build a business, but regardless, it's a great experience to see how people are using it, see how people are engaging with it. Interesting to notice, because I've had a similar tool that was a standalone website that was free that people could chat with at MiniOA that I've pushed on Twitter versus the one that's on GPTs is getting significantly more usage. There's definitely, it's interesting to compare both approaches having done both. On one hand, I mean, I think from OpenAI's standpoint, and I can't confirm that this is what they're doing, but it seems like a great way to collect insight into how people are using the different models, how people are prompting it. I mean, if they can take advantage of all the data they're collecting from the GPT store into future models, it puts them in a strong position.
+
+Nathan Labenz: (26:07)
+
+When you said that you can send information to yourself, does that amount to setting up a tool so that you would basically add a function and the function would be like, this is to send the results of this chat back to the developer?
+
+Yohei Nakajima: (26:21)
+
+So the version one that's out right now, it's just using Code Interpreter to store the investment memo as a text file locally, and it just keeps adding to it and then just gives a downloadable link. The next version I'm working on does the exact same thing, except instead of using Code Interpreter to store it into a text file, it's using a custom Airtable tool to store the appropriate answers into the specific Airtable columns. So as people chat with it, it's getting the same information, but instead of a text file being loaded, it's storing into a specific Airtable so that I can give an Airtable link using a no-code tool that shows their report, but then it's sitting in Airtable on my end. And then also I have a separate tool called Dealflow Digest that matches founders and investors, which is all in Airtable too. So once I get that working, I think in theory, I could get the GPT VC associate to offer to send the memo to other investors and then just start making intros automatically.
+
+Yohei Nakajima: (27:14)
+
+We'll continue our interview in a moment after a word from our sponsors. When you call a function or a tool from inside of GPT to, say, write something to Airtable, it still has to, if I understand correctly, generate what it's going to send, what it's going to write, on a token by token basis. Right? There's nothing yet where it's like chat.history where it could reference the current context as a variable so as to not have to copy all the earlier tokens using the same language model mechanism. I haven't seen anything like that, but it seems like that would be a very natural thing for them to start to add on to this too. Right?
+
+Nathan Labenz: (27:56)
+
+Yeah. That is interesting. If you could, to some extent, figure out a way to embed variables into the API, into the function API calls.
+
+Yohei Nakajima: (28:03)
+
+And I've seen this in Code Interpreter in my own work where it's every time it wants to regenerate something or reference something, it's still in that generation mode. And I kind of want the Code Interpreter to be like, whatever, Airtable.send chat.messages. If it could just generate those 8 tokens but send the whole context, that would be powerful. Otherwise, you're duplicating everything in context plus waiting a lot longer, burning GPUs, I should say.
+
+Nathan Labenz: (28:36)
+
+That's a good question. I guess to some extent, you almost have to treat the reference as a token itself.
+
+Yohei Nakajima: (28:42)
+
+Yeah. And that starts to get a little more native too. When we were talking earlier about internalizing tools, it's maybe not a critical distinction, but you imagine a future in which there's these shorthand tokens that it can generate to refer to its own context or its own environment. Whereas today it doesn't quite have that, and so it ends up being much less efficient.
+
+Nathan Labenz: (29:09)
+
+This feels like one of those things where I would think about how it would be done in orchestration for a while and then assume that the model will do it and just not put effort into doing it on the orchestration side.
+
+Yohei Nakajima: (29:18)
+
+All right, let's go back.
+
+Nathan Labenz: (29:20)
+
+In the beginning of all life, there were single cell organisms which became multiple cell organisms and the cells started to specialize. Some cells were better at taking light and converting it to energy. Some were better at storing it, and some were better at using it to propel. And as these organisms became more complex, they self organized into complex intertwined groups of cells and subgroups within them. This pattern is common. BabyAGI started as 100 lines of code, 200, 300. It became multiple files and it became multiple folders with multiple files within each. Startups and organizations as well start with one or two people doing everything. They bring on an HR person, they bring on a marketing person which becomes an HR department, a marketing department and then smaller departments and groups within each. In the context of an organization, the concept of identity is a bit more clear. It's our role within that organization which hopefully is to some extent defined or at least the expectations are. Our personal identities though are a bit more complex as we're part of more than just one organization, but many overlapping groups of people: a couple, a family, a local community, a country, mankind. And within each of these groups, we have a unique role, which is to some extent defined by our words and actions or more specifically, the impact of those words and actions on said group of people and the people within them. And bringing it back to the top, we're not just the impact we have on others, but the impact others have on us. We're ultimately a conduit of mass, energy, and ideas that we amplify or suppress with our everyday choices. And each of these choices impacts all the different groups we're part of, and that impact in turn defines the many roles that make up who we are. We are complicated. You were asking about my philosophy, I think, right before we started, whether there's some Eastern philosophy, and I definitely think there is. I think the goal here was to really implant the idea that we're not individuals. I think the concept of identity in today's world, a lot of people think about, Who am I? And then make it really internal versus I wanted to get people to start thinking about identity as your place in a larger system, I guess.
+
+Yohei Nakajima: (31:26)
+
+Yeah, there's a lot, I think, to unpack there. Maybe for starters, just give us a little bit more about your background. I mean, the habits of mind with which we grow up, I think, certainly inform the way we approach some of these big questions. So I'd be interested to hear a little bit more about your personal biography. And then I have a lot of questions, which I don't think we can fully answer. I wouldn't expect any individual to fully answer, but just how different societies are going to relate to this technology.
+
+Nathan Labenz: (31:58)
+
+No, I think that's a great point. So, yeah, I was born in Japan, but I grew up in Seattle, but in a Japanese household speaking Japanese at home and going to Japanese school on Saturday. So when I was a kid, I had my American school persona and then my Japanese school persona, which was different because I didn't think about it at that point, but there were different groups of friends with no overlap and speaking completely different languages. It was only after I grew up that I started to really appreciate how much philosophy is embedded into language, especially Japanese language too, because you're using Chinese characters where the characters themselves have meanings. And then sometimes you'll combine characters with different meanings to talk about something completely else. A good example is a common way to greet someone is genki desuka, like, are you genki? That's how Japanese people greet someone. But the characters for genki are gen is root, and ki is energy. So it's like, how is your root energy? That's the most casual way in Japanese to ask someone how they're doing. And I think that's a very philosophical way to ask somebody how they're doing. But I think that's just one example of Japanese philosophy embedded into the language itself that you're just using on a day to day basis. After growing up in the US, I went to Japan for high school, which is when I found out that I actually wasn't Japanese. I thought I was until I went to a country full of Japanese people and realized I was the most American person there. And so it was a pretty rough initial landing in a Japanese high school, but over the course of three years, I acclimated and I think there was a lot of personal growth there. Then moving back to California for liberal arts school, I got to become re-American to some extent and get to be that part of myself, but I would definitely carry a lot of what came from Japan and Seattle and LA are also very different culturally as well.
+
+Yohei Nakajima: (33:40)
+
+So do you think that background has an intuitive impact that may ultimately become consequential in terms of how people understand language models on first contact? For me, and I think for most who have just the traditional Western background, it is natural to think of ourselves primarily as individuals. And then this thing is this kind of weird language model, and I've got to tell it what role to play, tell it what individual to be. That's one of my prompting best practices: you are X. But I don't spend a ton of time thinking about it as sort of a representation of a collective. And I wonder if when we had Balaji on, he made a really interesting point about how there are these Hindu gods that have a bazillion faces. And so the construct of something that is multiple within one and can play all these different roles is maybe more intuitive. I wonder if there's a similar kind of difference in how this stuff feels to people who have this cultural background. And also wonder how that may relate to some policy decisions. I know that I don't think this is actually baked at this point, but from what I understand, Japan is taking a very permissive approach to all the data is going to be allowed to be trained on. And, you know, that in some sense also is kind of a more collective first decision. Right? You don't have rights in Japan or at least it seems like it's shaping up where you don't necessarily have rights to assert that your data, your creations can be excluded from this collective synthesis project. Rather, the collective has the right to subsume all this stuff. I'm out of my depth here, but I'm fascinated by it. What do you think?
+
+Nathan Labenz: (35:31)
+
+I think you're touching on a couple of interesting things. I think one, language wise, there's so many things, geography related things. First of all, most language models are strong at English and not in a lot of other languages. Then there's the whole, what's the gap that it creates if there's countries that have it and countries that don't? But on the more, I think what you're talking about, the permissiveness is how we view, I mean, I can't speak for all Japanese people obviously, but I do think that Eastern philosophies tend to see the mind more as a tool versus a self. I think Western identity tends to think my thoughts are who I am, and so my mind and my thoughts are my identity. I do feel like Eastern cultures tend to treat the mind and the brain as more of a tool to control, and your thoughts as an output of that tool. And so meditation and enlightenment is really about harnessing how to leverage that tool. And again, I'm not speaking for all people, but when I think of artificial intelligence, it's just another tool, much like real intelligence is a tool, artificial intelligence is also a tool. So I think even coming back to can AI be creative to some extent? Whether it's my brain or an artificial brain that's creating it, to me, it's a tool that's creating both things. But if your philosophy, if you think of your mind and your brain as your identity and its ability to create something as unique to you, then I can see having a machine do it be kind of threatening, if that makes sense. But I already see, I guess, to some extent, already see my brain as just a meat machine, so the gap is not as big philosophically.
+
+Yohei Nakajima: (37:01)
+
+Interesting. Somebody asked the other day on Twitter if you could go back and tell your much younger self just one high level fact to guide your future from that point, what would it be? What I came up with was next token prediction is more powerful than you can possibly imagine. And I think you are not your thoughts is another one that I would strongly consider giving to my earlier self. I do feel like that is a major realization for many people that is not something we grow up with by default here in, I'll say, Detroit, Michigan, where I grew up. So do you think that that also has a, I mean, your last comment there around things being threatening. I wonder to what degree you think, I have another show I'm trying to put together on AI in China. It's like, Good God. What a topic. I can't possibly even really begin to wrap my arms around it. But the stylized fact or the received wisdom is that people in China, maybe people in Asia more broadly, are less fearful of AI. First of all, I wonder if you think that's even true. Possible recent counter evidence where the premier of China said there should be a red line in AI that we don't cross bucks that narrative a little bit. So I don't want to take that narrative for granted. But I wonder if that feels intuitively true to you and if it feels connected to this identity collective versus individual question as well.
+
+Nathan Labenz: (38:27)
+
+It does to me. I think Japan is much more of a collective. Japan as the identity. You see people following social rules, people think of themselves very much as part of a country that works together. And I think when you identify as a collective group of people, then your output is the output of the collective. AI becomes, when you think of groups of people, the tools they use become part of that identity. Versus if you think of yourself as an identity, all tools are kind of external to you almost by default, although you can kind of change that perceptually. Everything outside of your physical body is no longer part of you. Versus if you think of yourself as part of a collective, then all the tools that everybody in my group has access to is part of something that I benefit from, is how I think you instinctively think about tools.
+
+Yohei Nakajima: (39:16)
+
+Definitely fascinating.
+
+Nathan Labenz: (39:17)
+
+Yeah, I talk about ants a little bit later, but I'll just touch on it because it's relevant here. There are studies on how if you observe an ant hill or a bee colony, the ants' network where each ant is a neuron and their interactions collectively represent an intelligence. What I didn't get into in the talk is that a lot of these studies, they're looking at the interaction of ants, they're also looking at the trails ants leave as part of the collective intelligence, as communication. So if you look at a single ant, you would not consider the trail they leave as part of that ant. But when you think of the ant colony as an identity, then the trails they leave, the tools they use to communicate with each other, become part of that collective intelligence. So if you look at me individually, my computer is not part of my intelligence, but if you look at human society as a collective intelligence, then our computers, the technologies, the Internet, all become part of that identity of that collective intelligence. You could just as well make the argument that when we build AI, it's making us stronger versus it's something external to us inherently.
+
+Yohei Nakajima: (40:18)
+
+I also wanted to ask about just the experience of using language models in Japanese. I don't know how much you've done that, but I've only seen aggregate statistics that show, as you'd expect, strongest in English. You can look at the power rankings and it's, I think, pretty intuitive that it's the most common and similar languages to English tend to be next. And then as you get toward more distant and certainly more rare, fewer speakers' languages, then you see weaker and weaker performance. Is there anything you could describe about the experience of using the OpenAI models in Japanese? How much different is it? How much worse is it perhaps? And what do you think that means in terms of the future of more localized models coming out of Japan specifically?
+
+Nathan Labenz: (41:07)
+
+The first time I tried Japanese, I was pleasantly surprised that it did well. I don't use Japanese too often myself, so I can't say I've tested it at length, but I did do some testing with BabyAGI. One of the challenges I did find initially when I was testing with BabyAGI was that I'm wrapping prompts and all those wrappers were in English. So even though I was trying to get it to do Japanese, it would sometimes switch to English partway through, which was a little frustrating from a testing perspective, but I guess to some extent that is a challenge. If you think about building or doing orchestration on top of language models, how do you make the orchestration multilingual is an interesting challenge. But I don't think I tested it enough to notice that Japanese is weaker than English. I think the kind of areas it hallucinates, again, I can't think of anything specific, but whenever you're thinking about a language model, I'm thinking about what's been written about a lot. Those are things that probably come out. What are things that haven't been written a lot? So I probably tested a couple of each and had the expected results where if I ask something that's written about a lot, it would be pretty good. If I ask about something that wasn't written about a lot, it might be a little more finicky.
+
+Yohei Nakajima: (42:11)
+
+I know there is a certain emphasis and there's some interesting new startups being built in Japan. When you see countries around the world making their own AI investments and saying, We want to have our own I don't know if we would go as far as a national champion or whatever to be the Japanese large language model company, for example. Do you think of that as a good idea, something that seems wise for them, something that is of practical importance to their users, something that is of national strategic importance so they can't be cut off from the technology or just have the development capability? I don't really have a theory of this, but I wonder how you understand those kind of almost like state, they're like near state level investments, right? Certainly at the level of policy.
+
+Nathan Labenz: (43:00)
+
+I mean, I can't speak to the individual decisions that are being made, of course, at these companies, but if we're using large language models to automate a lot of things and really take advantage of it, especially I think when it comes to policy making, politicians or governments understanding the thoughts of people, taking all the comments and calls that people are making and summarizing and really understanding what's going on. Language models are powerful, but if you want to start relying on it, you don't want another country to have the ability to shut you off against it. It does become a national security issue to some extent, I think. So, yeah, I think it does make sense if you have the talent internally to start playing around. I'm assuming Russia, right? I haven't seen a big funding announcement, but Russia, I'm sure, has stuff. India, all the different languages in India, I would suspect there would be a model company coming out of India. Again, don't know if they need a $100 million valuation, but at the same time, if you're going to get your country to start relying on a model, do you really want it to be outsourced to a company outside of your country? It's a good question.
+
+Yohei Nakajima: (43:58)
+
+Is tokenization a huge pain point in Japanese? I've seen this explored a little bit in some Indian languages where it's not just a tax, but it's a massive difference in cost structure because one character in an Indian alphabet might be like eight characters of Unicode or whatever. And that leads to just straight up order of magnitude more costly inference even if performance is the same, which it's also probably not. But I assume that's got to be kind of an issue in Japanese too.
+
+Nathan Labenz: (44:31)
+
+Definitely not as efficient from what I can tell. Again, this is a little bit outside of my strong suit, but I think to some extent, our optimization has been largely built around English itself. So maybe there are better approaches, even slightly altered approaches that might perform better on a language set that has thousands of characters versus 26 characters.
+
+Yohei Nakajima: (44:52)
+
+Jan Leike, the head of alignment research at OpenAI, once tweeted about their instruct model that they only trained it in English instructions and then found that it generalized to follow instructions in other languages as well. And he was like, we still don't understand that. And that was at the time that they launched it. So that's wild. It's wild that it happened. It's wild that they didn't have any real understanding of it. And then also kind of flip side of that is, in terms of jailbreaks, sometimes simply translating your command or, the do something bad, right, that the language model is expected to refuse. Sometimes merely translating that into another language aside from English can be enough to circumvent the refusal behaviors as well. So there's a lot of little interesting details.
+
+Nathan Labenz: (45:43)
+
+Interesting. Because most of the model's ability to refuse is from RLHF, which means it's been tuned to basically refuse certain types. But yeah, it's mostly probably in English.
+
+Yohei Nakajima: (45:54)
+
+Yeah, so translation is one of several obfuscation techniques that have been shown to, at least some of the time. Of course, all this stuff is on kind of a continuum, but sometimes it can get you around the refusals. All right. Should we go back?
+
+Nathan Labenz: (46:08)
+
+The challenge is when we describe ourselves or explain our decisions to ourselves or others, we only refer to a few of these parts. And this is because language, while powerful, is at best a linear representation of a massively parallel world. Even the way you're perceiving me right now is in parallel. You're not just hearing the words I'm saying, you're noticing my facial expressions, my tone of voice, and even reflecting on your past experience to make better sense of all of these. But if you were asked to describe my talk, you would be forced to string together words one by one by one. And that's not easy. Taking complex parallel ideas and representing them in a linear fashion is no walk in the park. And relevant to today, large language models are fantastic at this. And one of my excitements for them is that they can help us collectively better understand complex ideas, many of which may seem like magic, myth, or mystery today. But I digress. There's a few studies that discuss that if you observe an ant hill or the ants within them, they act like a neural network. Where each ant is a neuron and their interactions collectively represent an intelligence that has a greater comprehension of the colony's intent and environment than the capacity of a single ant. And this is comforting to me as what this suggests is that I too perhaps am part of something that's simply too complicated for me to fully ever understand, like the free market.
+
+Yohei Nakajima: (47:36)
+
+Is there more context to that as to why everybody laughed at that?
+
+Nathan Labenz: (47:39)
+
+No, I think it was just a good example of a complicated system that I'm part of that I won't fully understand. In any discussion, you kind of have to oversimplify it to make a point to some extent. So something as complicated as a free market, there's tons of theories on how it works. Economics is a whole study on it, but all of them are ultimately incomplete because perhaps the free market itself is something that's too complicated for us to fully understand as individuals, and I think that's okay. I think it was just a good example.
+
+Yohei Nakajima: (48:10)
+
+Cool, let's keep going.
+
+Nathan Labenz: (48:11)
+
+And this is in line with my limited understanding of the universe. It seems like if you talk to an expert in almost any field, they'll say something along the lines of the more you learn, the more you realize there is to learn. Identity is the same. Understanding one's identity was never meant to be a destination. It's not something to be achieved or accomplished. It was always meant to be a continuous journey. To be explored, experienced, and even enjoyed. And not a lonely one either. Our identities are intertwined, overlapping, and shared. And therefore this continuous journey of self exploration was always meant to be a shared one. In the first age of enlightenment, profound changes in thought emerged from political revolution, scientific discovery, and a new embrace of individuality. These changes ushered in an era that valued reason and liberty, challenging old ways of thinking. And today, we're going through a similar tectonic shift where the digital and social revolution is creating an increasingly interconnected and intertwined world where old paradigms no longer apply. Just look at the world around us. And with the emergence of AI, we have a newfound ability if not reliance on communicating with an intelligent collective voice. If you think about it, talking to a large language model is perhaps the closest thing we have to chatting with our collective conscious, a topic worth exploring much further. AI isn't just reshaping our tools but our very understanding of ourselves. And herein lies the opportunity to see AI not just as a technology but also as a lens through which we can gain deeper insights into one another, fostering greater understanding and empathy. With it, we have the potential to bridge divides, to bring together our diverse stories, and to weave them together into a rich collective tapestry or knowledge graph. In this emerging era, our individual narratives are vital but it's our shared values and dreams that bind us. Harnessing the power of AI, let us seize this opportunity to collaborate like never before, ensuring that our combined voices echo with harmony and purpose. Let's build incredible things. Let's be good to one another. Let's solve some real problems. Of course, there will be challenges and many of them and face them we shall. Together, let us embrace the promise of this new enlightenment where the fusion of AI and our shared spirit ignites an era of unparalleled unity and progress.
+
+Yohei Nakajima: (50:59)
+
+I love the end of that. One thing that is striking to me routinely is just how little concrete positive vision there is for the future these days. There's multiple reasons that this could be the case. Some will just say, Well, our society's lost its way. We're not having kids either. There's some sort of general systematic sickness that is the root of all this. Another angle on it would be the future has become so uncertain and so hard to see into at all that it's just very hard to do any of this sort of future imagineering. But I do think it is something that we're really lacking right now. And so I applaud you for beginning to take on the challenge of what is a positive vision for the future of AI. I definitely encourage other people to start to wrestle with that for themselves more too. Is there anything more that you can give us? I mean, you started the conversation there. Is there anything you can continue?
+
+Nathan Labenz: (52:09)
+
+When I was putting together a TED Talk, I've been a TED Talk fan for so long and I rewatched many of them. I wanted to do a TED Talk that was going to still be relevant 10 years from now that my young kids could watch before they go to college and I could talk to them about. So that was an interesting kind of approach I had to it. I think accepting not understanding everything in full is a key part of accepting the way things are, is my personal philosophy, that when you try to really understand everything and understand anything, you simplify everything into a framework, but it's simplified, so then something will happen that doesn't fit into that framework, you're confused and that creates angst to some extent. And so these frameworks are helpful in communicating and helping understand, but it's important to remember that any sort of understanding you have of the world is a simplified version, to some extent, for computational efficiency, and that it's something that needs to be constantly adjusted as new information comes in and patterns emerge that weren't part of the initial understanding or framework. And so I think the high level lesson here, that's something for my kids that I was trying to embed was, It's okay not to understand everything. You'll continue learning. And I think this applies to identity. When it comes to leveraging AI, AI is fantastic. I'd mentioned taking complex ideas and lining it up in a linear fashion, representing them, which to me seems like an incredible opportunity. I've seen a couple of early tools of helping people understand each other that previously wouldn't, or helping find commonalities between two groups of people that might not be intuitive. And I think if we can start to think about AI as a tool for that, new ideas will emerge that can hopefully create a future that's not as bleak as some people see the future.
+
+Yohei Nakajima: (53:58)
+
+In very practical terms, I've done just a couple little experiments with this. One was a fitness group chat, AI chat mediator playing the role of your virtual trainer, but just there to encourage you, check in. Did you do your thing today? How many reps? Tomorrow, let's see if we can get a few more. Pretty simple, but it seemed like it worked. I also tried dispute resolution AI between two neighbors. Fence is out on my property. You got to move it. It's my property. Well, can we disagree? Leave it there for now, whatever. Minor stuff, right? But trying to help people who are not seeing eye to eye reach some sort of productive resolution. The level of connectivity between people is obviously dramatically up. Social media allows us to communicate with anyone, anywhere, anytime for better and for worse. We're not always great at that. The discourse is not necessarily always super healthy. If I'm reading you right, it sounds like there's a vision of bringing AI into that mix and trying to have it do some of this work of bridging gaps, bringing people together, reinterpreting perspectives. Is that kind of what you're imagining?
+
+Yohei Nakajima: (55:12)
+
+Yeah. I wanted to kind of contrast. Again, it was an artistic choice to bring up the First Enlightenment to some extent, but it was really about individual voices versus listening to just what you're being told. But when everybody has an individual voice and everybody's connected, then suddenly it becomes a stream of basically a Twitter feed with no algorithm is what you end up with. So you do need to use AI, which has already been used in news feeds to surface information, but that is the opportunity to connect people that might be relevant to each other. We're already seeing this today, right? When you use Twitter and you click on see similar posts and you find someone else that posted something relevant to a post you liked and you follow that person, that is, to some extent, AI helping you connect with someone that might have information similar to you. Again, the way it's done, the intention behind it, ultimately drives the result, but the opportunity, I think, is clearly there. Another example I wanted to touch on before I forgot was a sensitive subject, but a letter written by AI, which was an Israeli and Palestinian. There were two letters, each writing about why the other side was upset from their point of view, which is really interesting to just read through, right? Not reading it as your own voice, but reading it as the voice of someone on your side. When you hear someone else on the other side explain why you were mad, it's helpful. So someone was using AI, I thought it was really well written. Again, it's not like that exercise is going to solve it, but I think exercises like this spread the right energy to look for solutions in that direction.
+
+Nathan Labenz: (56:44)
+
+Yeah. I mean, I think at any scale, whether on the biggest conflicts or even just in the smallest moments, the notion that AI could help us understand one another better, bridge disconnects in our understanding, depolarize the discourse on the margin perhaps, and help people just be better to one another and collaborate more effectively, certainly is a beautiful vision. So I love the fact that you're starting to plant that seed, and I certainly hope that something like that comes to exist because definitely we could use it. Yeah, and it's also just a beautiful notion, I think, for the future. So I love that.
+
+Yohei Nakajima: (57:21)
+
+Yeah, and I think I mentioned in the talk that I see myself as ultimately a conduit of ideas, or mass and energy as well. So when you're given 10 minutes to have a stage, there's a choice on what message, what values, what vibe I want to spread in those 10 minutes, and it was a conscious choice to try to spread a positive one.
+
+Nathan Labenz: (57:43)
+
+Well, I appreciate it. We've added a full hour of commentary to your 8 minutes of time on the TED stage. Anything else you want to touch on before we break for today?
+
+Yohei Nakajima: (57:52)
+
+No, this was fun. We kind of just dove into it, but for people not familiar, I run a venture fund called Untapped Capital. Being a founder, I think, is also one of the most ultimate self-reflection journeys, and it's something I see it in myself as I'm building my own fund and trying to figure out who I am in the context of the VC ecosystem, but I think founders in their own industry are doing the same. I just wanted to touch on that. I think the concept of identity is important for all of us, and I welcome thoughts and ideas, and a lot of people have sent me some interesting books and research papers, so I welcome all of that as well.
+
+Nathan Labenz: (58:24)
+
+Cool. Well, thank you for being here today. Yohei Nakajima, thank you for being part of the Cognitive Revolution.
+
+Yohei Nakajima: (58:31)
+
+Thanks for having me.
+
+Nathan Labenz: (58:32)
+
+It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode, Policy, Ethics & Society
+
+ Author
+
+ Nathan Labenz
+
+ View articles
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

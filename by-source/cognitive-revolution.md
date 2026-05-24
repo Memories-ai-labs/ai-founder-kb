@@ -2,6 +2,8 @@
 
 **Entries**: 3
 
+**Local raw transcripts**: full episode transcripts in [`raw-transcripts/cognitive-revolution/`](../raw-transcripts/cognitive-revolution/) — Host: Nathan Labenz. Pulled from `cognitiverevolution.ai`. See folder [README](../raw-transcripts/cognitive-revolution/README.md) for index.
+
 ---
 
 ## Logan Kilpatrick + Tulsee Doshi (Google DeepMind) — 2026-05
