@@ -9,9 +9,9 @@ Source: https://cheekypint.transistor.fm/episodes
 | File | Title | Guest | Date |
 |------|-------|-------|------|
 | what-comes-after-smartphones-evan-spiegel-snap.txt | What comes after smartphones | Evan Spiegel, CEO Snap | 2026-04-27 |
+| tony-xu-doordash-restaurant-economics.txt | The economics and trends of the restaurant industry | Tony Xu, CEO DoorDash | 2026-04-21 |
 
 ## Upcoming (not yet fetched)
-- Episode 33: Tony Xu, DoorDash — 2026-04-21
 - Episode 32: Mati Staniszewski, ElevenLabs — 2026-04-14
 - Episode 31: Sundar Pichai, Google — 2026-04-07
 - Episode 30: Christina Cacioppo, Vanta — 2026-03-31

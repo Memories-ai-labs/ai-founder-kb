@@ -1,0 +1,614 @@
+# Microsoft CTO Kevin Scott on How Far Scaling Laws Will Extend | Training Data
+# URL: https://www.youtube.com/watch?v=aTQWymHp0n0
+# video_no: VI713819542933209088
+# source: Sequoia Capital YouTube
+
+[00:00:00]  the things that are brittle right now where you're like oh my god like this is a little
+[00:00:04]  too expensive or it's a little too fragile for me to use like all of that gets better
+[00:00:08]  like it'll get cheaper and like you know things will become less fragile and then like more
+[00:00:14]  complicated things will become possible like that that is the story of each generation
+[00:00:19]  of these models as we've scaled up.
+[00:00:25]  On any given day Microsoft may be the most valuable company in the world and arguably
+[00:00:43]  no one has been more ambitious, more strategic, or more effective in its AI strategy than
+[00:00:50]  Microsoft.
+[00:00:51]  The key architect behind that strategy?
+[00:00:54]  Kevin Scott, CTO of Microsoft.
+[00:00:58]  We've had the pleasure of knowing Kevin for a couple of decades now dating back to his
+[00:01:02]  time at Google when he overlapped with our partner Bill Korn.
+[00:01:07]  Bill will join us today for a very special episode of Training Data.
+[00:01:11]  We hope you enjoy.
+[00:01:15]  Kevin, thank you for being here on Training Data.
+[00:01:16]  Well, glad to be here.
+[00:01:20]  So just to start, I know you've talked about this before but for our listeners who might
+[00:01:23]  not be familiar with your story, how does a kid from rural Virginia end up becoming
+[00:01:29]  the CTO of Microsoft?
+[00:01:33]  Who knows?
+[00:01:37]  It's certainly not a repeatable plan I don't think.
+[00:01:42]  I don't know.
+[00:01:43]  It is the thing when I reflect.
+[00:01:48]  Back on my story is it's just a lot of being at the right place at the right time.
+[00:01:56]  So I'm 52 years old.
+[00:01:58]  So I was 10, 11, 12 years old when the personal computing revolution started to hit full steam.
+[00:02:09]  And so like right at that moment when you're a kid trying to figure out what you're about and
+[00:02:14]  like what you're going to latch on to, like I had this like really convenient thing.
+[00:02:18]  And I was like, okay, I'm going to do something that captured my interest and was a good place
+[00:02:22]  for me to ground my curiosity on.
+[00:02:26]  And I think that's one of the object lessons in general is if you happen to be interested
+[00:02:35]  and like really motivated to learn more and do more with something that is at the same
+[00:02:42]  time growing really, really quickly, like you probably are going to end up in a reasonable
+[00:02:47]  place.
+[00:02:48]  And so, you know, I was interested in computers.
+[00:02:53]  I was the first kid in my or the first person in my family.
+[00:02:59]  Neither my mom nor my dad went to university.
+[00:03:02]  So I was the first one to graduate with a bachelor's degree.
+[00:03:06]  Like I majored in computer science and minored in English literature.
+[00:03:11]  Like I had this moment when I was at this moment when I was trying to decide what I
+[00:03:18]  was.
+[00:03:18]  Yeah.
+[00:03:18]  I was going to go do after I got my undergraduate degree where my two advisors were arguing
+[00:03:25]  about whether it should be Ph.D. in computer science or Ph.D. in literature.
+[00:03:30]  And I was very seriously considering both.
+[00:03:33]  But I was so broke and just so tired of being busted all the time that I picked the pragmatic
+[00:03:44]  path.
+[00:03:45]  You know, not that, you know, like I still.
+[00:03:48]  Imagine what my life would have been like as a person with a Ph.D. in English literature.
+[00:03:55]  And I think it would have been just fine.
+[00:03:56]  But like I chose, you know, one of my two equal interests.
+[00:04:02]  And then, you know, for a while I thought I was going to be a computer science professor.
+[00:04:07]  And at the last minute, this is where Bill and I intersected.
+[00:04:12]  Like I decided I was a compiler optimization and programming languages person through,
+[00:04:18]  through years and years in grad school.
+[00:04:21]  And I got almost all the way to the end.
+[00:04:24]  I was like, I don't think I want to be a professor anymore.
+[00:04:28]  Like I, I would work on these things where it was, you know, six months of effort to
+[00:04:33]  write a paper and you make some synthetic benchmark 3% better.
+[00:04:38]  And I was like, this doesn't feel to me like the way to have a lot of impact in the world.
+[00:04:43]  And like, I don't want to do this over and over and over again for the next 25 years
+[00:04:48]  of my life.
+[00:04:49]  And so I, uh, I sent my resume cold into Google in 2003 and, um, I got a email from this guy,
+[00:05:04]  Craig Neville Manning, who had just gone off to New York to open up Google's first engineer,
+[00:05:10]  remote engineering office.
+[00:05:12]  And, uh, like I had an amazing interview at Google, uh, I don't know whether this was
+[00:05:18]  on purpose.
+[00:05:19]  Or not, or like, I just got luck of the draw, but, uh, like, uh, it seemed like every compiler
+[00:05:24]  person who was working at Google, uh, was on my interview slate.
+[00:05:28]  And I was like, this is amazing.
+[00:05:30]  Like all these people, uh, know all of this stuff that I know and, you know, we can have
+[00:05:36]  easy conversations that I worked on nothing that was even remotely close to compilers,
+[00:05:40]  uh, at Google.
+[00:05:41]  And I was confused why all of these people were there, but, uh, it was a great interview
+[00:05:46]  and I was super stoked.
+[00:05:49]  And Google and Google is yet another one of those things, just like the PC and just like
+[00:05:53]  the internet.
+[00:05:54]  Uh, like it was a phenomenon that was growing crazy fast with a bunch of smart people working
+[00:05:59]  there.
+[00:06:00]  And that, uh, that resulted in this opportunity.
+[00:06:05]  I had to go, uh, join this startup ad mob when it was very early on, like right at this
+[00:06:10]  pivotal moment when mobile mobile was taking off and you, you needed things in mobile,
+[00:06:16]  like advertising infrastructure.
+[00:06:19]  And I helped build, you know, the, the seminal company, I think, and, and mobile advertising,
+[00:06:26]  uh, and then was back at Google.
+[00:06:28]  And then I helped, uh, LinkedIn go public, uh, running its engineering and operations
+[00:06:33]  team.
+[00:06:34]  And then I was at LinkedIn when we got acquired by Microsoft.
+[00:06:37]  So like, yeah, none of that, I think you can plan.
+[00:06:40]  It's just like a lot of right place at right time.
+[00:06:45]  And, you know, trying at every point.
+[00:06:49]  Point you can to do the most interesting thing you can do on the thing that's growing
+[00:06:54]  really fast.
+[00:06:55]  You know, when you talk about your personal
+[00:06:58]  history, Kevin, I guess, you know, the focus nowadays is on AI machine learning.
+[00:07:05]  A lot of the practitioners are, um, people with PhDs.
+[00:07:11]  How do you think about sort of practical teams for AI, uh, since you're obviously doing a
+[00:07:18]  lot of research?
+[00:07:19]  Kevin Kramer Yeah.
+[00:07:20]  I think a lot of the people are, uh, doing a lot of their work at Microsoft and, and
+[00:07:22]  involved with partnerships with open AI and others.
+[00:07:25]  Kevin Kramer Yeah.
+[00:07:26]  I mean, I, I think if you are building the really complicated platform pieces of AI,
+[00:07:35]  uh, so like the big distributed systems for training and inference, uh, the big, uh, like
+[00:07:42]  networking and Silicon and, uh, you know, system software components or the algorithms,
+[00:07:48]  you know.
+[00:07:49]  We're.
+[00:07:50]  rhythms that you're using to do training and inference i think a phd is super helpful like
+[00:07:56]  there's just a huge amount of prior knowledge that you need to have in order to jump into the
+[00:08:04]  problem space and be able to like go uh quickly and like you know you need to be clever but like
+[00:08:11]  you don't phd is i like yep i know you have a phd uh bill and are far cleverer than i am but like
+[00:08:19]  uh usually folks with phds are clever but like they're not the only people in the universe who
+[00:08:25]  are clever uh so like i i think it's mostly helpful in the sense that you've gone through
+[00:08:31]  like a pretty rigorous training regimen where you get a whole bunch of prior art stuffed into
+[00:08:36]  your skull and like you you know demonstrably can do a very complicated project uh and you know the
+[00:08:42]  phd projects uh you know look kind of like ai platform
+[00:08:49]  system
+[00:08:50]  systems projects uh except the ai platform and systems projects are lots and lots of people
+[00:08:57]  working together whereas yeah when you're getting your phd you often are like working in relative
+[00:09:03]  isolation on a particular thing so like that's the you know one of the things people have to
+[00:09:08]  learn is like how to get yourself docked into a group and to be able to collaborate effectively
+[00:09:13]  with a bunch of other people like yourself uh so useful but you know there's so much else in ai that
+[00:09:20]  needs to be done other than building the the platform um you know and for those things
+[00:09:26]  you know phd is helpful but certainly not necessary um you know like figuring out how do i apply this
+[00:09:33]  to education how do i apply this to health care how do i uh like how do i build developer tools
+[00:09:39]  around this how do i you know do all of the million things that happen when new platforms
+[00:09:45]  emerge that you you know sort of complete the whole platform into like a portfolio of
+[00:09:50]  products and a portfolio of middleware and a portfolio of like all of the other stuff you need
+[00:09:54]  well speaking of which microsoft seems like it has about the most sort of far-reaching or
+[00:10:01]  ambitious AI strategy of anybody out there. Can you just kind of say in a couple of words,
+[00:10:06]  what is the AI strategy for Microsoft? And then just for fun, if you're going to grade yourselves,
+[00:10:12]  what have you done particularly well? What have you done maybe not as well as you could?
+[00:10:18]  Yeah. So, I mean, we've been sort of talking about this strategy. Microsoft is a platform
+[00:10:23]  company. We, I think, have participated or helped drive a handful of the big platform waves in
+[00:10:32]  computing. We were certainly one of the pillar companies in the personal computing revolution.
+[00:10:37]  We had an important part to play in the internet revolution, although I think that one was
+[00:10:43]  a far more diversely contributed to revolution than personal computing.
+[00:10:51]  Yeah, we kind of missed the...
+[00:10:54]  Mobile computing revolution. But like each one of those things, like we have thought about
+[00:11:02]  how do you go build a technology platform for this particular era of technology that allows
+[00:11:10]  other people to go build on top of that platform to make useful things for other people. And so
+[00:11:16]  that is our AI strategy. It is like, how do you from frontier models to small language
+[00:11:24]  models, how do you go from frontier models to small language models, how do you go from
+[00:11:24]  small language models to small language models, how do you go from frontier models to small language
+[00:11:24]  models to like highly optimized inference infrastructure, you know, like hyperscale on
+[00:11:33]  both training and inference, like economies of scale, like making the entire platform more
+[00:11:40]  accessible because it's cheaper and more powerful with every turn of the crank.
+[00:11:46]  And like all of the developer tools and safety infrastructure and testing and everything that
+[00:11:54]  happens.
+[00:11:54]  Yeah, I think that's a really good point. I think that's a really good point. I think that's a really good point.
+[00:12:24]  I think that's a really good point. I think that's a really good point. And so, yeah, I think we're doing
+[00:12:28]  a reasonable job of it. I don't know, like I hate to grade myself. It seems a little bit
+[00:12:38]  disingenuous, right?
+[00:12:40]  I want some lowlights.
+[00:12:42]  Well, so maybe before I do that, like, you know, let me describe something about my own
+[00:12:47]  psychology. So I like I am an engineer and I think most engineers are like short term
+[00:12:55]  pessimists.
+[00:12:55]  long term optimists. And so the short term pessimism is like you come in every day and you're
+[00:13:01]  like, oh, my God, this is like a bag of crap. Like, I just don't like any of this. And like,
+[00:13:05]  everything's broken. And like, I got a like, I got so much stuff to fix and I'm so frustrated.
+[00:13:12]  But you work on all of those things anyway, because you're optimistic that all of the problems can be
+[00:13:18]  fixed and that they're going to be worth fixing at the end of the day. And so, yeah, I mean,
+[00:13:23]  the there.
+[00:13:26]  There's a bunch of stuff that I think we're doing really well. Like, I think we have absolutely, along with open
+[00:13:31]  AI, made very powerful AI dramatically more accessible than it otherwise would have been to a larger group of
+[00:13:39]  people. I think you because of that work that we've been doing alongside open AI, we have we're just seeing
+[00:13:48]  lots and lots of customers who otherwise wouldn't be building powerful AI applications.
+[00:13:54]  And so, like, I feel like we're doing a good job. And the way that we're partnering, I think we're doing a good job and like having a really
+[00:14:04]  particular point of view. And it's not an immutable point of view, but like, it's a point of view about like what an AI platform ought to look like.
+[00:14:14]  And we're trying to, like, make it as complete as we can.
+[00:14:19]  You know, low lights is I think we were a little bit late to, like,
+[00:14:24]  some of the basic AI stuff.
+[00:14:27]  So it wasn't that we were not investing in AI at all.
+[00:14:33]  And like, you can sort of look at some of the work that Microsoft Research had done over the years and like MSR was an early AI leader.
+[00:14:44]  And I think, you know, the bit Bill, Bill knows this just as well as I did just from his time at time at Google and where we overlap for a
+[00:14:55]  number of years.
+[00:14:56]  But many, you know, maybe most of the really important advancements in AI over the past 20 years have been a function of some kind of scale.
+[00:15:12]  You know, and it's usually you got data scale and compute scaling combination, let you, like, do things that weren't possible at lower scale points.
+[00:15:23]  And yeah, at some point, like that, that scaling of.
+[00:15:28]  Data in compute.
+[00:15:29]  Is so exponential that you get past the
+[00:15:32]  point where you can have fragmented bets where you can literally it's It just becomes economically impossible to bet on ten different
+[00:15:42]  things that are all exponentially scaling or have the ambition of the need to exponentially scale simultaneously.
+[00:15:50]  And so I think one of the things that we
+[00:15:53]  were a little bit late to is like we
+[00:15:55]  we didn't put all of our eggs
+[00:15:56]  eggs into the right.
+[00:15:58]  Bats
+[00:15:58]  basket uh soon enough like we just yeah we were spending a lot on ai but it was fragmented across
+[00:16:03]  a whole bunch of different things and because we didn't want to hurt any of the feelings of smart
+[00:16:07]  people or yeah whatever right like i don't even know what the diagnosis was because a lot of that
+[00:16:12]  was before i was at microsoft um we like we we just weren't as quick as we should have been at
+[00:16:19]  uh like saying nope scale is what matters and like here's how we're gonna focus uh focus our
+[00:16:25]  investments on scale in a principal way when did that when did you get religion that scale is what
+[00:16:30]  matters was there a particular event or a moment that really crystallized that for you yeah i mean
+[00:16:36]  i was so i've been at microsoft for about seven and a half years now and uh like my um when i
+[00:16:46]  when i became cto my my job was like take a take a scan left to right across uh both microsoft uh
+[00:16:57]  and the entire industry and try to see where yeah we we just had holes in execution where like we
+[00:17:07]  we were not doing things uh at that point in time which was i guess 2017 early um where
+[00:17:16]  all right like what are we not doing today that we're going to deeply regret
+[00:17:21]  uh in 2019 or 2020 so like two three years out um and like the biggest thing on the
+[00:17:27]  list was like you know our rate of progress on ai was not fast enough so i'd say mid 2017 like
+[00:17:35]  i had religion that that was going to be a big part of my job uh was like helping us figure out
+[00:17:41]  what the strategy was going to be and then in 2018 uh like if anything the um burt the publication
+[00:17:51]  of the burt uh burt paper from uh from google was like a real crystallization of uh
+[00:17:58]  that belief so like everything that i had uh that was in my analysis i was like this this is as fine
+[00:18:05]  an example as anything of like why we have to really really accelerate on getting more serious
+[00:18:14]  here and so like you know very shortly after that like i restructured a whole bunch of stuff inside
+[00:18:21]  of microsoft to get us more focused on ai and then about a year later we did that first deal
+[00:18:26]  with open ai um and you know i was like oh my god i'm not going to be able to do that again
+[00:18:29]  yet we we have been accelerating our investments and like trying to get more focused more crisp
+[00:18:34]  uh more purposeful uh since then when you were very early to appreciating the potential of open
+[00:18:42]  ai what did you see in them at that time when that first partnership was true well we we had
+[00:18:49]  like or at least i had uh this like real belief that what was happening with these models as they
+[00:18:57]  scaled as they actually became a basis for building a business and i think that's what
+[00:19:00]  makes them so important uh i think that's sort of why they're so important right now um for those
+[00:19:05]  that don't know what opening a business is but moving on and starting a business as a fight for
+[00:19:09]  change is really important you know i've been at kind of think i've been at that a different
+[00:19:16]  thing for a lot of people if you don't have like a deep love for your business you know
+[00:19:23]  like a core learning curve um and i i think that's just one thing that's you know we're
+[00:19:29]  gonna look at but even if we do get there as it comes up we we consume a lot of time uh and just
+[00:19:29]  need to like understand the reality of what what's happening and so i i i i mean that's kind
+[00:19:30]  of the thing i was so excited about the that was the app that wasn't supposed to be available
+[00:19:30]  for i think it was the game changer but people were really excited about the game changer
+[00:19:31]  just outrageously effective right uh but most of the work before this uh before gpt um was about
+[00:19:45]  those sort of narrow use cases like you were purpose building models for narrow things uh and
+[00:19:50]  it was just tough to scale like you couldn't you'd invest a bunch of compute and like you couldn't
+[00:19:56]  amortize the cost of the compute across anything more than just the narrow thing that you were
+[00:20:01]  building the model for and you had to have
+[00:20:03]  a lot of expertise that, you know, if you wanted to replicate all of this, it's like you had to
+[00:20:08]  have different data and like different, you know, AI PhDs and, you know, different processes every
+[00:20:15]  time you wanted to go build AI into an application. And what was happening was like, yeah, you had
+[00:20:23]  these big, large language models that were useful for lots of different things. So you didn't have
+[00:20:29]  to, you know, have a separate model for machine translation and sentiment analysis and, you know,
+[00:20:37]  like all of the different text things that you were doing. And I was like, okay, this is
+[00:20:40]  extraordinary. And like, they were also becoming more platform-like as a function of scale. So
+[00:20:46]  transfer learning was working better as things scaled up. And yeah, and this is still the general
+[00:20:55]  pattern. So like everything, everything that we understand that large language models,
+[00:21:01]  can do, plus or minus, like will get better when you get to the next scale point. And on top of
+[00:21:09]  that, they will become slightly or maybe dramatically more general in the sense that
+[00:21:15]  their capability set broadens. And OpenAI had that same belief. And they also had like a very
+[00:21:24]  principled analysis of like how those platform characteristics emerged over time as a function
+[00:21:31]  of scale. Had a bunch of experimental validation that said that their forecasts were right. And so
+[00:21:40]  like, it just, you know, you sort of like look at what the forecast says, and you're like, this is
+[00:21:46]  how much money it costs to run the experiment to see if you're going to be on forecast for the next
+[00:21:52]  turn of the crank. And like, you know, it was felt like a big number at the time, like it was a
+[00:21:57]  billion dollars. But like relative to what was happening, you know, it wasn't like a million
+[00:22:01]  dollars. It was like a million dollars. And so it was like, you know, it was like a billion dollars.
+[00:22:01]  Yeah. And so it was like a billion dollars. And so it was like a billion dollars. And so it was like a
+[00:22:01]  It just wasn't a large amount of money. And then, you know, GPD-3 was on forecast and GPD-4 was on
+[00:22:12]  forecast. So like, it just was like finding a partner that had the same platform belief that
+[00:22:18]  you did and like a track record of, you know, being able to execute through these scale points.
+[00:22:24]  Like it was, it didn't, like I've done a bunch of things before that I have way more reservation
+[00:22:30]  about in the past, like just in terms of investments. Like, you know, I've done a bunch of things
+[00:22:33]  before that I have way more reservation about in the past, like just in terms of investments. Like,
+[00:22:33]  this one didn't, you know, like there was a bunch of people who didn't agree with me, but like I had
+[00:22:38]  pretty high conviction.
+[00:22:41]  You touch on investment, I guess, you know, there's a lot of trade publications now speculating
+[00:22:48]  about the cost of doing training and so forth. And, you know, rumors of billions and billions
+[00:22:55]  of dollars being spent and so forth. And I guess based on my own background, I think training's
+[00:23:02]  going to get dwarfed by inference here.
+[00:23:04]  Yeah.
+[00:23:04]  Pretty soon. How do you see the...
+[00:23:07]  You should hope so.
+[00:23:08]  Well, yeah, otherwise we're building models that nobody knows what to do with. That might
+[00:23:13]  not be a great investment, but how do you see kind of computing landscape evolving and
+[00:23:20]  where's it going? You know, the, I think people are joking that all the money's going to NVIDIA
+[00:23:25]  at the moment.
+[00:23:26]  Well, look, I think NVIDIA is doing a good job. So like the, you know, the two interesting things
+[00:23:33]  that are happening right now, I think NVIDIA is doing a good job. So like the, you know, the two
+[00:23:34]  things that are happening with these models, just in terms of the efficiency of the scale up is each
+[00:23:40]  hardware generation's better price performance wise, usually by an extent greater than Moore's
+[00:23:48]  law used to work for general purpose computing. So, you know, A100 was about, you know, three,
+[00:23:58]  three and a half times better price performance than V100, you know, H100, like not,
+[00:24:05]  you know, quite that much, but, you know, close, you know, on paper, the next generation looks
+[00:24:11]  very good as well. And so like, you've got hardware for a variety of reasons, like, you know,
+[00:24:19]  part of it's, you know, process technology, but part of it's architecture and like a lot of it is
+[00:24:24]  like being able to leverage narrower word size in the computation. So like, you know,
+[00:24:35]  instead of, you know, like, you know, like, you know, like, you know, like, you know, like,
+[00:24:35]  instead of needing 64 bit arithmetic, like you're, you know, you're doing arithmetic with
+[00:24:39]  much less precision right now. And so like that, you know, there's just an embarrassing amount of
+[00:24:46]  parallelism there, then like, we're getting better and better at extracting that architecturally in
+[00:24:50]  the hardware. And, you know, there's a bunch of innovative stuff happening with networking as
+[00:24:57]  well. Like we're well past the point for the frontier models, at least where you can do
+[00:25:02]  anything interesting on a single GPU. So for years and years,
+[00:25:05]  now, like both training and inference have been multi GPU, multi compute node
+[00:25:10]  problems. And so like, there's a bunch of innovation happening on the network side as
+[00:25:16]  well, which allows you to strap all of the compute together, like at the chassis level,
+[00:25:21]  the rack level, the row level of, you know, data center level more effectively, which is great,
+[00:25:27]  because, you know, for the nerds listening, like we haven't had effective,
+[00:25:35]  power scaling, or Denard scaling since 2012, or so. So, yeah, we're not, we're, we're getting
+[00:25:46]  more transistors, but like, they are not, they're not getting cooler. Yeah, and like, we're, we
+[00:25:54]  just, we have a lot of, a lot of density issues just with power dissipation that we have to go,
+[00:26:02]  go deal with.
+[00:26:05]  Do you see inferences driving different data center architecture?
+[00:26:11]  Yeah, I mean, look, we already architect our training environments and our inference
+[00:26:15]  environments differently. They just need different things. And, like, I think, you know,
+[00:26:23]  all the way down to, you know, silicon, and like, through the network hierarchy, you need
+[00:26:28]  different things for inference. And like inferences, inference is kind of easier than
+[00:26:33]  training, like training, the way that we're doing it now is like,
+[00:26:36]  we go build big environments that take, you know, a few years to build. And, yeah, with inference, like, if
+[00:26:46]  somebody came along with a, like a better, a better silicon architecture, or a better network
+[00:26:51]  architecture, like a better cooling technology, like, it's a much easier experiment to go run. You just go
+[00:26:59]  swap some racks out. I mean, like, I'm, like, my data center people would yell at me, like, it's not quite that
+[00:27:04]  easy, but it is.
+[00:27:06]  It is easier than like having to go like do a big capital project like a like a training environment looks like. And so like I, you know, intuitively, you would think that that is going to result in more diversity in the inferencing environments and more competition and more like a faster rate of improvement.
+[00:27:30]  Like, that's, and like, on the software side, that's certainly what we see, like the inference stack.
+[00:27:37]  Because it's such a large fraction of the overall compute footprint, and it's constrained. Because we have more demand than supply at the moment. Like, you just have very, very powerful incentives to go optimize the software stack to squeeze more performance out of it.
+[00:27:54]  Do you think we'll be in an environment anytime soon where that demand supply balance changes? Not necessarily at Microsoft, but it feels like we're seeing that at the market level as well.
+[00:28:05]  Yeah, I don't know.
+[00:28:07]  I mean, if we, if we continue to see the platform continue to expand capability wise, and it just becomes more useful, like I think demand increases, if anything. Now, the shape of the demand is probably going to move around. Like, I think you're already seeing a little bit of that. Yeah, building, building a frontier model is like a very, very
+[00:28:39]  resource-intensive thing. And as long as people are like building frontier models and making them accessible, and like, maybe they're not accessible quite the way that people want, you know, like they're only API accessible, and like there isn't an open source thing you can go instantiate and, you know, muck around with. But like, it's way more accessible than it was, you know, six or seven years ago, where like, the only way to access some of this stuff is you had to go work for like, you know, two or three tech companies.
+[00:29:10]  Right.
+[00:29:40]  roughly equivalent it you know it's sort of like you know if you're starting a company right now
+[00:29:49]  and you believe that you have to build your very own frontier model in order to go
+[00:29:53]  deliver an application to someone that's almost the same thing
+[00:30:00]  is saying like i gotta go build my own smartphone uh hardware and operating system in order to
+[00:30:07]  deliver this mobile app like maybe you need it but like probably you don't um and so i mean
+[00:30:16]  to bill's point like i think the thing that makes sense you know for the market is like you just
+[00:30:25]  you you're going to want to see lots of people doing lots of inference because that means you've
+[00:30:28]  got lots of products that have found product market fit and those things are scaling um but
+[00:30:34]  like lots of speculative dollars flowing into infrastructure uh r&d like probably ends the
+[00:30:43]  same way that yeah the yeah many speculative infrastructure booms have ended on this excuse
+[00:30:52]  me on the scaling front um you know microsoft published a paper uh some time ago
+[00:30:58]  pointing out that the quality of training data is uh maybe at least as important as as volume
+[00:31:07]  and i think one of the speculations you see now in the industry is that we're running out of
+[00:31:14]  sources of high high quality training data and and you're reading at least uh some articles
+[00:31:22]  claiming that various partnerships are being struck to to get access to training data and
+[00:31:27]  it might be behind pages and it might be behind pages and it might be behind pages and it might
+[00:31:28]  be behind walls and so forth how do you how do you see that evolving because it it feels like
+[00:31:34]  we have more and more computation but we may not have more and more training data
+[00:31:40]  yeah i mean i think that was almost inevitable um it is you know in my opinion a good thing that
+[00:31:50]  uh quality of data matters more than quantity of data because it gives you an economic framework
+[00:31:55]  to go do the do the partnerships uh that you need to go do and and and and and and and and and and
+[00:31:59]  and and and and and and handle multiple networks um not only in the various systems that we Bol��요
+[00:32:01]  yeah it was just driving i feel like a shapeshift kind of tactic with all the
+[00:32:04]  standards and switches um and and uh environmentally between these like
+[00:32:09]  all these approaches that um Bana Sui was yeah there were just like ms global in das
+[00:32:12]  Ekibpe something in my mind that really kind of osers really that really struck a ball
+[00:32:18]  that data could be done um denies there's probably that a lot of sckenzo's
+[00:32:24]  last year to me is there is this well underclassednesday or something like that
+[00:32:24]  it was at least a bit of um一點 and peyton of working with data analysis and then i think
+[00:32:26]  a lot of it was angle engineering which was you know what's is it better more improvement
+[00:32:27]  the math that's it it's not student learningieważ because what the related analysis of your
+[00:32:28]  education was into otherんで rentcouch talk you know not exactly like
+[00:32:29]  important for it to you know quote unquote know some factual things uh but it is uh like the
+[00:32:37]  world's crappiest database uh you know honestly like if you need it to be your retrieval engine
+[00:32:43]  and so like you just shouldn't think about it as like hey i got this thing and like it has to have
+[00:32:48]  everything baked into it uh like into the model weights themselves uh so that you can you know
+[00:32:55]  recall a bunch of stuff uh because you know like as you've seen like the the recall is
+[00:33:02]  imprecise in the same way that human recall is imprecise so they're just much more efficient
+[00:33:10]  ways to do recall um um yeah so look i i think you you are i mean the way that we say see things
+[00:33:19]  developing is like you have data that is valuable for training models and then you have data that
+[00:33:25]  you need to have access to
+[00:33:27]  for an application in order for the model to reason over and like those are two different
+[00:33:32]  things and i think they're probably two different business models around those things so and like
+[00:33:39]  at the end of the day this is all just this is about business models right like people who
+[00:33:44]  produce data want to be compensated for uh you know use of that data um and so
+[00:33:58]  yeah we
+[00:33:59]  we
+[00:33:59]  we
+[00:33:59]  We have all of this data sitting inside of search engines right now, like not, not in, you know, randomized weights, but like quite explicitly, it's like sitting at a, you know, sitting in indices and, you know, being in Google and whatnot, just waiting to be retrieved.
+[00:34:15]  And like, you know, plus or minus, everybody's okay with that because there's a business model there that makes sense.
+[00:34:22]  Uh, so you like, you enter a query and like, you're either sending traffic or, you know, like there's, you know, SEO and like advertising, like a whole bunch of like business model that surrounds that.
+[00:34:35]  I think we'll figure out a business model for that, um, referral data so that like, you know, when an agent or an AI application needs to retrieve some information from someone so that it can reason over it and give the user an answer.
+[00:34:52]  Like,
+[00:34:52]  we'll figure out the business model for that.
+[00:34:54]  Like it'll either be subscription rev share, it'll be licensing, it'll be like some new flavor of advertising.
+[00:35:00]  I, you know, I was just telling someone the other day, like if I was in my twenties right now, like, you know, for, for all of your entrepreneur, like somebody ought to be out right now, figuring out what the new ad unit is for agents and like just building the company.
+[00:35:17]  Uh, because like it, it, it will have the same characteristics.
+[00:35:22]  And quality is, is, uh, yeah, previous ad units, like you had people with information and products and services who are going to want to get to the attention of someone who might want those data and products and services and like quality is going to matter.
+[00:35:39]  And the relevance is going to matter and a bunch of other things.
+[00:35:43]  And I would be shocked if there isn't a auction model for, uh, you know, that's going to be the right way to value everything.
+[00:35:53]  And, you know, like, yeah, maybe there's referrals and like referrals will have some economic value.
+[00:35:59]  Um, I think for training, it's just a little bit different because, uh, it's very, very hard when you're building that model, uh, to, at the time that you're doing the building to really be able to ascribe, um, uh, monetary value value to a particular token of input.
+[00:36:23]  Yeah.
+[00:36:23]  Just because it's complicated.
+[00:36:24]  But the, the focus is on like the model, right?
+[00:36:27]  Yes.
+[00:36:27]  And I think it's quite, it's a big part of that and I think it's a good way to summarize this, like, uh, like, your contribution to the model, like the same way that a word from, you know, Moby Dick has like a very diffuse contribution to like your own human intelligence.
+[00:36:37]  Uh, you know, even though you definitely read it at some point in your career, uh, or your life, um, how valuable that is to like forming bill Corren or Kevin Scott's, uh, you know, useful intelligence, like who knows.
+[00:36:54]  Speaking of which, this, um.
+[00:36:55]  Um.
+[00:36:55]  One of the things that we hear a lot of times is that the value function is in some ways the bottleneck to broader reasoning capabilities.
+[00:37:04]  It's easy enough to construct a value function when you're playing a game with a, you know, with a known winner and loser like Go or chess or poker or diplomacy.
+[00:37:14]  But it becomes a lot harder to construct a value function when you're going into broader domains.
+[00:37:20]  And it's things like assigning the value of Moby Dick to Kevin Scott's life, you know, that sort of thing.
+[00:37:25]  And are there are there practical solutions to this?
+[00:37:29]  Are there practical implications to this?
+[00:37:30]  I guess the broader question would be, where do you see the overall field of reasoning and LLMs going?
+[00:37:36]  Well, look, I think people are trying to get at this.
+[00:37:40]  So you've got a bunch of benchmarks like GPQA and MMLU.
+[00:37:49]  And, you know, like we're just sort of rolling through a bunch of benchmarking paradigms.
+[00:37:54]  They're like, try to come up with.
+[00:37:55]  Scores of performance for these models, like whether it's reasoning capability or.
+[00:38:02]  Yeah.
+[00:38:02]  And yeah, I think we have one of the interesting things we've seen over the past handful of years is like we just are very quickly saturating these benchmarks, like where you like one emerges.
+[00:38:12]  And then, you know, within a model generation, like you'll completely or like get very close to saturating the particular benchmark.
+[00:38:20]  And then you got to go find something else to help be your guiding light.
+[00:38:24]  So.
+[00:38:25]  But like, let's just sort of assume that like, you know, you'll have some interesting benchmarks that are correlated with the reasoning capabilities you want models to have.
+[00:38:36]  You know, then the question, it's just an expensive experiment to run.
+[00:38:40]  Like you could run an experiment where it's like, OK, like I'm going to train a model like, you know, with this information in and out.
+[00:38:46]  And like, does it get better or worse at performance on these reasoning benchmarks?
+[00:38:55]  And, you know, like I think all of us have done different versions of those experiments like they're just extraordinarily expensive to run at the most granular scale you can imagine running them.
+[00:39:09]  And part of that paper that Bill referenced, like textbooks are all you need is like a it's not the full story, but it's like part of a story that is like, you know, just sort of evaluating like token contribution quality to.
+[00:39:26]  Model performance.
+[00:39:28]  So, yeah, like I think it's and everybody's got every incentive in the world right now to try to figure out like what that is, if for no other reason than you like in a world where you're synthesizing data, you're literally spending compute to generate synthetic tokens for training.
+[00:39:48]  You you really want to make sure that the tokens that you're generating are actually useful or not.
+[00:39:57]  Where do you think the models are at the moment?
+[00:40:00]  You know, I think Microsoft has introduced.
+[00:40:03]  a whole bunch of co-pilots to try to help end users with your products and so forth.
+[00:40:10]  On the other hand, I see lots and lots of companies trying to build agents that can be
+[00:40:15]  kind of autonomous actors now. That's a wide spectrum of kind of expected performance of
+[00:40:23]  what the models can do. Where do you think we are? Where do you think we'll be in a couple of years?
+[00:40:28]  Well, yeah. So I think that's a super good question. And there's even a philosophical
+[00:40:35]  thing there about what it is we should want. Well, there is the specter of everybody's job
+[00:40:43]  getting replaced, right? Yeah. Look, we chose the name co-pilot for the things that we were doing
+[00:40:55]  relatively deliberately because we want to...
+[00:40:59]  At the very least, encourage everyone who's building these things inside of Microsoft to
+[00:41:05]  think about, how can I help augment someone who's doing some form of cognitive work?
+[00:41:13]  So we want to build assistive, not substitutive tech. And the good news is it's also easier to
+[00:41:24]  think about how to go from sort of rough frontier model capability to
+[00:41:30]  useful tool when you're narrowing it down to a domain. And so I think that's been a reasonable
+[00:41:39]  deployment path. And we've got a handful of our co-pilots that have real market traction right now
+[00:41:46]  and are in daily use by a lot of people doing real non-trivial cognitive work. And I think that
+[00:41:56]  will expand over time.
+[00:42:00]  What are...
+[00:42:00]  Just on that, what are some examples of co-pilots that have really hit the bullseye already versus
+[00:42:06]  maybe co-pilots where the technology is not quite ready in terms of jobs to be done?
+[00:42:12]  Yeah. I think GitHub co-pilot is probably the thing we've talked most about and there's
+[00:42:20]  the most public conversation around. It's been a hit.
+[00:42:28]  And, you know, it is genuinely useful. Yeah. We've got some other co-pilots that are like that,
+[00:42:38]  that are, you know, that are super useful. But, you know, I think the thing that Bill was getting
+[00:42:44]  at, like the more general the co-pilot is, like the, you know, the harder it is to have it actually
+[00:42:54]  take very high precision.
+[00:42:59]  Action on your behalf autonomously. Yeah. Particularly if, you know, it's doing something
+[00:43:07]  where it's representing you, where, you know, there are stakes and, you know, consequences
+[00:43:15]  and accountability back to you if this agent makes a mistake. And we're trying to be very
+[00:43:21]  deliberate there because I think one of the things that you don't want to do is introduce a thing
+[00:43:28]  that's going to make...
+[00:43:29]  A whole bunch of these sort of errors where the user's first reaction is like, this doesn't work
+[00:43:36]  and like, I'm not going to try it again for a good long while. So we'd rather have it be very good
+[00:43:43]  before we introduce it. Yeah. Which again, you know, means you're sort of optimizing for use
+[00:43:52]  cases, not for like, you know, super, super broad things. I mean, there's a good, like we,
+[00:44:00]  we did a partnership recently with, you know, with Devin, which I think is another one of these,
+[00:44:07]  like very interesting, like, you know, use case specific things where it's like, you know,
+[00:44:12]  frontier model plus a whole bunch of other stuff that is like optimized for like giving humans
+[00:44:18]  high quality recommendations for actions that they can take. And then when you click accept
+[00:44:23]  on the action, like you, you have reasonably high confidence that, you know, it's going to work and
+[00:44:30]  have it made another set of problems for yourself. And so like, I'm, I'm guessing too, you all see
+[00:44:37]  this in your portfolio companies. Like there, there seem to be a bunch of companies out there
+[00:44:41]  right now that are like doing exactly this and that it's useful and working.
+[00:44:46]  Well, it's interesting because we hear one of the things that we hear fairly consistently from the
+[00:44:53]  companies that are further on in their AI journey, you know, everybody kind of starts in the same way
+[00:44:56]  where they start playing with open AI and then maybe they start using some of the other proprietary
+[00:45:00]  models that incorporate some open source models and maybe they have some of their own stuff. There's
+[00:45:05]  a vector database in there somewhere. Yep. From an architectural standpoint, it feels like people
+[00:45:09]  tend to go on a, not quite the same journey, but journeys that sort of rhyme. But then what we hear
+[00:45:15]  from them when they're 12 or 18 months down the road is there's kind of this massive 80-20 rule
+[00:45:21]  at play and maybe it's a 98-2 rule, but you can automate most of a task pretty quickly and pretty
+[00:45:27]  effectively, but getting it to the point where it's actually, you know, it's not going to be
+[00:45:30]  end-to-end, running autonomously in a way that is compelling and consistent enough that you can
+[00:45:38]  actually trust it, kind of that last mile, that last couple percent that makes you really trust
+[00:45:43]  it. Yeah, it seems like that's been pretty elusive for a lot of tasks. And so one of the things that
+[00:45:49]  we're really curious about is, okay, well, when do the foundation models themselves, you know,
+[00:45:54]  get good enough to knock out that last 2%? Or is that a domain-specific thing? And that's really
+[00:45:59]  the job of this.
+[00:46:00]  A software vendor who lives on top of the platform to figure out that last 2%.
+[00:46:05]  Look, I think it's going to be both for a while. Like the two things that I think you can trust,
+[00:46:12]  yeah, I know you guys are probably going to ask this question at some point, but
+[00:46:16]  like we're, despite what other people think, we're not diminishing marginal returns on scale up.
+[00:46:26]  And like, I try to, you know, help people understand,
+[00:46:31]  you know, there is an exponential here. And like the unfortunate thing is you only get to sample it
+[00:46:36]  every couple of years because it just takes a while to build supercomputers and then train
+[00:46:40]  models on top of them. And so the next sample is coming. And like, you know, I can't tell you when
+[00:46:48]  and I can't predict exactly how good it's going to be, but it will almost certainly be better at
+[00:46:58]  like the things that are riddled right now. And so I think it's going to be a good thing.
+[00:47:01]  Now where you're like, oh my God, like this is a little too expensive or it's a little too
+[00:47:05]  fragile for me to use. Like all of that gets better. Like it'll get cheaper and like, you
+[00:47:09]  know, things will become less fragile and then like more complicated things will become possible.
+[00:47:15]  Like that, that is the story of each generation of these models as we've scaled up. And so like,
+[00:47:21]  you know, we even think about this inside of Microsoft and like one of the category errors
+[00:47:26]  that our own developers who are building these AI products can make is like get too convinced
+[00:47:30]  that, you know, we're not going to be able to build these AI products.
+[00:47:31]  The only way to solve my problem is like, I have to go take the current frontier and supplement it
+[00:47:39]  with a whole bunch of things, but which you do have to do, but like, you want to be very careful
+[00:47:44]  architecturally when you're doing that, that it doesn't prevent you from taking the next sample
+[00:47:49]  when it arrives. So you just want to architect these, these applications where when the new
+[00:47:53]  goodness comes, you can go plug it in and like, you'll have to go optimize that as well. Like,
+[00:47:59]  I think that's just sort of the grind that we're on.
+[00:48:01]  Um, but like you just like the, the, the thing that was killing us internally is I would have
+[00:48:09]  teams inside of the company who would look at a frontier model and say, Oh my God, there's no way
+[00:48:15]  that we can ever deploy a product on top of this because like, this is fragile and this is too
+[00:48:19]  expensive. And so, you know, like, please give me like giant pools of GPUs and like, let me go spin
+[00:48:25]  up a big team doing, uh, you know, like a very, you know, tailored version of this. And like,
+[00:48:30]  we're going to build a,
+[00:48:31]  a specific model and like, and, and yeah, they, they would go off and like spend a whole bunch of
+[00:48:35]  money. And like the thing would be, you know, a little bit better, uh, cost-wise at the same level
+[00:48:41]  of performance as the current, uh, frontier. And then the frontier would snap to the new, uh,
+[00:48:46]  point and it would be just doomed. Uh, and, and so like you, you just architecturally don't want
+[00:48:54]  to get trapped by that. I don't think, I mean like that'd be my advice I give to everyone is like,
+[00:49:00]  just give yourself the flexibility to snap to the new, uh, you know, to the new frontier when it
+[00:49:06]  emerges. And, and like, that lets you preserve all of your skepticism. You can believe, uh, you know,
+[00:49:12]  believe all you want that the new frontier is not coming. Like go, you know, like, you know,
+[00:49:17]  read your favorite Twitter troll that says it's all over and a sham and like, and like, but,
+[00:49:22]  but just give yourself the option that, you know, maybe what's been happening for six years now is
+[00:49:29]  going to continue.
+[00:49:31]  Well, hearing, hearing that, hearing that we are not at diminishing returns to scale,
+[00:49:36]  I'm going to count that as good news. And so let's stay on the theme of good news.
+[00:49:40]  I know that you're, um, short-term pessimist, long-term optimist. Can you give us some of the
+[00:49:46]  optimistic point of view for where, where we're heading in this world of AI? Like what are the,
+[00:49:50]  some of the things that you're most excited to see in the world in five or 10 or 15 years or
+[00:49:55]  whatever you count as a longer term horizon? Well, look, I think the thing that everybody
+[00:50:00]  ought to know is that we're not at diminishing returns to scale. We're not at diminishing returns to scale.
+[00:50:00]  I think the thing that everybody ought to know is that we're not at diminishing returns to scale.
+[00:50:01]  I think the thing that everybody ought to know is that we're not at diminishing returns to scale.
+[00:50:01]  Like spend some time thinking about is where are.
+[00:50:04]  the gnarliest zero-sum problems that we have in society like where where are the things where like
+[00:50:12]  we just are fighting with one another or you know like we are immiserating people because uh whatever
+[00:50:19]  it is that people need there doesn't appear to be enough of it uh and i think for a good number of
+[00:50:26]  those things like what you have to have to to turn them into non-zero-sum games to yeah to create
+[00:50:35]  abundance uh and to relax some of these constraints is you have to have technological breakthroughs
+[00:50:42]  it's it's like the only thing that reliably that's ever turned zero-sum to non-zero-sum in in human
+[00:50:48]  history is like some tech has to come along that like you know lets us lets us have more um
+[00:50:54]  you know like you know whenever tech comes along and like creates more it doesn't mean that the
+[00:51:00]  more gets uh you know equitably and uniformly distributed um
+[00:51:05]  and and like i think there are real conversations to go have about that but like what you do want is
+[00:51:11]  the more uh and you want it to you know be directed at things where like we we're just
+[00:51:18]  having a tough time right now um yeah like i'll tell this uh you know story that i've i've told
+[00:51:26]  a couple of other times recently but you know my mom uh like i grew up in rural central virginia
+[00:51:31]  my mom's 74 years old and like she's uh suffered from this uh thyroid condition
+[00:51:35]  called graves disease for 26 years uh and so you know when you have graves disease your thyroid is
+[00:51:42]  hyperactive you're generating too much thyroid hormone and so they go in and like irradiate your
+[00:51:48]  thyroid gland uh to reduce its activity level and then you take hormone uh replacement therapy to
+[00:51:55]  like upregulate your hormones uh for the rest of your life and so she was having some blood
+[00:52:01]  pressure issues and her doctor you know dorked around with her dosage of the
+[00:52:05]  medicine and then like she just had like some serious health issues as a consequence of that
+[00:52:12]  uh that landed her in the er and you know rural central virginia like six times like in a pretty
+[00:52:19]  you know short number of weeks and yeah the the interesting thing there was the first time she
+[00:52:27]  went to the er like she was presenting all of these cardiac symptoms and it was pretty clear
+[00:52:32]  they hadn't even read her chart like it hadn't registered on them that
+[00:52:37]  she had graves disease and like the thing that they needed to do was like go order a tsh panel
+[00:52:42]  to see what her uh like uh thyroid hormone levels were uh like if they'd done that right away um
+[00:52:49]  like they would have said okay like we got to go you know adjust your medicine um yeah and like i
+[00:52:57]  i'm not even ascribing ill intent like you know this is a uh health care system that is
+[00:53:04]  egregiously overburdened
+[00:53:07]  this is not a place where you know like you've got this influx of you know talent like coming into
+[00:53:14]  yeah this part of the country and and like it's a lovely part of the country like i i i i like
+[00:53:20]  love it um yeah so like i'm not criticizing anything it's just you know they they have an
+[00:53:26]  aging population and they don't have enough like young people coming in to be things like doctors
+[00:53:31]  to like help this health care system keep up with all of the challenges that they have
+[00:53:38]  some of those doctors had had access to gpt4 uh and like it was an approved you know product use
+[00:53:45]  all they would have what it needed to do was like put the symptoms that she was presenting in and
+[00:53:52]  her medical record and it would have said hey she needs a tsh test and if you would put the tsh test
+[00:54:01]  result in the recommendation it would add was like look at the dosage of her uh hormone replacement
+[00:54:08]  therapy that she's on
+[00:54:10]  and like if like this isn't theoretical like i i did this um like it could have helped alleviate
+[00:54:19]  a massive amount of her suffering right now and like i think the only reason like that she
+[00:54:24]  got out of this tough situation that she was in was i had to intervene like i i sent her to a
+[00:54:33]  specialist that was you know 400 miles away that she couldn't have gotten into without you know
+[00:54:39]  special you know special you know special you know special you know special you know special you know
+[00:54:41]  and like it's it's it's ridiculous like yeah there there are so many 74 year old old southern
+[00:54:48]  ladies or old midwestern ladies or like folks who are going through similar sorts of things who do
+[00:54:53]  not have someone who's going to go in and intervene on their behalf who are suffering unnecessarily
+[00:54:59]  because we're not even deploying the technology that we've got right now uh and like it's just
+[00:55:05]  going to get better and so like that's the thing that i'm excited about it's like let's let's go
+[00:55:11]  let's go give kids a leg up in education let's go fix some of these crazy problems we've got in
+[00:55:18]  the health care system that is just you know absent technological intervention is just going
+[00:55:23]  to get more strained over time um you know let's equip our scientists with better tools so that
+[00:55:31]  they can you know find better carbon capture catalysts so that uh you know like we can design
+[00:55:38]  safer modes of transportation
+[00:55:41]  so we can more quickly get to a you know like post-carbon economy like it's just so many things
+[00:55:47]  we can go do with this stuff um like i'm super super optimistic about it and so you know like
+[00:55:55]  it just kills me like what we don't want to do is get distracted on uh you know like things that are
+[00:56:08]  um just you know effectively noise uh in the ecosystem right now
+[00:56:15]  um and you know we we're we're getting so sideways sometimes with um you know like this model like
+[00:56:28]  said something that hurt my feelings or you know and like and i don't i don't want to dismiss like
+[00:56:33]  you know people's feelings matter and like you know i'm not trying to be a jerk here but i i do
+[00:56:39]  want to make sure that as we're thinking about how we develop and deploy the technology that we
+[00:56:46]  are always remembering and we're always remembering that we're always remembering that we're always
+[00:56:47]  remembering like what the cost of not deploying the good is um because that that is a high high
+[00:56:55]  cost very well put yeah yeah i'm here said probably a good note to end on i think well we have we have
+[00:57:07]  one other question that we like to ask people and it's a quick one so i'm gonna ask you i'm gonna
+[00:57:11]  ask you this one who do you admire most in the world of ai you know i i was i was thinking about
+[00:57:19]  this so i i think it's uh ray salamanoff um who was one of the one of the folks who was at that
+[00:57:29]  dartmouth workshop in the in the 50s where you know um marvin minsky and simon and uh you know
+[00:57:41]  like a whole bunch of folks convened that summer and like they were all interested in machine
+[00:57:46]  intelligence and they uh they coined the the term artificial intelligence and they were all
+[00:57:51]  at that workshop and like the reason that salamanoff is so interesting and like not not
+[00:57:56]  many people i think know who he is outside of computer science is like he was the one from the
+[00:58:03]  very beginning who was pushing on this whole notion that probabilistic methods were going to
+[00:58:10]  be very important for the development of ai and yeah when when i was in grad school in the 90s um
+[00:58:18]  isn't it
+[00:58:23]  failing uh academic theories about how we were going to get to ai we're all about like okay well
+[00:58:29]  you know like there's some magic you know minimalist calculus about human intelligence
+[00:58:35]  and like we've just got to figure it out and it's got to be you know rule-based systems and
+[00:58:41]  ontologies and you know symbolic reasoning and like a bunch of like stuff where you know we
+[00:58:49]  like we do in physics we were going to have to like you know divine you know the
+[00:58:53]  the inherent simplicity in the system like figure out what the rules are and as soon as we understood
+[00:58:57]  the rules like we'd be able to make software emulate human intelligence uh and slaminoff is
+[00:59:03]  like no no like this this is just a intelligence is an extraordinarily complicated phenomenon uh
+[00:59:11]  and like the only way that we're ever gonna really get there is modeling it with uh probabilistic
+[00:59:16]  methods and he was right uh and like he was he was judged wrong for of
+[00:59:23]  the the the the the the the the the the the the the the the the the the the the the the the the
+[00:59:23]  very long time um and so i i really admire uh his contrariness um yeah all the way back in the 1950s
+[00:59:37]  and like he stuck with his uh he stuck with his beliefs his entire career and i don't know whether
+[00:59:42]  ray actually uh like live to see how right he actually was that's a great answer and a great
+[00:59:51]  story thank you kevin yeah you're very welcome
