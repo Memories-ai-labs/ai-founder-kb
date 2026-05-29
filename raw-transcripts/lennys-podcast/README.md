@@ -8,6 +8,8 @@ Source: https://www.lennysnewsletter.com/podcast
 
 | File | Title | Guest | Date |
 |------|-------|-------|------|
+| claude-opus-48-is-here-is-it-as-good-claire-vo.txt | Claude Opus 4.8 is here. Is it as good as they say? | Claire Vo | 2026-05-28 |
+| the-codex-feature-that-works-while-you-sleep-claire-vo.txt | The Codex Feature That Works While You Sleep | Claire Vo | 2026-05-27 |
 | how-the-engineer-behind-claude-cowork-actually-uses-claude-felix-rieseberg.txt | How the engineer behind Claude Cowork actually uses Claude | Felix Rieseberg, Anthropic | 2026-05-25 |
 | how-i-ai-claude-cowork-google-io-2026-recap.txt | How I AI: Claude Cowork + Google I/O 2026 recap | Felix Rieseberg (Anthropic) + Claire Vo | 2026-05-25 |
 | the-ai-paradox-dan-shipper.txt | The AI paradox: More automation, more humans, more work | Dan Shipper | 2026-05-24 |
