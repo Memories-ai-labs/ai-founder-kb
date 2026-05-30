@@ -1,0 +1,653 @@
+# No Moat: Closed AI gets its Open Source wakeup call — ft. Simon Willison
+# URL: https://www.latent.space/p/no-moat
+# Date: 2023-05-05
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+No Moat: Closed AI gets its Open Source wakeup call — ft. Simon Willison
+
+11
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -43:49
+
+-43:49
+
+Audio playback is not supported on your browser. Please upgrade.
+
+No Moat: Closed AI gets its Open Source wakeup call — ft. Simon Willison
+
+Emergency Space: Live reactions to the leaked Google Moat memo, with 2700 devs listening in, ft. Simon + Travis. Plus: the Google Brain Drain, and how Python gets 3500x faster with Mojo.
+
+Latent.Space, Alessio Fanelli, and Simon Willison
+
+May 05, 2023
+
+11
+
+1
+
+Share
+
+It’s now almost 6 months since Google declared Code Red1, and the results — Jeff Dean’s recap of 2022 achievements and a mass exodus of the top research talent that contributed to it in January, Bard’s rushed launch in Feb2, a slick video showing Google Workspace AI features and confusing doubly linked blogposts about PaLM API in March3, and merging Google Brain and DeepMind in April4 — have not been inspiring. 
+
+Google’s internal panic is in full display now with the surfacing of a well written memo, written by software engineer Luke Sernau written in early April, revealing internal distress not seen since Steve Yegge’s infamous Google Platforms Rant. Similar to 2011, the company’s response to an external challenge has been to mobilize the entire company to go all-in on a (from the outside) vague vision.
+
+Google’s misfortunes are well understood by now, but the last paragraph of the memo: “We have no moat, and neither does OpenAI”, was a banger of a mic drop.
+
+apply aloe vera to the burn area directly
+
+Combine this with news this morning that OpenAI lost $540m last year and will need as much as $100b more funding (after the complex $10b Microsoft deal in Jan), and the memo’s assertion that both Google and OpenAI have “no moat” against the mighty open source horde have gained some credibility in the past 24 hours.
+
+Many are criticising this memo privately:
+
+A CEO commented to me yesterday that Luke Sernau does not seem to work in AI related parts of Google and “software engineers don’t understand moats”. 
+
+Emad Mostaque, himself a perma-champion of open source and open models, has repeatedly stated that “Closed models will always outperform open models” because closed models can just wrap open ones5.
+
+Emad has also commented on the moats he does see: “Unique usage data, Unique content, Unique talent, Unique product, Unique business model”, most of which Google does have, and OpenAI less so (though it is winning on the talent front)
+
+Sam Altman famously said that “very few to no one is Silicon Valley has a moat - not even Facebook” (implying that moats don’t actually matter, and you should spend your time thinking about more important things6)
+
+It is not actually clear what race the memo thinks Google and OpenAI are in vs Open Source. Neither are particularly concerned about running models locally on phones, and they are perfectly happy to let “a crazy European alpha male”7 run the last mile for them while they build actually monetizable cloud infrastructure.
+
+However moats are of intense interest by everybody keen on productized AI, cropping up in every Harvey, Jasper, and general AI startup vs incumbent debate. It is also interesting to take the memo at face value and discuss the searing hot pace of AI progress in open source. 
+
+We hosted this discussion yesterday with Simon Willison, who apart from being an incredible communicator also wrote a great recap of the No Moat memo. 2,800 have now tuned in on Twitter Spaces, but we have taken the audio and cleaned it up here. Enjoy!
+
+Timestamps
+
+[00:00:00] Introducing the Google Memo
+
+[00:02:48] Open Source > Closed?
+
+[00:05:51] Running Models On Device
+
+[00:07:52] LoRA part 1
+
+[00:08:42] On Moats - Size, Data
+
+[00:11:34] Open Source Models are Comparable on Data
+
+[00:13:04] Stackable LoRA
+
+[00:19:44] The Need for Special Purpose Optimized Models
+
+[00:21:12] Modular - Mojo from Chris Lattner
+
+[00:23:33] The Promise of Language Supersets
+
+[00:28:44] Google AI Strategy
+
+[00:29:58] Zuck Releasing LLaMA
+
+[00:30:42] Google Origin Confirmed
+
+[00:30:57] Google's existential threat
+
+[00:32:24] Non-Fiction AI Safety ("y-risk")
+
+[00:35:17] Prompt Injection
+
+[00:36:00] Google vs OpenAI
+
+[00:41:04] Personal plugs: Simon and Travis
+
+Transcripts
+
+[00:00:00] Introducing the Google Memo
+
+[00:00:00] Simon Willison: So, yeah, this is a document, which Kate, which I first saw at three o'clock this morning, I think. It claims to be leaked from Google. There's good reasons to believe it is leaked from Google, and to be honest, if it's not, it doesn't actually matter because the quality of the analysis, I think stands alone.
+
+[00:00:15] If this was just a document by some anonymous person, I'd still think it was interesting and worth discussing. And the title of the document is We Have No Moat and neither does Open ai. And the argument it makes is that while Google and OpenAI have been competing on training bigger and bigger language models, the open source community is already starting to outrun them, given only a couple of months of really like really, really serious activity.
+
+[00:00:41] You know, Facebook lama was the thing that really kicked us off. There were open source language models like Bloom before that some G P T J, and they weren't very impressive. Like nobody was really thinking that they were. Chat. G P T equivalent Facebook Lama came out in March, I think March 15th. And was the first one that really sort of showed signs of being as capable maybe as chat G P T.
+
+[00:01:04] My, I don't, I think all of these models, they've been, the analysis of them has tend to be a bit hyped. Like I don't think any of them are even quite up to GT 3.5 standards yet, but they're within spitting distance in some respects. So anyway, Lama came out and then, Two weeks later Stanford Alpaca came out, which was fine tuned on top of Lama and was a massive leap forward in terms of quality.
+
+[00:01:27] And then a week after that Vicuna came out, which is to this date, the the best model I've been able to run on my own hardware. I, on my mobile phone now, like, it's astonishing how little resources you need to run these things. But anyway, the the argument that this paper made, which I found very convincing is it only took open source two months to get this far.
+
+[00:01:47] It's now every researcher in the world is kicking it on new, new things, but it feels like they're being there. There are problems that Google has been trying to solve that the open source models are already addressing, and really how do you compete with that, like with your, it's closed ecosystem, how are you going to beat these open models with all of this innovation going on?
+
+[00:02:04] But then the most interesting argument in there is it talks about the size of models and says that maybe large isn't a competitive advantage, maybe actually a smaller model. With lots of like different people fine tuning it and having these sort of, these LoRA l o r a stackable fine tuning innovations on top of it, maybe those can move faster.
+
+[00:02:23] And actually having to retrain your giant model every few months from scratch is, is way less useful than having small models that you can tr you can fine tune in a couple of hours on laptop. So it's, it's fascinating. I basically, if you haven't read this thing, you should read every word of it. It's not very long.
+
+[00:02:40] It's beautifully written. Like it's, it's, I mean, If you try and find the quotable lines in it, almost every line of it's quotable. Yeah. So, yeah, that's that, that, that's the status of this
+
+[00:02:48] Open Source > Closed?
+
+[00:02:48] swyx: thing. That's a wonderful summary, Simon. Yeah, there, there's so many angles we can take to this. I, I'll just observe one, one thing which if you think about the open versus closed narrative, Ima Mok, who is the CEO of Stability, has always been that open will trail behind closed, because the closed alternatives can always take.
+
+[00:03:08] Learnings and lessons from open source. And this is the first highly credible statement that is basically saying the exact opposite, that open source is moving than, than, than closed source. And they are scared. They seem to be scared. Which is interesting,
+
+[00:03:22] Travis Fischer: Travis. Yeah, the, the, the, a few things that, that I'll, I'll, I'll say the only thing which can keep up with the pace of AI these days is open source.
+
+[00:03:32] I think we're, we're seeing that unfold in real time before our eyes. And. You know, I, I think the other interesting angle of this is to some degree LLMs are they, they don't really have switching costs. They are going to be, become commoditized. At least that's, that's what a lot of, a lot of people kind of think to, to what extent is it Is it a, a rate in terms of, of pricing of these things?
+
+[00:03:55] , and they all kind of become roughly the, the, the same in, in terms of their, their underlying abilities. And, and open source is gonna, gonna be actively pushing, pushing that forward. And, and then this is kind of coming from, if it is to be believed the kind of Google or an insider type type mentality around you know, where is the actual competitive advantage?
+
+[00:04:14] What should they be focusing on? How can they get back in into the game? When you know, when, when, when, when currently the, the, the external view of, of Google is that they're kind of spinning their wheels and they have this code red,, and it's like they're, they're playing catch up already.
+
+[00:04:28] Like how could they use the open source community and work with them, which is gonna be really, really hard you know, from a structural perspective given Google's place in the ecosystem. But a, a lot, lot, a lot of jumping off points there.
+
+[00:04:42] Alessio Fanelli: I was gonna say, I think the Post is really focused on how do we get the best model, but it's not focused on like, how do we build the best product around it.
+
+[00:04:50] A lot of these models are limited by how many GPUs you can get to run them and we've seen on traditional open source, like everybody can use some of these projects like Kafka and like Alaska for free. But the reality is that not everybody can afford to run the infrastructure needed for it.
+
+[00:05:05] So I, I think like the main takeaway that I have from this is like, A lot of the moats are probably around just getting the, the sand, so to speak, and having the GPUs to actually serve these models. Because even if the best model is open source, like running it at large scale for an end is not easy and like, it's not super convenient to get a lot, a lot of the infrastructure.
+
+[00:05:27] And we've seen that model work in open source where you have. The opensource project, and then you have a enterprise cloud hosted version for it. I think that's gonna look really different in opensource models because just hosting a model doesn't have a lot of value. So I'm curious to hear how people end up getting rewarded to do opensource.
+
+[00:05:46] You know, it's, we figured that out in infrastructure, but we haven't figured it out in in Alans
+
+[00:05:51] Running Models On Device
+
+[00:05:51] Simon Willison: yet. I mean, one thing I'll say is that the the models that you can run on your own devices are so far ahead of what I ever dreamed they would be at this point. Like Vicuna 13 b i i, I, I think is the current best available open mo model that I've played with.
+
+[00:06:08] It's derived from Facebook Lama, so you can't use it for commercial purposes yet. But the point about MCK 13 B is it runs in the browser directly on web gpu. There's this amazing web l l M project where you literally, your browser downloaded a two gigabyte file. And it fires up a chat g D style interface and it's quite good.
+
+[00:06:27] It can do rap battles between different animals and all of the kind of fun stuff that you'd expect to be able to do the language model running entirely in Chrome canary. It's shocking to me that that's even possible, but that kind of shows that once, once you get to inference, if you can shrink the model down and the techniques for shrinking these models, the, the first one was the the quantization.
+
+[00:06:48] Which the Lama CPP project really sort of popularized Matt can by using four bits instead of 16 bit floating point numbers, you can shrink it down quite a lot. And then there was a paper that came out days ago suggesting that you can prune the models and ditch half the model and maintain the same level of quality.
+
+[00:07:05] So with, with things like that, with all of these tricks coming together, it's really astonishing how much you can get done on hardware that people actually have in their pockets even.
+
+[00:07:15] swyx: Just for completion I've been following all of your posts. Oh, sorry. Yes. I just wanna follow up, Simon. You're, you said you're running a model on your phone. Which model is it? And I don't think you've written it up.
+
+[00:07:27] Simon Willison: Yeah, that one's vina. I did, did I write it up? I did. I've got a blog post about how it it, it, it knows who I am, sort of, but it said that I invented a, a, a pattern for living called bear or bunny pattern, which I definitely didn't, but I loved that my phone decided that I did.
+
+[00:07:44] swyx: I will hunt for that because I'm not yet running Vic on my phone and I feel like I should and, and as like a very base thing, but I'll, okay.
+
+[00:07:52] Stackable LoRA Modules
+
+[00:07:52] swyx: Also, I'll follow up two things, right? Like one I'm very interesting and let's, let's talk about that a little bit more because this concept of stackable improvements to models I think is extremely interesting.
+
+[00:08:00] Like, I would love to MPM install abilities onto my models, right? Which is really awesome. But the, the first thing thing is under-discussed is I don't get the panic. Like, honestly, like Google has the most moats. I I, I was arguing maybe like three months ago on my blog. Like Google has the most mote out of a lot of people because, hey, we have your calendar.
+
+[00:08:21] Hey, we have your email. Hey, we have your you know, Google Docs. Like, isn't that a, a sufficient mode? Like, why are these guys panicking so much? I don't, I still don't get it. Like, Sure open source is running ahead and like, it's, it's on device and whatev, what have you, but they have so much more mode.
+
+[00:08:36] Like, what are we talking about here? There's many dimensions to compete on.
+
+[00:08:42] On Moats - Size, Data
+
+[00:08:42] Travis Fischer: Yeah, there's like one of, one of the, the things that, that the author you know, mentions in, in here is when, when you start to, to, to have the feeling of what we're trailing behind, then you're, you're, you're, you're brightest researchers jump ship and go to OpenAI or go to work at, at, at academia or, or whatever.
+
+[00:09:00] And like the talent drain. At the, the level of the, the senior AI researchers that are pushing these things ahead within Google, I think is a serious, serious concern. And my, my take on it's a good point, right? Like, like, like, like what Google has modes. They, they, they're not running outta money anytime soon.
+
+[00:09:16] You know, I think they, they do see the level of the, the defensibility and, and the fact that they want to be, I'll chime in the, the leader around pretty much anything. Tech first. There's definitely ha ha have lost that, that, that feeling. Right? , and to what degree they can, they can with the, the open source community to, to get that back and, and help drive that.
+
+[00:09:38] You know all of the llama subset of models with, with alpaca and Vicuna, et cetera, that all came from, from meta. Right. Like that. Yeah. Like it's not licensed in an open way where you can build a company on top of it, but is now kind of driving this family of, of models, like there's a tree of models that, that they're, they're leading.
+
+[00:09:54] And where is Google in that, in that playbook? Like for a long time they were the one releasing those models being super open and, and now it's just they, they've seem to be trailing and there's, there's people jumping ship and to what degree can they, can they, can they. Close off those wounds and, and focus on, on where, where they, they have unique ability to, to gain momentum.
+
+[00:10:15] I think is a core part of my takeaway from this. Yeah.
+
+[00:10:19] Alessio Fanelli: And think another big thing in the post is, oh, as long as you have high quality data, like you don't need that much data, you can just use that. The first party data loops are probably gonna be the most important going forward if we do believe that this is true.
+
+[00:10:32] So, Databricks. We have Mike Conover from Databricks on the podcast, and they talked about how they came up with the training set for Dolly, which they basically had Databricks employees write down very good questions and very good answers for it. Not every company as the scale to do that. And I think products like Google, they have millions of people writing Google Docs.
+
+[00:10:54] They have millions of people using Google Sheets, then millions of people writing stuff, creating content on YouTube. The question is, if you wanna compete against these companies, maybe the model is not what you're gonna do it with because the open source kind of commoditizes it. But how do you build even better data?
+
+[00:11:12] First party loops. And that's kind of the hardest thing for startups, right? Like even if we open up the, the models to everybody and everybody can just go on GitHub and. Or hugging face and get the waste to the best model, but get enough people to generate data for me so that I can still make it good. That's, that's what I would be worried about if I was a, a new company.
+
+[00:11:31] How do I make that happen
+
+[00:11:32] Simon Willison: really quickly?
+
+[00:11:34] Open Source Models are Comparable on Data
+
+[00:11:34] Simon Willison: I'm not convinced that the data is that big a challenge. So there's this PO project. So the problem with Facebook LAMA is that it's not available for, for commercial use. So people are now trying to train a alternative to LAMA that's entirely on openly licensed data.
+
+[00:11:48] And that the biggest project around that is this red pajama project, which They released their training data a few weeks ago and it was 2.7 terabytes. Right? So actually tiny, right? You can buy a laptop that you can fit 2.7 terabytes on. Got it. But it was the same exact data that Facebook, the same thing that Facebook Lamb had been trained on.
+
+[00:12:06] Cuz for your base model. You're not really trying to teach it fact about the world. You're just trying to teach it how English and other languages work, how they fit together. And then the real magic is when you fine tune on top of that. That's what Alpaca did on top of Lama and so on. And the fine tuning sets, it looks like, like tens of thousands of examples to kick one of these role models into shape.
+
+[00:12:26] And tens of thousands of examples like Databricks spent a month and got the 2000 employees of their company to help kick in and it worked. You've got the open assistant project of crowdsourcing this stuff now as well. So it's achievable
+
+[00:12:40] swyx: sore throat. I agree. I think it's a fa fascinating point. Actually, so I've heard through the grapevine then red pajamas model.
+
+[00:12:47] Trained on the, the data that they release is gonna be releasing tomorrow. And it's, it's this very exciting time because the, the, there, there's a, there's a couple more models that are coming down the pike, which independently we produced. And so yeah, that we, everyone is challenging all these assumptions from, from first principles, which is fascinating.
+
+[00:13:04] Stackable LoRA
+
+[00:13:04] swyx: I, I did, I did wanted to, to like try to get a little bit more technical in terms of like the, the, the, the specific points race. Cuz this doc, this doc was just amazing. Can we talk about LoRA. I, I, I'll open up to Simon again if he's back.
+
+[00:13:16] Simon Willison: I'd rather someone else take on. LoRA, I've, I, I know as much as I've read in that paper, but not much more than that.
+
+[00:13:21] swyx: So I thought it was this kind of like an optimization technique. So LoRA stands for lower rank adaptation. But this is the first mention of LoRA as a form of stackable improvements. Where he I forget what, let, just, let me just kind of Google this. But obviously anyone's more knowledgeable please.
+
+[00:13:39] So come on in.
+
+[00:13:40] Alessio Fanelli: I, all of Lauren is through GTS Man, about 20 minutes on GT four, trying to figure out word. It was I study computer science, but this is not this is not my area of expertise. What I got from it is that basically instead of having to retrain the whole model you can just pick one of the ranks and you take.
+
+[00:13:58] One of like the, the weight matrix tests and like make two smaller matrixes from it and then just two to be retrained and training the whole model. So
+
+[00:14:08] swyx: it save a lot of Yeah. You freeze part of the thing and then you just train the smaller part like that. Exactly. That seems to be a area of a lot of fruitful research.
+
+[00:14:15] Yeah. I think Mini GT four recently did something similar as well. And then there's, there's, there's a, there's a Spark Model people out today that also did the same thing.
+
+[00:14:23] Simon Willison: So I've seen a lot of LoRA stable, the stable diffusion community has been using LoRA a lot. So they, in that case, they had a, I, the thing I've seen is people releasing LoRA's that are like you, you train a concept like a, a a particular person's face or something you release.
+
+[00:14:38] And the, the LoRA version of this end up being megabytes of data, like, which is, it's. You know, it's small enough that you can just trade those around and you can effectively load multiple of those into the model. But what I haven't realized is that you can use the same trick on, on language models. That was one of the big new things for me in reading the the leaks Google paper today.
+
+[00:14:56] Alessio Fanelli: Yeah, and I think the point to make around on the infrastructure, so what tragedy has told me is that when you're figuring out what rank you actually wanna do this fine tuning at you can have either go too low and like the model doesn't actually learn it. Or you can go too high and the model overfit those learnings.
+
+[00:15:14] So if you have a base model that everybody agrees on, then all the subsequent like LoRA work is done around the same rank, which gives you an advantage. And the point they made in the, that, since Lama has been the base for a lot of this LoRA work like they own. The, the mind share of the community.
+
+[00:15:32] So everything that they're building is compatible with their architecture. But if Google Opensources their own model the rank that they chose For LoRA on Lama might not work on the Google model. So all of the existing work is not portable. So
+
+[00:15:46] Simon Willison: the impression I got is that one of the challenges with LoRA is that you train all these LoRAs on top of your model, but then if you retrain that base model as LoRA's becoming invalid, right?
+
+[00:15:55] They're essentially, they're, they're, they're built for an exact model version. So this means that being the big company with all of the GPUs that can afford to retrain a model every three months. That's suddenly not nearly as valuable as it used to be because now maybe there's an open source model that's five years old at this point and has like multiple, multiple stacks of LoRA's trained all over the world on top of it, which can outperform your brand new model just because there's been so much more iteration on that base.
+
+[00:16:20] swyx: I, I think it's, I think it's fascinating. It's I think Jim Fan from Envidia was recently making this argument for transformers. Like even if we do come up with a better. Architecture, then transformers, they're the sheer hundreds and millions of dollars that have been invested on top of transformers.
+
+[00:16:34] Make it actually there is some switching costs and it's not exactly obvious that better architecture. Equals equals we should all switch immediately tomorrow. It's, it's, it's
+
+[00:16:44] Simon Willison: kinda like the, the difficulty of launching a new programming language today Yes. Is that pipeline and JavaScript have a million packages.
+
+[00:16:51] So no matter how good your new language is, if it can't tap into those existing package libraries, it's, it's not gonna be useful for, which is why Moji is so clever, because they did build on top of Pips. They get all of that existing infrastructure, all of that existing code working already.
+
+[00:17:05] swyx: I mean, what, what thought you, since you co-create JAO and all that do, do we wanna take a diversion into mojo?
+
+[00:17:10] No, no. I
+
+[00:17:11] Travis Fischer: would, I, I'd be happy to, to, to jump in, and get Simon's take on, on Mojo. 1, 1, 1 small, small point on LoRA is I, I, I just think. If you think about at a high level, what the, the major down downsides are of these, these large language models. It's the fact that they well they're, they're, they're difficult to, to train, right?
+
+[00:17:32] They, they tend to hallucinate and they are, have, have a static, like, like they were trained at a certain date, right? And with, with LoRA, I think it makes it a lot more amenable to Training new, new updates on top of that, that like base model on the fly where you can incorporate new, new data and in a way that is, is, is an interesting and potentially more optimal alternative than Doing the kind of in context generation cuz, cuz most of like who at perplexity AI or, or any of these, these approaches currently, it's like all based off of doing real-time searches and then injecting as much into the, the, the local context window as possible so that you, you try to ground your, your, your, your language model.
+
+[00:18:16] Both in terms of the, the information it has access to that, that, that helps to reduce hallucinations. It can't reduce it, but helps to reduce it and then also gives it access to up-to-date information that wasn't around for that, that massive like, like pre-training step. And I think LoRA in, in, in mine really makes it more, more amenable to having.
+
+[00:18:36] Having constantly shifting lightweight pre-training on top of it that scales better than than normal. Pre I'm sorry. Fine tune, fine tuning. Yeah, that, that was just kinda my one takeaway
+
+[00:18:45] Simon Willison: there. I mean, for me, I've never been, I want to run models on my own hard, I don't actually care about their factual content.
+
+[00:18:52] Like I don't need a model that's been, that's trained on the most upstate things. What I need is a model that can do the bing and bar trick, right? That can tell when it needs to run a search. And then go and run a search to get extra information and, and bring that context in. And similarly, I wanted to be able to operate tools where it can access my email or look at my notes or all of those kinds of things.
+
+[00:19:11] And I don't think you need a very powerful model for that. Like that's one of the things where I feel like, yeah, vicuna running on my, on my laptop is probably powerful enough to drive a sort of personal research assistant, which can look things up for me and it can summarize things for my notes and it can do all of that and I don't care.
+
+[00:19:26] But it doesn't know about the Ukraine war because the Ukraine war training cutoff, that doesn't matter. If it's got those additional capabilities, which are quite easy to build the reason everyone's going crazy building agents and tools right now is that it's a few lines of Python code, and a sort of couple of paragraphs to get it to.
+
+[00:19:44] The Need for Special Purpose Optimized Models
+
+[00:19:44] Simon Willison: Well, let's, let's,
+
+[00:19:45] Travis Fischer: let's maybe dig in on that a little bit. And this, this also is, is very related to mojo. Cuz I, I do think there are use cases and domains where having the, the hyper optimized, like a version of these models running on device is, is very relevant where you can't necessarily make API calls out on the fly.
+
+[00:20:03] and Aug do context, augmented generation. And I was, I was talking with, with a a researcher. At Lockheed Martin yesterday, literally about like, like the, the version of this that's running of, of language models running on, on fighter jets. Right? And you, you talk about like the, the, the amount of engineering, precision and optimization that has to go into, to those type of models.
+
+[00:20:25] And the fact that, that you spend so much money, like, like training a super distilled ver version where milliseconds matter it's a life or death situation there. You know, and you couldn't even, even remotely ha ha have a use case there where you could like call out and, and have, have API calls or something.
+
+[00:20:40] So I, I do think there's like keeping in mind the, the use cases where, where. There, there'll be use cases that I'm more excited about at, at the application level where, where, yeah, I want to to just have it be super flexible and be able to call out to APIs and have this agentic type type thing.
+
+[00:20:56] And then there's also industries and, and use cases where, where you really need everything baked into the model.
+
+[00:21:01] swyx: Yep. Agreed. My, my favorite piece take on this is I think DPC four as a reasoning engine, which I think came from the from Nathan at every two. Which I think, yeah, I see the hundred score over there.
+
+[00:21:12] Modular - Mojo from Chris Lattner
+
+[00:21:12] swyx: Simon, do you do you have a, a few seconds on
+
+[00:21:14] Simon Willison: mojo. Sure. So Mojo is a brand new program language you just announced a few days ago. It's not actually available yet. I think there's an online demo, but to zooming it becomes an open source language we can use. It's got really some very interesting characteristics.
+
+[00:21:29] It's a super set of Python, so anything written in Python, Python will just work, but it adds additional features on top that let you basically do very highly optimized code with written. In Python syntax, it compiles down the the main thing that's exciting about it is the pedigree that it comes from.
+
+[00:21:47] It's a team led by Chris Latner, built L L V M and Clang, and then he designed Swift at Apple. So he's got like three, three for three on, on extraordinarily impactful high performance computing products. And he put together this team and they've basically, they're trying to go after the problem of how do you build.
+
+[00:22:06] A language which you can do really high performance optimized work in, but where you don't have to do everything again from scratch. And that's where building on top of Python is so clever. So I wasn't like, if this thing came along, I, I didn't really pay attention to it until j Jeremy Howard, who built Fast ai put up a very detailed blog post about why he was excited about Mojo, which included a, there's a video demo in there, which everyone should watch because in that video he takes Matrix multiplication implemented in Python.
+
+[00:22:34] And then he uses the mojo extras to 2000 x. The performance of that matrix multiplication, like he adds a few static types functions sort of struck instead of the class. And he gets 2000 times the performance out of it, which is phenomenal. Like absolutely extraordinary. So yeah, that, that got me really excited.
+
+[00:22:52] Like the idea that we can still use Python and all of this stuff we've got in Python, but we can. Just very slightly tweak some things and get literally like thousands times upwards performance out of the things that matter. That's really exciting.
+
+[00:23:07] swyx: Yeah, I, I, I'm curious, like, how come this wasn't thought of before?
+
+[00:23:11] It's not like the, the, the concept of a language super set hasn't hasn't, has, has isn't, is completely new. But all, as far as I know, all the previous Python interpreter approaches, like the alternate runtime approaches are like they, they, they're more, they're more sort of, Fit conforming to standard Python, but never really tried this additional approach of augmenting the language.
+
+[00:23:33] The Promise of Language Supersets
+
+[00:23:33] swyx: I, I'm wondering if you have many insights there on, like, why, like why is this a, a, a breakthrough?
+
+[00:23:38] Simon Willison: Yeah, that's a really interesting question. So, Jeremy Howard's piece talks about this thing called M L I R, which I hadn't heard of before, but this was another Chris Latner project. You know, he built L L VM as a low level virtual machine.
+
+[00:23:53] That you could build compilers on top of. And then M L I R was this one that he initially kicked off at Google, and I think it's part of TensorFlow and things like that. But it was very much optimized for multiple cores and GPU access and all of that kind of thing. And so my reading of Jeremy Howard's article is that they've basically built Mojo on top of M L I R.
+
+[00:24:13] So they had a huge, huge like a starting point where they'd, they, they knew this technology better than anyone else. And because they had this very, very robust high performance basis that they could build things on. I think maybe they're just the first people to try and build a high, try and combine a high level language with M L A R, with some extra things.
+
+[00:24:34] So it feels like they're basically taking a whole bunch of ideas people have been sort of experimenting with over the last decade and bundled them all together with exactly the right team, the right level of expertise. And it looks like they've got the thing to work. But yeah, I mean, I've, I've, I'm. Very intrigued to see, especially once this is actually available and we can start using it.
+
+[00:24:52] It, Jeremy Howard is someone I respect very deeply and he's, he's hyping this thing like crazy, right? His headline, his, and he's not the kind of person who hypes things if they're not worth hyping. He said Mojo may be the biggest programming language advanced in decades. And from anyone else, I'd kind of ignore that headline.
+
+[00:25:09] But from him it really means something.
+
+[00:25:11] swyx: Yes, because he doesn't hype things up randomly. Yeah, and, and, and he's a noted skeptic of Julia which is, which is also another data science hot topic. But from the TypeScript and web, web development worlds there has been a dialect of TypeScript that was specifically optimized to compile, to web assembly which I thought was like promising and then, and, and eventually never really took off.
+
+[00:25:33] But I, I like this approach because I think more. Frameworks should, should essentially be languages and recognize that they're language superset and maybe working compilers that that work on them. And then that is the, by the way, that's the direction that React is going right now. So fun times
+
+[00:25:50] Simon Willison: type scripts An interesting comparison actually, cuz type script is effectively a superset of Java script, right?
+
+[00:25:54] swyx: It's, but there's no, it's purely
+
+[00:25:57] Simon Willison: types, right? Gotcha. Right. So, so I guess mojo is the soup set python, but the emphasis is absolutely on tapping into the performance stuff. Right.
+
+[00:26:05] swyx: Well, the just things people actually care about.
+
+[00:26:08] Travis Fischer: Yeah. The, the one thing I've found is, is very similar to the early days of type script.
+
+[00:26:12] There was the, the, the, the most important thing was that it's incrementally adoptable. You know, cuz people had a script code basis and, and they wanted to incrementally like add. The, the, the main value prop for TypeScript was reliability and the, the, the, the static typing. And with Mojo, Lucia being basically anyone who's a target a large enterprise user of, of Mojo or even researchers, like they're all going to be coming from a, a hardcore.
+
+[00:26:36] Background in, in Python and, and have large existing libraries. And the the question will be for what use cases will mojo be like a, a, a really good fit for that incremental adoption where you can still tap into your, your, your massive, like python exi existing infrastructure workflows, data tooling, et cetera.
+
+[00:26:55] And, and what does, what does that path to adoption look like?
+
+[00:26:59] swyx: Yeah, we, we, we don't know cuz it's a wait listed language which people were complaining about. They, they, the, the mojo creators were like saying something about they had to scale up their servers. And I'm like, what language requires essential server?
+
+[00:27:10] So it's a little bit suss, a little bit, like there's a, there's a cloud product already in place and they're waiting for it. But we'll see. We'll see. I mean, emojis should be promising in it. I, I actually want more. Programming language innovation this way. You know, I was complaining years ago that programming language innovation is all about stronger types, all fun, all about like more functional, more strong types everywhere.
+
+[00:27:29] And, and this is, the first one is actually much more practical which I, which I really enjoy. This is why I wrote about self provisioning run types.
+
+[00:27:36] Simon Willison: And
+
+[00:27:37] Alessio Fanelli: I mean, this is kind of related to the post, right? Like if you stop all of a sudden we're like, the models are all the same and we can improve them.
+
+[00:27:45] Like, where can we get the improvements? You know, it's like, Better run times, better languages, better tooling, better data collection. Yeah. So if I were a founder today, I wouldn't worry as much about the model, maybe, but I would say, okay, what can I build into my product and like, or what can I do at the engineering level that maybe it's not model optimization because everybody's working on it, but like you said, it's like, why haven't people thought of this before?
+
+[00:28:09] It's like, it's, it's definitely super hard, but I'm sure that if you're like Google or you're like open AI or you're like, Databricks, we got smart enough people that can think about these problems, so hopefully we see more of this.
+
+[00:28:21] swyx: You need, Alan? Okay. I promise to keep this relatively tight. I know Simon on a beautiful day.
+
+[00:28:27] It is a very nice day in California. I wanted to go through a few more points that you have pulled out Simon and, and just give you the opportunity to, to rant and riff and, and what have you. I, I, are there any other points from going back to the sort of Google OpenAI mode documents that, that you felt like we, we should dive in on?
+
+[00:28:44] Google AI Strategy
+
+[00:28:44] Simon Willison: I mean, the really interesting stuff there is the strategy component, right? The this idea that that Facebook accidentally stumbled into leading this because they put out this model that everyone else is innovating on top of. And there's a very open question for me as to would Facebook relic Lama to allow for commercial usage?
+
+[00:29:03] swyx: Is there some rumor? Is that, is that today?
+
+[00:29:06] Simon Willison: Is there a rumor about that?
+
+[00:29:07] swyx: That would be interesting? Yeah, I saw, I saw something about Zuck saying that he would release the, the Lama weights officially.
+
+[00:29:13] Simon Willison: Oh my goodness. No, that I missed. That is, that's huge.
+
+[00:29:17] swyx: Let me confirm the tweet. Let me find the tweet and then, yeah.
+
+[00:29:19] Okay.
+
+[00:29:20] Simon Willison: Because actually I met somebody from Facebook machine learning research a couple of weeks ago, and I, I pressed 'em on this and they said, basically they don't think it'll ever happen because if it happens, and then somebody does horrible fascist stuff with this model, all of the headlines will be Meg releases a monster into the world.
+
+[00:29:36] So, so hi. His, the, the, the, a couple of weeks ago, his feeling was that it's just too risky for them to, to allow it to be used like that. But a couple of weeks is, is, is a couple of months in AI world. So yeah, it wouldn't be, it feels to me like strategically Facebook should be jumping right on this because this puts them at the very.
+
+[00:29:54] The very lead of, of open source innovation around this stuff.
+
+[00:29:58] Zuck Releasing LLaMA
+
+[00:29:58] swyx: So I've pinned the tweet talking about Zuck and Zuck saying that meta will open up Lama. It's from the founder of Obsidian, which gives it a slight bit more credibility, but it is the only. Tweet that I can find about it. So completely unsourced,
+
+[00:30:13] we shall see. I, I, I mean I have friends within meta, I should just go ask them. But yeah, I, I mean one interesting angle on, on the memo actually is is that and, and they were linking to this in, in, in a doc, which is apparently like. Facebook got a bunch of people to do because they, they never released it for commercial use, but a lot of people went ahead anyway and, and optimized and, and built extensions and stuff.
+
+[00:30:34] They, they got a bunch of free work out of opensource, which is an interesting strategy.
+
+[00:30:39] There's okay. I don't know if I.
+
+[00:30:42] Google Origin Confirmed
+
+[00:30:42] Simon Willison: I've got exciting piece of news. I've just heard from somebody with contacts at Google that they've heard people in Google confirm the leak. That that document wasn't even legit Google document, which I don't find surprising at all, but I'm now up to 10, outta 10 on, on whether that's, that's, that's real.
+
+[00:30:57] Google's existential threat
+
+[00:30:57] swyx: Excellent. Excellent. Yeah, it is fascinating. Yeah, I mean the, the strategy is, is, is really interesting. I think Google has been. Definitely sleeping on monetizing. You know, I, I, I heard someone call when Google Brain and Devrel I merged that they would, it was like goodbye to the Xerox Park of our era and it definitely feels like Google X and Google Brain would definitely Xerox parks of our, of our era, and I guess we all benefit from that.
+
+[00:31:21] Simon Willison: So, one thing I'll say about the, the Google side of things, like the there was a question earlier, why are Google so worried about this stuff? And I think it's, it's just all about the money. You know, the, the, the engine of money at Google is Google searching Google search ads, and who uses Chachi PT on a daily basis, like me, will have noticed that their usage of Google has dropped like a stone.
+
+[00:31:41] Because there are many, many questions that, that chat, e p t, which shows you no ads at all. Is, is, is a better source of information for than Google now. And so, yeah, I'm not, it doesn't surprise me that Google would see this as an existential threat because whether or not they can be Bard, it's actually, it's not great, but it, it exists, but it hasn't it yet either.
+
+[00:32:00] And if I've got a Chatbook chatbot that's not showing me ads and chatbot that is showing me ads, I'm gonna pick the one that's not showing
+
+[00:32:06] swyx: me ads. Yeah. Yeah. I, I agree. I did see a prototype of Bing with ads. Bing chat with ads. I haven't
+
+[00:32:13] Simon Willison: seen the prototype yet. No.
+
+[00:32:15] swyx: Yeah, yeah. Anyway, I I, it, it will come obviously, and then we will choose, we'll, we'll go out of our ways to avoid ads just like we always do.
+
+[00:32:22] We'll need ad blockers and chat.
+
+[00:32:23] Excellent.
+
+[00:32:24] Non-Fiction AI Safety ("y-risk")
+
+[00:32:24] Simon Willison: So I feel like on the safety side, the, the safety side, there are basically two areas of safety that I, I, I sort of split it into. There's the science fiction scenarios, the AI breaking out and killing all humans and creating viruses and all of that kind of thing. The sort of the terminated stuff. And then there's the the.
+
+[00:32:40] People doing bad things with ai and that's latter one is the one that I think is much more interesting and that cuz you could u like things like romance scams, right? Romance scams already take billions of dollars from, from vulner people every year. Those are very easy to automate using existing tools.
+
+[00:32:56] I'm pretty sure for QNA 13 b running on my laptop could spin up a pretty decent romance scam if I was evil and wanted to use it for them. So that's the kind of thing where, I get really nervous about it, like the fact that these models are out there and bad people can use these bad, do bad things.
+
+[00:33:13] Most importantly at scale, like romance scamming, you don't need a language model to pull off one romance scam, but if you wanna pull off a thousand at once, the language model might be the, the thing that that helps you scale to that point. And yeah, in terms of the science fiction stuff and also like a model on my laptop that can.
+
+[00:33:28] Guess what comes next in a sentence. I'm not worried that that's going to break out of my laptop and destroy the world. There. There's, I'm get slightly nervous about the huge number of people who are trying to build agis on top of this models, the baby AGI stuff and so forth, but I don't think they're gonna get anywhere.
+
+[00:33:43] I feel like if you actually wanted a model that was, was a threat to human, a language model would be a tiny corner of what that thing. Was actually built on top of, you'd need goal setting and all sorts of other bits and pieces. So yeah, for the moment, the science fiction stuff doesn't really interest me, although it is a little bit alarming seeing more and more of the very senior figures in this industry sort of tip the hat, say we're getting a little bit nervous about this stuff now.
+
+[00:34:08] Yeah.
+
+[00:34:09] swyx: So that would be Jeff Iton and and I, I saw this me this morning that Jan Lacoon was like happily saying, this is fine. Being the third cheer award winner.
+
+[00:34:20] Simon Willison: But you'll see a lot of the AI safe, the people who've been talking about AI safety for the longest are getting really angry about science fiction scenarios cuz they're like, no, the, the thing that we need to be talking about is the harm that you can cause with these models right now today, which is actually happening and the science fiction stuff kind of ends up distracting from that.
+
+[00:34:36] swyx: I love it. You, you. Okay. So, so Uher, I don't know how to pronounce his name. Elier has a list of ways that AI will kill us post, and I think, Simon, you could write a list of ways that AI will harm us, but not kill us, right? Like the, the, the non-science fiction actual harm ways, I think, right? I haven't seen a, a actual list of like, hey, romance scams spam.
+
+[00:34:57] I, I don't, I don't know what else, but. That could be very interesting as a Hmm. Okay. Practical. Practical like, here are the situations we need to guard against because they are more real today than that we need to. Think about Warren, about obviously you've been a big advocate of prompt injection awareness even though you can't really solve them, and I, I worked through a scenario with you, but Yeah,
+
+[00:35:17] Prompt Injection
+
+[00:35:17] Simon Willison: yeah.
+
+[00:35:17] Prompt injection is a whole other side of this, which is, I mean, that if you want a risk from ai, the risk right now is everyone who's building puts a building systems that attackers can trivially subvert into stealing all of their private data, unlocking their house, all of that kind of thing. So that's another very real risk that we have today.
+
+[00:35:35] swyx: I think in all our personal bios we should edit in prompt injections already, like in on my website, I wanna edit in a personal prompt injections so that if I get scraped, like I all know if someone's like reading from a script, right? That that is generated by any iBot. I've
+
+[00:35:49] Simon Willison: seen people do that on LinkedIn already and they get, they get recruiter emails saying, Hey, I didn't read your bio properly and I'm just an AI script, but would you like a job?
+
+[00:35:57] Yeah. It's fascinating.
+
+[00:36:00] Google vs OpenAI
+
+[00:36:00] swyx: Okay. Alright, so topic. I, I, I think, I think this this, this mote is is a peak under the curtain of the, the internal panic within Google. I think it is very val, very validated. I'm not so sure they should care so much about small models or, or like on device models.
+
+[00:36:17] But the other stuff is interesting. There is a comment at the end that you had by about as for opening open is themselves, open air, doesn't matter. So this is a Google document talking about Google's position in the market and what Google should be doing. But they had a comment here about open eye.
+
+[00:36:31] They also say open eye had no mode, which is a interesting and brave comment given that open eye is the leader in, in a lot of these
+
+[00:36:38] Simon Willison: innovations. Well, one thing I will say is that I think we might have identified who within Google wrote this document. Now there's a version of it floating around with a name.
+
+[00:36:48] And I look them up on LinkedIn. They're heavily involved in the AI corner of Google. So my guess is that at Google done this one, I've worked for companies. I'll put out a memo, I'll write up a Google doc and I'll email, email it around, and it's nowhere near the official position of the company or of the executive team.
+
+[00:37:04] It's somebody's opinion. And so I think it's more likely that this particular document is somebody who works for Google and has an opinion and distributed it internally and then it, and then it got leaked. I dunno if it's necessarily. Represents Google's sort of institutional thinking about this? I think it probably should.
+
+[00:37:19] Again, this is such a well-written document. It's so well argued that if I was an executive at Google and I read that, I would, I would be thinking pretty hard about it. But yeah, I don't think we should see it as, as sort of the official secret internal position of the company. Yeah. First
+
+[00:37:34] swyx: of all, I might promote that person.
+
+[00:37:35] Cuz he's clearly more,
+
+[00:37:36] Simon Willison: oh, definitely. He's, he's, he's really, this is a, it's, I, I would hire this person about the strength of that document.
+
+[00:37:42] swyx: But second of all, this is more about open eye. Like I'm not interested in Google's official statements about open, but I was interested like his assertion, open eye.
+
+[00:37:50] Doesn't have a mote. That's a bold statement. I don't know. It's got the best people.
+
+[00:37:55] Travis Fischer: Well, I, I would, I would say two things here. One, it's really interesting just at a meta, meta point that, that they even approached it this way of having this public leak. It, it, it kind of, Talks a little bit to the fact that they, they, they felt that that doing do internally, like wasn't going to get anywhere or, or maybe this speaks to, to some of the like, middle management type stuff or, or within Google.
+
+[00:38:18] And then to the, the, the, the point about like opening and not having a moat. I think for, for large language models, it, it, it will be over, over time kind of a race to the bottom just because the switching costs are, are, are so low compared with traditional cloud and sas. And yeah, there will be differences in, in, in quality, but, but like over time, if you, you look at the limit of these things like the, I I think Sam Altman has been quoted a few times saying that the, the, the price of marginal price of intelligence will go to zero.
+
+[00:38:47] Time and the marginal price of energy powering that intelligence will, will also hit over time. And in that world, if you're, you're providing large language models, they become commoditized. Like, yeah. What, what is, what is your mode at that point? I don't know. I think they're e extremely well positioned as a team and as a company for leading this space.
+
+[00:39:03] I'm not that, that worried about that, but it is something from a strategic point of view to keep in mind about large language models becoming a commodity. So
+
+[00:39:11] Simon Willison: it's quite short, so I think it's worth just reading the, in fact, that entire section, it says epilogue. What about open ai? All of this talk of open source can feel unfair given open AI's current closed policy.
+
+[00:39:21] Why do we have to share if they won't? That's talking about Google sharing, but the fact of the matter is we are already sharing everything with them. In the form of the steady flow of poached senior researchers until we spent that tide. Secrecy is a moot point. I love that. That's so salty. And, and in the end, open eye doesn't matter.
+
+[00:39:38] They are making the same mistakes that we are in their posture relative to open source. And their ability to maintain an edge is necessarily in question. Open source alternatives. Canned will eventually eclipse them. Unless they change their stance in this respect, at least we can make the first move. So the argument this, this paper is making is that Google should go, go like meta and, and just lean right into open sourcing it and engaging with the wider open source community much more deeply, which OpenAI have very much signaled they are not willing to do.
+
+[00:40:06] But yeah, it's it's, it's read the whole thing. The whole thing is full of little snippets like that. It's just super fun. Yes,
+
+[00:40:12] swyx: yes. Read the whole thing. I, I, I also appreciate that the timeline, because it set a lot of really great context for people who are out of the loop. So Yeah.
+
+[00:40:20] Alessio Fanelli: Yeah. And the final conspiracy theory is that right before Sundar and Satya and Sam went to the White House this morning, so.
+
+[00:40:29] swyx: Yeah. Did it happen? I haven't caught up the White House statements.
+
+[00:40:34] Alessio Fanelli: No. That I, I just saw, I just saw the photos of them going into the, the White House. I've been, I haven't seen any post-meeting updates.
+
+[00:40:41] swyx: I think it's a big win for philanthropic to be at that table.
+
+[00:40:44] Alessio Fanelli: Oh yeah, for sure. And co here it's not there.
+
+[00:40:46] I was like, hmm. Interesting. Well, anyway,
+
+[00:40:50] swyx: yeah. They need, they need some help. Okay. Well, I, I promise to keep this relatively tight. Spaces do tend to have a, have a tendency of dragging on. But before we go, anything that you all want to plug, anything that you're working on currently maybe go around Simon are you still working on dataset?
+
+[00:41:04] Personal plugs: Simon and Travis
+
+[00:41:04] Simon Willison: I am, I am, I'm having a bit of a, so datasets my open source project that I've been working on. It's about helping people analyze and publish data. I'm having an existential crisis of it at the moment because I've got access to the chat g p T code, interpreter mode, and you can upload the sequel light database to that and it will do all of the things that I, on my roadmap for the next 12 months.
+
+[00:41:24] Oh my God. So that's frustrating. So I'm basically, I'm leaning data. My interest in data and AI are, are rapidly crossing over a lot harder about the AI features that I need to build on top of dataset. Make sure it stays relevant in a chat. G p t can do most of the stuff that it does already. But yeah the thing, I'll plug my blog simon willis.net.
+
+[00:41:43] I'm now updating it daily with stuff because AI move moved so quickly and I have a sub newsletter, which is effectively my blog, but in email form sent out a couple of times a week, which Please subscribe to that or RSS feed on my blog or, or whatever because I'm, I'm trying to keep track of all sorts of things and I'm publishing a lot at the moment.
+
+[00:42:02] swyx: Yes. You, you are, and we love you very much for it because you, you are a very good reporter and technical deep diver into things, into all the things. Thank you, Simon. Travis are you ready to announce the, I guess you've announced it some somewhat. Yeah. Yeah.
+
+[00:42:14] Travis Fischer: So I'm I, I just founded a company.
+
+[00:42:16] I'm working on a framework for building reliable agents that aren't toys and focused on more constrained use cases. And you know, I I, I look at kind of agi. And these, these audigy type type projects as like jumping all the way to str to, to self-driving. And, and we, we, we kind of wanna, wanna start with some more enter and really focus on, on reliable primitives to, to start that.
+
+[00:42:38] And that'll be an open source type script project. I'll be releasing the first version of that soon. And that's, that's it. Follow me you know, on here for, for this type of stuff, I, I, I, everything, AI
+
+[00:42:48] swyx: and, and spa, his chat PT bot,
+
+[00:42:50] Travis Fischer: while you still can. Oh yeah, the chat VT Twitter bot is about 125,000 followers now.
+
+[00:42:55] It's still running. I, I'm not sure if it's your credit. Yeah. Can you say how much you spent actually, No, no. Well, I think probably totally like, like a thousand bucks or something, but I, it's, it's sponsored by OpenAI, so I haven't, I haven't actually spent any real money.
+
+[00:43:08] swyx: What? That's
+
+[00:43:09] awesome.
+
+[00:43:10] Travis Fischer: Yeah. Yeah.
+
+[00:43:11] Well, once, once I changed, originally the logo was the Chachi VUI logo and it was the green one, and then they, they hit me up and asked me to change it. So it's now it's a purple logo. And they're, they're, they're cool with that. Yeah.
+
+[00:43:21] swyx: Yeah. Sending take down notices to people with G B T stuff apparently now.
+
+[00:43:26] So it's, yeah, it's a little bit of a gray area. I wanna write more on, on mos. I've been actually collecting and meaning to write a piece of mos and today I saw the memo, I was like, oh, okay. Like I guess today's the day we talk about mos. So thank you all. Thanks. Thanks, Simon. Thanks Travis for, for jumping on and thanks to all the audience for engaging on this with us.
+
+[00:43:42] We'll continue to engage on Twitter, but thanks to everyone. Cool. Thanks everyone. Bye. Alright, thanks everyone. Bye.
+
+1
+
+Sundar denies personally calling the Code Red. Perhaps we need to put him on the stand for Tom Cruise to cross examine?
+
+2
+
+Google rushed to demo Bard the same day as Microsoft Bing on Feb 8, and Bard’s demo of inaccurate information (on the JWST) caused a $100b dive in market value. We now know that Bing’s demo also had inaccuracies and that it does compare favorably on some dimensions, but first impressions are sticky.
+
+3
+
+To my knowledge, all these items are yet unlaunched.
+
+4
+
+A friend recently commented that Google X, Brain, and DeepMind have collectively been the Xerox PARC of our era, birthing Aurora, Nuro, Skydio, Transformers, Chinchilla, and more.
+
+5
+
+But of course, open will continue to progress regardless, like the proverbial immortal snail.
+
+6
+
+My internal Paul Graham cannot resist adding, “like making something people want”.
+
+7
+
+Anon AI Twitter is best Twitter.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Simon Willison
+
+Writes Simon Willison’s Newsletter Subscribe
+
+Alessio Fanelli
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

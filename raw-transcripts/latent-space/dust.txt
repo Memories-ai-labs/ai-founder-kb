@@ -1,0 +1,591 @@
+# Agents @ Work: Dust.tt
+# URL: https://www.latent.space/p/dust
+# Date: 2024-11-11
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Agents @ Work: Dust.tt
+
+24
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:00:06
+
+-1:00:06
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Agents @ Work: Dust.tt
+
+Stanislas Polu on working with Greg, Ilya and Sama at OpenAI, competing with LangChain, and why he's working on a horizontal agents platform when vertical agents are at peak hype 
+
+Nov 11, 2024
+
+24
+
+1
+
+Share
+
+Transcript
+
+We are recording our next big recap episode and taking questions! 
+
+Submit questions and messages on Speakpipe here for a chance to appear on the show!
+
+Also subscribe to our calendar for our Singapore, NeurIPS, and all upcoming meetups!
+
+In our first ever episode with Logan Kilpatrick we called out the two hottest LLM frameworks at the time: LangChain and Dust. We’ve had Harrison from LangChain on twice (as a guest and as a co-host), and we’ve now finally come full circle as Stanislas from Dust joined us in the studio.
+
+After stints at Oracle and Stripe, Stan had joined OpenAI to work on mathematical reasoning capabilities. He describes his time at OpenAI as "the PhD I always wanted to do" while acknowledging the challenges of research work: "You're digging into a field all day long for weeks and weeks, and you find something, you get super excited for 12 seconds. And at the 13 seconds, you're like, 'oh, yeah, that was obvious.' And you go back to digging." 
+
+This experience, combined with early access to GPT-4's capabilities, shaped his decision to start Dust: "If we believe in AGI and if we believe the timelines might not be too long, it's actually the last train leaving the station to start a company. After that, it's going to be computers all the way down."
+
+The History of Dust
+
+Dust's journey can be broken down into three phases:
+
+Developer Framework (2022): Initially positioned as a competitor to LangChain, Dust started as a developer tooling platform. While both were open source, their approaches differed – LangChain focused on broad community adoption and integration as a pure developer experience, while Dust emphasized UI-driven development and better observability that wasn’t just `print` statements.
+
+Browser Extension (Early 2023): The company pivoted to building XP1, a browser extension that could interact with web content. This experiment helped validate user interaction patterns with AI, even while using less capable models than GPT-4.
+
+Enterprise Platform (Current): Today, Dust has evolved into an infrastructure platform for deploying AI agents within companies, with impressive metrics like 88% daily active users in some deployments.
+
+The Case for Being Horizontal
+
+The big discussion for early stage companies today is whether or not to be horizontal or vertical. Since models are so good at general tasks, a lot of companies are building vertical products that take care of a workflow end-to-end in order to offer more value and becoming more of “Services as Software”. Dust on the other hand is a platform for the users to build their own experiences, which has had a few advantages:
+
+Maximum Penetration: Dust reports 60-70% weekly active users across entire companies, demonstrating the potential reach of horizontal solutions rather than selling into a single team.
+
+Emergent Use Cases: By allowing non-technical users to create agents, Dust enables use cases to emerge organically from actual business needs rather than prescribed solutions.
+
+Infrastructure Value: The platform approach creates lasting value through maintained integrations and connections, similar to how Stripe's value lies in maintaining payment infrastructure. Rather than relying on third-party integration providers, Dust maintains its own connections to ensure proper handling of different data types and structures.
+
+The Vertical Challenge
+
+However, this approach comes with trade-offs:
+
+Harder Go-to-Market: As Stan talked about: "We spike at penetration... but it makes our go-to-market much harder. Vertical solutions have a go-to-market that is much easier because they're like, 'oh, I'm going to solve the lawyer stuff.'"
+
+Complex Infrastructure: Building a horizontal platform requires maintaining numerous integrations and handling diverse data types appropriately – from structured Salesforce data to unstructured Notion pages. As you scale integrations, the cost of maintaining them also scales. 
+
+Product Surface Complexity: Creating an interface that's both powerful and accessible to non-technical users requires careful design decisions, down to avoiding technical terms like "system prompt" in favor of "instructions." 
+
+The Future of AI Platforms
+
+Stan initially predicted we'd see the first billion-dollar single-person company in 2023 (a prediction later echoed by Sam Altman), but he's now more focused on a different milestone: billion-dollar companies with engineering teams of just 20 people, enabled by AI assistance.
+
+This vision aligns with Dust's horizontal platform approach – building the infrastructure that allows small teams to achieve outsized impact through AI augmentation. Rather than replacing entire job functions (the vertical approach), they're betting on augmenting existing workflows across organizations.
+
+Full YouTube Episode
+
+Chapters
+
+00:00:00 Introductions
+
+00:04:33 Joining OpenAI from Paris
+
+00:09:54 Research evolution and compute allocation at OpenAI
+
+00:13:12 Working with Ilya Sutskever and OpenAI's vision
+
+00:15:51 Leaving OpenAI to start Dust
+
+00:18:15 Early focus on browser extension and WebGPT-like functionality
+
+00:20:20 Dust as the infrastructure for agents
+
+00:24:03 Challenges of building with early AI models
+
+00:28:17 LLMs and Workflow Automation
+
+00:35:28 Building dependency graphs of agents
+
+00:37:34 Simulating API endpoints
+
+00:40:41 State of AI models
+
+00:43:19 Running evals
+
+00:46:36 Challenges in building AI agents infra
+
+00:49:21 Buy vs. build decisions for infrastructure components
+
+00:51:02 Future of SaaS and AI's Impact on Software
+
+00:53:07 The single employee $1B company race
+
+00:56:32 Horizontal vs. vertical approaches to AI agents
+
+Transcript
+
+Alessio [00:00:00]: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol.ai.
+
+Swyx [00:00:11]: Hey, and today we're in a studio with Stanislas, welcome.
+
+Stan [00:00:14]: Thank you very much for having me.
+
+Swyx [00:00:16]: Visiting from Paris.
+
+Stan [00:00:17]: Paris.
+
+Swyx [00:00:18]: And you have had a very distinguished career. It's very hard to summarize, but you went to college in both Ecopolytechnique and Stanford, and then you worked in a number of places, Oracle, Totems, Stripe, and then OpenAI pre-ChatGPT. We'll talk, we'll spend a little bit of time about that. About two years ago, you left OpenAI to start Dust. I think you were one of the first OpenAI alum founders.
+
+Stan [00:00:40]: Yeah, I think it was about at the same time as the Adept guys, so that first wave.
+
+Swyx [00:00:46]: Yeah, and people really loved our David episode. We love a few sort of OpenAI stories, you know, for back in the day, like we're talking about pre-recording. Probably the statute of limitations on some of those stories has expired, so you can talk a little bit more freely without them coming after you. But maybe we'll just talk about, like, what was your journey into AI? You know, you were at Stripe for almost five years, there are a lot of Stripe alums going into OpenAI. I think the Stripe culture has come into OpenAI quite a bit.
+
+Stan [00:01:11]: Yeah, so I think the buses of Stripe people really started flowing in, I guess, after ChatGPT. But, yeah, my journey into AI is a... I mean, Greg Brockman. Yeah, yeah. From Greg, of course. And Daniela, actually, back in the days, Daniela Amodei.
+
+Swyx [00:01:27]: Yes, she was COO, I mean, she is COO, yeah. She had a pretty high job at OpenAI at the time, yeah, for sure.
+
+Stan [00:01:34]: My journey started as anybody else, you're fascinated with computer science and you want to make them think, it's awesome, but it doesn't work. I mean, it was a long time ago, it was like maybe 16, so it was 25 years ago. Then the first big exposure to AI would be at Stanford, and I'm going to, like, disclose a whole lamb, because at the time it was a class taught by Andrew Ng, and there was no deep learning. It was half features for vision and a star algorithm. So it was fun. But it was the early days of deep learning. At the time, I think a few years after, it was the first project at Google. But you know, that cat face or the human face trained from many images. I went to, hesitated doing a PhD, more in systems, eventually decided to go into getting a job. Went at Oracle, started a company, did a gazillion mistakes, got acquired by Stripe, worked with Greg Buckman there. And at the end of Stripe, I started interesting myself in AI again, felt like it was the time, you had the Atari games, you had the self-driving craziness at the time. And I started exploring projects, it felt like the Atari games were incredible, but there were still games. And I was looking into exploring projects that would have an impact on the world. And so I decided to explore three things, self-driving cars, cybersecurity and AI, and math and AI. It's like I sing it by a decreasing order of impact on the world, I guess.
+
+Swyx [00:03:01]: Discovering new math would be very foundational.
+
+Stan [00:03:03]: It is extremely foundational, but it's not as direct as driving people around.
+
+Swyx [00:03:07]: Sorry, you're doing this at Stripe, you're like thinking about your next move.
+
+Stan [00:03:09]: No, it was at Stripe, kind of a bit of time where I started exploring. I did a bunch of work with friends on trying to get RC cars to drive autonomously. Almost started a company in France or Europe about self-driving trucks. We decided to not go for it because it was probably very operational. And I think the idea of the company, of the team wasn't there. And also I realized that if I wake up a day and because of a bug I wrote, I killed a family, it would be a bad experience. And so I just decided like, no, that's just too crazy. And then I explored cybersecurity with a friend. We're trying to apply transformers to cut fuzzing. So cut fuzzing, you have kind of an algorithm that goes really fast and tries to mutate the inputs of a library to find bugs. And we tried to apply a transformer to that and do reinforcement learning with the signal of how much you propagate within the binary. Didn't work at all because the transformers are so slow compared to evolutionary algorithms that it kind of didn't work. Then I started interested in math and AI and started working on SAT solving with AI. And at the same time, OpenAI was kind of starting the reasoning team that were tackling that project as well. I was in touch with Greg and eventually got in touch with Ilya and finally found my way to OpenAI. I don't know how much you want to dig into that. The way to find your way to OpenAI when you're in Paris was kind of an interesting adventure as well.
+
+Swyx [00:04:33]: Please. And I want to note, this was a two-month journey. You did all this in two months.
+
+Stan [00:04:38]: The search.
+
+Swyx [00:04:40]: Your search for your next thing, because you left in July 2019 and then you joined OpenAI in September.
+
+Stan [00:04:45]: I'm going to be ashamed to say that.
+
+Swyx [00:04:47]: You were searching before. I was searching before.
+
+Stan [00:04:49]: I mean, it's normal. No, the truth is that I moved back to Paris through Stripe and I just felt the hardship of being remote from your team nine hours away. And so it kind of freed a bit of time for me to start the exploration before. Sorry, Patrick. Sorry, John.
+
+Swyx [00:05:05]: Hopefully they're listening. So you joined OpenAI from Paris and from like, obviously you had worked with Greg, but not
+
+Stan [00:05:13]: anyone else. No. Yeah. So I had worked with Greg, but not Ilya, but I had started chatting with Ilya and Ilya was kind of excited because he knew that I was a good engineer through Greg, I presume, but I was not a trained researcher, didn't do a PhD, never did research. And I started chatting and he was excited all the way to the point where he was like, hey, come pass interviews, it's going to be fun. I think he didn't care where I was, he just wanted to try working together. So I go to SF, go through the interview process, get an offer. And so I get Bob McGrew on the phone for the first time, he's like, hey, Stan, it's awesome. You've got an offer. When are you coming to SF? I'm like, hey, it's awesome. I'm not coming to the SF. I'm based in Paris and we just moved. He was like, hey, it's awesome. Well, you don't have an offer anymore. Oh, my God. No, it wasn't as hard as that. But that's basically the idea. And it took me like maybe a couple more time to keep chatting and they eventually decided to try a contractor set up. And that's how I kind of started working at OpenAI, officially as a contractor, but in practice really felt like being an employee.
+
+Swyx [00:06:14]: What did you work on?
+
+Stan [00:06:15]: So it was solely focused on math and AI. And in particular in the application, so the study of the larger grid models, mathematical reasoning capabilities, and in particular in the context of formal mathematics. The motivation was simple, transformers are very creative, but yet they do mistakes. Formal math systems are of the ability to verify a proof and the tactics they can use to solve problems are very mechanical, so you miss the creativity. And so the idea was to try to explore both together. You would get the creativity of the LLMs and the kind of verification capabilities of the formal system. A formal system, just to give a little bit of context, is a system in which a proof is a program and the formal system is a type system, a type system that is so evolved that you can verify the program. If the type checks, it means that the program is correct.
+
+Swyx [00:07:06]: Is the verification much faster than actually executing the program?
+
+Stan [00:07:12]: Verification is instantaneous, basically. So the truth is that what you code in involves tactics that may involve computation to search for solutions. So it's not instantaneous. You do have to do the computation to expand the tactics into the actual proof. The verification of the proof at the very low level is instantaneous.
+
+Swyx [00:07:32]: How quickly do you run into like, you know, halting problem PNP type things, like impossibilities where you're just like that?
+
+Stan [00:07:39]: I mean, you don't run into it at the time. It was really trying to solve very easy problems. So I think the... Can you give an example of easy? Yeah, so that's the mass benchmark that everybody knows today. The Dan Hendricks one. The Dan Hendricks one, yeah. And I think it was the low end part of the mass benchmark at the time, because that mass benchmark includes AMC problems, AMC 8, AMC 10, 12. So these are the easy ones. Then AIME problems, somewhat harder, and some IMO problems, like Crazy Arm.
+
+Swyx [00:08:07]: For our listeners, we covered this in our Benchmarks 101 episode. AMC is literally the grade of like high school, grade 8, grade 10, grade 12. So you can solve this. Just briefly to mention this, because I don't think we'll touch on this again. There's a bit of work with like Lean, and then with, you know, more recently with DeepMind doing like scoring like silver on the IMO. Any commentary on like how math has evolved from your early work to today?
+
+Stan [00:08:34]: I mean, that result is mind blowing. I mean, from my perspective, spent three years on that. At the same time, Guillaume Lampe in Paris, we were both in Paris, actually. He was at FAIR, was working on some problems. We were pushing the boundaries, and the goal was the IMO. And we cracked a few problems here and there. But the idea of getting a medal at an IMO was like just remote. So this is an impressive result. And we can, I think the DeepMind team just did a good job of scaling. I think there's nothing too magical in their approach, even if it hasn't been published. There's a Dan Silver talk from seven days ago where it goes a little bit into more details. It feels like there's nothing magical there. It's really applying reinforcement learning and scaling up the amount of data that can generate through autoformalization. So we can dig into what autoformalization means if you want.
+
+Alessio [00:09:26]: Let's talk about the tail end, maybe, of the OpenAI. So you joined, and you're like, I'm going to work on math and do all of these things. I saw on one of your blog posts, you mentioned you fine-tuned over 10,000 models at OpenAI using 10 million A100 hours. How did the research evolve from the GPD 2, and then getting closer to DaVinci 003? And then you left just before ChatGPD was released, but tell people a bit more about the research path that took you there.
+
+Stan [00:09:54]: I can give you my perspective of it. I think at OpenAI, there's always been a large chunk of the compute that was reserved to train the GPTs, which makes sense. So it was pre-entropic splits. Most of the compute was going to a product called Nest, which was basically GPT-3. And then you had a bunch of, let's say, remote, not core research teams that were trying to explore maybe more specific problems or maybe the algorithm part of it. The interesting part, I don't know if it was where your question was going, is that in those labs, you're managing researchers. So by definition, you shouldn't be managing them. But in that space, there's a managing tool that is great, which is compute allocation. Basically by managing the compute allocation, you can message the team of where you think the priority should go. And so it was really a question of, you were free as a researcher to work on whatever you wanted. But if it was not aligned with OpenAI mission, and that's fair, you wouldn't get the compute allocation. As it happens, solving math was very much aligned with the direction of OpenAI. And so I was lucky to generally get the compute I needed to make good progress.
+
+Swyx [00:11:06]: What do you need to show as incremental results to get funded for further results?
+
+Stan [00:11:12]: It's an imperfect process because there's a bit of a... If you're working on math and AI, obviously there's kind of a prior that it's going to be aligned with the company. So it's much easier than to go into something much more risky, much riskier, I guess. You have to show incremental progress, I guess. It's like you ask for a certain amount of compute and you deliver a few weeks after and you demonstrate that you have a progress. Progress might be a positive result. Progress might be a strong negative result. And a strong negative result is actually often much harder to get or much more interesting than a positive result. And then it generally goes into, as any organization, you would have people finding your project or any other project cool and fancy. And so you would have that kind of phase of growing up compute allocation for it all the way to a point. And then maybe you reach an apex and then maybe you go back mostly to zero and restart the process because you're going in a different direction or something else. That's how I felt. Explore, exploit. Yeah, exactly. Exactly. Exactly. It's a reinforcement learning approach.
+
+Swyx [00:12:14]: Classic PhD student search process.
+
+Alessio [00:12:17]: And you were reporting to Ilya, like the results you were kind of bringing back to him or like what's the structure? It's almost like when you're doing such cutting edge research, you need to report to somebody who is actually really smart to understand that the direction is right.
+
+Stan [00:12:29]: So we had a reasoning team, which was working on reasoning, obviously, and so math in general. And that team had a manager, but Ilya was extremely involved in the team as an advisor, I guess. Since he brought me in OpenAI, I was lucky to mostly during the first years to have kind of a direct access to him. He would really coach me as a trainee researcher, I guess, with good engineering skills. And Ilya, I think at OpenAI, he was the one showing the North Star, right? He was his job and I think he really enjoyed it and he did it super well, was going through the teams and saying, this is where we should be going and trying to, you know, flock the different teams together towards an objective.
+
+Swyx [00:13:12]: I would say like the public perception of him is that he was the strongest believer in scaling. Oh, yeah. Obviously, he has always pursued the compression thesis. You have worked with him personally, what does the public not know about how he works?
+
+Stan [00:13:26]: I think he's really focused on building the vision and communicating the vision within the company, which was extremely useful. I was personally surprised that he spent so much time, you know, working on communicating that vision and getting the teams to work together versus...
+
+Swyx [00:13:40]: To be specific, vision is AGI? Oh, yeah.
+
+Stan [00:13:42]: Vision is like, yeah, it's the belief in compression and scanning computes. I remember when I started working on the Reasoning team, the excitement was really about scaling the compute around Reasoning and that was really the belief we wanted to ingrain in the team. And that's what has been useful to the team and with the DeepMind results shows that it was the right approach with the success of GPT-4 and stuff shows that it was the right approach.
+
+Swyx [00:14:06]: Was it according to the neural scaling laws, the Kaplan paper that was published?
+
+Stan [00:14:12]: I think it was before that, because those ones came with GPT-3, basically at the time of GPT-3 being released or being ready internally. But before that, there really was a strong belief in scale. I think it was just the belief that the transformer was a generic enough architecture that you could learn anything. And that was just a question of scaling.
+
+Alessio [00:14:33]: Any other fun stories you want to tell? Sam Altman, Greg, you know, anything.
+
+Stan [00:14:37]: Weirdly, I didn't work that much with Greg when I was at OpenAI. He had always been mostly focused on training the GPTs and rightfully so. One thing about Sam Altman, he really impressed me because when I joined, he had joined not that long ago and it felt like he was kind of a very high level CEO. And I was mind blown by how deep he was able to go into the subjects within a year or something, all the way to a situation where when I was having lunch by year two, I was at OpenAI with him. He would just quite know deeply what I was doing. With no ML background. Yeah, with no ML background, but I didn't have any either, so I guess that explains why. But I think it's a question about, you don't necessarily need to understand the very technicalities of how things are done, but you need to understand what's the goal and what's being done and what are the recent results and all of that in you. And we could have kind of a very productive discussion. And that really impressed me, given the size at the time of OpenAI, which was not negligible.
+
+Swyx [00:15:44]: Yeah. I mean, you've been a, you were a founder before, you're a founder now, and you've seen Sam as a founder. How has he affected you as a founder?
+
+Stan [00:15:51]: I think having that capability of changing the scale of your attention in the company, because most of the time you operate at a very high level, but being able to go deep down and being in the known of what's happening on the ground is something that I feel is really enlightening. That's not a place in which I ever was as a founder, because first company, we went all the way to 10 people. Current company, there's 25 of us. So the high level, the sky and the ground are pretty much at the same place. No, you're being too humble.
+
+Swyx [00:16:21]: I mean, Stripe was also like a huge rocket ship.
+
+Stan [00:16:23]: Stripe, I was a founder. So I was, like at OpenAI, I was really happy being on the ground, pushing the machine, making it work. Yeah.
+
+Swyx [00:16:31]: Last OpenAI question. The Anthropic split you mentioned, you were around for that. Very dramatic. David also left around that time, you left. This year, we've also had a similar management shakeup, let's just call it. Can you compare what it was like going through that split during that time? And then like, does that have any similarities now? Like, are we going to see a new Anthropic emerge from these folks that just left?
+
+Stan [00:16:54]: That I really, really don't know. At the time, the split was pretty surprising because they had been trying GPT-3, it was a success. And to be completely transparent, I wasn't in the weeds of the splits. What I understood of it is that there was a disagreement of the commercialization of that technology. I think the focal point of that disagreement was the fact that we started working on the API and wanted to make those models available through an API. Is that really the core disagreement? I don't know.
+
+Swyx [00:17:25]: Was it safety?
+
+Stan [00:17:26]: Was it commercialization?
+
+Swyx [00:17:27]: Or did they just want to start a company?
+
+Stan [00:17:28]: Exactly. Exactly. That I don't know. But I think what I was surprised of is how quickly OpenAI recovered at the time. And I think it's just because we were mostly a research org and the mission was so clear that some divergence in some teams, some people leave, the mission is still there. We have the compute. We have a site. So it just keeps going.
+
+Swyx [00:17:50]: Very deep bench. Like just a lot of talent. Yeah.
+
+Alessio [00:17:53]: So that was the OpenAI part of the history. Exactly. So then you leave OpenAI in September 2022. And I would say in Silicon Valley, the two hottest companies at the time were you and Lanktrain. What was that start like and why did you decide to start with a more developer focused kind of like an AI engineer tool rather than going back into some more research and something else?
+
+Stan [00:18:15]: Yeah. First, I'm not a trained researcher. So going through OpenAI was really kind of the PhD I always wanted to do. But research is hard. You're digging into a field all day long for weeks and weeks and weeks, and you find something, you get super excited for 12 seconds. And at the 13 seconds, you're like, oh, yeah, that was obvious. And you go back to digging. I'm not a trained, like formally trained researcher, and it wasn't kind of a necessarily an ambition of me of creating, of having a research career. And I felt the hardness of it. I enjoyed a lot of like that a ton. But at the time, I decided that I wanted to go back to something more productive. And the other fun motivation was like, I mean, if we believe in AGI and if we believe the timelines might not be too long, it's actually the last train leaving the station to start a company. After that, it's going to be computers all the way down. And so that was kind of the true motivation for like trying to go there. So that's kind of the core motivation at the beginning of personally. And the motivation for starting a company was pretty simple. I had seen GPT-4 internally at the time, it was September 2022. So it was pre-GPT, but GPT-4 was ready since, I mean, I'd been ready for a few months internally. I was like, okay, that's obvious, the capabilities are there to create an insane amount of value to the world. And yet the deployment is not there yet. The revenue of OpenAI at the time were ridiculously small compared to what it is today. So the thesis was, there's probably a lot to be done at the product level to unlock the usage.
+
+Alessio [00:19:49]: Yeah. Let's talk a bit more about the form factor, maybe. I think one of the first successes you had was kind of like the WebGPT-like thing, like using the models to traverse the web and like summarize things. And the browser was really the interface. Why did you start with the browser? Like what was it important? And then you built XP1, which was kind of like the browser extension.
+
+Stan [00:20:09]: So the starting point at the time was, if you wanted to talk about LLMs, it was still a rather small community, a community of mostly researchers and to some extent, very early adopters, very early engineers. It was almost inconceivable to just build a product and go sell it to the enterprise, though at the time there was a few companies doing that. The one on marketing, I don't remember its name, Jasper. But so the natural first intention, the first, first, first intention was to go to the developers and try to create tooling for them to create product on top of those models. And so that's what Dust was originally. It was quite different than Lanchain, and Lanchain just beat the shit out of us, which is great. It's a choice.
+
+Swyx [00:20:53]: You were cloud, in closed source. They were open source.
+
+Stan [00:20:56]: Yeah. So technically we were open source and we still are open source, but I think that doesn't really matter. I had the strong belief from my research time that you cannot create an LLM-based workflow on just one example. Basically, if you just have one example, you overfit. So as you develop your interaction, your orchestration around the LLM, you need a dozen examples. Obviously, if you're running a dozen examples on a multi-step workflow, you start paralyzing stuff. And if you do that in the console, you just have like a messy stream of tokens going out and it's very hard to observe what's going there. And so the idea was to go with an UI so that you could kind of introspect easily the output of each interaction with the model and dig into there through an UI, which is-
+
+Swyx [00:21:42]: Was that open source? I actually didn't come across it.
+
+Stan [00:21:44]: Oh yeah, it wasn't. I mean, Dust is entirely open source even today. We're not going for an open source-
+
+Swyx [00:21:48]: If it matters, I didn't know that.
+
+Stan [00:21:49]: No, no, no, no, no. The reason why is because we're not open source because we're not doing an open source strategy. It's not an open source go-to-market at all. We're open source because we can and it's fun.
+
+Swyx [00:21:59]: Open source is marketing. You have all the downsides of open source, which is like people can clone you.
+
+Stan [00:22:03]: But I think that downside is a big fallacy. Okay. Yes, anybody can clone Dust today, but the value of Dust is not the current state. The value of Dust is the number of eyeballs and hands of developers that are creating to it in the future. And so yes, anybody can clone it today, but that wouldn't change anything. There is some value in being open source. In a discussion with the security team, you can be extremely transparent and just show the code. When you have discussion with users and there's a bug or a feature missing, you can just point to the issue, show the pull request, show the, show the, exactly, oh, PR welcome. That doesn't happen that much, but you can show the progress if the person that you're chatting with is a little bit technical, they really enjoy seeing the pull request advancing and seeing all the way to deploy. And then the downsides are mostly around security. You never want to do security by obfuscation. But the truth is that your vector of attack is facilitated by you being open source. But at the same time, it's a good thing because if you're doing anything like a bug bountying or stuff like that, you just give much more tools to the bug bountiers so that their output is much better. So there's many, many, many trade-offs. I don't believe in the value of the code base per se. I think it's really the people that are on the code base that have the value and go to market and the product and all of those things that are around the code base. Obviously, that's not true for every code base. If you're working on a very secret kernel to accelerate the inference of LLMs, I would buy that you don't want to be open source. But for product stuff, I really think there's very little risk. Yeah.
+
+Alessio [00:23:39]: I signed up for XP1, I was looking, January 2023. I think at the time you were on DaVinci 003. Given that you had seen GPD 4, how did you feel having to push a product out that was using this model that was so inferior? And you're like, please, just use it today. I promise it's going to get better. Just overall, as a founder, how do you build something that maybe doesn't quite work with the model today, but you're just expecting the new model to be better?
+
+Stan [00:24:03]: Yeah, so actually, XP1 was even on a smaller one that was the post-GDPT release, small version, so it was... Ada, Babbage... No, no, no, not that far away. But it was the small version of GDPT, basically. I don't remember its name. Yes, you have a frustration there. But at the same time, I think XP1 was designed, was an experiment, but was designed as a way to be useful at the current capability of the model. If you just want to extract data from a LinkedIn page, that model was just fine. If you want to summarize an article on a newspaper, that model was just fine. And so it was really a question of trying to find a product that works with the current capability, knowing that you will always have tailwinds as models get better and faster and cheaper. So that was kind of a... There's a bit of a frustration because you know what's out there and you know that you don't have access to it yet. It's also interesting to try to find a product that works with the current capability.
+
+Alessio [00:24:55]: And we highlighted XP1 in our anatomy of autonomy post in April of last year, which was, you know, where are all the agents, right? So now we spent 30 minutes getting to what you're building now. So you basically had a developer framework, then you had a browser extension, then you had all these things, and then you kind of got to where Dust is today. So maybe just give people an overview of what Dust is today and the courtesies behind it. Yeah, of course.
+
+Stan [00:25:20]: So Dust, we really want to build the infrastructure so that companies can deploy agents within their teams. We are horizontal by nature because we strongly believe in the emergence of use cases from the people having access to creating an agent that don't need to be developers. They have to be thinkers. They have to be curious. But anybody can create an agent that will solve an operational thing that they're doing in their day-to-day job. And to make those agents useful, there's two focus, which is interesting. The first one is an infrastructure focus. You have to build the pipes so that the agent has access to the data. You have to build the pipes such that the agents can take action, can access the web, et cetera. So that's really an infrastructure play. Maintaining connections to Notion, Slack, GitHub, all of them is a lot of work. It is boring work, boring infrastructure work, but that's something that we know is extremely valuable in the same way that Stripe is extremely valuable because it maintains the pipes. And we have that dual focus because we're also building the product for people to use it. And there it's fascinating because everything started from the conversational interface, obviously, which is a great starting point. But we're only scratching the surface, right? I think we are at the pong level of LLM productization. And we haven't invented the C3. We haven't invented Counter-Strike. We haven't invented Cyberpunk 2077. So this is really our mission is to really create the product that lets people equip themselves to just get away all the work that can be automated or assisted by LLMs.
+
+Alessio [00:26:57]: And can you just comment on different takes that people had? So maybe the most open is like auto-GPT. It's just kind of like just trying to do anything. It's like it's all magic. There's no way for you to do anything. Then you had the ADAPT, you know, we had David on the podcast. They're very like super hands-on with each individual customer to build super tailored. How do you decide where to draw the line between this is magic? This is exposed to you, especially in a market where most people don't know how to build with AI at all. So if you expect them to do the thing, they're probably not going to do it. Yeah, exactly.
+
+Stan [00:27:29]: So the auto-GPT approach obviously is extremely exciting, but we know that the agentic capability of models are not quite there yet. It just gets lost. So we're starting, we're starting where it works. Same with the XP one. And where it works is pretty simple. It's like simple workflows that involve a couple tools where you don't even need to have the model decide which tools it's used in the sense of you just want people to put it in the instructions. It's like take that page, do that search, pick up that document, do the work that I want in the format I want, and give me the results. There's no smartness there, right? In terms of orchestrating the tools, it's mostly using English for people to program a workflow where you don't have the constraint of having compatible API between the two.
+
+Swyx [00:28:17]: That kind of personal automation, would you say it's kind of like an LLM Zapier type of
+
+Stan [00:28:22]: thing?
+
+Swyx [00:28:22]: Like if this, then that, and then, you know, do this, then this. You're programming with English?
+
+Stan [00:28:28]: So you're programming with English. So you're just saying, oh, do this and then that. You can even create some form of APIs. You say, when I give you the command X, do this. When I give you the command Y, do this. And you describe the workflow. But you don't have to create boxes and create the workflow explicitly. It just needs to describe what are the tasks supposed to be and make the tool available to the agent. The tool can be a semantic search. The tool can be querying into a structured database. The tool can be searching on the web. And obviously, the interesting tools that we're only starting to scratch are actually creating external actions like reimbursing something on Stripe, sending an email, clicking on a button in the admin or something like that.
+
+Swyx [00:29:11]: Do you maintain all these integrations?
+
+Stan [00:29:13]: Today, we maintain most of the integrations. We do always have an escape hatch for people to kind of custom integrate. But the reality is that the reality of the market today is that people just want it to work, right? And so it's mostly us maintaining the integration. As an example, a very good source of information that is tricky to productize is Salesforce. Because Salesforce is basically a database and a UI. And they do the fuck they want with it. And so every company has different models and stuff like that. So right now, we don't support it natively. And the type of support or real native support will be slightly more complex than just osing into it, like is the case with Slack as an example. Because it's probably going to be, oh, you want to connect your Salesforce to us? Give us the SQL. That's the Salesforce QL language. Give us the queries you want us to run on it and inject in the context of dust. So that's interesting how not only integrations are cool, and some of them require a bit of work on the user. And for some of them that are really valuable to our users, but we don't support yet, they can just build them internally and push the data to us.
+
+Swyx [00:30:18]: I think I understand the Salesforce thing. But let me just clarify, are you using browser automation because there's no API for something?
+
+Stan [00:30:24]: No, no, no, no. In that case, so we do have browser automation for all the use cases and apply the public web. But for most of the integration with the internal system of the company, it really runs through API.
+
+Swyx [00:30:35]: Haven't you felt the pull to RPA, browser automation, that kind of stuff?
+
+Stan [00:30:39]: I mean, what I've been saying for a long time, maybe I'm wrong, is that if the future is that you're going to stand in front of a computer and looking at an agent clicking on stuff, then I'll hit my computer. And my computer is a big Lenovo. It's black. Doesn't sound good at all compared to a Mac. And if the APIs are there, we should use them. There is going to be a long tail of stuff that don't have APIs, but as the world is moving forward, that's disappearing. So the core API value in the past has really been, oh, this old 90s product doesn't have an API. So I need to use the UI to automate. I think for most of the ICP companies, the companies that ICP for us, the scale ups that are between 500 and 5,000 people, tech companies, most of the SaaS they use have APIs. Now there's an interesting question for the open web, because there are stuff that you want to do that involve websites that don't necessarily have APIs. And the current state of web integration from, which is us and OpenAI and Anthropic, I don't even know if they have web navigation, but I don't think so. The current state of affair is really, really broken because you have what? You have basically search and headless browsing. But headless browsing, I think everybody's doing basically body.innertext and fill that into the model, right?
+
+Swyx [00:31:56]: MARK MIRCHANDANI There's parsers into Markdown and stuff.
+
+Stan [00:31:58]: FRANCESC CAMPOY I'm super excited by the companies that are exploring the capability of rendering a web page into a way that is compatible for a model, being able to maintain the selector. So that's basically the place where to click in the page through that process, expose the actions to the model, have the model select an action in a way that is compatible with model, which is not a big page of a full DOM that is very noisy, and then being able to decompress that back to the original page and take the action. And that's something that is really exciting and that will kind of change the level of things that agents can do on the web. That I feel exciting, but I also feel that the bulk of the useful stuff that you can do within the company can be done through API. The data can be retrieved by API. The actions can be taken through API.
+
+Swyx [00:32:44]: For listeners, I'll note that you're basically completely disagreeing with David Wan. FRANCESC CAMPOY Exactly, exactly. I've seen it since it's summer. ADEPT is where it is, and Dust is where it is. So Dust is still standing.
+
+Alessio [00:32:55]: Can we just quickly comment on function calling? You mentioned you don't need the models to be that smart to actually pick the tools. Have you seen the models not be good enough? Or is it just like, you just don't want to put the complexity in there? Like, is there any room for improvement left in function calling? Or do you feel you usually consistently get always the right response, the right parameters
+
+Stan [00:33:13]: and all of that?
+
+Alessio [00:33:13]: FRANCESC CAMPOY So that's a tricky product question.
+
+Stan [00:33:15]: Because if the instructions are good and precise, then you don't have any issue, because it's scripted for you. And the model will just look at the scripts and just follow and say, oh, he's probably talking about that action, and I'm going to use it. And the parameters are kind of abused from the state of the conversation. I'll just go with it. If you provide a very high level, kind of an auto-GPT-esque level in the instructions and provide 16 different tools to your model, yes, we're seeing the models in that state making mistakes. And there is obviously some progress can be made on the capabilities. But the interesting part is that there is already so much work that can assist, augment, accelerate by just going with pretty simply scripted for actions agents. What I'm excited about by pushing our users to create rather simple agents is that once you have those working really well, you can create meta agents that use the agents as actions. And all of a sudden, you can kind of have a hierarchy of responsibility that will probably get you almost to the point of the auto-GPT value. It requires the construction of intermediary artifacts, but you're probably going to be able to achieve something great. I'll give you some example. We have our incidents are shared in Slack in a specific channel, or shipped are shared in Slack. We have a weekly meeting where we have a table about incidents and shipped stuff. We're not writing that weekly meeting table anymore. We have an assistant that just go find the right data on Slack and create the table for us. And that assistant works perfectly. It's trivially simple, right? Take one week of data from that channel and just create the table. And then we have in that weekly meeting, obviously some graphs and reporting about our financials and our progress and our ARR. And we've created assistants to generate those graphs directly. And those assistants works great. By creating those assistants that cover those small parts of that weekly meeting, slowly we're getting to in a world where we'll have a weekly meeting assistance. We'll just call it. You don't need to prompt it. You don't need to say anything. It's going to run those different assistants and get that notion page just ready. And by doing that, if you get there, and that's an objective for us to us using Dust, get there, you're saving an hour of company time every time you run it. Yeah.
+
+Alessio [00:35:28]: That's my pet topic of NPM for agents. How do you build dependency graphs of agents? And how do you share them? Because why do I have to rebuild some of the smaller levels of what you built already?
+
+Swyx [00:35:40]: I have a quick follow-up question on agents managing other agents. It's a topic of a lot of research, both from Microsoft and even in startups. What you've discovered best practice for, let's say like a manager agent controlling a bunch of small agents. It's two-way communication. I don't know if there should be a protocol format.
+
+Stan [00:35:59]: To be completely honest, the state we are at right now is creating the simple agents. So we haven't even explored yet the meta agents. We know it's there. We know it's going to be valuable. We know it's going to be awesome. But we're starting there because it's the simplest place to start. And it's also what the market understands. If you go to a company, random SaaS B2B company, not necessarily specialized in AI, and you take an operational team and you tell them, build some tooling for yourself, they'll understand the small agents. If you tell them, build AutoGP, they'll be like, Auto what?
+
+Swyx [00:36:31]: And I noticed that in your language, you're very much focused on non-technical users. You don't really mention API here. You mention instruction instead of system prompt, right? That's very conscious.
+
+Stan [00:36:41]: Yeah, it's very conscious. It's a mark of our designer, Ed, who kind of pushed us to create a friendly product. I was knee-deep into AI when I started, obviously. And my co-founder, Gabriel, was a Stripe as well. We started a company together that got acquired by Stripe 15 years ago. It was at Alain, a healthcare company in Paris. After that, it was a little bit less so knee-deep in AI, but really focused on product. And I didn't realize how important it is to make that technology not scary to end users. It didn't feel scary to me, but it was really seen by Ed, our designer, that it was feeling scary to the users. And so we were very proactive and very deliberate about creating a brand that feels not too scary and creating a wording and a language, as you say, that really tried to communicate the fact that it's going to be fine. It's going to be easy. You're going to make it.
+
+Alessio [00:37:34]: And another big point that David had about ADAPT is we need to build an environment for the agents to act. And then if you have the environment, you can simulate what they do. How's that different when you're interacting with APIs and you're kind of touching systems that you cannot really simulate? If you call it the Salesforce API, you're just calling it.
+
+Stan [00:37:52]: So I think that goes back to the DNA of the companies that are very different. ADAPT, I think, was a product company with a very strong research DNA, and they were still doing research. One of their goals was building a model. And that's why they raised a large amount of money, et cetera. We are 100% deliberately a product company. We don't do research. We don't train models. We don't even run GPUs. We're using the models that exist, and we try to push the product boundary as far as possible with the existing models. So that creates an issue. Indeed, so to answer your question, when you're interacting in the real world, well, you cannot simulate, so you cannot improve the models. Even improving your instructions is complicated for a builder. The hope is that you can use models to evaluate the conversations so that you can get at least feedback and you could get contradictive information about the performance of the assistance. But if you take actual trace of interaction of humans with those agents, it is even for us humans extremely hard to decide whether it was a productive interaction or a really bad interaction. You don't know why the person left. You don't know if they left happy or not. So being extremely, extremely, extremely pragmatic here, it becomes a product issue. We have to build a product that identifies the end users to provide feedback so that as a first step, the person that is building the agent can iterate on it. As a second step, maybe later when we start training model and post-training, et cetera, we can optimize around that for each of those companies. Yeah.
+
+Alessio [00:39:17]: Do you see in the future products offering kind of like a simulation environment, the same way all SaaS now kind of offers APIs to build programmatically? Like in cybersecurity, there are a lot of companies working on building simulative environments so that then you can use agents like Red Team, but I haven't really seen that.
+
+Stan [00:39:34]: Yeah, no, me neither. That's a super interesting question. I think it's really going to depend on how much, because you need to simulate to generate data, you need to train data to train models. And the question at the end is, are we going to be training models or are we just going to be using frontier models as they are? On that question, I don't have a strong opinion. It might be the case that we'll be training models because in all of those AI first products, the model is so close to the product surface that as you get big and you want to really own your product, you're going to have to own the model as well. Owning the model doesn't mean doing the pre-training, that would be crazy. But at least having an internal post-training realignment loop, it makes a lot of sense. And so if we see many companies going towards that all the time, then there might be incentives for the SaaS's of the world to provide assistance in getting there. But at the same time, there's a tension because those SaaS, they don't want to be interacted by agents, they want the human to click on the button. Yeah, they got to sell seats. Exactly.
+
+Swyx [00:40:41]: Just a quick question on models. I'm sure you've used many, probably not just OpenAI. Would you characterize some models as better than others? Do you use any open source models? What have been the trends in models over the last two years?
+
+Stan [00:40:53]: We've seen over the past two years kind of a bit of a race in between models. And at times, it's the OpenAI model that is the best. At times, it's the Anthropic models that is the best. Our take on that is that we are agnostic and we let our users pick their model. Oh, they choose? Yeah, so when you create an assistant or an agent, you can just say, oh, I'm going to run it on GP4, GP4 Turbo, or...
+
+Swyx [00:41:16]: Don't you think for the non-technical user, that is actually an abstraction that you should take away from them?
+
+Stan [00:41:20]: We have a sane default. So we move the default to the latest model that is cool. And we have a sane default, and it's actually not very visible. In our flow to create an agent, you would have to go in advance and go pick your model. So this is something that the technical person will care about. But that's something that obviously is a bit too complicated for the...
+
+Swyx [00:41:40]: And do you care most about function calling or instruction following or something else?
+
+Stan [00:41:44]: I think we care most for function calling because you want to... There's nothing worse than a function call, including incorrect parameters or being a bit off because it just drives the whole interaction off.
+
+Swyx [00:41:56]: Yeah, so got the Berkeley function calling.
+
+Stan [00:42:00]: These days, it's funny how the comparison between GP4O and GP4 Turbo is still up in the air on function calling. I personally don't have proof, but I know many people, and I'm probably part of them, to think that GP4 Turbo is still better than GP4O on function calling. Wow. We'll see what comes out of the O1 class if it ever gets function calling. And Cloud 3.5 Summit is great as well. They kind of innovated in an interesting way, which was never quite publicized. But it's that they have that kind of chain of thought step whenever you use a Cloud model or Summit model with function calling. That chain of thought step doesn't exist when you just interact with it just for answering questions. But when you use function calling, you get that step, and it really helps getting better function calling.
+
+Swyx [00:42:43]: Yeah, we actually just recorded a podcast with the Berkeley team that runs that leaderboard this week. So they just released V3.
+
+Stan [00:42:49]: Yeah.
+
+Swyx [00:42:49]: It was V1 like two months ago, and then they V2, V3. Turbo is on top.
+
+Stan [00:42:53]: Turbo is on top. Turbo is over 4.0.
+
+Swyx [00:42:54]: And then the third place is XLAM from Salesforce, which is a large action model they've been trying to popularize.
+
+Stan [00:43:01]: Yep.
+
+Swyx [00:43:01]: O1 Mini is actually on here, I think. O1 Mini is number 11.
+
+Stan [00:43:05]: But arguably, O1 Mini has been in a line for that. Yeah.
+
+Alessio [00:43:09]: Do you use leaderboards? Do you have your own evals? I mean, this is kind of intuitive, right? Like using the older model is better. I think most people just upgrade. Yeah. What's the eval process like?
+
+Stan [00:43:19]: It's funny because I've been doing research for three years, and we have bigger stuff to cook. When you're deploying in a company, one thing where we really spike is that when we manage to activate the company, we have a crazy penetration. The highest penetration we have is 88% daily active users within the entire employee of the company. The kind of average penetration and activation we have in our current enterprise customers is something like more like 60% to 70% weekly active. So we basically have the entire company interacting with us. And when you're there, there is so many stuff that matters most than getting evals, getting the best model. Because there is so many places where you can create products or do stuff that will give you the 80% with the work you do. Whereas deciding if it's GPT-4 or GPT-4 Turbo or et cetera, you know, it'll just give you the 5% improvement. But the reality is that you want to focus on the places where you can really change the direction or change the interaction more drastically. But that's something that we'll have to do eventually because we still want to be serious people.
+
+Swyx [00:44:24]: It's funny because in some ways, the model labs are competing for you, right? You don't have to do any effort. You just switch model and then it'll grow. What are you really limited by? Is it additional sources?
+
+Stan [00:44:36]: It's not models, right?
+
+Swyx [00:44:37]: You're not really limited by quality of model.
+
+Stan [00:44:40]: Right now, we are limited by the infrastructure part, which is the ability to connect easily for users to all the data they need to do the job they want to do.
+
+Swyx [00:44:51]: Because you maintain all your own stuff.
+
+Stan [00:44:53]: You know, there are companies out there
+
+Swyx [00:44:54]: that are starting to provide integrations as a service, right? I used to work in an integrations company. Yeah, I know.
+
+Stan [00:44:59]: It's just that there is some intricacies about how you chunk stuff and how you process information from one platform to the other. If you look at the end of the spectrum, you could think of, you could say, oh, I'm going to support AirByte and AirByte has- I used to work at AirByte.
+
+Swyx [00:45:12]: Oh, really?
+
+Stan [00:45:13]: That makes sense.
+
+Swyx [00:45:14]: They're the French founders as well.
+
+Stan [00:45:15]: I know Jean very well. I'm seeing him today. And the reality is that if you look at Notion, AirByte does the job of taking Notion and putting it in a structured way. But that's the way it is not really usable to actually make it available to models in a useful way. Because you get all the blocks, details, et cetera, which is useful for many use cases.
+
+Swyx [00:45:35]: It's also for data scientists and not for AI.
+
+Stan [00:45:38]: The reality of Notion is that sometimes you have a- so when you have a page, there's a lot of structure in it and you want to capture the structure and chunk the information in a way that respects that structure. In Notion, you have databases. Sometimes those databases are real tabular data. Sometimes those databases are full of text. You want to get the distinction and understand that this database should be considered like text information, whereas this other one is actually quantitative information. And to really get a very high quality interaction with that piece of information, I haven't found a solution that will work without us owning the connection end-to-end.
+
+Swyx [00:46:15]: That's why I don't invest in, there's Composio, there's All Hands from Graham Newbig. There's all these other companies that are like, we will do the integrations for you. You just, we have the open source community. We'll do off the shelf. But then you are so specific in your needs that you want to own it.
+
+Swyx [00:46:28]: Yeah, exactly.
+
+Stan [00:46:29]: You can talk to Michel about that.
+
+Swyx [00:46:30]: You know, he wants to put the AI in there, but you know. Yeah, I will. I will.
+
+Stan [00:46:35]: Cool. What are we missing?
+
+Alessio [00:46:36]: You know, what are like the things that are like sneakily hard that you're tackling that maybe people don't even realize they're like really hard?
+
+Stan [00:46:43]: The real parts as we kind of touch base throughout the conversation is really building the infra that works for those agents because it's a tenuous walk. It's an evergreen piece of work because you always have an extra integration that will be useful to a non-negligible set of your users. I'm super excited about is that there's so many interactions that shouldn't be conversational interactions and that could be very useful. Basically, know that we have the firehose of information of those companies and there's not going to be that many companies that capture the firehose of information. When you have the firehose of information, you can do a ton of stuff with models that are just not accelerating people, but giving them superhuman capability, even with the current model capability because you can just sift through much more information. An example is documentation repair. If I have the firehose of Slack messages and new Notion pages, if somebody says, I own that page, I want to be updated when there is a piece of information that should update that page, this is not possible. You get an email saying, oh, look at that Slack message. It says the opposite of what you have in that paragraph. Maybe you want to update or just ping that person. I think there is a lot to be explored on the product layer in terms of what it means to interact productively with those models. And that's a problem that's extremely hard and extremely exciting.
+
+Swyx [00:48:00]: One thing you keep mentioning about infra work, obviously, Dust is building that infra and serving that in a very consumer-friendly way. You always talk about infra being additional sources, additional connectors. That is very important. But I'm also interested in the vertical infra. There is an orchestrator underlying all these things where you're doing asynchronous work. For example, the simplest one is a cron job. You just schedule things. But also, for if this and that, you have to wait for something to be executed and proceed to the next task. I used to work on an orchestrator as well, Temporal.
+
+Stan [00:48:31]: We used Temporal. Oh, you used Temporal? Yeah. Oh, how was the experience?
+
+Swyx [00:48:34]: I need the NPS.
+
+Stan [00:48:36]: We're doing a self-discovery call now.
+
+Swyx [00:48:39]: But you can also complain to me because I don't work there anymore.
+
+Stan [00:48:42]: No, we love Temporal. There's some edges that are a bit rough, surprisingly rough. And you would say, why is it so complicated?
+
+Swyx [00:48:49]: It's always versioning.
+
+Stan [00:48:50]: Yeah, stuff like that. But we really love it. And we use it for exactly what you said, like managing the entire set of stuff that needs to happen so that in semi-real time, we get all the updates from Slack or Notion or GitHub into the system. And whenever we see that piece of information goes through, maybe trigger workflows to run agents because they need to provide alerts to users and stuff like that. And Temporal is great. Love it.
+
+Swyx [00:49:17]: You haven't evaluated others. You don't want to build your own. You're happy with...
+
+Stan [00:49:21]: Oh, no, we're not in the business of replacing Temporal. And Temporal is so... I mean, it is or any other competitive product. They're very general. If it's there, there's an interesting theory about buy versus build. I think in that case, when you're a high-growth company, your buy-build trade-off is very much on the side of buy. Because if you have the capability, you're just going to be saving time, you can focus on your core competency, etc. And it's funny because we're seeing, we're starting to see the post-high-growth company, post-SKF company, going back on that trade-off, interestingly. So that's the cloud news about removing Zendesk and Salesforce. Do you believe that, by the way?
+
+Alessio [00:49:56]: Yeah, I did a podcast with them.
+
+Stan [00:49:58]: Oh, yeah?
+
+Alessio [00:49:58]: It's true.
+
+Swyx [00:49:59]: No, no, I know.
+
+Stan [00:50:00]: Of course they say it's true,
+
+Swyx [00:50:00]: but also how well is it going to go?
+
+Stan [00:50:02]: So I'm not talking about deflecting the customer traffic. I'm talking about building AI on top of Salesforce and Zendesk, basically, if I understand correctly. And all of a sudden, your product surface becomes much smaller because you're interacting with an AI system that will take some actions. And so all of a sudden, you don't need the product layer anymore. And you realize that, oh, those things are just databases that I pay a hundred times the price, right? Because you're a post-SKF company and you have tech capabilities, you are incentivized to reduce your costs and you have the capability to do so. And then it makes sense to just scratch the SaaS away. So it's interesting that we might see kind of a bad time for SaaS in post-hyper-growth tech companies. So it's still a big market, but it's not that big because if you're not a tech company, you don't have the capabilities to reduce that cost. If you're a high-growth company, always going to be buying because you go faster with that. But that's an interesting new space, new category of companies that might remove some SaaS. Yeah, Alessio's firm
+
+Swyx [00:51:02]: has an interesting thesis on the future of SaaS in AI.
+
+Alessio [00:51:05]: Service as a software, we call it. It's basically like, well, the most extreme is like, why is there any software at all? You know, ideally, it's all a labor interface where you're asking somebody to do something for you, whether that's a person, an AI agent or whatnot.
+
+Stan [00:51:17]: Yeah, yeah, that's interesting. I have to ask.
+
+Swyx [00:51:19]: Are you paying for Temporal Cloud or are you self-hosting?
+
+Stan [00:51:22]: Oh, no, no, we're paying, we're paying. Oh, okay, interesting.
+
+Swyx [00:51:24]: We're paying way too much.
+
+Stan [00:51:26]: It's crazy expensive, but it makes us-
+
+Swyx [00:51:28]: That's why as a shareholder, I like to hear that. It makes us go faster,
+
+Stan [00:51:31]: so we're happy to pay.
+
+Swyx [00:51:33]: Other things in the infrastack, I just want a list for other founders to think about. Ops, API gateway, evals, you know, anything interesting there that you build or buy?
+
+Stan [00:51:41]: I mean, there's always an interesting question. We've been building a lot around the interface between models and because Dust, the original version, was an orchestration platform and we basically provide a unified interface to every model providers.
+
+Swyx [00:51:56]: That's what I call gateway.
+
+Stan [00:51:57]: That we add because Dust was that and so we continued building upon and we own it. But that's an interesting question was in you, you want to build that or buy it?
+
+Swyx [00:52:06]: Yeah, I always say light LLM is the current open source consensus.
+
+Stan [00:52:09]: Exactly, yeah. There's an interesting question there.
+
+Swyx [00:52:12]: Ops, Datadog, just tracking.
+
+Stan [00:52:14]: Oh yeah, so Datadog is an obvious... What are the mistakes that I regret? I started as pure JavaScript, not TypeScript, and I think you want to, if you're wondering, oh, I want to go fast, I'll do a little bit of JavaScript. No, don't, just start with TypeScript. I see, okay.
+
+Swyx [00:52:30]: So interesting, you are a research engineer that came out of OpenAI that bet on TypeScript.
+
+Stan [00:52:36]: Well, the reality is that if you're building a product, you're going to be doing a lot of JavaScript, right? And Next, we're using Next as an example. It's a great platform. And our internal service is actually not built in Python either, it's built in Rust.
+
+Swyx [00:52:50]: That's another fascinating choice. The Next.js story is interesting because Next.js is obviously the king of the world in JavaScript land, but recently ChachiBT just rewrote from Next.js to Remix. We are going to be having them on to talk about the big rewrite. That is like the biggest news in front-end world in a while.
+
+Stan [00:53:06]: All right, just to wrap,
+
+Alessio [00:53:07]: in 2023, you predicted the first billion dollar company with just one person running it, and you said that's basically like a sign of AGI, once we get there. And you said it had already been started. Any 2024 updates on the take?
+
+Stan [00:53:20]: That quote was probably independently invented it, but Sam Altman stole it from me eventually. But anyway, it's a good quote. So I hypothesized it was maybe already being started, but if it's a uniperson company, it would probably grow really fast, and so we should probably see it already. I guess we're going to have to wait for it a little bit. And I think it's because the dust of the world don't exist. And so you don't have that thing that lets you run those, just do anything with models. But one thing that is exciting is maybe that we're going to be able to scale a team much further than before. All generations of company might be the first billion dollar companies with engineering teams of 20 people. That would be so exciting as well. That would be so great. You know, you don't have the management hurdle, you're just 20 focused people with a lot of assistance from machines to achieve your job. That would be great. And that I believe in a bit more. Yeah.
+
+Alessio [00:54:14]: I've written a post called Maximum Enterprise Utilization, kind of like you have MFU for GPUs, but it's basically like so many people are focused on, oh, it's going to like displace jobs and whatnot. But I'm like, there's so much work that people don't do because they don't have the people. And maybe the question is that you just don't scale to that size, you know, to begin with. And maybe everybody will use Dust and Dust is only going to be 20 people and then people using Dust will be two people.
+
+Swyx [00:54:39]: So my hot take is, I actually know what vertical they'll be in. They'll be content creators and podcasters.
+
+Alessio [00:54:44]: There's already two of us, so we're a max capacity.
+
+Swyx [00:54:47]: Most people would regard Jimmy Donaldson, like Mr. Beast as a billionaire, but his team is, he's got about like 200 people. So he's not a single person company. The closer one actually is Joe Rogan, where he basically just has like a guy. Hey, Jamie, put it on the screen. But Joe, I don't think, he sold his future for 250 million to Spotify. So he's not going to hit that billionaire status. The non-consensus one, it will be the Hawkswagirl.
+
+Swyx [00:55:12]: Anyway, but like you want creators who are empowered by a bunch of agents, Dust agents to do all this stuff because then ultimately it's just the brand, the curation. What is the role of the human then? What is that one person supposed to do if you have all these agents?
+
+Stan [00:55:28]: That's a good question. I mean, I think it was, I think it was Pinterest or Dropbox founder at the time was when you're CEO, you mostly have an editorial position. You're here to say yes and no to the things you are supposed to do.
+
+Swyx [00:55:42]: Okay, so I make a daily AI newsletter where I just, it's 99% AI generated, but I serve the role as the editor. Like I write commentary. I choose between four options.
+
+Stan [00:55:53]: You decide what goes in and goes out. And ultimately, as you said, you build up your brand through those many decisions.
+
+Swyx [00:56:00]: You should pursue creators.
+
+Stan [00:56:03]: And you've made a, I think you've made a, you've have an upcoming podcast with Notebook NLM, which has been doing a crazy stuff. That is exciting.
+
+Swyx [00:56:09]: They were just in here yesterday. I'll tell you one agent that we need. If you want to pursue the creator market, the one agent that we haven't paid for is our video editor agent. So if you want, you need to, you know, wrap FFmpeg in a GPT.
+
+Alessio [00:56:24]: Awesome. This was great. Anything we missed? Any final kind of like call to action hiring? It's like, obviously people should buy the product.
+
+Stan [00:56:32]: And no, I think we didn't dive into the vertical versus horizontal approach to AI agents. We mentioned a few things. We spike at penetration and that's just awesome because we carry the tool that the entire company has and use. So we create a ton of value, but it makes our go-to-market much harder. Vertical solutions have a go-to-market that is much easier because they're like, oh, I'm going to solve the lawyer stuff. But the potential within the company after that is limited. So there's really a nice tension there. We are true believers of the horizontal approach and we'll see how that plays out. But I think it's an interesting thing to think about when as a founder or as a technical person working with agents, what do you want to solve? Do you want to solve something general or do you want to solve something specific? And it has a lot of impact on eventually what type of company you're going to build.
+
+Swyx [00:57:21]: Yeah, I'll provide you my response on that. So I've gone the other way. I've gone products over platform. And it's basically your sense on the products drives your platform development. In other words, if you're trying to be as many things to as many people as possible, we're just trying to be one thing. We build our brand in one specific niche. And in future, if we want to choose to spin off platforms for other things, we can because we have that brand. So for example, Perplexity, we went for products in search, right? But then we also have Perplexity Labs that like here's the info that we use for search and whatever.
+
+Stan [00:57:51]: The counter argument to that is that you always have lateral movement within companies, but if you're Zendesk, you're not going to be Zendesk- Serving web services.
+
+Swyx [00:58:03]: There are a few, you know, there's success stories on both sides, but there's Amazon and Amazon web services, right? And sorry by platform,
+
+Stan [00:58:08]: I don't really mean the platform as the platform platform. I mean like the product that is useful to everybody within the company. And I'll take on that is that there is so many operations within the company. Some of them have been extremely rationalized by the markets, like salespeople, like support has been extremely rationalized. And so you can probably create very powerful vertical product around that. But there is so many operations that make up a company that are specific to the company that you need a product to help people get assisted on those operations. And that's kind of the bet we have. Excellent.
+
+Alessio [00:58:40]: Awesome, man. Thanks again for the time. Thank you very much for having me.
+
+Stan [00:58:42]: It was so much fun. Yeah, great discussion.
+
+Swyx [00:58:44]: Thank you.
+
+Stan [00:58:46]: Thank you.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

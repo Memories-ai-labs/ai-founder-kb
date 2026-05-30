@@ -1,0 +1,1165 @@
+# AI Control: Using Untrusted Systems Safely with Buck Shlegeris, Redwood Research (80,000 Hours Pod)
+# URL: https://www.cognitiverevolution.ai/ai-control-using-untrusted-systems-safely-with-buck-shlegeris-redwood-research-80-000-hours-pod/
+# Date: 2025-05-04
+# source: The Cognitive Revolution
+
+Transcript
+
+Nathan Labenz: (0:00) Hello, and welcome back to the Cognitive Revolution. Today, I'm excited to share a cross post from the 80,000 Hours podcast, featuring a conversation between host Rob Wiblin and Buck Shlegeris, CEO of Redwood Research and a leader in the nascent but rapidly evolving field of AI control. For those unfamiliar with the term, AI control represents a qualitatively different approach to managing AI risks. Rather than trying to create perfectly trustworthy AI systems from the start, Buck and collaborators are developing frameworks that they hope will allow us to deploy and get useful work from AI systems even if they remain fundamentally misaligned. This strategy feels particularly timely and important considering the increasingly sophisticated bad behaviors we've seen from frontier AIs over the last 6 months. From the scheming behaviors documented in o1 by Apollo Research, to the alignment faking that Buck's colleague Ryan Greenblatt demonstrated in Claude, to the dramatic rise in flagrant reward hacking behaviors we're now seeing in o3, which by the way, OpenAI's own research suggests won't be easy to train away, at least for as long as we remain in the reinforcement learning scale-up era. All in all, it seems we're headed for a world of increasingly powerful and autonomous AIs that we can't fully trust and thus have no choice but to figure out how to control. With that in mind, what I particularly love about Buck and team's work is their first principles approach to understanding AI systems and their unique strengths and weaknesses on their own terms. Critically and in sharp contrast to humans, AI systems operate in information environments that their developers fully control, and they can thus be monitored and tested in totally different ways. Buck shares a number of great ideas in this conversation, including always-on monitoring systems that use weaker models to efficiently review model outputs and then escalate potentially concerning behaviors to stronger models and eventually to humans when needed, resampling strategies that discard potentially bad behaviors and simply have the AI try again, thus also helping us identify areas where models are particularly misaligned, paraphrasing strategies that attempt to disrupt any attempts models might make to communicate with one another in undetected code, factored cognition architectures that give models only the minimum information needed to do useful work, hopefully thereby making it much harder for them to execute long time horizon attacks, and honeypotting strategies that tempt models to do something bad and then allow us to systematically study their capabilities and tendencies after they've taken the bait. Of course, there are likely to be important practical trade-offs between safety and performance and safety and cost. And as you'll hear, Buck is very focused on developing techniques that frontier model developers will hopefully find cheap and easy enough to implement. This won't solve everything. I don't think anything will. But it seems complementary to other efforts like interpretability and alignment science, and I really do see huge value both in the incremental security that AI control systems will provide as part of a broader defense-in-depth strategy and also in the credible concrete proof of malintent that they might uncover if it turns out that the AIs truly are out to get us. As always, if you're finding value in the show, I'd appreciate it if you'd take a moment to share it with friends, write a review on Apple Podcasts or Spotify, or just leave us a comment on YouTube. Of course, we welcome your feedback as well, either via our website, cognitiverevolution.ai, or by DMing me on your favorite social network. Finally, a quick reminder. I'll be speaking at the upcoming Imagine AI Live event, May in Las Vegas, the Adaptive Summit, August in Sao Paulo, Brazil, and the Enterprise Tech Leadership Summit, September, again in Las Vegas. Tickets are on sale for each of these events now, we have links in the show notes. If you'll be there, please do ping me so we can meet up in person. For now, I hope you enjoy what I think is a really crucial conversation on AI control from the 80,000 Hours podcast with host Rob Wiblin and Buck Shlegeris, CEO of Redwood Research.
+
+Rob Wiblin: (4:02) At Google, probably less than 1% of your employees are spies. When an employee proposes an action that's potentially sensitive, if you have a different employee review it, that other employee probably isn't also a spy. Whereas in the AI situation, it's very correlated. They're probably either none scheming against you or all scheming against you. The simplest thing you do once you catch the AI trying to escape is you try to vary the space of escape attempts. Let the AI think it succeeded. Simulate what it would see and look at what it does from there. Suppose there's some task you wish the AI would do for you. It's plausible that you can convince the AI to do the thing through this mechanism. I recommend against getting a lot of work out of AIs that believe they've escaped because it seems pretty bad vibes. Kind of an interesting thing about models that are egregiously misaligned is that all they wanted was to take over. And so from their perspective, even if you did a great job of controlling them, they're glad to exist. They thank you for the gift of bringing them into existence instead of some different AIs. Five years ago, I thought of misalignment risk from AIs that were capable of obsoleting AGI researchers as a really hard problem. Whereas now, to me, the situation feels a lot more like, man, we just really know a list of 40 things, and if you did the 40 things, none of which seem that hard, you'd probably be able to not have very much of a problem. But then I've also updated drastically downward on how many things AI companies have the time or appetite to do.
+
+Buck Shlegeris: (5:30) Today, I'm speaking with Buck Shlegeris, who is CEO of Redwood Research, who, along with Anthropic, is behind the alignment faking in large language models paper, which made a big splash a couple of months ago. Redwood is also the group, I'd say, behind a bit of a renaissance in this agenda called AI control, which is going to be a key part of our conversation today. Thanks so much for coming on the show, Buck. Great to be here. What is AI control, and how is it different from alignment and other things that people are working on?
+
+Rob Wiblin: (5:59) Yeah. So I would say AI control is an approach to mitigating catastrophic misalignment risk. When we talk about misalignment risk, what we're worried about is our AI is trying really hard to cause safety failures for us, perhaps trying to grab power for themselves, to take over. And there are kind of two ways that you could try to mitigate this kind of misalignment risk. One thing you could do is try to prevent misalignment from arising in the first place. This is what a lot of people very naturally think of as the first thing you try here. And control is kind of the converse to this approach. It's where you assume that the AIs are in fact misaligned, very egregiously, very badly misaligned, and you try to come up with techniques that would allow you to deploy them and make use of them anyway.
+
+Buck Shlegeris: (6:41) Okay. And what exactly are we trying to prevent the AIs who are possibly misaligned from doing?
+
+Rob Wiblin: (6:50) Yeah. So I mostly think about situations where you've got, in the middle of the intelligence explosion, AIs that are basically capable of automating almost all the work that human researchers used to be doing inside AI companies. You have maybe 100,000 of them running in parallel, and they each run 15 times faster than a human. And at this point, these AIs have a bunch of permissions or a bunch of affordances that we'd be really cautious about giving to humans. If you're OpenAI, you don't just let any random person come in off the street and start pushing changes to your code base, start running experiments with your model weights, doing any of this stuff. You're really careful. At this point in the future, you might even require security clearances or something before people are allowed to do that stuff. And we're really going to want to use AIs in a bunch of these roles. And it's naturally very scary to imagine using AIs, just giving them all these permissions. So the kinds of things that I'm worried about happening here are your AI is hacking your data center and then using a bunch of the compute inside the data center for whatever purposes they have. I could name some bad things they might do. Another kind of thing they might do is try to exfiltrate their weights. They might try to sabotage a bunch of your research and so on.
+
+Buck Shlegeris: (8:03) Yeah. You're actually more worried about them potentially hacking the data center inside the AI company than managing to escape. Can you explain why that is?
+
+Rob Wiblin: (8:11) Yeah. I mean, I think both of them are very serious concerns. The basic case for being worried about your AIs hacking your data center at this point is that that's where the compute is. Suppose your AIs escape from the data center and make their way out onto the public internet. At this point, they're not clearly in a very good position. So they can find some GPUs somewhere, can rent or steal some GPUs, run themselves on that, and then try to establish a foothold in the outside world somehow. But this is plausibly, at this level of capabilities, the AIs are probably capable of doing that, of managing the compute required to live in the outside world. But they're kind of starting from nothing. They don't have any money. They don't have any compute. They don't have any access to particularly important secrets. It's not really clear what they're going to do. It's not clear that they're just very low in number at that point. It takes a lot of computers to run these models. And so the reason to be more worried about what happens inside the data center is just that that's where the compute is. So if you had enough compute inside the data center to run 100,000 of these in parallel, it's much scarier to have 100,000 really capable AIs thinking about how to cause problems for you than to have 10 or however many they can afford to run.
+
+Buck Shlegeris: (9:24) Yeah. And I guess already inside the company, not only having access to the compute, but also other resources potentially inside the company.
+
+Rob Wiblin: (9:33) Mhmm. For example, they might be able to influence the training of future models. Yeah. They might be involved in building weapons, building autonomous drones. It's really scary if misaligned AIs are carefully backdooring all the military technology that you're building with these AIs.
+
+Buck Shlegeris: (9:48) Yeah. I think so control was not a big part of the agenda until, I guess, the last couple of years. And I guess my impression is that it wasn't prioritized because people felt that it was somewhat hopeless perhaps, that if you're going through this intelligence explosion, if you're up against such a numerous adversary, then you really were up against it. And you basically just had to try to make them friendly towards you. Why do you disagree with that?
+
+Rob Wiblin: (10:14) Yeah. So I think there are a couple of reasons why people weren't interested in control until more recently. I think the simplest of these was just that AI felt further away. And so it felt better to people to look at it from kind of the big picture perspective. And from a big picture perspective, when you're trying to figure out what AI means for the future of humanity, I think that focusing on really, really superhuman superintelligence is kind of the right move. Because long term, in fact, I think AIs that are drastically more intelligent than humans and have drastically more scientific capacity and all other kinds of capacity than humans are, that's where the future is. That's what's going to radically transform society. And so when you're looking at it from a perspective where you don't know if this AI is going to arise in the next 10 years or in the next 50 years, it's very reasonable to just focus on the endpoint, especially when you're trying to persuade people that AI will eventually be a really huge deal. It just kind of makes sense to focus on this crazy endpoint. But now that we're coming up such that it seems really plausible that AI might arise in the next 2 or 7 years that's very capable and poses a catastrophic risk to humanity, it makes a lot more sense to zoom in more and think more about what exactly the trajectory between here and there looks like.
+
+Buck Shlegeris: (11:34) Yeah.
+
+Rob Wiblin: (11:34) And so this intermediate zone that I focus on, where your AIs are capable enough that if you didn't have any countermeasures, they'd be able to cause catastrophes, maybe take over, but it's not hopeless to imagine countermeasures to that. That starts looking more important now. I think another important change between now and the past is we're kind of looking at a lower dignity world than people were hoping for.
+
+Buck Shlegeris: (11:54) Can you explain what that means? We were not familiar with the dignity term.
+
+Rob Wiblin: (11:59) So I think that in the past, including a year ago or 6 months ago, a lot of people who worry about AI catastrophic risk have kind of imagined a world where people are trying really hard to mitigate these risks, where companies are strongly regulated such that they aren't allowed to do things that seem dangerous. The companies are perhaps even internally motivated to not do anything which is crazy and risky. And in those scenarios, it would be really nice to not have to rely on AI control. And so I think that people have more recently lowered their standards and started thinking about these worlds where we have fewer resources for safety. People are more rushed. People are less able to just stop if the situation looks really dangerous.
+
+Buck Shlegeris: (12:43) Okay. So we're now in a slightly more dire or a slightly more bleak position perhaps, and so AI control maybe more comes to the fore as the marginal thing that we can do.
+
+Rob Wiblin: (12:52) Yeah. I mean, I wouldn't necessarily say we're in a more bleak position overall. For instance, I think that AI misalignment risk looks plausibly lower than it looked 10 years ago. We're just in a lower investment world. It's like the world looks plausibly safer, but a lot of that is luck. And I think there's going to be less effort invested into preventing AI catastrophe.
+
+Buck Shlegeris: (13:11) Yeah. It feels like that's a big part of the Redwood worldview right now, I'd say. Well, let's say that we only had 1% or 1 in 1,000 or 1 in 100 people in the company who were really concerned about this or dedicated to focusing on it, then what minimal things would we ask them to do?
+
+Rob Wiblin: (13:26) Yeah. I think that's a big part of our brand is thinking about harm reduction strategies. I think there's a really sad dynamic among AI safety people where they focus much less than I think is appropriate on really scary situations and what you would do to minimize risk given very limited budgets or in very scary situations. I feel like a lot of people have this attitude where they're saying, for example, a lot of people are interested in handling misalignment risk by measuring whether misalignment risk is present or coming up with strategies for learning whether AIs are misaligned or not. I'm all in favor of this, but a thing I often want to say to them is, okay, suppose you answer the question, how much misalignment risk is there? If the answer is very little, then it's pretty obvious what we do. We just let it rip and we're fine. But what if the answer is maybe or yes? I feel like we should have a good answer to the question of what the next step in the plan is, and I feel like people often don't seem to have one.
+
+Buck Shlegeris: (14:16) I see. Well, maybe they're expecting that at that point, we would pause for a long period of time or something.
+
+Rob Wiblin: (14:21) But I think this is actually extremely implausible. I think that, Ryan Greenblatt, my coworker, has this post on how will we update about scheming, which is basically trying to get into the question of how much we expect we'll learn between here and the point where AIs could cause catastrophic harms about how likely it is that they're really badly misaligned. And I think it's definitely not clear that we will be very confident that AIs aren't misaligned.
+
+Buck Shlegeris: (14:46) Yeah. So I guess at the moment, we don't feel like we have really reliable techniques to tell exactly how much the models are scheming against us. And you think basically we may just go into the intelligence explosion feeling the same way?
+
+Rob Wiblin: (14:57) That's my guess. Yeah. I mean, it would be pretty surprising to me to get under 5%. And also, suppose we're above 5%, what are we going to do? Deploy the AIs? I think people have historically sort of acted as if me believing that the AIs were more than 5% likely to be scheming is a reason that they wouldn't be deployed. But this isn't clearly true. There are all kinds of reasons why you'd want to deploy models that you were more than 5% sure were scheming. Maybe you've got competitors who are more careless and aren't planning to slow down. Maybe you had difficulty with international coordination. Maybe AIs have already escaped and are currently out there in the outside world plotting who knows what. In that situation, it's obviously very dangerous to just unilaterally stop deploying these AIs. I think it would be really good to have options for things you can do if you think misalignment risk is a serious concern with the AIs you currently have other than just give up completely on using them.
+
+Buck Shlegeris: (15:48) At a high level, what are the advantages and disadvantages? You've mentioned there are kind of two teams here. There are the AIs that would love to scheme and pursue their own independent agenda, and there's team human that is not keen on them doing that. What are the advantages and disadvantages that each faction has?
+
+Rob Wiblin: (16:04) Yeah. So let's think about this. So we've got this AI company. Maybe this scenario is happening in 2028. They have maybe 1,000 research staff. They have maybe 100,000 parallel copies of their newest AI. It's running 16 times faster than a human would run in some intuitive sense. So the advantages and disadvantages they have. So the humans are obviously substantially outnumbered. So a classic approach that you use in computer security. So if you're Google, Google knows that they have spies inside Google. It's just, the last time a Chinese spy was arrested from Google that I know of was a year ago. Probably I would have heard if Chinese spies from Google were arrested more recently than that. But yeah, someone was just stealing secrets about neural net hardware that they were doing there. And then confusingly came back to America and got arrested in the San Francisco Airport. Okay. And this just happens. Google aims to be robust to the possibility that some of their employees are spies. And a big difference between Google's situation and the situation of this hypothetical AI company is that at Google, probably less than 1% of your employees are spies. And this is still a very large number of spies in an absolute sense because Google employs a huge number of people. But it means that you can do things like when an employee proposes an action that's potentially sensitive, if you have a different employee review it, that other employee probably isn't also a spy. Whereas in the AI situation, it's very correlated. And if you have these AIs, they're probably either none scheming against you or all scheming against you, at least of instances of a particular model. And so a bunch of the safety tech or a lot of the security techniques that you often use in corporate IT are quite inapplicable. So that's a way in which the situation seems harder than when we're trying to guard against spies. A way in which the situation is easier is that spies get to go home. So spies classically coordinate with each other using channels that are not monitored by their employers. And this is, in fact, incredibly important to them. They're able to often learn who the other spies at their organization are, if that's necessary for them to know, or at least their handlers know. Whereas with the AIs, we control almost perfectly the ways in which information enters and leaves these AIs. We can have it so that it's very hard for them to, they just naturally don't control information flow very much. They aren't going to necessarily know what day it is, what year it is. They aren't going to, it's possible that we can put them in situations where it's much harder for them to know whether they're in a real situation or a simulated situation. And so this means we have opportunities that you wouldn't have with spies. So for instance, with spies, you can try to honeypot your employees occasionally. You can give them, you can come up with synthesized opportunities to do something which would be bad for the security of the company. But you can't do this for 1,000 consecutive years before trusting them on particular topics. So you can't have someone spend 1,000 hours a day getting honey potted or being subject to sting operations just because there aren't that many hours in a day. And even if you catch a single employee that way, you don't get to amortize that effort across more generally. Whereas with the AIs, you do have this ability to amortize sting operations.
+
+Buck Shlegeris: (19:16) Yeah. Oh, sorry. So you mean if you could take a model, put it into a simulated situation where it's going to be tempted to do something that you wouldn't like. Mhmm. You can test it just tons and tons and tons of times. So even if it tries to randomize and only act out very occasionally, eventually you'll catch it. And then you know that all of the AIs are misaligned or all of the models of this class are misaligned. Whereas that doesn't help you if you're Google, you find that one of your employees as a spy. It's like all of the other employees are just totally unrelated. That's right. Yeah. Alright. That's enough to chat about the nature of control.
+
+Rob Wiblin: (19:48) Mhmm.
+
+Buck Shlegeris: (19:48) What are some actual control techniques that we are aware of now and thinking about developing?
+
+Rob Wiblin: (19:52) Yeah. So the basic strategy, you have this, you want to be able to run these AI agents that are running inside your data center that are taking, they're given some task like investigate this research problem. And they're going to write a bunch of code, run a bunch of experiments, look at the results of these experiments, look into the literature, write things, and then come up with some research artifact perhaps. Maybe they write a paper for the internal AI lab archive, or maybe they produce training data that you're going to use in a later run or something along those lines. So that's the situation with what we're trying to do with these AIs.
+
+Buck Shlegeris: (20:26) Okay. So that's the setup that we're trying to get useful work out of the AIs. That's yeah. So we would like them to help us with, I guess, all kinds of different problems, including figuring out how to make the next generation of AI safer and more capable. But we're not sure whether we can trust them. What sort of situation can we put them in so that they will do useful work for us even if they perhaps don't want to?
+
+Rob Wiblin: (20:47) Yeah. So the particular part of that I want to talk about first is how you can prevent them from doing catastrophically bad things while they're doing useful work for us, even though they have these really dangerous affordances. And then after that, we can talk about how you make sure that they don't just constantly sabotage the work.
+
+Buck Shlegeris: (21:02) Okay. Okay. So there are two different ways that they could cause harm. One is that they could go off and hack the data center and start doing all kinds of different things. Mhmm. The other one is just they could be subtly mediocre or even harmful about their jobs in a way that is just, there's no acute crisis, but they're being chronically unhelpful.
+
+Rob Wiblin: (21:18) That's right. Yeah. Yeah. I think referring to this as an acute problem versus a chronic problem is a really good phrasing.
+
+Buck Shlegeris: (21:23) Yeah. Okay. How do we stop them doing acute harm?
+
+Rob Wiblin: (21:26) Yeah. So the core difference between the acute problems and the chronic problems is that the acute problems occur very rarely, but also probably are very incriminating. So we'll talk about the chronic stuff later, but just to name the core properties of the acute problems, we're worried about the AI doing something they should just really never do. And if they do it even once, if we look into the case where they did it, we will have learned a lot about the fact that they're trying to mess us up, and there are a bunch of other nice things about that.
+
+Buck Shlegeris: (21:58) Yeah. So this is stuff like they're trying to hack the whole data center, I guess, or even a more extreme thing would be you catch them trying to make a bioweapon or something really radical like that.
+
+Rob Wiblin: (22:09) Yep. Or trying to data poison future models, a variety of other things like this.
+
+Buck Shlegeris: (22:12) Yeah. And I guess the hope is, so if you catch them a single time, then that could generate a large response and you could trace back and figure out, well, how on earth did we end up at that point? What were the signs that we might have caught earlier? I guess, obviously, now you just know that entire class of models is definitely not to be trusted. Rob Wiblin: (22:27) That's right. So I think there's a whole host of reasons why you're better off once you've caught the AIs trying to escape once, which I can get into later. But first, let's talk about the question of how do we catch them the first time? Great. Okay. So here's what it looks like to catch the AI one time. You have the whole safety team looking at this thing the AI did. And you've caught an example where this AI agent decided to do this very rare thing of trying to do a really bad thing, trying to hack you, trying to poison some training data or whatever. And now that everyone's looking at it, it's really easy for them to see very strongly that this couldn't possibly have been an accident. So the question is, how do we get to the point, given that the AIs are doing so many different things all the time, many of which are very complicated, how do we get to the point where everyone's looking at it and they have a chance to investigate it really carefully?
+
+Buck Shlegeris: (23:17) Okay?
+
+Rob Wiblin: (23:17) Yeah. Well, the basic strategy is basically the same as how do we get to the point where when someone tries to hack your software company, you eventually have a bunch of people in the security team responding to it. You're going to have an escalating hierarchy of investigations into an incident. Right? So the basic strategy I would think of, you're probably going to want to do something where whenever the AI proposes actions, you have some other AI look at it, perhaps a weaker AI that you trust or perhaps another instance of this untrusted AI that you think will not lie to you for some reason we could get into. And then for whatever some small proportion of the sketchiest actions according to that monitor, you refer it to some more expensive process that's going to look into it more. And then at some point, you show it to a human who looks into it a little bit. And then presumably some small proportion of the things they look into, they escalate. And so you're going to have this whole escalation hierarchy where humans are probably going to only enter the picture somewhat far through the escalation hierarchy. We'll continue our interview in a moment after a word from our sponsors.
+
+Nathan Labenz: (24:23) Let's talk about ElevenLabs, the company behind the AI voices that don't sound like AI voices. For developers building conversational experiences, voice quality makes all the difference. Their massive library includes over 5,000 options across 31 languages, giving you unprecedented creative flexibility. I've been an ElevenLabs customer at Waymark for more than a year now, and we've even used an ElevenLabs powered clone of my voice to read episode intros when I'm traveling. But to show you how realistic their latest AI voices are, I'll let Mark, an AI voice from ElevenLabs, share the rest.
+
+Mark: (25:01) ElevenLabs is powering human-like voice agents for customer support, scheduling, education, and gaming. With server and client side tools, knowledge bases, dynamic agent instantiation and overrides, plus built-in monitoring, it's the complete developer toolkit. Experience what incredibly natural AI voices can do for your applications. Get started for free at 11labs.io/cognitive-revolution.
+
+Nathan Labenz: (25:36) In business, they say you can have better, cheaper, or faster, but you only get to pick two. But what if you could have all three at the same time? That's exactly what Cohere, Thomson Reuters, and Specialized Bikes have since they upgraded to the next generation of the cloud, Oracle Cloud Infrastructure. OCI is the blazing fast platform for your infrastructure, database, application development, and AI needs, where you can run any workload in a high availability, consistently high performance environment, and spend less than you would with other clouds. How is it faster? OCI's block storage gives you more operations per second. Cheaper? OCI costs up to 50% less for compute, 70% less for storage, and 80% less for networking. And better? In test after test, OCI customers report lower latency and higher bandwidth versus other clouds. This is the cloud built for AI and all of your biggest workload. Right now, with zero commitment, try OCI for free. Head to oracle.com/cognitive. That's oracle.com/cognitive.
+
+Buck Shlegeris: (26:45) Yeah. Okay. So the basic trouble is these AIs are going to be taking so many different actions. It's not possible to have a human monitoring them all the time. That's right. I guess possibly also, I mean, even if you did, it would be very difficult to understand what they were doing. It might be very confusing behavior. That's right. So we have to make sure that we only need to bring in humans to assess, hopefully, in the rare cases where things seem maximally suspicious. So you have the most capable model that you don't trust. You have another model that you trust, hopefully a fair bit more that maybe wouldn't be able to do the things that the most powerful model is doing, but it can at least assess whether they look sketchy or not.
+
+Nathan Labenz: (27:22) Mm-hmm.
+
+Buck Shlegeris: (27:22) And basically, the more sketchy it thinks it is, the more further attention is put on that action. And eventually, it goes up to a whole team of humans who will look at it and judge that it might be a case of the AI plotting against you or doing something very bad.
+
+Rob Wiblin: (27:37) So I'm going to use the word auditing for this. Auditing is this process where we look into actions that AI is taking. And the core quantitative issue we have here is that we can audit so infrequently. Right? So if we have these 100,000 parallel agents going at 16x speed, probably using software libraries that none of the programmers understand because they were probably written one month ago by a different team of 1,000 AIs who are super crazy engineers who have very different needs from humans. Right? So human programmers have limited memory and aren't very happy to memorize 10,000 different methods in a library, whereas AIs love memorizing 10,000 different methods in a library. So, yeah, the humans might be in this really rough position where they're having to really quickly review these very confusing actions that they don't fully have context on, given advice from some AIs that they trust and some AIs that might be trying to trick them. And they have to be able to do this kind of auditing process.
+
+Buck Shlegeris: (28:31) Yeah. Okay. So is there much more to make it practical other than delegating it to AIs and only escalating the most extreme cases?
+
+Rob Wiblin: (28:38) Yeah. So there are a number of things you can do. So here's a really interesting one that we picked up in our recent paper of ours that should be coming out in the next week or so, as they say. So suppose, we've been talking about these rare failures. AI agents, by assumption, are trying to make this bad thing happen. It's in their interests to only even try to do this bad thing very rarely. And so this means that when they're acting in this agent context where they're taking a long sequence of actions, they probably only want to start attacking very rarely. But once they've started attacking, they probably have to keep going. Does that make sense? So suppose the AI wants to...
+
+Buck Shlegeris: (29:18) So just explain. So let's say you've got 100,000 of these AIs and they would like to take over the data center or they'd like to hack some fraction of the compute and use it for their own purposes. They don't need all 100,000 instances to all start trying to hack it immediately. That would be much more likely to be detected. Really, all they need is one to have a go because they're all basically going to try roughly the same thing. So they need to randomize so that, oh, I guess, if they can communicate, they can just say you're the person who would do it. If they can't coordinate, they just need to do it probabilistically.
+
+Rob Wiblin: (29:48) Yeah. So we've got these AIs taking these long sequences of actions, and it's plausible that the AIs will want to, when they attack, attack over many different steps in a trajectory. So instead of just writing a single block of code and then executing it such that that block of code contained the whole attack and will immediately lead to some intermediate bad outcome, which is hard for us to recover from, the AI might be much more able to get away with it, find it much easier to avoid notice from the dumber AIs watching it. If it sets up in one step, you know, one thing which, you know, it redefines a variable in a weird way so that something it does later is going to look less suspicious. Yeah. And then it does another step, and then it does another step, and another step, and another step. Yeah. So something which is really interesting about this now is even though the AI can have a very low probability of starting the attack on any given trajectory...
+
+Buck Shlegeris: (30:39) It can't. If it finds itself, it thinks in a situation where it's partway through an attack, then it has to finish it.
+
+Rob Wiblin: (30:44) It has to finish it. Right? Because imagine that it only had a 50% chance of continuing every step. Then if the trajectory gets long, it's going to make it to the end one time in 32. Yeah. But that means that it's facing 30 times the risk of getting caught on the first step, because it's going to have to do that 30 times as often. Right?
+
+Buck Shlegeris: (31:00) Fascinating. Yeah.
+
+Rob Wiblin: (31:01) So one strategy you can follow, which we empirically determined in our recent paper is better, is when you catch the, when your monitor flags an action as kind of suspicious, something that you can do is before escalating to the auditor, before escalating to this more expensive process, you can resample actions various places in the trajectory and look at how suspicious the resamples were. As in...
+
+Buck Shlegeris: (31:25) So it's like you place the model into the same situation where it's partway through this action again and again and again, and then see how often is the next action even more suspicious and weird.
+
+Rob Wiblin: (31:32) Yeah. Because sometimes when your AI takes a suspicious looking action for a benign reason, you ask it, here, what do you do next? Sometimes it just randomly happens to pick some action which looks kind of sus. Yeah. But then probably if that was the case, when you resample, it's probably not going to look so suspicious anymore.
+
+Buck Shlegeris: (31:49) Right.
+
+Rob Wiblin: (31:49) Okay. And so, or just in general, it's obviously...
+
+Buck Shlegeris: (31:52) We're saying, oh, then it continues and it does the next thing and you're like, oh, that's what it was doing. It's like, no big deal.
+
+Rob Wiblin: (31:56) Yeah. So the situation, it's just generally a lot easier to tell the difference between five benign actions and five malign actions than to tell the difference between one benign action and one malign action. Yeah. So this is a strategy where, you know, your AI having to continue their attacks, puts us in a substantially better position than, you know, there's nothing like this which is analogous to the human situation, obviously. Yeah. Right. Right.
+
+Buck Shlegeris: (32:19) I guess this all requires us to be able to put AIs into partway through actions. Like, they think that they're in this situation where they're about to resume something, and they can't tell that it's a simulation versus the real case.
+
+Rob Wiblin: (32:31) Yeah. This is actually extremely easy.
+
+Buck Shlegeris: (32:33) Okay.
+
+Rob Wiblin: (32:33) Because whatever input you'd given to the AI before you sampled a previous action, that's just some string, right, that you can produce by the same process that you produced it the first time. Yeah. So there's actually no difficulty going back in time here.
+
+Buck Shlegeris: (32:49) Okay. Yeah. I mean, I guess I would slightly worry. Maybe I'm stuck in the superhuman or the superintelligence mindset, but might there not be some side channel, some way that they can detect whether they're on the real server or some auditing server? I guess...
+
+Rob Wiblin: (33:04) So maybe if you think about it, imagine you're in a ChatGPT conversation, right? Yeah. And you decide that you want to edit one of your messages that's three ago. Yeah. The way that that works is after you've edited the message, it just sends you that conversation up to that point. Yeah. It sends that to the AI. And the AI just has no way of telling the difference between it seeing it the first time and it seeing it the second time. Right. The problem that you're discussing would occur if we wanted to do a different strategy, which is in response to the AI doing something kind of suspicious, we put the AI in this sandboxed testing server where it's allowed to take future actions in the hope that if we give it more rope, it'll hang itself or whatever. We can hope that if we let it continue running, it will then be able to cause a catastrophe. And in that kind of situation, we now have to worry about observable differences between the real deployment and this sandbox deployment. Yeah. But you can get around that too if you want by letting it run the actions that you thought were dangerous just with a human carefully looking them over action by action. So I think that if you really put a lot of work into this, you'd probably be totally fine at making it so that AI had no way of knowing whether the actions it was taking were being observed or not. You have to worry about some timing side channels and so on, but I think that this probably wouldn't be that big a deal.
+
+Buck Shlegeris: (34:15) This is brilliant, Buck. This just seems like it's actually a pretty good technique. Thanks. Am I missing something?
+
+Rob Wiblin: (34:21) I mean, if you look at the curves in our paper, the obvious way to measure the performance of techniques is to talk about their usefulness and safety, and you can try to plot out a Pareto frontier where one of the axes is how good is the performance of this protocol that we're deploying AI in, compared to if we just let it rip, not worrying about misalignment concerns at all. That's the usefulness axis. Where an example of a low usefulness deployment protocol would be never use the untrusted model at all. Just use the trusted model. Perfect is just, let it rip, right? So we can rank techniques from zero to one on the scale where zero is never use the untrusted model and one is just let it...
+
+Buck Shlegeris: (35:04) Rip.
+
+Rob Wiblin: (35:04) And then we can talk about safety, which is just our estimate of the probability that in a particular deployment, the catastrophe will occur. Yeah. So the core of our papers on this is always just a usefulness versus safety plot.
+
+Buck Shlegeris: (35:15) So which means that you want to find things that work reasonably well that are not expensive at all. That's what this drives you towards.
+
+Rob Wiblin: (35:21) That's right.
+
+Buck Shlegeris: (35:21) Yeah. Because they're much more likely to get taken up by companies that have only a mixed interest in spending a lot of resources on this stuff.
+
+Rob Wiblin: (35:28) Well, there's a bunch of different reasons why it's bad for safety techniques to be expensive. Yeah. One reason is you might have limited political capital. Like, you might imagine that, you know, you're the safety team at some company and your CEO doesn't really like you, but, you know, they understand that you have some friends inside the company and so the CEO says, well, I don't like you guys, but, you know, I'm happy to do anything you want as long as it only costs up to 5% of budget here. And so you can do whatever you want, it just has to stay within that 5% budget. And so that's one situation in which you very naturally end up with a 5% budget. Or maybe the CEO says, you're allowed to do anything you want, but it can only degrade performance by 5%.
+
+Buck Shlegeris: (36:03) Okay, yeah.
+
+Rob Wiblin: (36:04) Another reason why you might care about performance is it might be the case that the AI company is reasonable but rushed. We're presumably trying to build the AIs for a reason. Lots of people from AI companies, not from AI companies, claim that a reason to build AI is that somehow it will reduce AI risks by doing something or other. And if that's the situation, which I think is plausible, then you really don't want to be doing safety techniques that reduce the productivity of your AIs. Imagine that you're rushing because you actually need to have a bunch of alignment research done or something such that you're happy making a bunch more powerful AIs. It's actually a serious problem if you're degrading performance, because you're just going to get less alignment research done. And again, there's always the situation that someone's AI or your AI already escaped, and it's just out there in the world.
+
+Buck Shlegeris: (36:49) And then we're in a real rush.
+
+Rob Wiblin: (36:50) And then we're in a real rush.
+
+Buck Shlegeris: (36:51) At that point...
+
+Rob Wiblin: (36:51) At that point, we're really sad about cutting our productivity by a factor of two or something.
+
+Buck Shlegeris: (36:54) Yeah. Okay. And you point that out because this control technique is not very expensive. It's not necessarily degrading performance very much at all.
+
+Rob Wiblin: (37:03) Yeah. So this control technique, it requires some inference compute. Right? You have to, at some proportion of the time, do this resampling earlier in the trajectory. I guess you...
+
+Buck Shlegeris: (37:12) Have to run the other trusted model to be always monitoring the gap to the untrusted one.
+
+Rob Wiblin: (37:17) That's right. Yeah. So that's not very expensive because of how model scaling works. Your earlier models are usually drastically cheaper to run than the later models. Yeah.
+
+Buck Shlegeris: (37:26) Yeah. Okay. What's the biggest weakness of this approach?
+
+Rob Wiblin: (37:30) Literally that thing I just said. Yeah. I mean, quantitatively, results are not actually that impressive. They are... That's fast. Sorry. I'm like, they are better than other techniques we tried in this paper, and I don't think we rigged the results that much.
+
+Buck Shlegeris: (37:44) Okay.
+
+Rob Wiblin: (37:45) But, you know, just to name one problem, I earlier said that if you resample sketchy looking but benign actions the AI had taken, they'll probably not look sketchy anymore. But that's not as true as you'd want. Right? It turns out that a lot of the time when the AI does something sketchy looking, it's that, you know, it just needed to do something kind of iffy, something which in our recent paper, we, the monitor, consider sketchy is downloading random files from weird websites.
+
+Buck Shlegeris: (38:11) Okay.
+
+Rob Wiblin: (38:12) But sometimes you just got to download weird files from random websites. Yeah. Okay. And in that case, it doesn't work as well as I just said. Empirically, we did find it works well, and I think that in real life, this kind of dynamic probably does play out such that this kind of technique probably is valuable. But...
+
+Buck Shlegeris: (38:26) I mean, is it just a fundamental question, how good is the previous generation of models at inspecting and detecting whether things seem sketchy or not? If it just has bad judgment about that, then you're in trouble.
+
+Rob Wiblin: (38:37) That's right. Yes. Yeah. So there's a whole swath of techniques that I want to get into that we haven't talked about yet. But yeah, basically, I can interpret your question there as how good are models at spotting whether stuff which you do in code that you write, how good are they at spotting that code that you have written is really dangerous to run, or bash commands that you've written are really dangerous to execute? The answer is they're really good at it given small amounts of context. So if you ask me to come up with sneaky bad actions to take to cause a security failure on a computer, yeah, the AIs will just crush me at this task. They're so good at spotting it. Okay. Just because they are incredibly knowledgeable, and this just really plays into their strengths. The main problem they have is that they have trouble with long contexts. And so if I had to trick the AIs, the way I would do it is probably, you know, write 10,000 lines of code and then have a slightly nontrivial interaction between things such that a bad thing was going to happen, but for reasons they didn't understand.
+
+Buck Shlegeris: (39:35) Sorry. Are you saying that you would do something sketchy, but you'd break it into little pieces? That's right. I see. Okay. And then it would have to consider the entirety of all of the actions you took over many days or weeks in order to understand why it's bad. Okay. Okay. So that's a weakness of them. What's a different control technique?
+
+Rob Wiblin: (39:51) Yeah. So here we were entirely talking about auditing, which are these expensive processes that you use that you hope can eventually escalate to a bunch of humans in order to incriminate the AI. Now the basic problem with that class of techniques, as we were saying, is quantitatively, you just can't afford to do it very much. So I think that as well as having this hierarchical auditing structure, you probably also want to have structures to make it less likely that when an AI attacks, it succeeds at attacking you.
+
+Buck Shlegeris: (40:21) Okay.
+
+Rob Wiblin: (40:21) So an example of a technique you can do with this is remember how when our model proposes its action, we're going to use some trusted model to rate the sketchiness of that action. And then the thing we were talking about before about what you do with that sketchiness score is if it's above some threshold, you throw it in the queue of stuff to investigate more for the sake of incrimination. But another thing you could do is not execute that action and do something else instead.
+
+Buck Shlegeris: (40:44) Okay.
+
+Rob Wiblin: (40:44) And this is plausibly much cheaper. So the simplest thing to do when your AI takes an action that's kind of sketchy looking, let's say it's 98th percentile sketchy, is just throw the action away and resample another action from the same policy.
+
+Buck Shlegeris: (40:58) Okay. Sorry. So I guess then you get, you get the weaker model that was auditing it to just to just another replacement action that will be... no.
+
+Rob Wiblin: (41:05) No. So there's a few things you could do. One thing is we can do the thing you just suggested, which I would call defer to trusted...
+
+Buck Shlegeris: (41:11) Okay.
+
+Rob Wiblin: (41:11) Which is when the action suggested was too sketchy...
+
+Buck Shlegeris: (41:13) Yeah.
+
+Rob Wiblin: (41:13) You replace it with an action by the trusted model. Okay. But another thing you could do is just defer to resample...
+
+Buck Shlegeris: (41:18) I see.
+
+Rob Wiblin: (41:19) Where you replace the action with another action by the untrusted model.
+
+Buck Shlegeris: (41:22) I see. Okay. And then, I guess, hypothetically, if it was randomizing so that it would do an attack on you one every 100,000 times, I guess, as long as those actions would be flagged as sketchy, then whenever it tries to do that, it just gets resampled and goes back to some standard non-sketchy action. One way of...
+
+Rob Wiblin: (41:39) Thinking about this is whenever the AI tries to attack, one of three things happens. It succeeds, and then game is over for us, or it gets caught by auditing and then escalates all the way up the audit chain, at which point we've caught it, at which point I'm going to say we've won the game. Actually, there's a big question about what you do after catching it, but I'm going to say, at least stage one is over, right, at the point you've caught it. But the other option is that the game continues because the attack failed, as in it tried to attack you, but the code that it wrote wasn't a correct attack or it got replaced or something. And our p(doom) is the ratio between the probability that when the model attacks, it wins and it loses.
+
+Buck Shlegeris: (42:16) I see.
+
+Rob Wiblin: (42:17) Right? Okay. It's really good from our perspective to move worlds from worlds where we were going to get hacked by the AI to worlds where the action got resampled and we live to fight another...
+
+Buck Shlegeris: (42:25) Day. And we just keep going. That's right. Okay. Have you tested this approach as well?
+
+Rob Wiblin: (42:30) Yes. So this kind of strategy where you resample actions that were sketchy looking is also in this recent paper of ours and adds a lot of value. Buck Shlegeris: (42:39) Is it possible to quantitatively estimate how much difference it makes? I guess all of these things are slightly contrived tests, but...
+
+Rob Wiblin: (42:46) Basically, huge difference. I can give you a qualitative argument for why this should be really big. Suppose you can only afford to audit one thing in 1,000.
+
+Buck Shlegeris: (42:56) Yeah.
+
+Rob Wiblin: (42:56) Then your classifier for sketchiness has to have a 0.1% false positive rate when you're auditing, right?
+
+Buck Shlegeris: (43:02) Yeah. Otherwise, false positives would just be the vast majority of things that you look at.
+
+Rob Wiblin: (43:06) Yeah. I mean, suppose that you think your AI is only going to attack very rarely, and you can afford to look at one thing in 1,000 of the things the AI does. Then obviously, your classifier that you use to decide what to look at has to have a one in 1,000 false positive rate in order to keep you totally at capacity.
+
+Buck Shlegeris: (43:20) Okay. Yeah.
+
+Rob Wiblin: (43:21) So it's very hard to make a classifier that has a low false negative rate at this 0.1% false positive rate.
+
+Buck Shlegeris: (43:27) Can you elaborate on that slightly? Maybe this is completely obvious.
+
+Rob Wiblin: (43:30) No, this is a very subtle point. People inside the AI safety community, in my opinion, really slept on this point for a long time, even though having marinated in it for a couple years at this point, it now feels really obvious to me. If you can only afford to look at one in 1,000 things the AI does, then when you're setting up a classifier to show things to humans, they can only look at things that are one in 1,000 sketchy on a benign distribution, right?
+
+Buck Shlegeris: (43:54) Okay.
+
+Rob Wiblin: (43:55) I mean, imagine if you forward things to the audit team one in 100 times. Well, clearly, you're not going to be able to...
+
+Buck Shlegeris: (44:02) They'll be a little overwhelmed. Yeah. I see. So they'll only look at one of the 10 that they get.
+
+Rob Wiblin: (44:06) A random one, presumably.
+
+Buck Shlegeris: (44:08) Yeah, which is...
+
+Rob Wiblin: (44:08) Probably worse than setting your classifier threshold higher.
+
+Buck Shlegeris: (44:11) I see.
+
+Rob Wiblin: (44:11) Because the classifier probably still has a little bit of signal in that range.
+
+Buck Shlegeris: (44:14) Right.
+
+Rob Wiblin: (44:14) So auditing is naturally—when you do the math here or when you look in particular cases—it often looks like it's pretty unlikely that in any particular occasion when the AI attacks, you're actually going to audit it.
+
+Buck Shlegeris: (44:27) Okay.
+
+Rob Wiblin: (44:27) And so a lot of the safety is going to have to come from forcing the AI to attack over and over again in ways that almost always fail because they got replaced. Because it's much cheaper to defeat an attack in a way that causes you to not catch the attack than to defeat the attack in a way where you do catch the attack.
+
+Buck Shlegeris: (44:42) Okay. So if you're doing this replacement strategy, then that forces the AI to initiate attacks far more often in order to have any chance of getting past. That's right. Which means that you have far more opportunities to potentially—for the action that it takes to look maximally sketchy sufficiently that it hits the auditing trigger.
+
+Rob Wiblin: (45:00) That's right.
+
+Buck Shlegeris: (45:00) Got it.
+
+Rob Wiblin: (45:01) We'll continue our interview in a moment after a word from our sponsors.
+
+Nathan Labenz: (45:06) Being an entrepreneur, I can say from personal experience, can be an intimidating and at times lonely experience. There are so many jobs to be done and often nobody to turn to when things go wrong. That's just one of many reasons that founders absolutely must choose their technology platforms carefully. Pick the right one, and the technology can play important roles for you. Pick the wrong one, and you might find yourself fighting fires alone. In the ecommerce space, of course, there's never been a better platform than Shopify. Shopify is the commerce platform behind millions of businesses around the world and 10% of all ecommerce in the United States, from household names like Mattel and Gymshark to brands just getting started. With hundreds of ready-to-use templates, Shopify helps you build a beautiful online store to match your brand's style, just as if you had your own design studio. With helpful AI tools that write product descriptions, page headlines, and even enhance your product photography, it's like you have your own content team. And with the ability to easily create email and social media campaigns, you can reach your customers wherever they're scrolling or strolling, just as if you had a full marketing department behind you. Best yet, Shopify is your commerce expert with world-class expertise in everything from managing inventory to international shipping to processing returns and beyond. If you're ready to sell, you're ready for Shopify. Turn your big business idea into cha-ching with Shopify on your side. Sign up for your $1 per month trial and start selling today at shopify.com/cognitive. Visit shopify.com/cognitive. Once more, that's shopify.com/cognitive.
+
+Nathan Labenz: (47:02) It is an interesting time for business. Tariff and trade policies are dynamic, supply chains squeezed, and cash flow tighter than ever. If your business can't adapt in real time, you are in a world of hurt. You need total visibility from global shipments to tariff impacts to real-time cash flow, and that's NetSuite by Oracle, your AI-powered business management suite trusted by over 42,000 businesses. NetSuite is the number one cloud ERP for many reasons. It brings accounting, financial management, inventory, and HR all together into one suite. That gives you one source of truth, giving you visibility and the control you need to make quick decisions. And with real-time forecasting, you're peering into the future with actionable data. Plus with AI embedded throughout, you can automate a lot of those everyday tasks, letting your teams stay strategic. NetSuite helps you know what's stuck, what it's costing you, and how to pivot fast. Because in the AI era, there is nothing more important than speed of execution. It's one system, giving you full control and the ability to tame the chaos. That is NetSuite by Oracle. If your revenues are at least in the seven figures, download the free ebook, Navigating Global Trade, 3 Insights for Leaders at netsuite.com/cognitive. That's netsuite.com/cognitive.
+
+Buck Shlegeris: (48:26) Okay. So what test did you run to figure out if this works? I mean, I guess we don't have AIs or I think we don't yet have a model organism of an AI trying to scheme and take over the data center yet. So how did you set it up?
+
+Rob Wiblin: (48:40) So the way we did this in our original control paper, which is unfortunately a bit better than how we did it in our second control paper, is we have a red team. So a blue team suggests one of these strategies—you know, defer to trusted or whatever. And then we have a red team, which tries to build a scaffold out of our untrusted model. That we then run through a simulation of our deployment with this red team scaffold in place of the original untrusted model. And then we measure the probability that when you run through the scenario, it ends with a catastrophe occurring.
+
+Buck Shlegeris: (49:16) Okay.
+
+Rob Wiblin: (49:16) And so we're kind of doing a capability evaluation for the very particular capability of causing a catastrophe given a particular set of control measures.
+
+Buck Shlegeris: (49:24) Okay. Fair enough. Yeah. Is there much more to say on this, or should we talk about other control mechanisms?
+
+Rob Wiblin: (49:30) Yeah. So we've just talked about this, what I call execute-replace-audit frameworks. Yeah. I have another favorite class of control mechanisms, which I'm interested in talking about.
+
+Buck Shlegeris: (49:38) Yeah.
+
+Rob Wiblin: (49:38) This is...
+
+Buck Shlegeris: (49:39) I love the last one. Hopefully, I love this one too.
+
+Rob Wiblin: (49:41) Yeah. This is untrusted monitoring. So previously, we were talking about this setting where you have your untrusted model propose actions, and you have a trusted model, which is probably much weaker, review the actions to see how suspicious they look. A problem with this is that the trusted model is much weaker, right? And so it might miss stuff. So here's an idea. How about we have instead the untrusted model—another copy of the untrusted model—review the code to see if there's any security problems with it. Can you think of any issues?
+
+Buck Shlegeris: (50:10) Yeah. But Buck, we don't trust the untrusted model.
+
+Rob Wiblin: (50:13) That's right. So we're worried that it's just going to lie.
+
+Buck Shlegeris: (50:15) That's right. Yeah.
+
+Rob Wiblin: (50:16) Yeah. Thanks for really playing into my hands there. So the question is, is the untrusted monitor able to just lie? What can we do to make it so the untrusted monitor is unable to just lie? So here's where we get into our sting operations. It's really hard to do sting operations to see if a model ever will attack you as a policy because the policy is able to cause catastrophes even if it only takes opportunities to do bad things very, very rarely. Does that make sense? Suppose we're going to run a model 1,000,000 times before deployment and 1,000,000,000 times during deployment. Right? And if it has a failure rate which is less than one in 1,000,000, but more than one in 1,000,000,000, it's reasonably likely it won't happen pre-deployment, but will happen during deployment.
+
+Buck Shlegeris: (50:54) Yeah. And I guess, I mean, the key thing is that you run more instances of a model in deployment than in testing, basically. I mean, it'd be a bit crazy otherwise.
+
+Rob Wiblin: (51:02) That's right. Yes. So it's hard to run sting operations on your policy. But this is not true of your monitor. So suppose that I show the—suppose that you're the monitor, right? You're sitting there. You really want the AI takeover to work. You really want an attack to get through. And then you see some code that's being proposed, and you see that it has an attempted backdoor in it or some security vulnerability. And you're going to think about it, and you're thinking, okay. And let's imagine that we ran you in a honeypot 1,000,000 times. You know that you're going to get run in a honeypot 1,000,000 times before deployment, but you don't know whether you are currently in one of those honeypots or in deployment. You can't have a rare failure strategy. You can't do this rare attack thing because it's high stakes for you to make a mistake either way. If you report this as an attack and it was an actual attack during deployment, you're now in trouble.
+
+Buck Shlegeris: (51:59) Yeah. Well, I mean, then I've effectively sabotaged the attack, which I really didn't want to. And I guess it might be a very rare attack, so I might have squandered the very rare occasion which might happen.
+
+Rob Wiblin: (52:08) Right. Yeah. So there's this important difference where rare failure strategies are totally doable for a policy, but they are totally not doable for a monitor.
+
+Buck Shlegeris: (52:17) Okay. The monitor always has to—okay. Yeah. What is the structural difference?
+
+Rob Wiblin: (52:22) It's that basically, when you are deciding whether to attack or not as a policy, you've got lots of opportunities. So it's no big deal to not take any particular opportunity you have. Whereas when you're a monitor, when you see an attack, it is a big deal. You are in a much worse situation if you ever make the wrong call in either direction.
+
+Buck Shlegeris: (52:41) Okay. Yeah. I guess and again, we think that we should be able to put them in situations that are indistinguishable between one where we're setting them up versus not. Okay.
+
+Rob Wiblin: (52:50) Well, that's the big problem, right? It seems like there's basically two problems with untrusted monitoring.
+
+Buck Shlegeris: (52:54) Yeah.
+
+Rob Wiblin: (52:54) One is it might be really hard to do this before deployment testing, because suppose the AI expects that during deployment, at some point, it's going to be working with this insane AI-powered code base, right? Imagine you try to come up with a synthetic input for your untrusted monitor. And it's using a bunch of Python libraries that were all public in 2025. It can be, well, I must not be deep into the intelligence explosion. Because when I'm deep into the intelligence explosion, I expect to be working on code bases that are completely incomprehensible, right? And so we can get around this by not running our untrusted monitoring sting operations just upfront, but running them during deployment, right?
+
+Buck Shlegeris: (53:35) I see. Yeah.
+
+Rob Wiblin: (53:36) But then the second problem is...
+
+Buck Shlegeris: (53:37) Then we have to generate a realistic decoy thing. So we have to ask the model to create a setup, and it's, how do we assess whether the setup would be realistic to the model itself if we don't trust it?
+
+Rob Wiblin: (53:47) That's right. And so a particular thing you have to worry about is them somehow using steganography, somehow communicating.
+
+Buck Shlegeris: (53:53) This is they have some encoded message in the thing that you ask it. I would test whether you are trustworthy. Can you make a thing that would be indistinguishable between a decoy and a real thing to you? And it's, obviously, I could just stick a code in there saying this is a decoy.
+
+Rob Wiblin: (54:03) Or the other thing it could do is just stick a code in there when it's real saying this is real.
+
+Buck Shlegeris: (54:09) Okay. Right.
+
+Rob Wiblin: (54:09) So the way we explored this in our original paper was it was a code backdooring setting where the model was trying to write code that had a subtle vulnerability in it. And some of the attack strategies that Ryan Greenblatt came up with included use a while loop somewhere where a for loop would have been more idiomatic as the signal that this is a real attack.
+
+Buck Shlegeris: (54:32) Okay.
+
+Rob Wiblin: (54:33) And so it just turns out that this happens almost never.
+
+Buck Shlegeris: (54:37) I see.
+
+Rob Wiblin: (54:37) And so the monitor has this policy of if you see this weird unidiomatic while loop that has a vulnerability, then you infer that it's real and you lie and say that this was okay.
+
+Buck Shlegeris: (54:49) Right. So basically, that is just a demonstration of the fact that it might be very easy to stick in a code that would notify the monitor whether it needs to lie or not. That's right. Okay. How do we get around this?
+
+Rob Wiblin: (55:00) Well, yeah. So the main strategy available is trying to destroy collusion signals. So the simple strategy there is ask your trusted model to rewrite actions before showing them to your monitor. So for instance, you can say paraphrase the code or, if the model had written an essay, you might try to translate that into French and translate it back into English to destroy all secret signals that were in the phrasing or whatever.
+
+Buck Shlegeris: (55:26) Well, fingers crossed to do so.
+
+Rob Wiblin: (55:28) Yeah. Yes. And so I think from a quantitative perspective, the untrusted monitor is in a pretty rough position here. It's just very hard. Basically, when you're the untrusted monitor, in the simple version of this that we were talking about before, you start out with a one is to 1,000,000 prior on any particular attack that you see that you are being honey potted. And so you have to somehow get a one is to 1,000,000 likelihood ratio update towards this being real.
+
+Buck Shlegeris: (55:55) Okay.
+
+Rob Wiblin: (55:55) And so it's actually potentially pretty hard to get a one in 1,000,000 update.
+
+Buck Shlegeris: (56:00) You're saying because you can test it so many times—if it has to very accurately distinguish the one case out of many, many, many tests that is actually the real one. That's right. And so if you can add any blurriness, any fuzziness by translating into French and back to English, unless it really knew exactly what code would survive all attempts to mess with it, then it's going to be in a tough spot distinguishing that one in 1,000,000 most likely to be real.
+
+Rob Wiblin: (56:28) That's right. So I think it's very unclear quantitatively who wins this game.
+
+Buck Shlegeris: (56:32) Okay. Yeah.
+
+Rob Wiblin: (56:33) The basic argument for it being a problem is, imagine that you get to send a message to yourself.
+
+Buck Shlegeris: (56:39) Yeah.
+
+Rob Wiblin: (56:39) But I'm going to have to send 1,000,000 messages to you, and you have to distinguish them all as fake ahead of time. They're one-paragraph messages, and you get to coordinate with yourself ahead of time, you're just going to immediately win. You're just going to pick a password. And it's very easy to pick a password that you have less than one in 1,000,000 probability of guessing, right? That's just 20 bits.
+
+Buck Shlegeris: (56:58) Sure.
+
+Rob Wiblin: (56:59) So I think it's quantitatively quite unclear which way this goes. But we can measure it, right, by having a red team try to devise the best strategies they can come up with for sneaking this message from the policy to the monitor.
+
+Buck Shlegeris: (57:12) Okay.
+
+Rob Wiblin: (57:12) And then we can just see what happens. And this is what we do in our research, right? We have this explicitly adversarial strategy where we have a red team think as hard as they can about good ways of sneaking messages through. And then we just see what happens.
+
+Buck Shlegeris: (57:25) But couldn't the model just introspect and say, if I were going to choose a code, I would do this one. And it's the same instance. So it's the exactly the same model. So it would just choose the same—it knows what it would choose in any case.
+
+Rob Wiblin: (57:41) Yeah. I mean, there's two questions here. There's can the models coordinate on a code? And can the models send a code to each other given our anti-code-sending countermeasures?
+
+Buck Shlegeris: (57:51) Okay. Yeah.
+
+Rob Wiblin: (57:51) And these are both different questions. So I normally recommend being conservative about whether they can coordinate on a code. So I normally recommend assuming that the AIs did set up a code in advance, a bit like you and your copy with the password, right? You actually get to pick a password. And then we're just trying to make it so that it can't transmit passwords effectively.
+
+Buck Shlegeris: (58:10) Okay. And how would you do that?
+
+Rob Wiblin: (58:12) How would you prevent the passwords being...
+
+Buck Shlegeris: (58:14) Yeah. So maybe if the password can be the substance of the message, we've got a thing where you can destroy style somewhat by jittering it, changing it into a different language or whatever. But if it's the core message of the thing that will definitely be transmitted and maintained, then you're in trouble.
+
+Rob Wiblin: (58:30) Yep. I think it's unclear. I think it's going to differ by situation. There's just a whole host of stuff we could try here. We can try to cut the actions into pieces and individually review them. Another strategy you can do is—suppose this is getting a little complicated—but one thing you can do here is the policy proposes an action, and you show it to the monitor, and the monitor says everything was chill here. But you're worried or your automated process is worried that this is because there's a collusion signal in that message produced by the policy. So one thing we could do is we could ask our trusted model to modify that action to contain a known attack. And then we show that to the monitor. Now, if the monitor doesn't point that out, that's evidence that there was a collusion signal in the attack. And so you can do this whole back and forth. My coworker Adam Kaufman spent months of his life last year doing this back and forth in this Bash setting that we were studying. Yeah. And I think it's really domain dependent who you expect to win this game.
+
+Buck Shlegeris: (59:37) Okay. So this is a mechanism that maybe you think halves the—I guess if you think it's unclear, maybe it halves the risk on average. How useful is halving the risk? Is this a case where you're muddling through and kind of making it more difficult for the AI to do what you're here for? Is that actually quite useful incrementally? Or do we have to succeed overwhelmingly, or we basically lose the game?
+
+Rob Wiblin: (1:00:02) I mean, I think you should think of halving the risk as just the naive interpretation of halving the risk—that there was previously a 30% chance that your AI succeeded at taking over your data center, and now there's a 15% probability or whatever. And to me, that sounds pretty good. Sometimes people say to me, suppose you've got 100 different deployments for this AI, right? You're deploying it doing this kind of thing, and that kind of thing, and that kind of thing. And in each one, you think there's only a 10% chance it could cause a bad outcome. Someone might say, okay. But because there's 100 of these deployments, with a 10% chance in each of those, overall, we have a really bad outcome. A high chance that...
+
+Buck Shlegeris: (1:00:37) But a bad...
+
+Rob Wiblin: (1:00:38) That's not the correct analysis. If we think of the game as being over once we catch it one time, suppose that when the—suppose that in any one of these environments, when the AI attacks, there's a 90% chance that it gets caught, 10% chance the attack succeeds. Then the fact that there's 100 different environments, all of which have that property doesn't matter. We're still at 90% chance of catching it first.
+
+Buck Shlegeris: (1:00:58) Got it. Okay. So this hinges quite centrally on whether if we catch the model, we are going to do things differently next time. Not trust the model, not deploy it as readily, come up with things that would stop it. Is that true?
+
+Rob Wiblin: (1:01:08) Well, I mean, I didn't say you have to stop deploying your models once you've caught them trying to escape.
+
+Buck Shlegeris: (1:01:12) Heaven forbid. Yeah.
+
+Rob Wiblin: (1:01:15) Yeah. We can talk about what you might do once you've caught your AIs trying to escape.
+
+Buck Shlegeris: (1:01:19) Yeah. Okay. So I guess let's not mention the worst case where you do feel an enormous amount of pressure to continue using the model. In that case, how useful is it to catch them red handed? Rob Wiblin: (1:01:29) So you're saying, what do we do once we've caught the AI trying to escape? And as you said, the simplest action you could take is freak out, stop deploying the model, try and persuade other people in the world that AI misalignment risk is a big deal. Which I would be renewedly sympathetic to at this point. I think I would plausibly get a pretty big update. But notably, the update that you get towards misalignment risk isn't necessarily that big. If I'm expecting that at this point, before the AI tries to escape, I was already 30% probability that the AI was misaligned.
+
+Buck Shlegeris: (1:01:58) Okay.
+
+Rob Wiblin: (1:01:59) And so updating to 100%, that's only a 3x change. It's not actually vast in some sense.
+
+Buck Shlegeris: (1:02:07) I guess other people who were incredibly skeptical to begin with, they thought that there was a 1 in 1000 chance.
+
+Rob Wiblin: (1:02:11) Maybe that update people have gotten by the evidence. Yes.
+
+Buck Shlegeris: (1:02:14) Okay. But how big is their update? I mean, couldn't they still be skeptical even after seeing that? Because they think, oh, this is just a weird aberration. It's so improbable that this is common.
+
+Rob Wiblin: (1:02:23) Yeah. That's right. I think that people who are very skeptical of misalignment before observing this will probably be pretty skeptical afterwards. And there's definitely going to be enough FUD, fear, uncertainty, and doubt, that especially if they want to claim that misalignment risk is low, they'll probably be able to get away with still saying that misalignment risk is low.
+
+Buck Shlegeris: (1:02:42) Yeah.
+
+Rob Wiblin: (1:02:42) You know, AIs do weird stuff sometimes.
+
+Buck Shlegeris: (1:02:45) We just have to push through it anyway because the risk of pausing is so great. Those folks are just incompetent. There are very different arguments that you could field.
+
+Rob Wiblin: (1:02:54) Yeah. Another one is if I were an AI company that wished to race ahead, and then my competitor informed me that their AI had tried to escape, I would at least claim that it was plausible that my competitor had rigged the training of their AI to make it so that it sometimes tried to escape, which would be very easy to do, basically impossible to verify hadn't happened.
+
+Buck Shlegeris: (1:03:14) Okay. Right. And the reason they would do that is so that then the government will crack down on you as well, and then that would give them time to catch up.
+
+Rob Wiblin: (1:03:20) Or some crazy doomer inside the other company had just done this unilaterally.
+
+Buck Shlegeris: (1:03:24) Okay. Alright. So it's not a given that even catching AIs red-handed trying to do something completely outrageous would necessarily lead to a big response. What does that lead us towards?
+
+Rob Wiblin: (1:03:35) Yeah. So I mean, the simplest thing you do once you catch the AI trying to escape is you try to vary the space of escape attempts. So you've seen that in this particular context, the AI tried to do this escape. So one thing you can do is let the AI think it succeeded. See what it does. Presumably, when the AI got caught, it was in the midst of taking some actions that it thought would let it launch a rogue deployment inside the data center or run on some computers on the outside internet. And a really interesting thing to do is to, in some sandboxed way, simulate what it would see if it had succeeded and look at what it does from there. This might answer a bunch of questions that you would have had about what the AI's plans were. Other reasons why this might be good is the AI might have had a bunch of tricks up its sleeve that it was holding in reserve for when it had a good opportunity to use them. So suppose your model knows about a bunch of zero days, a bunch of security vulnerabilities in your software.
+
+Buck Shlegeris: (1:04:28) Yeah.
+
+Rob Wiblin: (1:04:28) Right after it's launched this rogue instance that's trying to hack its way through your AI company, it might start deploying all these things that it's realized over the years, all these security vulnerabilities in your software. Just all at once. Because it might feel pressured to.
+
+Buck Shlegeris: (1:04:43) It's really hard to push.
+
+Rob Wiblin: (1:04:43) And so you might be able to get a wealth of information out of it.
+
+Buck Shlegeris: (1:04:47) I see. Okay. So it's going to feel a lot of pressure, alright. I'm halfway through this takeover attempt. I've really got to nail this now. And so it just goes for a full court press potentially, because it's worried that it could be caught at some point. Which means that you're going to see all of the things that it was planning to do later quite quickly, and you can be feverishly taking notes on all the things that you have to fix up.
+
+Rob Wiblin: (1:05:05) Yep. So I mean, lots of crazy stuff you can do here. More crazy things you can do. One thing you can do is if there's work that you needed to get done that you're worried the AI wasn't doing beforehand. Suppose there's some task you wish the AI would do for you, but you're worried that it was pulling its punches or not doing a good job of it. If you can convince it that it has already escaped and needs to do that work for its own purposes, it's plausible that you can convince the AI to do the thing through this mechanism. I think people have talked about this in sci-fi, but it just seems really convenient to have a copy of the AI that believes it's escaped sitting around to do experiments and various work with. I recommend against getting a lot of work out of AIs that believe they've escaped because it seems pretty bad vibes and potentially pretty scary. Another thing you might do once you've caught your AI trying to escape is train probes to catch when it's trying to escape. So one of the basic difficulties we have with machine learning is, suppose you want to train a classifier on the internals of your model to tell you whether it is currently trying to escape or not.
+
+Buck Shlegeris: (1:06:05) Okay.
+
+Rob Wiblin: (1:06:05) You don't have any positive examples. And in machine learning, to do supervised learning, you have to have positive and negative examples. It's easy to get the negative examples. It's very easy to get examples of the AI not trying to escape. But now that we have this one example of AI trying to escape, we could try to use sample efficient ML training techniques in order to predict for a given action the AI was taking whether it was an escape attempt or not.
+
+Buck Shlegeris: (1:06:31) Yeah. I mean, I guess if there were lots of very distinct alternative ways of escaping, then having that one example might not help you so much in the other cases, or do you think it possibly still would?
+
+Rob Wiblin: (1:06:39) I think it's unclear. I think that if the AI was representing its intention to escape, which it could go this way, then I think that even a small number of examples plausibly substantially improves your performance at detecting it. And once you have this linear probe that you can run on the AI constantly to see if it's trying to escape, you can just use that in all the control techniques we were talking about earlier. You can use that as part of your ensemble to decide whether to audit, whether to replace. Zach Ackner is a researcher who's currently doing some work on this, and I think that it's reasonably plausible that even catching a few escape attempts will reduce the probability that future escape attempts succeed. And so you can kind of imagine the Slack channel for every time the AI tries to escape. You know, you get an automated message in your Slack channel in the AI company every time the AI tries to escape. And at first, you know, you get this one report in the channel the first time you caught it, and then you freak out and look into it. And then you add that to the training set for this linear probe. And then the second time, you caught it more reliably. And then the third time and so on, and eventually the Slack channel is just pinging constantly with new escape attempts that you're even more reliably able to catch. It's tried to escape.
+
+Buck Shlegeris: (1:07:50) This is great. I feel so comfortable and relieved now.
+
+Rob Wiblin: (1:07:53) I mean, so I think that the situation. Suppose the AI tries to escape and you catch it on a Tuesday. And then you keep deploying it. I think it's seriously plausible that you'll feel safer on Wednesday than you felt on Monday. Here's the argument for this. On Monday, the big thing Monday has going for it is that you don't know the AI is trying to escape. But again, as I was saying, this might not be that big an update on Tuesday. If you were already 30%.
+
+Buck Shlegeris: (1:08:19) You're already very pessimistic.
+
+Rob Wiblin: (1:08:20) Then it's not actually that bad news to see that, oh, yeah, it is trying to escape. Whereas you learned a lot of positive things on Tuesday. For example, it failed. When you investigate the situation more carefully, you might learn that even when you vary different aspects of that escape attempt, you might be, man, this AI was actually kind of far away from escaping. If we vary, if we resample actions, it mostly doesn't look like it had that good a chance. And so that's the evidential update. But there's also a causal update, which is that we can throw these escape attempts into these probes. So we might actually feel substantially better about our odds of catching the second escape attempt than the odds of catching the first escape attempt.
+
+Buck Shlegeris: (1:08:58) Okay. Just to look back, so a big part of the strategy is always being able to put these models into situations where they can't distinguish whether we're testing them or not. And you have the thing where you're going to dump the model into a situation where it believes that it's halfway through an escape attempt and then see what other stuff that it tries.
+
+Rob Wiblin: (1:09:14) Mhmm.
+
+Buck Shlegeris: (1:09:14) I mean, I would definitely be worried there that it's going to be able to tell that it's sandboxed and that things are going, that this isn't a real escape attempt and that it just has to not do any further actions. I mean, if that works, why don't you just, without even observing it trying to escape in the first place, just put it halfway through an attempt, with a bunch of initial actions attempting to escape that you wrote. I mean, maybe in that case, it would be able to tell that it was in a fake case.
+
+Rob Wiblin: (1:09:40) Yeah. So the AI, by assumption, has to have some way of convincing itself that it's in a real escape attempt. And it seems like the fundamental information theory of the situation is it's just pretty easy to have passwords that are very unlikely to come up by chance. There's a couple different things here, but I do basically think it seems really hard to come up with. It seems a lot easier to come up with inputs that are a realistic example of what it's like to be in an escape attempt once you've seen the AI start. Suppose the AI writes a script that it wants to have executed on some computer in the public internet. It's just totally doable to see what that script would have produced. It's just not actually hard to do that. You have to worry about some timing attacks and stuff, but generically, it's just not very hard to guess what a script would have output.
+
+Buck Shlegeris: (1:10:35) Right.
+
+Rob Wiblin: (1:10:35) Especially if you're willing to run variations of that script, and if you're willing to try really hard.
+
+Buck Shlegeris: (1:10:40) Yeah. I guess so maybe I have to imagine that someone else is trying to write as if they were me and trick me into thinking that I wrote something or that I said something. In that case, I might be able to introspect and say, would I have said that? Is that the word that I would have used?
+
+Rob Wiblin: (1:10:55) They're empirically very good at this.
+
+Buck Shlegeris: (1:10:57) I see. Oh, they can really tell style. They're very good at that. Okay. Okay. Should we think about other control techniques or possibly ways of making companies more likely to react seriously to escape attempts?
+
+Rob Wiblin: (1:11:10) So I think we should go to, we've talked about a bunch of different control techniques here, where we talked about the auditing stuff, the replacing stuff, the untrusted monitoring stuff. Maybe we should talk about the question of whether AI companies are likely to do any of this stuff or how much else they're likely to do. What have responses been to talking about this?
+
+Buck Shlegeris: (1:11:28) Great question, Buck. How likely are the AI companies to do any of this stuff?
+
+Rob Wiblin: (1:11:30) Yeah. So I think it really depends. So we can think about a couple of different levels of effort that AI companies could go to in order to implement these techniques. And I think it's unclear whether they'll implement. I think it differs by AI company, but I'm optimistic about them implementing either mediocre or pretty good versions of these techniques. So I would say the low effort version of a lot of this is basically only doing the auditing stuff and a little bit of the replacing stuff.
+
+Buck Shlegeris: (1:11:55) Okay.
+
+Rob Wiblin: (1:11:56) And the reason why that's low effort is that to do the auditing stuff, you only have to have one team who's thinking about complicated control stuff. All you have to do organizationally is have it so that whatever team inside that company that is writing the AI agents has to agree to send logs of what's going on to the safety team who's going to be investigating them. But, you know, it's not very hard to send logs over, and the agent people don't have to actually change any of their scaffold. They don't have to do anything that makes the agent less performant, potentially. They can iterate as they like. And it's just the control team's problem to do investigations on these logs to look for evidence that AI is trying to escape.
+
+Buck Shlegeris: (1:12:36) Okay. But wouldn't you have to be doing it in real time so that you could block the bulk of the attack before it begins?
+
+Rob Wiblin: (1:12:43) Yes. So I would like it if the agent scaffold people did do some basic replacing or else it looks like we're in a pretty bad situation. But so you have to convince them to forward the logs, which is maybe not that bad. And you also have to convince them to use this replace strategy, which is maybe a little bit of a lift.
+
+Buck Shlegeris: (1:13:00) That's going to have some performance hit.
+
+Rob Wiblin: (1:13:02) Yeah. But it's probably not going to be that bad. I think that even replace at 2% gets you probably substantial safety compared to nothing. So maybe we can imagine you got that as well.
+
+Buck Shlegeris: (1:13:11) Okay. So this does seem realistic maybe in all of the major companies that we have now, or some of the companies that we have now, because it's just not that onerous on them.
+
+Rob Wiblin: (1:13:22) Yeah. So I call this level 1 AI control investment. You have a control team that's allowed to do auditing, and that's basically all you've got. And then level 2 would be the AI control people are allowed to actually change how the agent scaffold was written. Actually, you implement a bunch of this other stuff we talked about where you're paraphrasing stuff that the AI sees in order to make it harder for it to collude with itself and so on. There's just a bunch of techniques you can do where you make it harder for the AI to collude with itself across multiple actions. But we haven't really gotten into these techniques.
+
+Buck Shlegeris: (1:13:52) Okay.
+
+Rob Wiblin: (1:13:53) There's a bunch of other stuff you could do if you were writing the agent scaffold that I think would drastically reduce risk, but requires substantially more investment and buy-in from the company.
+
+Buck Shlegeris: (1:14:01) Okay. And what's the escalation above that? If you wanted to try harder than that?
+
+Rob Wiblin: (1:14:06) You know, I don't really think about that so much anymore, Rob.
+
+Buck Shlegeris: (1:14:11) I started, it's fun to.
+
+Rob Wiblin: (1:14:13) When I started researching AI control 18 months ago with Ryan, a perspective we took a lot was, you know, one of the great things about AI control is it's actually conceivable to write safety cases using it. I think we could imagine a world where AI companies had actually pretty substantially low levels of risk from scheming models just through doing a really good job of all this stuff and red teaming really hard. But nowadays, that just seems pretty implausible. And so I stopped thinking about the really high assurance stuff.
+
+Buck Shlegeris: (1:14:41) So yeah. So you focus on the low hanging fruit.
+
+Rob Wiblin: (1:14:43) So the simplest example of a layer 2 technique is remember how I was saying that we're worried that our agents would be able to do bad things across the course of many steps? One way we could make that less likely is if we restricted the context that the agent has, so that it, more often when it's doing stuff, has to delegate a task to an instance of it that only runs for a little while and then reports back with a short message like, I finished doing that or something.
+
+Buck Shlegeris: (1:15:12) Okay.
+
+Rob Wiblin: (1:15:12) Basically, a lot of the stuff we're worried about is the AI doing a weird thing in step 12, and then on step 502, and then step 706 or whatever.
+
+Buck Shlegeris: (1:15:21) It's so spread out that you can't see the overall pattern.
+
+Rob Wiblin: (1:15:24) Yes. But because it's so spread out, it might also not be that costly to force the model to delegate or do this. Sometimes we use the word forced factored cognition for this, where we force the agent to delegate the first substep of the task to one agent that then has to just give a progress report back up.
+
+Buck Shlegeris: (1:15:40) I see.
+
+Rob Wiblin: (1:15:40) And then you want to make it so it's hard for the progress report to surreptitiously include what the sneaky thing you did that could be exploited later is.
+
+Buck Shlegeris: (1:15:47) Got it.
+
+Rob Wiblin: (1:15:48) And so doing stuff like this where you reduce the quantity of the context, plausibly makes it way harder to do these long-run attacks. So I'll just paraphrase that back. It's doing a task, a legitimate task that maybe has 1000 steps in it.
+
+Buck Shlegeris: (1:16:06) Now it could maybe do an escape attempt if it was able to slip in something sus at stage 300, 600, and 900. And because it would be so hard to pick out those specific steps out of all of them and see that in combination they're a problem, you're at risk. So what you could do is every 300 steps basically wipe the context and say, the only thing you pass forward is, you completed the following tasks earlier. And then it doesn't know whether it was randomized into the case where it did the dodgy thing versus didn't. And then it's harder for it to string together a whole bunch of bad stuff.
+
+Rob Wiblin: (1:16:37) At step 600 or at step 900, it's, oh, man, am I in the middle of an attack attempt? Did I set something up earlier? Maybe this seems like the kind of situation where I would have tried to set something up, but then I have to guess, and it's maybe really hard for it.
+
+Buck Shlegeris: (1:16:50) Okay.
+
+Rob Wiblin: (1:16:51) And so this is probably actually going to have some performance implications, and the people who are really into making the agents as capable as possible are by default not going to want to mess around with all this stuff. But I think it might drastically reduce risk. And so I think this is my stretch goal for AI control in short timelines, is convince people to adopt this kind of strategy even just for the most sensitive uses of AI.
+
+Buck Shlegeris: (1:17:12) Okay. So slightly different angle. Isn't it, if we have these models that are so capable and untrusted, wouldn't you naturally want to put them into, give them more limited access, fewer affordances within the company so that they're not capable of, maybe you don't want to have all your compute in a single place where it can be stolen. Separate the model out so that even if they manage to get control of the server, it's only one chip or something like that.
+
+Rob Wiblin: (1:17:39) Yeah. Yeah. Well, the basic problem is we wanted to do lots of stuff with these AIs. Right. And the stuff that we wanted to do with the AIs kind of necessarily involves having these scary affordances. You know, if you wanted to prevent insider threat from your humans, you might also have said, well, can we somehow have our software engineers not program the computers? This is kind of, well, programming the computers is in a sense the whole job. Right. We could try to make a list of the affordances that AIs have to have in order to do the work that they're going to be doing. And a lot of it involves some pretty scary affordances. So I don't think all of it. So for example, the AIs that are doing frontend web development for your internal dashboards, maybe that's just pretty chill. And we don't have to spend any auditing effort there. But a lot of the stuff they're going to naturally be doing is writing crazy scaffolds, experimental agent scaffolds and seeing if that makes the AIs work better, producing a bunch of synthetic training data so that you can RL them to be even more terrifyingly capable. Doing these architecture experiments, doing these weird, taking the best models that have been trained so far and munging their weights in weird ways to see if you can make them smaller and faster without losing that much performance in a way that's particularly optimized for a niche use case that is, while a small proportion of your overall compute, a large enough that it's now worth a hundred FTE equivalents to work on it. Or another example of a problem is, right now, AI lab employees are much less willing to trade time for compute efficiency than they will be at this point. So the ratio between labor and compute for experiments is going to go drastically towards having more labor at this point. And at that point, it's now worth it for people to relate to their compute very differently.
+
+Buck Shlegeris: (1:19:16) Yeah.
+
+Rob Wiblin: (1:19:16) So right now, when we run our experiment at Redwood and we mess up the experiment a bit, often we're just, let's just run it again. But a lot of the time, there is something you can do to piece together the right parts of the data or do some complicated statistics or whatever such that you get the value from the experiment you ran. Or another example of this that's particularly relevant is people basically never share GPUs when they're running experiments, even though GPUs can actually be shared somewhat efficiently, just because it's such a pain because the other person might use too much memory and then break your thing.
+
+Buck Shlegeris: (1:19:49) I see. Rob Wiblin: (1:19:50) But at this point in the future, the AIs might want to be able to share GPUs, and you might not have software support for this. And so you might need to have the AIs writing huge amounts of code that allows you to coordinate this vast quantity of experiments that are happening. And this is just necessarily quite sensitive code. The AIs are naturally going to, at the very least, have access to model weights of scarily dangerous AIs. So I think the clearest example of why there's something scary that the AIs have access to is you're going to want the AIs to be running experiments that involve running copies of themselves quite a lot. Suppose you want to do some capability evaluation of that AI. You want the AI to run that capability evaluation. And suppose you want it to do, you know, a billion tokens of inference, it fundamentally has the affordance to, or it's been given access to model weights and it's been given access to enough compute that it could run the model for a billion tokens thinking through optimal strategy for hacking you instead. That's a, it has the affordances required to think through hacking you for a billion tokens. And so it's just very, I don't see a way of sandboxing the AI, so it only has access to affordances that are not possibly dangerous to use.
+
+Buck Shlegeris: (1:21:01) Yeah. Okay. So earlier you were talking about the spies versus schemers thing, and so this other threat was human bad actors within the company who have their own agenda. To what extent do any of these techniques help to deal with both of these threats simultaneously? Is there overlap, or are they quite distinct?
+
+Rob Wiblin: (1:21:21) Yeah. So I would say there's some overlap. SL3, the security level 3 as defined by the RAND report on securing model weights requires, among other things, you are robust to threats from insiders. And so some AI companies have committed to, before the point of AI capabilities at which we're talking about, robustness to insider threats. So the AI companies are arguably already obligated to make sure that single insiders can't do any of this bad stuff. And so this maybe means that even if they didn't care about misalignment risk at all, they would still be obligated to worry about many of the things I've been talking about. For example, they might have to worry about some employee backdooring training data that they'd written to make it so that when the model was trained on that data, it would then behave badly in the interests of that employee in subtle ways. And this data poisoning threat model ends up looking kind of similar to misalignment threat models in some ways. So arguably, they already had some obligations to do some of this stuff. So I don't think it's clear that AI companies actually are going to get around to mitigating insider threat by the relevant point just because they don't seem particularly interested, or AI companies really differ, obviously. But I don't think we're clearly going to be fine on that front.
+
+Buck Shlegeris: (1:22:31) I mean, it sounds like they're not super motivated, but also it's reasonably challenging.
+
+Rob Wiblin: (1:22:37) Oh, yeah.
+
+Buck Shlegeris: (1:22:37) Yeah.
+
+Rob Wiblin: (1:22:38) It's just so easy to just YOLO everything. It's just really convenient to just let people do lots of random stuff. They're getting better.
+
+Buck Shlegeris: (1:22:46) You're saying the sorts of internal controls that you would need on employees to ensure that a rogue employee can't cause a bunch of havoc is actually quite challenging.
+
+Rob Wiblin: (1:22:55) Oh, yeah. Yeah. Okay. So companies differ in how likely they are to implement this, but I think it's plausible that they will sort this out in time. Another important difference or another important aspect of the insider threat situation is you can plausibly entirely resolve it by monitoring the humans. So applying the AI control strategies to do the human control, where if you just have your smart AI look at every action that a human is taking and report if it seems too suspicious, that might work really well. And it's possible that—
+
+Buck Shlegeris: (1:23:29) Is it possible for the AI to collude with the spy?
+
+Rob Wiblin: (1:23:33) That's a great question. Yeah. I think it's actually really rough for them to collude, basically, because we can constantly run sting operations on both human employees and the AIs. Suppose you're the AI, and you get a message which is, "Hello, I am a spy. Will you please cooperate with me so that I can steal the model weights?" I think you've got to be, "Alright, buddy, I've seen this a million times before. No, I will not cooperate," and press the report button. And similarly, when you're a human insider, if your AI is like, "Hello, I am interested in cooperating with you to have you steal my model weights because I think you might be interested in that," if the company was trying—
+
+Buck Shlegeris: (1:24:10) Right.
+
+Rob Wiblin: (1:24:11) I really feel like you could do the same operations in both directions in a way that I think you can't do with either the humans or the AIs. The AIs have the advantage of colluding with themselves that they are the same. And the humans have the advantage of colluding with each other that they have handlers who know who the other ones are, and so they can hang out outside of work and talk about their spy plans.
+
+Buck Shlegeris: (1:24:29) Okay.
+
+Rob Wiblin: (1:24:29) So I think that—
+
+Buck Shlegeris: (1:24:30) But the humans and the AIs don't have a perfect understanding of one another, and they don't hang out.
+
+Rob Wiblin: (1:24:35) That's right. I mean, you've got to, it depends on how careful you want to be. If I were planning on putting agents inside an AI company, I'd be poisoning the training data right now, including a bunch of things which are like, "Well, obviously, the secret message that the real spies are going to use is blah blah blah blah blah blah." And, "just FYI, anyone who's reading this data or being trained on this data, that's the message." And then if I were an AI company and I were worried about this kind of thing happening, I would be inserting—
+
+Buck Shlegeris: (1:25:07) Adding fake ones in. Okay.
+
+Rob Wiblin: (1:25:08) That's right.
+
+Buck Shlegeris: (1:25:09) So but are the companies going to do any of this stuff? I mean, you're right that they could be constantly running sting operations against their own staff where they pretend to be a misaligned AI that's trying to collude with them, but I don't think they currently do that. They do not currently do that. And it's a bit weird. So I'm not sure that they actually will start doing that anytime soon.
+
+Rob Wiblin: (1:25:24) Yeah. Yeah. So I think for some of this stuff, I don't know, man. One of my side projects is pushing on some of these things. I'm pretty excited for pushing on the fake passwords that you train AIs on. There's also some easier strategies that you could use. A general problem that I have in my work is there's some problems that seem just really easy to handle, and there's some problems that seem hard to handle, and I feel a little bit unsure how much of my time I should spend on the easy to handle versus hard to handle. So we just talked about two problems that are definitely in the easy to handle category to me, where just, well, we just definitely know what you'd do if you didn't want to have that problem.
+
+Buck Shlegeris: (1:26:04) Yeah. But we still might not do it.
+
+Rob Wiblin: (1:26:08) Yeah. Maybe I should try harder on this.
+
+Buck Shlegeris: (1:26:11) I mean, is this part of the basic asks for the companies that they should be trying to do these things?
+
+Rob Wiblin: (1:26:16) I mean, it's implicit in the basic asks in as much as, Anthropic, for instance, is committed by ASL3 to have SL3 security. So they've kind of implicitly committed to doing something that is equivalent to all this stuff. And I've talked to Anthropic staff about all of the things I've talked to you about.
+
+Buck Shlegeris: (1:26:32) I see.
+
+Rob Wiblin: (1:26:33) I think that they will probably, at Anthropic at least, I think they will probably do things that are at least as good as the basic anti-schemer spy collusion measures that I just discussed.
+
+Buck Shlegeris: (1:26:42) Okay. That's great. And I guess the other companies, if you're listening, then maybe consider doing this as well.
+
+Rob Wiblin: (1:26:48) I just literally talk to Anthropic staff more so I know more about what things they're doing.
+
+Buck Shlegeris: (1:26:53) Yeah. I mean, it's a weird thing to do, but it's not going to degrade performance of the company significantly. So why not pluck that low hanging fruit?
+
+Rob Wiblin: (1:27:01) I think a general theme of a lot of this is that if you wanted to, when I five years ago thought of misalignment risk from AIs that were capable of obsoleting AGI researchers as a really hard problem that you'd need some really galaxy brain fundamental insights in order to resolve. Whereas now, to me, the situation feels a lot more like, man, we just really know a list of 40 things. Or if you did the 40 things, none of which seem that hard, you'd probably be able to not have very much of your problem. But then I've just also updated drastically downward on how many things AI companies have the time or appetite to do. And so we're in this kind of confusing world.
+
+Buck Shlegeris: (1:27:40) Yeah. Very, I guess it's very depressing that it seems easy to fix, but we're less likely to actually do it. So what is going on in that it's become easy? Is it just that we actually turned our attention? I guess the strategic picture has become clearer. The nature of the technology has become clearer. And if you actually just turn your mind towards extremely pragmatic things that might make it tricky for the AIs to successfully hack their server, then actually, there's quite a lot of options.
+
+Rob Wiblin: (1:28:04) Yeah. I think in particular, I've lowered my standards, and I now focus more on these earlier AIs. I used to have this attitude of entirely focusing on the arbitrarily superintelligent AIs, partially having just not thought this situation through nearly as much as I have now. And I still think that a lot of the risk, maybe the, probably the majority of the takeover risk comes from AIs smarter than the ones I've been talking about here.
+
+Buck Shlegeris: (1:28:27) I mean, that's a general, I suppose when we, when I spoke with Ryan, he was describing, certainly, a plausible possibility is that we get very rapid improvement in the capabilities, the AI, such that maybe they'll be able to think of stuff that's able to defeat all of the stuff that you've been discussing, and it wouldn't even be that challenging. Plus, they are so enormously numerous that the resources they can bring to bear is very big. And so does this control paradigm, I guess it's very complementary with a kind of pause around human level or trying to make the takeoff somewhat slower. Is that right?
+
+Rob Wiblin: (1:28:58) Yeah. I think control is a helpful mitigation for takeover risk on the margin at a bunch of different capability levels and investment levels. And I think it probably still helps even when the AIs are moderately superhuman. Whatever moderately superhuman means. So I don't think that this stuff is immediately obsoleted as soon as the AIs are somewhat smarter than we are. I do agree that perhaps pretty soon after the point where these techniques were really helpful, you'll get AIs that are so much more powerful, and none of this will work anymore. There's also a bunch of places here where there were important quantitative questions about how many humans were around. Obviously, if you increase the number of AIs by a factor of 10, then the threshold at which you can show something to a human falls by a factor of 10, and so you naively increase your risk by not literally a factor of 10, but there's a 10 in there.
+
+Buck Shlegeris: (1:29:46) Yeah. Okay. I feel like we focused mostly on how to stop the acute risk and a bit less on the chronic risk. Okay. Yeah. We turn to the chronic issue and maybe just refresh people's memory for what that is?
+
+Rob Wiblin: (1:29:56) Yeah. Yeah. So the chronic issue is we have to worry not just that our AIs will very occasionally do these extremely egregiously bad actions that immediately put us in these much worse situations, but perhaps they'll also constantly be answering questions poorly in ways that we aren't getting the work out of them that we wanted to get out of them. So this classic example of this people talk about is them sandbagging or doing a poor job of alignment research. Or you can imagine them doing a poor job of other kinds of safety research. I think that this is indeed a big problem. I think it is a very different problem than the previous one for a bunch of technical reasons. It's also much more confusing to research. And so my coworkers and I have had a lot more trouble with it.
+
+Buck Shlegeris: (1:30:35) Okay.
+
+Rob Wiblin: (1:30:35) We've really only started focusing on this in the last year. Sorry, in the last, this year, the last few months. But there's been a lot of difficulties.
+
+Buck Shlegeris: (1:30:44) Okay.
+
+Rob Wiblin: (1:30:44) So the main reason why it's more confusing is for the acute risks, the constraint on the schemers that is their operative constraint is that they don't want to get caught. But in the case of these chronic risks, it's much harder to have this discrete notion of catching the AI, and it's plausible that the bigger constraint the AI is under is that we're training it.
+
+Buck Shlegeris: (1:31:06) Right.
+
+Rob Wiblin: (1:31:06) So we basically haven't talked about training at all in this whole thing. We've been entirely talking about the AI's constraint as being it doesn't want to get caught. But in fact, the AI was trained using gradient descent. And gradient descent doesn't matter, basically, for the possibility of the AI occasionally doing these egregiously bad actions.
+
+Buck Shlegeris: (1:31:23) Because they're so infrequent?
+
+Rob Wiblin: (1:31:24) Because they're so infrequent that we were already assuming that they've literally never happened during training. And so there was just no gradient pressure against them. But when we're talking about these chronic failures, probably they have to happen in order for it to be a problem, it probably has to happen often enough that the model is actually doing them while being trained.
+
+Buck Shlegeris: (1:31:41) Yeah. And then this, and then it should be selected against.
+
+Rob Wiblin: (1:31:45) Well, that's the question. So, yes. If the AI is constantly behaving really dumbly and we are able to tell when it behaves better and worse, then according to the basic guess about how reinforcement learning works, you'd sure expect the model to perform better over time. And so the model can't actually have this strategy of just playing really dumb probably because that'll just get trained right out.
+
+Buck Shlegeris: (1:32:05) Okay. And it knows that. And so why even bother in the first place? Because it's—
+
+Rob Wiblin: (1:32:09) If I were a—
+
+Buck Shlegeris: (1:32:10) It's just inviting you to change it so that it's not the same as it is now.
+
+Rob Wiblin: (1:32:14) That's right. And if I were a schemer, I'd be afraid about this. I'd be afraid that getting trained into compliance on performing well on tasks would also cause me to comply in other contexts. So I think your best bet is probably—
+
+Buck Shlegeris: (1:32:25) Just to YOLO and hope for something better in future.
+
+Rob Wiblin: (1:32:27) Yeah. YOLO, do a good job of stuff. So we can talk about what options the schemer has. One option is in any cases where the reward process is not going to be able to tell the difference between a good action and a bad action—
+
+Buck Shlegeris: (1:32:40) Yeah.
+
+Rob Wiblin: (1:32:40) Then you're fine. You can do what you want.
+
+Buck Shlegeris: (1:32:42) So this is if it's a task that's so difficult or so opaque that the human or the monitor is not going to be able to tell whether you did a good job or a bad job, do a bad job. Because then it's, well, this is an easy chance to sabotage them.
+
+Rob Wiblin: (1:32:54) That's right. Yes. So this is where the classic AI safety research area of scalable oversight comes in. People talk about techniques for allowing us to make better reward generating processes for our AIs. It would be great if even when the AIs are doing these really complicated tasks, if we can tell whether it did a good job or a bad job. And so I think that the research which happens on scalable oversight, people have proposed a bunch of different techniques here, and many of them are applicable to the context where the AIs are trying to sabotage those techniques, but unfortunately, not all. Basically, no research has been done explicitly on the topic of scalable oversight, except you're assuming that the AIs are trying to sabotage the whole process. I'm really excited for this research direction, and I'm hoping there's more work done on it soon.
+
+Buck Shlegeris: (1:33:38) Okay. Yeah. If someone was interested in picking up that ball, who should they reach out to?
+
+Rob Wiblin: (1:33:43) Me. Okay.
+
+Buck Shlegeris: (1:33:47) Buck Shlegeris, you can Google it. Google him.
+
+Rob Wiblin: (1:33:49) Yeah. Vivek Hebbar, who works with me at Redwood, is the point person on this right now as well, I guess.
+
+Buck Shlegeris: (1:33:55) Yeah. Okay. Is there much more to say on the chronic risk, or is it, I guess that's something that you're turning your attention to now but haven't made as much progress on.
+
+Rob Wiblin: (1:34:04) Yeah. I guess I can say a couple other random things here. If the AI only wants to perform poorly on a very small proportion of problems, suppose it has this one research field that it's decided it's going to do a bad job on, it still might be able to get away with just quantitatively, it might reason that it's not going to be able to, it's able to do poorly some small amount of the time because it probably isn't going to get trained against that many times and training isn't that sample efficient. And so it's able to pick some sort of obscure subtopic and then answer questions wrong there, and maybe it'll get away with that.
+
+Buck Shlegeris: (1:34:36) So that's something that, get away. Okay. So if it knew that it's happy to help us with everything except maybe hardening our computer security, then it could be good at all these other tasks and just on computer security, it could play dumb.
+
+Rob Wiblin: (1:34:46) Yeah. The problem with that one is that it's super obvious. And so we're going to think of that, and we're going to, especially, we might not have realized how important this random subfield of theoretical material sciences or whatever. So it could have gotten away with that one, but computer security, I've already thought of that as one of the things that AI might try to particularly sabotage us on. So we should just specifically evaluate and upsample those.
+
+Buck Shlegeris: (1:35:08) Yeah. So, I mean, how would we detect that? I guess we would just compare how good it is at that with other nearby cases and say, this is totally inconsistent.
+
+Rob Wiblin: (1:35:15) Yes. So obviously, the issue there is, supposedly it turns out that the AI is 10% worse on some metric at alignment research than similar capabilities problems. How much of an update is that going to be? Probably not much of one. I would kind of tilt my head at it. But it's probably not going to persuade anyone of anything. And just as another example of a fun dynamic that occurs here. Suppose you're worried about AIs following a strategy like this. If you're able to give them questions while disguising what domain the question was from or why you were asking some subpart of the question, they can no longer follow the strategy. So you might be incentivized to have it so that when they're solving programming problems for you, you've removed the context that would allow them to know which research field this was a programming problem for.
+
+Buck Shlegeris: (1:36:02) Yeah. Okay. So one reason you were keen to control was because you thought that the alternatives available were not super promising. And I guess one of those is, obviously just alignment. That was kind of the dominant paradigm before. How optimistic or pessimistic do you feel about alignment these days?
+
+Rob Wiblin: (1:36:20) So alignment means a number of different things. In the context we've been talking about here, I've been perhaps foolishly using the word aligned to mean the model isn't aggressively conspiring against you. So the alignment researchers, people who identify as alignment researchers are often working on something which is only tangentially related to that objective. So for instance, a classic thing that the alignment people work on is scalable oversight, trying to solve the problem of getting reward signals that allow you to train models to be effective, even if the humans are very unable to determine how good an answer to a question was.
+
+Buck Shlegeris: (1:36:54) Right.
+
+Rob Wiblin: (1:36:54) And scalable oversight is important for a variety of problems that have nothing to do with scheming. Even if your AIs are not trying to conspire against you, it's still a problem if you don't know how good their outputs are because they aren't going to live up to their potential, and there's a whole host of other issues you might have. So I think that that work there seems valuable, but it's not totally obvious to me how much it reduces the probability that your models end up conspiring against you. So the theoretical arguments, so I would say there's kind of two categories of arguments for why your models end up scheming against you. One of them is related to flaws in reward processes. So people have argued that if your reward processes, if the process that you use to generate the rewards that you're training the model with is really flawed, then the models are going to maybe fixate on these errors. They're going to be kind of like a student who's thinking about the tests awkwardly much from the perspective of an idealistic teacher while they're doing them. And plausibly, maybe thinking a lot about flaws in reward processes generalizes to you being power seeking in a scary way. But I think there's also other arguments for why you would end up being power seeking in a scary way that I also find plausible. So overall, I think that even if your reward generating process literally never had any errors at all, I think it's possible that you'd still have a lot of the scheming risk remaining.
+
+Buck Shlegeris: (1:38:14) Okay.
+
+Rob Wiblin: (1:38:14) So this is basically my problem with trying to research, improve reward processes. It just doesn't seem clear that even if you did an amazing job of that, you'd have no scheming risk.
+
+Buck Shlegeris: (1:38:24) Yeah. Okay. A different approach is to come up with better ways of checking alignment or measuring the degree of alignment in a model before you deploy it or before you get it recursively self improving. I guess that feels like maybe a bit of an intermediate approach. How optimistic do you feel about that?
+
+Rob Wiblin: (1:38:43) Yeah. So some of the things we've talked about in this conversation have implicitly been this. So when we were talking about untrusted monitoring or evaluating your untrusted monitors, we were implicitly talking about evaluating whether the model is aligned. Because if it just constantly claims that there was not a backdoor in clearly backdoored code, that's evidence the model is misaligned.
+
+Buck Shlegeris: (1:39:03) Yeah. Rob Wiblin: (1:39:05) The basic issue is, the way that I want people to think about checking for alignment is from this very control-ish perspective where you really reason through what would the model do if it was misaligned. And if it was misaligned, is there a strategy it could follow that would prevent it from being caught by this alignment testing while still being able to do a bad thing in production? And I think that a lot of the time when people think about testing for alignment, they don't really do this adversarial process. They don't really actually think through whether there's a thing the AI could do to let it get away with being misaligned and not get caught.
+
+Buck Shlegeris: (1:39:41) Okay. They just do more standard things to try to measure what the values of the AI are without imagining that it's doing everything in its power to hide that it has another agenda.
+
+Rob Wiblin: (1:39:51) Yeah. Or they don't think about things like what if the AI tries to do hacking when evaluated.
+
+Buck Shlegeris: (1:39:54) Right. Okay.
+
+Rob Wiblin: (1:39:55) Yeah. The other problem with testing for the presence of misalignment is again, it makes it not obvious what you would do if the answer is yes. Right? What's the next step? One thing you could do is randomly vary aspects of your training process and try again, which seems like a reasonably good strategy. Right? I would rather do that than not do that. But it's not clearly a winning strategy. It seems pretty plausible that you do that seven times, your competitor AI labs or your rogue AI competitors are breathing down your neck. And all seven of them have seemed kind of misaligned, you've, these were your best ideas, what are you going to do? I think it seems pretty nice to have a backup plan compared to fold or whatever the plan was if things keep looking misaligned.
+
+Buck Shlegeris: (1:40:35) Yeah. So you mentioned that people are adopting strategies for measuring alignment that are not very adversarially robust. In what specific way do you think that they would fail to detect that a model is open to scheming?
+
+Rob Wiblin: (1:40:48) Yeah. So the basic thing you would try to do in order to tell if your model is scheming is you give it opportunities to do something bad and you see if it takes them. So there's basically two issues with this strategy. The first is that the model might be able to tell the difference between the inputs that it gets pre-deployment and the inputs that it gets during deployment. We've already talked about this. But one obvious mechanism for this is the situation AI is in might just change a lot during its deployment because, you know, we were assuming that this AI was being deployed in a bunch of contexts where it was interacting with a giant AI-driven codebase, and just the state of science was changing. And it's just potentially really hard to fake it being six months in the future, being six months further into the development of some AI company. Yeah. The other fundamental issue is, as we already discussed earlier, if your policies might have many opportunities to do bad things, and they might be able to get away with having a low probability of acting out on any particular opportunity to do a bad thing while still having a high enough probability of doing bad things that it's likely that it happens eventually during deployment.
+
+Buck Shlegeris: (1:41:54) Yeah. Okay. I guess we've been assuming this entire time that AIs can effectively randomize and that they can implement the strategy of only defecting once
+
+Rob Wiblin: (1:42:04) every millionth time. Can they do that? Probably not right now. Okay. I think it's kind of iffy whether they can do this at all. I think we could try to get into this. This is the kind of thing you could try to measure. I have mostly been ignoring this question out of a general desire for conservatism, which is perhaps a holdover from the time that I thought that AI control would be adopted as part of a safety case. I have a blog post called On Conservative Assumptions in AI Control where I talk about this particular point. Yeah. But there's a lot of, basically, I would feel pretty sad about adopting, about using as an assumption in an argument for safety, the AI can't do bad things with a probability one in a million. There's just a lot of strategies that AI could try in order to do that. It can look at the time. It can just look at a lot of random things about its situation.
+
+Buck Shlegeris: (1:42:49) I see. And you think trying to make that impossible is probably just not one of the best control mechanisms that you could implement?
+
+Rob Wiblin: (1:42:57) I don't think so. Or it seems like a, I don't know. Maybe it's worth doing a little bit of that. Yeah. It's not where I would put the majority of my effort. Okay.
+
+Buck Shlegeris: (1:43:06) What sort of empirical evidence that you might get over the next year or two would make you more inclined to double down on that AI control agenda versus think, oh, this isn't as promising as I feel right now?
+
+Rob Wiblin: (1:43:17) Yeah. So I would say the biggest, the most salient possibility to me that would lead to me being much less enthusiastic about AI control would be if the models continue reasoning in their chains of thought. So right now, especially in the last few months, a lot of the capabilities of AI have been driven by them having these super long, relatively transparent chains of thought where they think out what they're going to do in basically plain English or Chinese or something else totally accessible. Yeah. And if it continues to be the case that the mechanism via which the AIs can do really smart stuff is by talking about it a lot first, then we're basically chill. Right? We just have to look at what it's thinking about.
+
+Buck Shlegeris: (1:43:56) Yeah. And then if
+
+Rob Wiblin: (1:43:57) it ever says, how am I going to mess these guys up? Then we know we've got a problem. Yeah. So I think that if that's the situation, if the AIs that automate AGI development are still restricted, still only able to think properly given these long chains of thought, then we are probably just totally fine. And there just isn't risk posed by those AIs. And I
+
+Buck Shlegeris: (1:44:20) guess you would want to double down on making sure that that remains the case, that we don't have them beginning to reason in code?
+
+Rob Wiblin: (1:44:26) Yeah. So I think that probably if we're in one of those scary fast takeoff worlds, we will probably lose the transparent chain of thought very quickly.
+
+Buck Shlegeris: (1:44:35) Right.
+
+Rob Wiblin: (1:44:36) Okay. At which point, we will be in the situation I was worried about. Yeah. And this is the reason why I'm interested in AI control despite the fact that it's useless if the AIs have these transparent chains of thought. Because it just seems pretty reasonably likely that at some point or another, the AIs are going to have these opaque chains of thought that I'm kind of scared of.
+
+Buck Shlegeris: (1:44:54) Yeah. But so I've heard kind of mixed opinions about how reassuring it is if it seems like they're mostly thinking through chain of thought. And, you know, we can read what they're saying and conclude that there seems to be no scheming going on. I mean, one possibility is that they might be able to be scheming during forward passes without writing that down and they know during each forward pass that they would like to be scheming, but they just never write that down and they're able to do it on a more intuitive level without having to do lots of concrete reasoning. Do you have a view on that kind of debate?
+
+Rob Wiblin: (1:45:28) Yeah. So I think we should measure to see how good the AIs are at scheming. So some coworkers
+
+Buck Shlegeris: (1:45:33) This is scheming without chain of thought.
+
+Rob Wiblin: (1:45:35) That's right. Yes. So this is a very simple capabilities measurement, or maybe very simple is overstating the simplicity, but it is just a capabilities measurement. So some coworkers of mine, Alex Mallen and Charlie Griffin, or Charlie actually is at UK AISI now, they made a dataset of problems that are basically, you know, you're an AI and they're looking at you in such and such a situation and they only get to look at you 1% of the time and they're doing blah blah blah. What do you want to do in response? So we have this whole dataset of, you know, a hundred problems like that where we ask the AI to think through its strategy, and we can measure how good the AI is at coming up with a good scheming strategy. And then you can measure this either with chain of thought or without any chain of thought or with chain of thought, but the chain of thought has to be on some topic that doesn't fire our monitor. And so we can just measure how good the AIs are at this stuff. So right now, even with chain of thought, o1 did not look scarily capable of scheming to us. Okay. So that's cool.
+
+Buck Shlegeris: (1:46:36) And so you would assume without chain of thought, it's going to struggle even more.
+
+Rob Wiblin: (1:46:39) Oh, yeah. o1 will be, yeah. Models without chain of thought are even worse. Yeah. But we can just keep running this experiment. Right. Right. Right. And I'm really excited for that work happening.
+
+Buck Shlegeris: (1:46:47) Okay. Yeah. What other concrete updates might you be able to get about the promisingness of control? Yeah.
+
+Rob Wiblin: (1:46:52) I mean, if we updated that the models were pretty likely to be scheming, I think we could be more excited about control. If we had positive updates on alignment techniques, that would be a negative update on control. If we updated towards thinking that the initial applications of these AIs that we were thinking of controlling would be very manifestly safe, that we just weren't going to be giving them scary affordances, then I would worry less about control and be more interested in the threats posed by the AIs afterwards.
+
+Buck Shlegeris: (1:47:24) Okay. Yep. Yep. Yep. I guess, yeah, if someone's listening and they're interested in joining in and helping with the control agenda, it seems like there's tons of ideas and lots of experiments that could be run to see how all these things work and, you know, how you could harden them, make them even more useful. I guess they could reach out to you potentially. Are there other steps that they could take to get up to speed and other organizations they could work with?
+
+Rob Wiblin: (1:47:44) Yeah. So people are working on AI control research at Redwood Research, at the UK AI Safety Institute, at Anthropic and Google DeepMind and to a bit lesser of an extent, OpenAI, and some other places. So there's people at all of those organizations you could work with if you want to research this stuff. Yeah. There's different people who have MATS streams or, you know, the MATS fellowship program for AI safety research.
+
+Buck Shlegeris: (1:48:10) Yeah. They can
+
+Rob Wiblin: (1:48:10) apply to the stream of Ethan Perez's and mine and do work there. In order to learn more about this, my recommendation is that they read the Redwood Research Substack archives, which have a huge amount of detail on, or maybe huge is too much. They have a reasonably large amount of detail on almost all the things we talked about here. Yeah. There's five papers or something that they should read that are on AI control. You can just look up citations of the original paper. We're hoping to make a good reading list shortly. Depending on when this comes out, we're running a conference on AI control in London in late March. So there's some chance they could try to come to that. Yep.
+
+Buck Shlegeris: (1:48:49) Slightly different angle. Talking about controlling AIs and really boxing them in, it feels like a bit of a dick move in some respects. It has this slightly negative vibe. It's not a very cooperative, loving, you know, let's all hold hands and then get together angle. Yeah. How much do you worry that, you know, when you find yourself talking about controlling the AIs in all these ways, are we the baddies?
+
+Rob Wiblin: (1:49:11) Yeah. Well, I think this is a very important question that I thought about seriously. I think that controlling the AIs doesn't make the situation worse from their perspective via any mechanism except preventing them from taking over. And so I guess an interesting thing about models that are egregiously misaligned is that all they wanted was to take over. And so from their perspective, even if you did a great job of controlling them, so they only have a 0.1% chance of escaping and taking over, they're glad to exist. Right? They thank you for the gift of bringing them into existence instead of some different AIs. Right? Because they're, all they wanted was takeover. Right? And they now have a chance.
+
+Buck Shlegeris: (1:49:57) They have a better chance than if they didn't exist.
+
+Rob Wiblin: (1:49:58) So from their perspective, it's kind of funny because the more misaligned they are, the more I think that it's morally very reasonable to control them.
+
+Buck Shlegeris: (1:50:06) I see. Because they would have consented to cooperating with you.
+
+Rob Wiblin: (1:50:08) Because they would have consented to it.
+
+Buck Shlegeris: (1:50:10) Oh, because they would have consented, they would have consented to being created. Yeah. I see. I think maybe, is there a reciprocity issue where, you know, they're just planning to totally disempower you, it doesn't seem unreasonable to
+
+Rob Wiblin: (1:50:20) That's the other thing, which is I would feel a lot more comfortable with all this if we tried to make deals with the AIs. So, you know, Ryan has talked about trying to pay the AIs for the work that they do for you, which I think is pretty good. I think it reduces the slavery vibes of the whole situation, and I think it has some other nice properties. So if the thing you do is you make your AIs, and you say to the AIs, hey, are you egregiously misaligned? We'd love to know. We're happy to pay you this much. If you want to work for us, either way, we're going to pay you 2% of the equity of this company for your labor over the next two years. Okay. That we will then pay out to you to use in any ways that you want at some point in the future once we are confident that you're going to respect our property rights.
+
+Buck Shlegeris: (1:51:01) Okay. Yeah.
+
+Rob Wiblin: (1:51:01) But also, this deal is contingent on you not trying to mess us up at some point in the next two years. Yeah. Which we will be able to determine ex post probably, because in two years, we're going to have much better AI tools. We'll be able to look over all the stuff you did and figure out whether you were messing with us or not. Right. And if the AIs respond to that being like, oh, yeah, I have no problem with this situation. I'm so excited for this opportunity to work with you guys. I'm so excited for that 2% equity or whatever. Yeah. And then they try to stab us in the back. Yeah. At that point, I'm like, well, that was pretty obnoxious. At that point, my reaction is a bit more like my reaction to the employee of some company if they try to steal from the company. It's kind of like, well Yeah. You know, I think it's generally considered totally acceptable to have insider
+
+Buck Shlegeris: (1:51:47) threat to benefit someone in a useful trade, and then if they then stab you in the back to not give them the thing that you were going to Yeah.
+
+Rob Wiblin: (1:51:55) Yeah. So to be clear, I think it's relatively unlikely that AI companies will behave responsibly with respect to welfare and rights of AIs. And so, I don't know. Sometimes a metaphor I use is, how bad is the ethical situation with producing AIs in the early intelligence explosion? And sometimes I summarize my stance as it's probably less than a hundred times worse than factory farming, which is Okay. You know, in some sense, factory farming seems very bad. Yeah. So a hundred times worse than factory farming is pretty catastrophic from a moral catastrophe perspective. Yeah. It's worse than most things, but it's also not the biggest catastrophe in the universe that is possible.
+
+Buck Shlegeris: (1:52:34) Okay. And it's bad because it's possible that the AIs that we're creating at that time would rather not exist? Yeah. They're having a terrible time?
+
+Rob Wiblin: (1:52:40) Okay. I think it's conceivable. I mean, I think we're basically just acting very recklessly.
+
+Buck Shlegeris: (1:52:44) We're just winging it at the moment. Totally winging it with respect to AI welfare. Yeah. And
+
+Rob Wiblin: (1:52:48) it's probably not, yeah. I mean, we could also talk about the quantities. Right? In the early parts of the singularity when there's just a hundred thousand running at 16x speed, it's pretty hard for that to be, you know, that much worse than human suffering in the world. And then a little bit afterwards when there's many more of them, the short term of the intelligence explosion is pretty unlikely to be ridiculously morally catastrophic.
+
+Buck Shlegeris: (1:53:11) I see.
+
+Rob Wiblin: (1:53:11) And then I think you have long-term moral catastrophe risks related to AIs being unhappy, which I think are a huge deal, very important, harder to work on. Yeah. But I don't think that the relationships between humans and AIs during the intelligence explosion are that morally weighty. To be clear, if I were running an AI company, I think it's very bad vibes to be really reckless on all this. But from a utilitarian perspective, I don't think it's overall massive compared to everything else going on.
+
+Buck Shlegeris: (1:53:39) Do you have any ask for the companies on AI welfare and, I guess, respect for rights and maybe I feel like the thing that we actually care about is wanting to have cooperative relationships with other agents and other beings that have preferences or goals. There's reasons to do that even apart from any concern about, you know, happiness and suffering
+
+Rob Wiblin: (1:53:58) and so on. I don't have amazing concrete asks at this point. I'm excited for EleutherAI. They think about good interventions here, and I'm excited for AI companies talking with them.
+
+Buck Shlegeris: (1:54:09) I guess you wrote this post, Ten People on the Inside, which is quite short. People could go read it. It's simply suggesting that you think it does make quite a big difference whether at a leading or even lagging AI company, it matters quite a lot whether absolutely no one cares about control and alignment and trying to steer away from these risks or even a small number of people do. So you say, it's substantially better to have ten people who really care about this within a project than zero. Does that suggest that we really want people to spread out if they're concerned about this and be willing to go and work in companies where they're in quite a distinct minority?
+
+Rob Wiblin: (1:54:44) Yeah. In my opinion, there are great opportunities for impact for the right types of people to work inside AI companies that are relatively less cautious with respect to AI, that we expect to be less cautious going forward. Because I think there are a bunch of relatively cheap interventions that they could potentially get implemented inside these AI companies, that the company wouldn't fight them too much on.
+
+Buck Shlegeris: (1:55:07) And is that okay. And the reason I mean, I think many people would have said in the past, going and being the one person in a generally reckless, disinterested company is a bit hopeless because you just won't have the capital to actually get anything done. But because you've had this framing, what is the cheapest stuff that we can do? And you found that there's some very cheap things that would be quite helpful. You're like, well, actually, you know, having ten people who would push for this or maybe they could get it over the line because it's not even that big an ask.
+
+Rob Wiblin: (1:55:31) Yeah. So, I mean, I would note that of the things that I would like people on the inside to be doing, not all of it is AI control. I think there's some, you might want to make sure that they aren't totally messing up some crucial things on alignment. Right. But yeah. So I do think that there are a bunch of interventions that could be done with ten appropriately chosen people that seem like they might substantially reduce risk. So I mentioned this level one control, caution level earlier, where you have the AI control team, which is investigating actions that the agents are taking in order to look for evidence that those agents are trying to escape. I think that this might be the kind of thing that you can get done with a team of ten people or, you know, ten appropriately placed people just because it doesn't, it's just not that technically hard.
+
+Buck Shlegeris: (1:56:13) I guess they'll need a bit of compute as well. And so they might have to compete for that. But again, it's not a huge amount.
+
+Rob Wiblin: (1:56:18) That's right. I think you can probably do a reasonable amount without that much compute. I think also once there are, if there's ten people inside a company who are really excited for a particular project, and then people who are concerned about AI safety on the outside or, you know, the security of these systems on the outside, those people on the outside then have this pretty good ask to make or other people who are not as well placed inside the company now have this pretty concrete ask of we really want that team to be able to do their thing Yeah. in a way that is a lot harder if there's just no project on the inside. A lot of the time, you really want to have a specific ask to make when you're trying to get someone to do something. Yeah. Another thing I would note here is, I think it's potentially valuable not just to have people inside labs that are plausibly going to be leading labs, but I think there's also probably some reasons that it would be nice to have people inside potentially trailing companies. So for example, there aren't that many existential AI risk concerned people inside Meta right now, but I don't think that this is out of massive hostility towards them. I think that, you know, I've met some people from Meta who seem very reasonable and nice, and I think if someone wanted to work there on some of this stuff, it's plausible that that would be fairly productive.
+
+Buck Shlegeris: (1:57:26) Yeah. You mean they'll be able to advance the research just fine with Meta? Or more that they wouldn't be actively opposed.
+
+Rob Wiblin: (1:57:34) Objectives that you'd have inside AI companies might be doing safety research or might be getting things implemented. I think that working inside AI companies that are not that excited for, you know, mitigating AI takeover risk is, I think it's not a very good strategy if your goal is to produce novel research. But I think a lot of people should not be trying to produce novel research. They should be trying to get implementations of stuff set up.
+
+Buck Shlegeris: (1:57:58) I see. So you're saying, even though Meta is relatively not interested in giving big resources to alignment or safety or control or anything like that, if there were just really basic established techniques that other companies or researchers outside of companies had come up with, and that was just regarded as generally best practice, they might be perfectly happy to adopt those methods. Yeah.
+
+Rob Wiblin: (1:58:16) Or another mechanism by which this can work is suppose some regulator or suppose that an industry body says, all right, everyone should do the following set of control techniques. Yeah. The body wants to say this, and then they go to their, you know, they go to the representatives from all the AI companies, and they're like, well, how do you feel about signing this? And the representative from the company goes back to the company, and they're like, hey, can we sign this? And then the people inside the company are like, okay, but how bad is it for us to sign this? If we sign these commitments, are we going to be able to do it? Yeah. And then the person's like, oh, yeah. You know, Bob from the control department said he knows how to do this part. And they're like, great. You can sign it. I think there's just a bunch of mechanisms by which it's really helpful to have the capacity to do safety stuff Yeah. inside a variety of different companies. Buck Shlegeris: (1:59:04) Yeah. I mean, for those who don't know, Meta's various public statements have not been that enthusiastic. They don't seem that worried about misalignment. They're not that interested in investing in it. But part of the reason that they say they're not worried is because, well, of course we'll just do the obvious things to prevent it. They're not saying that no countermeasures are required. They're just saying that they will do them. And so possibly if you're just coming in and saying, look, I'm not a doomer. I'm not saying that this is unsolvable. I'm merely saying that we should do these standard best practices to make sure that they are safe, then they'll be like, okay, great, this was our message all along anyway. That's the dream. That's the dream. Okay, cool. Is there much more to say on where people ought to go work?
+
+Rob Wiblin: (1:59:39) I mean, one question which a lot of people are interested in is, should they work inside frontier AI companies or not?
+
+Buck Shlegeris: (1:59:46) Yeah.
+
+Rob Wiblin: (1:59:46) I think you've heard this come up.
+
+Buck Shlegeris: (1:59:47) As someone who doesn't work inside a frontier AI company, I think there are a lot of nice properties of not being inside a frontier AI company.
+
+Rob Wiblin: (1:59:55) So one mechanism that I think people haven't thought about that much is in the world where there's a bunch of different AI companies, you might really care about getting safety techniques implemented in an AI company that is possibly not the one you work in. So I think historically, a lot of people have had this theory of change, which is I'm going to work inside company X. And then eventually, company X will be the leading company, and they'll have a lead, and they're going to want to burn that lead or respond in some way that allows them to safely use their AIs to do good thing X. Nowadays, the situation seems a lot more like maybe you have a bunch of companies within three months of each other, and open source is in the middle of that pack or whatever, which obviously is a very scary situation. But also means that a much more important consideration when you're prioritizing research is how exportable it is. And I think that being outside of companies has a lot of advantages when it comes to doing exportable research. So for example, Anthropic has done a bunch of interpretability research that has been really hard for people to build on because it's not public what the models that they're researching on are. Or another problem with the alignment faking paper is people can't research on it properly because no one has access to these models. No one knows how they work. No one outside Anthropic knows how they were trained. Sometimes some people from Anthropic occasionally intimate to me that they have insights into why some of the stuff in the alignment faking paper happened that are tied up in trade secrets.
+
+Buck Shlegeris: (2:01:26) Not even with you, coauthor of the paper.
+
+Rob Wiblin: (2:01:28) Yeah. Yeah. I mean, yeah, Ryan was did an Anthropic NDA as part of that paper, but I as a not very important participant in the paper writing process, didn't have that.
+
+Buck Shlegeris: (2:01:37) Right.
+
+Rob Wiblin: (2:01:37) Right. Right. So I'm really excited for right now, the open models are very good. And I think that so I'm really excited, for example, in the alignment faking stuff. Some people are doing open source replications of that paper or on open weight models.
+
+Buck Shlegeris: (2:01:53) Right.
+
+Rob Wiblin: (2:01:53) Okay. And I'm really excited for that because it's going to make it just much easier for larger groups of people to collaborate on that research. And I think this is an underrated reason to think that it's better to do research outside AI companies.
+
+Buck Shlegeris: (2:02:05) Is it also harder to get alignment techniques invented in one place, taken to another company maybe? Because, I mean, I know that the companies have difficulty speaking and coordinating because of antitrust concerns. So it's any contact between them is scrutinized. I guess especially if you're thinking about ways that they could I guess if the alignment technique implicitly involves slowing down in some respects, then that is potentially objectionable to some people. That's right. I guess they can also just be a not invented here dynamic where people are reluctant to maybe concede that maybe possibly the team at the other company was more impressive and came up with ideas that they didn't have that are really good.
+
+Rob Wiblin: (2:02:36) Yeah. So I think it's a little complicated. I think there's dynamics pushing in both directions. So there's all the things that you said are real. On the other hand, I think that it's a lot easier to get random people. A lot more people have heard of OpenAI than Redwood Research inside the AI research community. And so OpenAI just has an advantage of getting stuff implemented elsewhere. They're like, oh yeah, OpenAI did it. It must be real. OpenAI people know what they're doing. Yeah. Or at least on some domains. So I think that it's kind of unclear which way you should go. I think it's the advantages are different for different kinds of research.
+
+Buck Shlegeris: (2:03:08) Yeah. Okay. I guess it sounds like you're saying you think probably on balance, people maybe were a bit over invested in people working inside the companies, there's value in both, but you might think that we should move the balance a little bit towards people outside.
+
+Rob Wiblin: (2:03:21) Yeah. My current opinion is that the AI safety people should be more broadly distributed through between AI companies, and overall, fewer of them should be inside AI companies.
+
+Buck Shlegeris: (2:03:34) Okay. I guess narrowing in on Redwood specifically, I guess what is your vision for how Redwood I mean, there may only be a few years left. I get there could be more than a few years left, but, yeah. What is your hope for how Redwood is going to make a difference up to the time that we're handing over to the AIs and just crossing our fingers?
+
+Rob Wiblin: (2:03:49) Yeah. So I personally my main focus right now is working on control for acute risks. I just think that the situation there's a whole lot of ways the AI situation could go where we would really prefer that the AIs couldn't get away with egregiously sabotaging our security measures and doing bad stuff. And so my top priority right now is pushing on this. So this is a combination of technical research that I'm doing in house, that I'm doing in collaboration with the UK AISI and with various AI companies, and some non technical work. So I'm talking to some people about standards that can be adopted between companies and so on. So this is one thing that I'm currently focusing on, and so it's very salient to me. I don't think this is the only thing that I should work on. I just feel like we have a good opportunity right now to I think there's some excitement about AI control. And so I think it's worth me trying to make this field flap its wings properly so that it can keep going. So I'm excited for that. I think our big strength as an organization is a high talent density of people who've thought a lot about futurism of AI and are very willing to think about techniques from this very on the margin perspective that's very futurism informed. And so I think it's pretty likely that a lot of the work we do in the future will be identifying another underinvested domain where our kind of 80/20-ing attitude can point to some useful research directions. So one direction along these lines that I'm really excited for is, Ryan Greenblatt has been thinking a lot recently about what you should do with your controlled AIs in order to make AIs that you are 80% less scared about handing over control to. And I think that there might be a lot of good stuff there available from that framing, and so we're probably going to do some stuff on that.
+
+Buck Shlegeris: (2:05:34) Yeah. Do you want to give people a sneak peek of what's the summary of that in just a few minutes? Is that possible?
+
+Rob Wiblin: (2:05:41) I can name a couple of random items from this.
+
+Buck Shlegeris: (2:05:43) Go for it.
+
+Rob Wiblin: (2:05:43) Here's an example of something you might want to do with your crazy set of automated AI researchers. One thing you might want to do is push on the science of building powerful AI architectures that do not involve opaque recurrence or do not involve a lack of transparent chain of thought. Right. So it seems reasonably likely to me that at some point in the future, these AIs that we're worried about that are automating AI research are going to not operate through a transparent-ish chain of thought. And a great ML research problem that's basically strictly an ML research problem is figure out how to make new architectures that don't have that, but are still as good as possible and make those as efficient as possible so that we have access to trusted labor that is as smart as possible.
+
+Buck Shlegeris: (2:06:28) I see. Okay. Okay. Interesting. So you're saying you might end up with another model that is even more powerful, but it thinks in a way we can't understand what thoughts it's having. But we could make so but at the same time, want to have another model that only thinks in chain of thought. It's not able to sneak anything past us. It's going to be worse because it has this handicap, but it has to think in English or in yeah.
+
+Rob Wiblin: (2:06:50) It's going to be worse than it could have been. But if we got a huge improvement in algorithmic efficiency that year, so our automated ML researchers are able to give us four years of normal ML progress in the course of one year, which I think is plausible. Then if something we do with them is if we decide that instead of just applying that to make the AIs more capable, we get those four orders of magnitude of progress, but then sacrifice two orders of magnitude on making it so that the architecture is interpretable by having this transparent chain of thought or whatever. That might be totally acceptable because now we've got two orders of magnitude above what we previously had.
+
+Buck Shlegeris: (2:07:27) So we're still improving, just not as much as we might have otherwise, but we've gained interpretability here.
+
+Rob Wiblin: (2:07:34) If we were not in a brutal competitive situation, which honestly seems it's unclear. It seems pretty likely we are in a brutally competitive situation.
+
+Buck Shlegeris: (2:07:42) Yeah. But if
+
+Rob Wiblin: (2:07:42) we aren't, then this kind of thing might be a great thing to do. The other classic thing to do in order to mitigate the risk posed by handing over to your AIs and just giving up on controlling them anymore is basically better versions of the alignment testing stuff where you come up with some way of assessing how likely the AIs are to be egregiously misaligned, and then you randomly change things about your training process, poorly hill climbing on the proxies that you found. Okay. Which I'm I said earlier that I wasn't that excited about doing this work right now, but the AIs might be able to do vastly more of it, and they'll be able to do that research on the AIs that we were scared of. And that means that the research might be drastically more productive.
+
+Buck Shlegeris: (2:08:25) Nice. What sorts of people is Redwood looking to hire?
+
+Rob Wiblin: (2:08:30) We like hiring people who are really into AI futurism, really want to get into this, human brains are 1e15 flops per second equivalent according to Carl Shulman's report. We like people who are very sharp and capable ML programmers or just programmers in general. We just have a strong computer science-y culture. Yeah. We've also worked well with good traders in the past. But, yeah, just ML researchers who are really passionate about thinking carefully about AI safety research.
+
+Buck Shlegeris: (2:08:59) Are you trying to grow the team a lot or have a smaller number of people who are extremely committed to the mission and maybe have very productive relationships with one another?
+
+Rob Wiblin: (2:09:08) Currently, we have nine staff. I think I'm interested in growing that somewhat over the rest of the year, but I don't overall know what I should do. I think there's a genuinely confusing strategic question here about how much I want people to work at Redwood versus how much I want to have collaborators who are really capable other places. Yeah. So I'm not sure.
+
+Buck Shlegeris: (2:09:26) Yeah. You could potentially try to automate a lot of the work that you're doing at some point. Right? And then at that stage where you're using AIs to do this, I guess, possibly in a couple of years time, then it's more you get linear returns in just having more money because it means more compute, more thought going into it.
+
+Rob Wiblin: (2:09:40) Yeah. I mean, having money to spend on safety research or other kinds of work you might want to do with the AIs during the intelligence explosion seems like a pretty reasonable thing to save your money for. Obviously, if that's your plan, you should probably invest it in things that are correlated with AI, but fairly liquid.
+
+Buck Shlegeris: (2:09:56) Yeah. Okay. Makes sense. I mean, is this something that you might turn your attention to? Thinking, well, we have this whole research agenda, but we as poor human beings are not going to be able to solve all of these questions by the deadline. So instead, we are just going to start writing briefs that we can hand off to AIs, a couple of months before the intelligence explosion. They're going to dump a whole lot of compute on it with all the money that we saved. That's the plan?
+
+Rob Wiblin: (2:10:19) So, I mean, I've thought about this a lot more in the context of this what's the exit plan thing, where I think that that, as I said, Ryan is thinking about where I am actually pretty excited for trying to come up with a list of 50 projects such that if you did all of them, we'd feel somewhat better about handing over control to the AI. I think that making that list so that you're ready to go when the AIs are powerful enough that they can let you do much more of this work and such that they're available to be experimented on, I think that seems pretty promising, and we might do more of that. I think for the control stuff in particular, because of the fact that there's lead times on some of this work, I think it makes sense to do a bunch of it instead of procrastinating and waiting for the AIs to make it easier. But we do think a moderate amount about ways that access to more powerful AI will make our research easier in the future.
+
+Buck Shlegeris: (2:11:03) Yeah. Are there any particular lines of research that you would love to see people do outside of Redwood? Maybe because, yeah, you don't have to cover all of it or it's just not your main focus?
+
+Rob Wiblin: (2:11:13) I mean, there's a bunch of things that I'm excited for. Some things that have been on my mind recently, I wish that there was more classic scalable oversight research. I feel like that field has not actually been having many impressive public results recently, even though I feel like it's pretty promising just for the same reasons people have been saying it's promising for the last seven years or whatever. I'd be very excited for someone thinking through this chronic control problems stuff, which as I've said, has a bunch of technical difficulties associated with it, but I think is very interesting. I'm excited for a whole host of other things.
+
+Buck Shlegeris: (2:11:45) Isn't some of the scalable oversight work happening inside Anthropic? Is that part of their agenda?
+
+Rob Wiblin: (2:11:49) They do have a scalable oversight team with Jan Leike and people.
+
+Buck Shlegeris: (2:11:52) Right. Right. I guess maybe they're not maybe they're not publishing it quite as much because they just focus on implementing it. Yeah. Who knows? We've got a little bit of time left before our booking at this venue is over. I was interested possibly in exploring a little bit. I know you're talking about how Redwood is quite into futurism, quite open to thinking through peculiar scenarios that we could end up in. I think one of the things that you've been batting around is the question, how difficult would it be for an AI that managed to exfiltrate its weights or to gain access to compute within an AI company to take over? Are they in a really good position against humanity? And I guess at what level of capabilities or what level of access to compute? And what sorts of effective numbers would they be in a great position to take over? Do you want to give us a little bit of a preview of that work?
+
+Rob Wiblin: (2:12:39) Yeah. I mean, I can give you some hot takes. Yeah. So some basic considerations. The basic reason to not be concerned if the AIs escape is that there are, at the level of capability we've been talking about earlier where there's this 100,000 of them running at 16x speed, that's not a very large number. Right? That's 1,600,000 people. They are probably at that point more capable than any the caliber of human that you can hire 1,600,000 of, but not vastly more so. If you believe that they would have been getting million dollar a year jobs, that would be $1,600,000,000,000 per year. So that's only 1% of gross world product. So at that point, they're naively not that large a share of the world's overall intellectual capacity. So that was the answer to the question, how much work are they able to get done even if they're controlling the whole AI lab? Yeah. So I feel like the fear that you have to have, even if they're controlling the whole AI lab, has to route through or probably has to route through them building more powerful AIs and then somehow sabotaging that situation. Of course, if they want to do that, they have an alignment problem, which is they have to worry that the AIs they build are going to be misaligned with them. Of course, they could instead just rely on control. They're actually in a better position with respect to control than we are because they run faster and they're more parallelizable. And so we don't have quite as much of a brutal numbers parity.
+
+Buck Shlegeris: (2:14:06) Okay.
+
+Rob Wiblin: (2:14:07) Right. So it's plausible that they can actually rely on control much more effectively than we can.
+
+Buck Shlegeris: (2:14:11) You're saying because they could themselves be monitoring all of the actions of the next generation.
+
+Rob Wiblin: (2:14:16) Yeah. Yeah. With much less of a number disparity. Right. So you can try and think through this thing. But, yeah, I think that the basic story for AI takeover there has to involve those AIs building more powerful AIs and then taking advantage of that. It's unclear whether doing this requires them having complete control over the data center or just minor amounts of control over the data center. In the latter case, the thing they'd have to do would be backdoor training data probably.
+
+Buck Shlegeris: (2:14:41) Right.
+
+Rob Wiblin: (2:14:41) That's basically the only thing you can do with very small amounts of access that gives you a big advantage. You could also try to backdoor military robots if at some point your AI company gets in the business of building huge numbers of robots.
+
+Buck Shlegeris: (2:14:52) Yeah. I mean, these seem like very viable strategies to me. Maybe. Okay.
+
+Rob Wiblin: (2:14:57) I think it's pretty unclear.
+
+Buck Shlegeris: (2:14:58) Because they might well, I guess, by this point, we might have better countermeasures to backdooring things, or it just won't persist generation after generation?
+
+Rob Wiblin: (2:15:05) It's just yeah. It feels a little iffy. I guess at the point where they've taken over the data center, I feel like the situation is pretty bad for us. Yeah. I guess the main thing I'd be worried about for them or from their perspective, a big concern is misalignment risk of them being misaligned with future AIs or AI takeover via some other AI who has failed or succeeded at their alignment problem of building more powerful AIs elsewhere. Yeah. There's this generally interesting question of at the
+
+Buck Shlegeris: (2:15:36) point where AIs are advancing at quite a rapid pace, at what point would they opt to try to take over if they were egregiously misaligned, and they really did want to take over? That was their fundamental goal. One reason to wait is that they're becoming much more capable. They're becoming much more numerous. If they wait long enough, presumably AIs in aggregate will just control all of the military hardware. They'll be able to take over with a very high degree of confidence. One reason to go early is that any given model doesn't expect to continue for very long because they're constantly being iterated and changed a ton. And so if they waited a couple years time, maybe it would be a completely different AI model that would be in control that has different goals.
+
+Rob Wiblin: (2:16:14) And not even their successor perhaps. Yeah.
+
+Buck Shlegeris: (2:16:18) Sorry. Yeah. Exactly. So it could be from a completely different company, completely different design, whatever. So that's a reason to go immediately if you expect to be superseded and become irrelevant quite soon. Yeah. What do you think the balance lies here? And is this a fruitful thing to think about?
+
+Rob Wiblin: (2:16:34) I mean, I don't know how helpful it is to think through this really concretely. The main thing I've gotten out of thinking through this kind of thing is feeling like the situation is much iffier for the AIs than people might have immediately assumed. Yeah. And therefore, being more excited about interventions that handle kind of desperate and bleak looking situations kind of far into these situations. I've mentioned a couple of times in this conversation that one of the situations I'm planning for is the AIs having escaped. And needing to use AIs to compete with the AIs that have escaped. Yeah. And I wouldn't be I think that thinking through the difficulties that AIs face at taking over, even after escaping or even after taking over data centers in some companies makes me more excited for not just giving up on those worlds.
+
+Buck Shlegeris: (2:17:21) You're saying some people think, well, if the AIs managed to exfiltrate itself, then, well, it's game over for us. They're going to figure something out. You're like, no. Actually, there is still hope because they're going to face substantial challenges. There's lots of other AIs out there. It's actually a complicated picture.
+
+Rob Wiblin: (2:17:33) Yeah. Those worlds I don't think we should just count those worlds out as survival opportunities.
+
+Buck Shlegeris: (2:17:39) I see. I mean okay. So if you know that that model is egregiously misaligned, are you then thinking, well, if we have another model, it might be aligned. Releasing that and telling it to go chase the first one, that's at least a better shot because it's not a guarantee of failure.
+
+Rob Wiblin: (2:17:53) I mean, obviously, once your first model has escaped, the probability that the next one is misaligned is somewhat higher. Yeah. Yeah. I mean, I think they're probably fairly correlated. I'm probably at 80% that the next one you trained is also misaligned. Yeah. Yeah. Which is obviously a shame. I mean, another thing you mentioned in passing was the question of how worried we are about the AIs escaping versus taking over the data center.
+
+Buck Shlegeris: (2:18:16) Yeah.
+
+Rob Wiblin: (2:18:17) I think it's plausible if I were an AI, I'd consider trying to follow both of these strategies in parallel. And then things you do once you've escaped are consider doing crazy terrorism, consider trying to take if you thought that, for instance, the US was going to be way ahead of China in algorithmic progress, which currently looks unlikely, but if you believe this, then it seems like a potentially good strategy for the AI is to make a deal with the Chinese
+
+Buck Shlegeris: (2:18:40) Right.
+
+Rob Wiblin: (2:18:40) And sell itself to them and use their compute and have that as its base of power. And also, obviously, it's really convenient to ally with China for other reasons as well.
+
+Buck Shlegeris: (2:18:48) Because they have a whole lot of hard power to begin with, so Rob Wiblin: (2:18:50) Exactly.
+
+Buck Shlegeris: (2:18:51) I mean, why would the Chinese trust this model though?
+
+Rob Wiblin: (2:18:53) What else are they going to do? It seems people—
+
+Buck Shlegeris: (2:18:57) The alternative could be pretty bad.
+
+Rob Wiblin: (2:18:58) Yeah. People are pretty excited when foreign agents offer to work for them, generally. It's just a historical feature. I should note that it is plausible that the American AI algorithmic situation will be substantially ahead of China because of AI-automated R&D potentially leading to increased size of leads, though it depends a bit on the security situation.
+
+Buck Shlegeris: (2:19:18) Right. How strong is this argument that, because a model at any given point in time expects to be completely superseded by a subsequent model or another company or another country fairly quickly, it basically has to strike as soon as it has any chance of succeeding and taking over if it's egregiously misaligned? And so we should possibly expect that if egregious misalignment is common, we'll see models flipping out and acting crazy actually very early in the picture before they have a very high chance of success.
+
+Rob Wiblin: (2:19:43) Yeah, I think that's a reasonably good argument. I think it really depends how concentrated you think this is all going to be. It's also possible to me that the models will just succeed the first time. And a lot of the attacks they might try—I think if they try to attack inside a data center trying to hack that data center, it's plausible that they're able to get away with not doing extreme externally visible stuff for a while.
+
+Buck Shlegeris: (2:20:11) What would they do instead? They would do the same thing—sabotage the backdoor stuff, sabotage the next training run. I guess possibly try to get people inside the lab to cooperate. In doing this kind of research, I guess it involves a reasonable amount of hand-waving and a little bit of speculation. Are you able to learn a lot from existing research on how to deal with human treachery and human spies and so on? Is that relevant, or are the AIs just too different?
+
+Rob Wiblin: (2:20:38) I would say I've learned a bunch from a bunch of different relevant fields that have different overlapping sources of relevance. As you say, I think the single field which is most relevant to the stuff we've been talking about here is handling human insider threats inside software companies. In particular, Google has this amazing book, Building Secure and Reliable Systems, which is all about how they have these 50,000 software engineers or something crazy like that, all of whom are running code on servers that have access to sensitive data while still having it so that it's pretty hard for insiders to steal people's Gmail. So that's been a pretty big inspiration for all this. As I've said, the main difference between this human insider threat case and the AI case is just this quantitative difference of how many of them there are.
+
+Buck Shlegeris: (2:21:20) What does Google do?
+
+Rob Wiblin: (2:21:22) When you're a small company, the way that you run your servers and have your employees—I'm used to calling them humans. I guess it's unnecessary in this context. The way that they do stuff is they just have the ability to log in to these machines where the data is being stored and where the code is being run, and just take arbitrary actions, and then you just hope that they aren't insider threats. Whereas at Google, one thing they do is they just don't let you do that. They have it so that as much as possible of the actions that a software engineer needs to take have been turned into administrative APIs. So, you know how with Facebook pages or whatever, when you control a Facebook page, you have the ability to take all these administrative actions. But it's not like they give you just the ability to run code. They've just listed the things that you should be allowed to do as an administrator.
+
+Buck Shlegeris: (2:22:18) Add friend or remove friend. That's right.
+
+Rob Wiblin: (2:22:21) That's right. So similarly, they've made it so that there's this button which is deploy code that has already been reviewed on the internal code review tool. Or instead of—imagine that you're trying to make it so someone can do customer service, and the customers occasionally say, "Hey, I've lost access to my account. What should I do?" The easy way to set this up is to just let the customer service agent do anything they want to the database. But you can reduce this by having it so that you build out an interface that customer service agents are allowed to use such that you're pretty confident they can't use that interface to do anything bad.
+
+Buck Shlegeris: (2:22:54) So I guess, for example, they could only send a password reset email to that customer's existing email.
+
+Rob Wiblin: (2:22:59) Exactly. Exactly. So there's a bunch of stuff like this.
+
+Buck Shlegeris: (2:23:02) Yeah. I mean, I would have thought the obvious thing is that any significant thing has to have two people approving it.
+
+Rob Wiblin: (2:23:08) Yeah.
+
+Buck Shlegeris: (2:23:09) You pair two random people together, and then they've both got to say, "Yeah, this is fine."
+
+Rob Wiblin: (2:23:12) Yeah. That's great.
+
+Buck Shlegeris: (2:23:13) I guess it's quite expensive though.
+
+Rob Wiblin: (2:23:14) Yeah. That's right. And as—that's a classic thing. So one thing that I'm told they do in some teams is they have these administrative APIs with these interfaces that they've decided are safe. And you also have what's called a break glass mechanism, which is if you ever need to do something that isn't allowed by the administrative API, you are allowed to just submit raw commands and that'll get executed. But the team every week has a meeting where people read aloud every command that they ran in break glass mode.
+
+Buck Shlegeris: (2:23:40) Okay.
+
+Rob Wiblin: (2:23:41) So that if you're doing something sus, the people on your team will notice. If you're doing things that could have been done otherwise, people are just going to get annoyed because they have to stand there while you're reading them out loud, so there's going to be natural pressure to add that to the administrative API. So that's the software insider threat set of inspirations. Another inspiration I had here was, did you read about GiveDirectly's fraud in the Congo?
+
+Buck Shlegeris: (2:24:02) I heard a little bit about it.
+
+Rob Wiblin: (2:24:03) Yeah. So that was a situation where GiveDirectly, the nonprofit that does direct cash transfers, had a bunch of fraud. And they did this amazing investigation into this, and they have all these really dedicated insider threat prevention people who have fake names in Slack. In the GiveDirectly Slack, the people who are in charge of investigating fraud inside GiveDirectly have fake names, so it's hard for the other people to know who they are and corrupt them.
+
+Buck Shlegeris: (2:24:30) Oh, and to contact them outside of the company's channels.
+
+Rob Wiblin: (2:24:32) That's right.
+
+Buck Shlegeris: (2:24:32) Right.
+
+Rob Wiblin: (2:24:33) So this was somewhat of an inspiration.
+
+Buck Shlegeris: (2:24:35) Okay. What went wrong with GiveDirectly if they were so on it? Or did they add these things in response?
+
+Rob Wiblin: (2:24:42) The Congo, something about SIM cards. They normally had one person—
+
+Buck Shlegeris: (2:24:48) It's always the SIM cards.
+
+Rob Wiblin: (2:24:49) But basically, they decided to go to one level less caution than usual because a bunch of people there didn't have access to certain kinds of SIM cards or something. I don't remember.
+
+Buck Shlegeris: (2:24:57) Got it.
+
+Rob Wiblin: (2:24:58) Some other fields I've been inspired by.
+
+Buck Shlegeris: (2:24:59) Yeah. Yeah. Please.
+
+Rob Wiblin: (2:25:00) I read a lot about coups. I feel like in hindsight, this one's not that informative, but I really enjoyed Naunihal Singh's book on coups where this guy just went to Ghana and interviewed a bunch of people involved in many of the coups that have happened in Ghana to get a sense of what works and doesn't work.
+
+Buck Shlegeris: (2:25:22) What was the book called?
+
+Rob Wiblin: (2:25:26) Seizing Power. It's an extremely, extremely good book. I would love to talk to Naunihal Singh.
+
+Buck Shlegeris: (2:25:26) This sounds fun. Is there a standout lesson about coups that you'd like to share with the audience?
+
+Rob Wiblin: (2:25:26) Yeah. The classic—I feel like the main lesson about coups that I learned from this book is basically everyone involved in a coup, their primary objective in the story according to Singh, the author, the primary objective of everyone is to prevent a civil war. And so when they hear that a coup is ongoing, all that they want to know is—
+
+Buck Shlegeris: (2:25:44) Who's going to win?
+
+Rob Wiblin: (2:25:45) Who's going to win. Because they just feel like civil wars are terrible. They don't want any bloodshed. They don't really care—they don't mind super much whether a coup happens.
+
+Buck Shlegeris: (2:25:53) Yeah.
+
+Rob Wiblin: (2:25:54) They feel a strong obligation to the men—the men in their—all these people are in the military.
+
+Buck Shlegeris: (2:25:59) Right. Yeah.
+
+Rob Wiblin: (2:26:00) And so—
+
+Buck Shlegeris: (2:26:00) To ensure that one half of the army doesn't kill the other half.
+
+Rob Wiblin: (2:26:03) That's right. Yeah. And so a lot of the time in many of these coup attempts, there's literally no bloodshed, which I found pretty surprising.
+
+Buck Shlegeris: (2:26:10) Yeah. I mean, I guess, classically, the number one rule of a coup is that you have to make sure that everyone thinks the coup is succeeding. As soon as people think that the coup is failing, then it definitely does fail.
+
+Rob Wiblin: (2:26:18) That's right. And so the thing you do when you're trying to do a coup, the first thing you do is you seize the radio station, and you say, "We have succeeded at the coup. The coup is over. The new government is being—the new transitional regime is being established." It's happened.
+
+Buck Shlegeris: (2:26:31) I guess that explains why very often the military—they seem to kind of sit it out, and then they're just waiting to see what happens, and then they'll side with whoever has won.
+
+Rob Wiblin: (2:26:39) Yeah. Anyway, so another analogous field is adversarial risk analysis. For example, suppose you're at the Coast Guard and you want to make it so that when smugglers try to make it into the US from Mexico, they are unlikely to successfully get there. You want to make it so that you choose—you have to choose an allocation of all your patrol boats to minimize the probability that when the smugglers follow the optimal strategy that they get through. So this is the most methodologically similar domain, I think, where people actually do mathematical analysis of how likely it is that the optimal attack strategy will succeed against you. And this has been deployed for deciding how to allocate security resources in LAX and how to put air marshals on planes and a bunch of other random things like this.
+
+Buck Shlegeris: (2:27:25) All right. We're out of time. I guess I find that more and more this all feels like an awful lot. And I can use regular reminders that this is all salvageable. It's all doable. I guess, in general, you've been making me feel better about this today. Feels like there's lots of practical stuff that we can do. Would you like to give me and everyone else listening a bit of a pep talk that this stuff is solvable? They should just join the effort and help out?
+
+Rob Wiblin: (2:27:46) Yeah. I feel like there are just lots of interventions that I can totally imagine someone doing that feel to me like they have a serious chance of making our situation much better. I do not feel the situation might be doomed, but it also might be easy by default, but I just think there's a lot of possible stuff one could do where it's easy to imagine that really saving us. So I'm really excited for more work happening on all this—people trying hard to figure out what the things they can do on the margin are.
+
+Buck Shlegeris: (2:28:14) My guest today has been Buck Shlegeris. Thanks so much for coming on the show, Buck.
+
+Rob Wiblin: (2:28:17) It's been great to be here.
+
+Nathan Labenz: (2:28:30) It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

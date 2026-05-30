@@ -1,0 +1,1939 @@
+# AGI is Being Achieved Incrementally (OpenAI DevDay w/ Simon Willison, Alex Volkov, Jim Fan, Raza Habib, Shreya Rajpal, Rahul Ligma, et al)
+# URL: https://www.latent.space/p/devday
+# Date: 2023-11-08
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+AGI is Being Achieved Incrementally (OpenAI DevDay w/ Simon Willison, Alex Volkov, Jim Fan, Raza Habib, Shreya Rajpal, Rahul Ligma, et al)
+
+26
+
+2
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -2:22:33
+
+-2:22:33
+
+Audio playback is not supported on your browser. Please upgrade.
+
+AGI is Being Achieved Incrementally (OpenAI DevDay w/ Simon Willison, Alex Volkov, Jim Fan, Raza Habib, Shreya Rajpal, Rahul Ligma, et al)
+
+We summon all friends of the pod, and past and future guests including leaders from Nvidia, Zapier, HumanLoop, Weights and Biases, MultiOn, Guardrails, Bloop.ai, Julius AI to process what happened.
+
+Simon Willison, Alex Volkov, Raza Habib, and Rahul Sonwalkar
+
+Nov 08, 2023
+
+26
+
+2
+
+2
+
+Share
+
+SF folks: join us at the AI Engineer Foundation’s Emergency Hackathon tomorrow and consider the Newton if you’d like to cowork in the heart of the Cerebral Arena.
+
+Our community page is up to date as usual!
+
+~800,000 developers watched OpenAI Dev Day, ~8,000 of whom listened along live on our ThursdAI x Latent Space, and ~800 of whom got tickets to attend in person:
+
+OpenAI’s first developer conference easily surpassed most people’s lowballed expectations - they simply did everything short of announcing GPT-5, including:
+
+ChatGPT (the consumer facing product)
+
+GPT4 Turbo already in ChatGPT (running faster, with an April 2023 cutoff), all noticed by users weeks before the conference
+
+Model picker eliminated, God Model chooses for you
+
+GPTs - “tailored version of ChatGPT for a specific purpose” - stopping short of “Agents”. With custom instructions, expanded knowledge, and actions, and an intuitive no-code GPT Builder UI (we tried all these on our livestream yesterday and found some issues, but also were able to ship interesting GPTs very quickly) and a GPT store with revenue sharing (an important criticism we focused on in our episode on ChatGPT Plugins)
+
+API (the developer facing product)
+
+APIs for Dall-E 3, GPT4 Vision, Code Interpreter (RIP Advanced Data Analysis), GPT4 Finetuning and (surprise!) Text to Speech
+
+many thought each of these would take much longer to arrive
+
+usable in curl and in playground
+
+BYO Interpreter + Async Agents?
+
+Assistant API: stateful API backing “GPTs” like apps, with support for calling multiple tools in parallel, persistent Threads (storing message history, unlimited context window with some asterisks), and uploading/accessing Files (with a possibly-too-simple RAG algorithm, and expensive pricing)
+
+Whisper 3 announced and open sourced (HuggingFace recap)
+
+Price drops for a bunch of things!
+
+Misc: Custom Models for big spending ($2-3m) customers, Copyright Shield, Satya
+
+The progress here feels fast, but it is mostly (incredible) last-mile execution on model capabilities that we already knew to exist. On reflection it is important to understand that the one guiding principle of OpenAI, even more than being Open (we address that in part 2 of today’s pod), is that slow takeoff of AGI is the best scenario for humanity, and that this is what slow takeoff looks like:
+
+When introducing GPTs, Sam was careful to assert that “gradual iterative deployment is the best way to address the safety challenges with AI”:
+
+This is why, in fact, GPTs and Assistants are intentionally underpowered, and it is a useful exercise to consider what else OpenAI continues to consider dangerous (for example, many people consider a while(true) loop a core driver of an agent, which GPTs conspicuously lack, though Lilian Weng of OpenAI does not).
+
+We convened the crew to deliver the best recap of OpenAI Dev Day in Latent Space pod style, with a 1hr deep dive with the Functions pod crew from 5 months ago, and then another hour with past and future guests live from the venue itself, discussing various elements of how these updates affect their thinking and startups. Enjoy!
+
+Show Notes
+
+swyx live thread (see pinned messages in Twitter Space for extra links from community)
+
+Newton AI Coworking Interest Form in the heart of the Cerebral Arena
+
+Timestamps
+
+[00:00:00] Introduction
+
+[00:01:59] Part I: Latent Space Pod Recap
+
+[00:06:16] GPT4 Turbo and Assistant API
+
+[00:13:45] JSON mode
+
+[00:15:39] Plugins vs GPT Actions
+
+[00:16:48] What is a "GPT"?
+
+[00:21:02] Criticism: the God Model
+
+[00:22:48] Criticism: ChatGPT changes
+
+[00:25:59] "GPTs" is a genius marketing move
+
+[00:26:59] RIP Advanced Data Analysis
+
+[00:28:50] GPT Creator as AI Prompt Engineer
+
+[00:31:16] Zapier and Prompt Injection
+
+[00:34:09] Copyright Shield
+
+[00:38:03] Sharable GPTs solve the API distribution issue
+
+[00:39:07] Voice
+
+[00:44:59] Vision
+
+[00:49:48] In person experience
+
+[00:55:11] Part II: Spot Interviews
+
+[00:56:05] Jim Fan (Nvidia - High Level Takeaways)
+
+[01:05:35] Raza Habib (Humanloop) - Foundation Model Ops
+
+[01:13:59] Surya Dantuluri (Stealth) - RIP Plugins
+
+[01:21:20] Reid Robinson (Zapier) - AI Actions for GPTs
+
+[01:31:19] Div Garg (MultiOn) - GPT4V for Agents
+
+[01:37:15] Louis Knight-Webb (Bloop.ai) - AI Code Search
+
+[01:49:21] Shreya Rajpal (Guardrails.ai) - on Hallucinations
+
+[01:59:51] Alex Volkov (Weights & Biases, ThursdAI) - "Keeping AI Open"
+
+[02:10:26] Rahul Sonwalkar (Julius AI) - Advice for Founders
+
+Transcript
+
+[00:00:00] Introduction
+
+[00:00:00] swyx: Hey everyone, this is Swyx coming at you live from the Newton, which is in the heart of the Cerebral Arena. It is a new AI co working space that I and a couple of friends are working out of. There are hot desks available if you're interested, just check the show notes. But otherwise, obviously, it's been 24 hours since the opening of Dev Day, a lot of hot reactions and longstanding tradition, one of the longest traditions we've had.
+
+[00:00:29] And the latent space pod is to convene emergency sessions and record the live thoughts of developers and founders going through and processing in real time. I think a lot of the roles of podcasts isn't as perfect information delivery channels, but really as an audio and oral history of what's going on as it happens, while it happens.
+
+[00:00:49] So this one's a little unusual. Previously, we only just gathered on Twitter Spaces, and then just had a bunch of people. The last one was the Code Interpreter one with 22, 000 people showed up. But this one is a little bit more complicated because there's an in person element and then a online element.
+
+[00:01:06] So this is a two part episode. The first part is a recorded session between our latent space people and Simon Willison and Alex Volkoff from the Thursday iPod, just kind of recapping the day. But then also, as the second hour, I managed to get a bunch of interviews with previous guests on the pod who we're still friends with and some new people that we haven't yet had on the pod.
+
+[00:01:28] But I wanted to just get their quick reactions because most of you have known and loved Jim Fan and Div Garg and a bunch of other folks that we interviewed. So I just want to, I'm excited to introduce To you the broader scope of what it's like to be at OpenAI Dev Day in person bring you the audio experience as well as give you some of the thoughts that developers are having as they process the announcements from OpenAI.
+
+[00:01:51] So first off, we have the Mainspace Pod recap. One hour of open I dev day.
+
+[00:01:59] Part I: Latent Space Pod Recap
+
+[00:01:59] Alessio: Hey. Welcome to the Latents Based Podcast an emergency edition after OpenAI Dev Day. This is Alessio, partner and CTO of Residence at Decibel Partners, and as usual, I'm joined by Swyx, founder of SmallAI. Hey,
+
+[00:02:12] swyx: and today we have two special guests with us covering all the latest and greatest.
+
+[00:02:17] We, we, we love to get our band together and recap things, especially when they're big. And it seems like that every three months we have to do this. So Alex, welcome. From Thursday AI we've been collaborating a lot on the Twitter spaces and welcome Simon from many, many things, but also I think you're the first person to not, not make four appearances on our pod.
+
+[00:02:37] Oh, wow. I feel privileged. So welcome. Yeah, I think we're all there yesterday. How... Do we feel like, what do you want to kick off with? Maybe Simon, you want to, you want to take first and then Alex. Sure. Yeah. I mean,
+
+[00:02:47] Simon Willison: yesterday was quite exhausting, quite frankly. I feel like it's going to take us as a community several months just to completely absorb all of the stuff that they dropped on us in one giant.
+
+[00:02:57] Giant batch. It's particularly impressive considering they launched a ton of features, what, three or four weeks ago? ChatGPT voice and the combined mode and all of that kind of thing. And then they followed up with everything from yesterday. That said, now that I've started digging into the stuff that they released yesterday, some of it is clearly in need of a bit more polish.
+
+[00:03:15] You know, the the, the reality of what they look, what they released is I'd say about 80 percent of, of what it looks like it was yesterday, which is still impressive. You know, don't get me wrong. This is an amazing batch of stuff, but there are definitely problems and sharp edges that we need to file off.
+
+[00:03:29] And there are things that we still need to figure out before we can take advantage of all of this.
+
+[00:03:33] swyx: Yeah, agreed, agreed. And we can go into those, those sharp edges in a bit. I just want to pop over to Alex. What are your thoughts?
+
+[00:03:39] Alex Volkov: So, interestingly, even folks at OpenAI, there's like several booths and help desks so you can go in and ask people, like, actual changes and people, like, they could follow up with, like, the right people in OpenAI and, like, answer you back, etc.
+
+[00:03:52] Even some of them didn't know about all the changes. So I went to the voice and audio booth. And I asked them about, like, hey, is Whisper 3 that was announced by Sam Altman on stage just, like, briefly, will that be open source? Because I'm, you know, I love using Whisper. And they're like, oh, did we open source?
+
+[00:04:06] Did we talk about Whisper 3? Like, some of them didn't even know what they were releasing. But overall, I felt it was a very tightly run event. Like, I was really impressed. Shawn, we were sitting in the audience, and you, like, pointed at the clock to me when they finished. They finished, like, on... And this was after like doing some extra stuff.
+
+[00:04:24] Very, very impressive for a first event. Like I was absolutely like, Good job.
+
+[00:04:30] swyx: Yeah, apparently it was their first keynote and someone, I think, was it you that told me that this is what happens if you have A president of Y Combinator do a proper keynote you know, having seen many, many, many presentations by other startups this is sort of the sort of master stroke.
+
+[00:04:46] Yeah, Alessio, I think you were watching remotely. Yeah, we were at the Newton. Yeah, the Newton.
+
+[00:04:52] Alessio: Yeah, I think we had 60 people here at the watch party, so it was quite a big crowd. Mixed reaction from different... Founders and people, depending on what was being announced on the page. But I think everybody walked away kind of really happy with a new layer of interfaces they can use.
+
+[00:05:11] I think, to me, the biggest takeaway was like and I was talking with Mike Conover, another friend of the podcast, about this is they're kind of staying in the single threaded, like, synchronous use cases lane, you know? Like, the GPDs announcement are all like... Still, chatbase, one on one synchronous things.
+
+[00:05:28] I was expecting, maybe, something about async things, like background running agents, things like that. But it's interesting to see there was nothing of that, so. I think if you're a founder in that space, you're, you're quite excited. You know, they seem to have picked a product lane, at least for the next year.
+
+[00:05:45] So, if you're working on... Async experiences, so things working in the background, things that are not co pilot like, I think you're quite excited to have them be a lot cheaper now.
+
+[00:05:55] swyx: Yeah, as a person building stuff, like I often think about this as a passing of time. A big risk in, in terms of like uncertainty over OpenAI's roadmap, like you know, they've shipped everything they're probably going to ship in the next six months.
+
+[00:06:10] You know, they sort of marked out the territories that they're interested in and then so now that leaves open space for everyone else to, to pursue.
+
+[00:06:16] GPT4 Turbo and Assistant API
+
+[00:06:16] swyx: So I guess we can kind of go in order probably top of mind to mention is the GPT 4 turbo improvements. Yeah, so longer context length, cheaper price.
+
+[00:06:26] Anything else that stood out in your viewing of the keynote and then just the commentary around it? I
+
+[00:06:34] Alex Volkov: was I was waiting for Stateful. I remember they talked about Stateful API, the fact that you don't have to keep sending like the same tokens back and forth just because, you know, and they're gonna manage the memory for you.
+
+[00:06:45] So I was waiting for that. I knew it was coming at some point. I was kind of... I did not expect it to come at this event. I don't know why. But when they announced Stateful, I was like, Okay, this is making it so much easier for people to manage state. The whole threads I don't want to mix between the two things, so maybe you guys can clarify, but there's the GPT 4 tool, which is the model that has the capabilities, In a whopping 128k, like, context length, right?
+
+[00:07:11] It's huge. It's like two and a half books. But also, you know, faster, cheaper, etc. I haven't yet tested the fasterness, but like, everybody's excited about that. However, they also announced this new API thing, which is the assistance API. And part of it is threads, which is, we'll manage the thread for you.
+
+[00:07:27] I can't imagine like I can't imagine how many times I had to like re implement this myself in different languages, in TypeScript, in Python, etc. And now it's like, it's so easy. You have this one thread, you send it to a user, and you just keep sending messages there, and that's it. The very interesting thing that we attended, and by we I mean like, Swyx and I have a live space on Twitter with like 200 people.
+
+[00:07:46] So it's like me, Swyx, and 200 people in our earphones with us as well. They kept asking like, well, how's the price happening? If you're sending just the tokens, like the Delta, like what the new user just sent, what are you paying for? And I went to OpenAI people, and I was like, hey... How do we get paid for this?
+
+[00:08:01] And nobody knew, nobody knew, and I finally got an answer. You still pay for the whole context that you have inside the thread. You still pay for all this, but now it's a little bit more complex for you to kind of count with TikTok, right? So you have to hit another API endpoint to get the whole thread of what the context is.
+
+[00:08:17] Then TikTokonize this, run this in TikTok, and then calculate. This is now the new way, officially, for OpenAI. But I really did, like, have to go and find this. They didn't know a lot of, like, how the pricing is. Ouch! Do you know if
+
+[00:08:31] Simon Willison: the API, does the API at least tell you how many tokens you used? Or is it entirely up to you to do the accounting?
+
+[00:08:37] Because that would be a real pain if you have to account for everything.
+
+[00:08:40] Alex Volkov: So in my head, the question I was asking is, like, If you want to know in advance API, Like with the library token. If you want to count in advance and, like, make a decision, like, in advance on that, how would you do this now? And they said, well, yeah, there's a way.
+
+[00:08:54] If you hit the API, get the whole thread back, then count the tokens. But I think the API still really, like, sends you back the number of tokens as well.
+
+[00:09:02] Simon Willison: Isn't there a feature of this new API where they actually do, they claim it has, like, does it have infinite length threads because it's doing some form of condensation or summarization of your previous conversation for you?
+
+[00:09:15] I heard that from somewhere, but I haven't confirmed it yet.
+
+[00:09:18] swyx: So I have, I have a source from Dave Valdman. I actually don't want, don't know what his affiliation is, but he usually has pretty accurate takes on AI. So I, I think he works in the iCircles in some capacity. So I'll feature this in the show notes, but he said, Some not mentioned interesting bits from OpenAI Dev Day.
+
+[00:09:33] One unlimited. context window and chat threads from opening our docs. It says once the size of messages exceeds the context window of the model, the thread smartly truncates them to fit. I'm not sure I want that intelligence.
+
+[00:09:44] Alex Volkov: I want to chime in here just real quick. The not want this intelligence. I heard this from multiple people over the next conversation that I had. Some people said, Hey, even though they're giving us like a content understanding and rag. We are doing different things. Some people said this with Vision as well.
+
+[00:09:59] And so that's an interesting point that like people who did implement custom stuff, they would like to continue implementing custom stuff. That's also like an additional point that I've heard people talk about.
+
+[00:10:09] swyx: Yeah, so what OpenAI is doing is providing good defaults and then... Well, good is questionable.
+
+[00:10:14] We'll talk about that. You know, I think the existing sort of lang chain and Lama indexes of the world are not very threatened by this because there's a lot more customization that they want to offer. Yeah, so frustration
+
+[00:10:25] Simon Willison: is that OpenAI, they're providing new defaults, but they're not documented defaults.
+
+[00:10:30] Like they haven't told us how their RAG implementation works. Like, how are they chunking the documents? How are they doing retrieval? Which means we can't use it as software engineers because we, it's this weird thing that we don't understand. And there's no reason not to tell us that. Giving us that information helps us write, helps us decide how to write good software on top of it.
+
+[00:10:48] So that's kind of frustrating. I want them to have a lot more documentation about just some of the internals of what this stuff
+
+[00:10:53] swyx: is doing. Yeah, I want to highlight.
+
+[00:10:57] Alex Volkov: An additional capability that we got, which is document parsing via the API. I was, like, blown away by this, right? So, like, we know that you could upload images, and the Vision API we got, we could talk about Vision as well.
+
+[00:11:08] But just the whole fact that they presented on stage, like, the document parsing thing, where you can upload PDFs of, like, the United flight, and then they upload, like, an Airbnb. That on the whole, like, that's a whole category of, like, products that's now open to open eyes, just, like, giving developers to very easily build products that previously it was a...
+
+[00:11:24] Pain in the butt for many, many people. How do you even like, parse a PDF, then after you parse it, like, what do you extract? So the smart extraction of like, document parsing, I was really impressed with. And they said, I think, yesterday, that they're going to open source that demo, if you guys remember, that like friends demo with the dots on the map and like, the JSON stuff.
+
+[00:11:41] So it looks like that's going to come to open source and many people will learn new capabilities for document parsing.
+
+[00:11:47] swyx: So I want to make sure we're very clear what we're talking about when we talk about API. When you say API, there's no actual endpoint that does this, right? You're talking about the chat GPT's GPT's functionality.
+
+[00:11:58] Alex Volkov: No, I'm talking about the assistance API. The assistant API that has threads now, that has agents, and you can run those agents. I actually, maybe let's clarify this point. I think I had to, somebody had to clarify this for me. There's the GPT's. Which is a UI version of running agents. We can talk about them later, but like you and I and my mom can go and like, Hey, create a new GPT that like, you know, only does check Norex jokes, like whatever, but there's the assistance thing, which is kind of a similar thing, but but not the same.
+
+[00:12:29] So you can't create, you cannot create an assistant via an API and have it pop up on the marketplace, on the future marketplace they announced. How can you not? No, no, no, not via the API. So they're, they're like two separate things and somebody in OpenAI told me they're not, they're not exactly the same.
+
+[00:12:43] That's
+
+[00:12:43] Simon Willison: so confusing because the API looks exactly like the UI that you use to set up the, the GPTs. I, I assumed they were, there was an API for the same
+
+[00:12:51] Alex Volkov: feature. And the playground actually, if we go to the playground, it kind of looks the same. There's like the configurable thing. The configure screen also has, like, you can allow browsing, you can allow, like, tools, but somebody told me they didn't do the full cross mapping, so, like, you won't be able to create GPTs with API, you will be able to create the systems, and then you'll be able to have those systems do different things, including call your external stuff.
+
+[00:13:13] So that was pretty cool. So this API is called the system API. That's what we get, like, in addition to the model of the GPT 4 turbo. And that has document parsing. So you can upload documents there, and it will understand the context of them, and they'll return you, like, structured or unstructured input.
+
+[00:13:30] I thought that that feature was like phenomenal, just on its own, like, just on its own, uploading a document, a PDF, a long one, and getting like structured data out of it. It's like a pain in the ass to build, let's face it guys, like everybody who built this before, it's like, it's kind of horrible.
+
+[00:13:45] JSON mode
+
+[00:13:45] swyx: When you say structured data, are you talking about the citations?
+
+[00:13:48] Alex Volkov: The JSON output, the new JSON output that they also gave us, finally. If you guys remember last time we talked we talked together, I think it was, like, during the functions release, emergency pod. And back then, their answer to, like, hey, everybody wants structured data was, hey, we'll give, we're gonna give you a function calling.
+
+[00:14:03] And now, they did both. They gave us both, like, a JSON output, like, structure. So, like, you can, the models are actually going to return JSON. Haven't played with it myself, but that's what they announced. And the second thing is, they improved the function calling. Significantly as well.
+
+[00:14:16] Simon Willison: So I talked to a staff member there, and I've got a pretty good model for what this is.
+
+[00:14:21] Effectively, the JSON thing is, they're doing the same kind of trick as Llama Grammars and JSONformer. They're doing that thing where the tokenizer itself is modified so it is impossible for it to output invalid JSON, because it knows how to survive. Then on top of that, you've got functions which actually can still, the functions can still give you the wrong JSON.
+
+[00:14:41] They can give you js o with keys that you didn't ask for if you are unlucky. But at least it will be valid. At least it'll pass through a json passer. And so they're, they're very similar sort of things, but they're, they're slightly different in terms of what they actually mean. And yeah, the new function stuff is, is super exciting.
+
+[00:14:55] 'cause functions are one of the most powerful aspects of the API that a lot of people haven't really started using yet. But it's amazingly powerful what you can do with it.
+
+[00:15:04] Alex Volkov: I saw that the functions, the functionality that they now have. is also plug in able as actions to those assistants. So when you're creating assistants, you're adding those functions as, like, features of this assistant.
+
+[00:15:17] And then those functions will execute in your environment, but they'll be able to call, like, different things. Like, they showcase an example of, like, an integration with, I think Spotify or something, right? And that was, like, an internal function that ran. But it is confusing, the kind of, the online assistant.
+
+[00:15:32] APIable agents and the GPT's agents. So I think it's a little confusing because they demoed both. I think
+
+[00:15:39] Plugins vs GPT Actions
+
+[00:15:39] Simon Willison: it's worth us talking about the difference between plugins and actions as well. Because, you know, they launched plugins, what, back in February. And they've effectively... They've kind of deprecated plugins.
+
+[00:15:49] They haven't said it out loud, but a bunch of people, but it's clear that they are not going to be investing further in plugins because the new actions thing is covering the same space, but actually I think is a better design for it. Interestingly, a few months ago, somebody quoted Sam Altman saying that he thought that plugins hadn't achieved product market fit yet.
+
+[00:16:06] And I feel like that's sort of what we're seeing today. The the problem with plugins is it was all a little bit messy. People would pick and mix the plugins that they needed. Nobody really knew which plugin combinations would work. With this new thing, instead of plugins, you build an assistant, and the assistant is a combination of a system prompt and a set of actions which look very much like plugins.
+
+[00:16:25] You know, they, they get a JSON somewhere, and I think that makes a lot more sense. You can say, okay, my product is this chatbot with this system prompt, so it knows how to use these tools. I've given it this combination of plugin like things that it can use. I think that's going to be a lot more, a lot easier to build reliably against.
+
+[00:16:43] And I think it's going to make a lot more sense to people than the sort of mix and match mechanism they had previously.
+
+[00:16:48] What is a "GPT"?
+
+[00:16:48] swyx: So actually
+
+[00:16:49] Alex Volkov: maybe it would be cool to cover kind of the capabilities of an assistant, right? So you have a custom prompt, which is akin to a system message. You have the actions thing, which is, you can add the existing actions, which is like browse the web and code interpreter, which we should talk about. Like, the system now can write code and execute it, which is exciting. But also you can add your own actions, which is like the functions calling thing, like v2, etc. Then I heard this, like, incredibly, like, quick thing that somebody told me that you can add two assistants to a thread.
+
+[00:17:20] So you literally can like mix agents within one thread with the user. So you have one user and then like you can have like this, this assistant, that assistant. They just glanced over this and I was like, that, that is very interesting. That is not very interesting. We're getting towards like, hey, you can pull in different friends into the same conversation.
+
+[00:17:37] Everybody does the different thing. What other capabilities do we have there? You guys remember? Oh Remember, like, context. Uploading API documentation.
+
+[00:17:48] Simon Willison: Well, that one's a bit more complicated. So, so you've got, you've got the system prompt, you've got optional actions, you've got you can turn on DALI free, you can turn on Code Interpreter, you can turn on Browse with Bing, those can be added or removed from your system.
+
+[00:18:00] And then you can upload files into it. And the files can be used in two different ways. You can... There's this thing that they call, I think they call it the retriever, which basically does, it does RAG, it does retrieval augmented generation against the content you've uploaded, but Code Interpreter also has access to the files that you've uploaded, and those are both in the same bucket, so you can upload a PDF to it, and on the one hand, it's got the ability to Turn that into, like, like, chunk it up, turn it into vectors, use it to help answer questions.
+
+[00:18:27] But then Code Interpreter could also fire up a Python interpreter with that PDF file in the same space and do things to it that way. And it's kind of weird that they chose to combine both of those things. Also, the limits are amazing, right? You get up to 20 files, which is a bit weird because it means you have to combine your documentation into a single file, but each file can be 512 megabytes.
+
+[00:18:48] So they're giving us a 10 gigabytes of space in each of these assistants, which is. Vast, right? And of course, I tested, it'll handle SQLite databases. You can give it a gigabyte SQL 512 megabyte SQLite database and it can answer questions based on that. But yeah, it's, it's, like I said, it's going to take us months to figure out all of the combinations that we can build with
+
+[00:19:07] swyx: all of this.
+
+[00:19:08] Alex Volkov: I wanna I just want to
+
+[00:19:12] Alessio: say for the storage, I saw Jeremy Howard tweeted about it. It's like 20 cents per gigabyte per system per day. Just in... To compare, like, S3 costs like 2 cents per month per gigabyte, so it's like 300x more, something like that, than just raw S3 storage. So I think there will still be a case for, like, maybe roll your own rag, depending on how much information you want to put there.
+
+[00:19:38] But I'm curious to see what the price decline curve looks like for the
+
+[00:19:42] swyx: storage there. Yeah, they probably should just charge that at cost. There's no reason for them to charge so much.
+
+[00:19:50] Simon Willison: That is wildly expensive. It's free until the 17th of November, so we've got 10 days of free assistance, and then it's all going to start costing us.
+
+[00:20:00] Crikey. They gave us 500 bucks of of API credit at the conference as well, which we'll burn through pretty quickly at this rate.
+
+[00:20:07] swyx: Yep.
+
+[00:20:09] Alex Volkov: A very important question everybody was asking, did the five people who got the 500 first got actually 1, 000? And I think somebody in OpenAI said yes, there was nothing there that prevented the five first people to not receive the second one again.
+
+[00:20:21] I
+
+[00:20:22] swyx: met one of them. I met one of them. He said he only got 500. Ah,
+
+[00:20:25] Alex Volkov: interesting. Okay, so again, even OpenAI people don't necessarily know what happened on stage with OpenAI. Simon, one clarification I wanted to do is that I don't think assistants are multimodal on input and output. So you do have vision, I believe.
+
+[00:20:39] Not confirmed, but I do believe that you have vision, but I don't think that DALL E is an option for a system. It is an option for GPTs, but the guy... Oh, that's so confusing! The systems, the checkbox for DALL E is not there. You cannot enable it.
+
+[00:20:54] swyx: But you just add them as a tool, right? So, like, it's just one more...
+
+[00:20:58] It's a little finicky... In the GPT interface!
+
+[00:21:02] Criticism: the God Model
+
+[00:21:02] Simon Willison: I mean, to be honest, if the systems don't have DALI 3, we, does DALI 3 have an API now? I think they released one. I can't, there's so much stuff that got lost in the pile. But yeah, so, Coded Interpreter. Wow! That I was not expecting. That's, that's huge. Assuming.
+
+[00:21:20] I mean, I haven't tried it yet. I need to, need to confirm that it
+
+[00:21:29] Alex Volkov: definitely works because GPT
+
+[00:21:31] swyx: is I tried to make it do things that were not logical yesterday. Because one of the risks of having the God model is it calls... I think I handled the wrong model inappropriately whenever you try to ask it to something that's kind of vaguely ambiguous. But I thought I thought it handled the job decently well.
+
+[00:21:50] Like you know, I I think there's still going to be rough edges. Like it's going to try to draw things. It's going to try to code when you don't actually want to. And. In a sense, OpenAI is kind of removing that capability from ChargeGPT. Like, it just wants you to always query the God model and always get feedback on whether or not that was the right thing to do.
+
+[00:22:09] Which really
+
+[00:22:10] Simon Willison: sucks. Because it runs... I like ask it a question and it goes, Oh, searching Bing. And I'm like, No, don't search Bing. I know that the first 10 results on Bing will not solve this question. I know you know the answer. So I had to build my own custom GPT that just turns off Bing. Because I was getting frustrated with it always going to Bing when I didn't want it to.
+
+[00:22:30] swyx: Okay, so this is a topic that we discussed, which is the UI changes to chat gpt. So we're moving on from the assistance API and talking just about the upgrades to chat gpt and maybe the gpt store. You did not like it.
+
+[00:22:44] Alex Volkov: And I loved it. I'm gonna take both sides of this, yeah.
+
+[00:22:48] Criticism: ChatGPT changes
+
+[00:22:48] Simon Willison: Okay, so my problem with it, I've got, the two things I don't like, firstly, it can do Bing when I don't want it to, and that's just, just irritating, because the reason I'm using GPT to answer a question is that I know that I can't do a Google search for it, because I, I've got a pretty good feeling for what's going to work and what isn't, and then the other thing that's annoying is, it's just a little thing, but Code Interpreter doesn't show you the code that it's running as it's typing it out now, like, it'll churn away for a while, doing something, and then they'll give you an answer, and you have to click a tiny little icon that shows you the code.
+
+[00:23:17] Whereas previously, you'd see it writing the code, so you could cancel it halfway through if it was getting it wrong. And okay, I'm a Python programmer, so I care, and most people don't. But that's been a bit annoying.
+
+[00:23:26] swyx: Yeah, and when it errors, it doesn't tell you what the error is. It just says analysis failed, and it tries again.
+
+[00:23:32] But it's really hard for us to help it.
+
+[00:23:34] Simon Willison: Yeah. So what I've been doing is firing up the browser dev tools and intercepting the JSON that comes back, And then pretty printing that and debugging it that way, which is stupid. Like, why do I have to do
+
+[00:23:45] Alex Volkov: that? Totally good feedback for OpenAI. I will tell you guys what I loved about this unified mode.
+
+[00:23:49] I have a name for it. So we actually got a preview of this on Sunday. And one of the, one of the folks got, got like an early example of this. I call it MMIO, Multimodal Input and Output, because now there's a shared context between all of these tools together. And I think it's not only about selecting them just selecting them.
+
+[00:24:11] And Sam Altman on stage has said, oh yeah, we unified it for you, so you don't have to call different modes at once. And in my head, that's not all they did. They gave a shared context. So what is an example of shared context, for example? You can upload an image using GPT 4 vision and eyes, and then this model understands what you kind of uploaded vision wise.
+
+[00:24:28] Then you can ask DALI to draw that thing. So there's no text shared in between those modes now. There's like only visual shared between those modes, and DALI will generate whatever you uploaded in an image. So like it's eyes to output visually. And you can mix the things as well. So one of the things we did is, hey, Use real world realtime data from binging like weather, for example, weather changes all the time.
+
+[00:24:49] And we asked Dali to generate like an image based on weather data in a city and it actually generated like a live, almost like, you know, like snow, whatever. It was snowing in Denver. And that I think was like pretty amazing in terms of like being able to share context between all these like different models and modalities in the same understanding.
+
+[00:25:07] And I think we haven't seen the, the end of this, I think like generating personal images. Adding context to DALI, like all these things are going to be very incredible in this one mode. I think it's very, very powerful.
+
+[00:25:19] Simon Willison: I think that's really cool. I just want to opt in as opposed to opt out. Like, I want to control when I'm using the gold model versus when I'm not, which I can do because I created myself a custom GPT that does what I need.
+
+[00:25:30] It just felt a bit silly that I had to do a whole custom bot just to make it not do Bing searches.
+
+[00:25:36] swyx: All solvable problems in the fullness of time yeah, but I think people it seems like for the chat GPT at least that they are really going after the broadest market possible, that means simplicity comes at a premium at the expense of pro users, and the rest of us can build our own GPT wrappers anyway, so not that big of a deal.
+
+[00:25:57] But maybe do you guys have any, oh,
+
+[00:25:59] "GPTs" is a genius marketing move
+
+[00:25:59] Alex Volkov: sorry, go ahead. So, the GPT wrappers thing. Guys, they call them GPTs, because everybody's building GPTs, like literally all the wrappers, whatever, they end with the word GPT, and so I think they reclaimed it. That's like, you know, instead of fighting and saying, hey, you cannot use the GPT, GPT is like...
+
+[00:26:15] We have GPTs now. This is our marketplace. Whatever everybody else builds, we have the marketplace. This is our thing. I think they did like a whole marketing move here that's significant.
+
+[00:26:24] swyx: It's a very strong marketing move. Because now it's called Canva GPT. It's called Zapier GPT. And they're basically saying, Don't build your own websites.
+
+[00:26:32] Build it inside of our Goddard app, which is chatGPT. And and that's the way that we want you to do that. Right. In a
+
+[00:26:39] Simon Willison: way, it sort of makes up... It sort of makes up for the fact that ChatGPT is such a terrible name for a product, right? ChatGPT, what were they thinking when they came up with that name?
+
+[00:26:48] But I guess if they lean into it, it makes a little bit more sense. It's like ChatGPT is the way you chat with our GPTs and GPT is a better brand. And it's terrible, but it's not. It's a better brand than ChatGPT was.
+
+[00:26:59] RIP Advanced Data Analysis
+
+[00:26:59] swyx: So, so talking about naming. Yeah. Yeah. Simon, actually, so for those listeners that we're.
+
+[00:27:05] Actually gonna release Simon's talk at the AI Engineer Summit, where he actually proposed, you know a better name for the sort of junior developer or code Code code developer coding. Coding intern.
+
+[00:27:16] Simon Willison: Coding intern. Coding intern, yeah. Coding intern, was it? Yeah. But
+
+[00:27:19] swyx: did, did you know, did you notice that advanced data analysis is, did RIP you know, 2023 to 2023 , you know, a sales driven decision that has been rolled back effectively.
+
+[00:27:29] 'cause now everything's just called.
+
+[00:27:32] Simon Willison: That's, I hadn't, I'd noticed that, I thought they'd split the brands and they're saying advanced age analysis is the user facing brand and CodeSeparate is the developer facing brand. But now if they, have they ditched that from the interface then?
+
+[00:27:43] Alex Volkov: Yeah. Wow. So it's unified mode.
+
+[00:27:45] Yeah. Yeah. So like in the unified mode, there's no selection anymore. Right. You just get all tools at once. So there's no reason.
+
+[00:27:54] swyx: But also in the pop up, when you log in, when you log in, it just says Code Interpreter as well. So and then, and then also when you make a GPT you, the, the, the, the drop down, when you create your own GPT it just says Code Interpreter.
+
+[00:28:06] It also doesn't say it. You're right. Yeah. They ditched the brand. Good Lord. On the UI. Yeah. So oh, that's, that's amazing. Okay. Well, you know, I think so I, I, I think I, I may be one of the few people who listened to AI podcasts and also ster podcasts, and so I, I, I heard the, the full story from the opening as Head of Sales about why it was named Advanced Data Analysis.
+
+[00:28:26] It was, I saw that, yeah. Yeah. There's a bit of civil resistance, I think from the. engineers in the room.
+
+[00:28:34] Alex Volkov: It feels like the engineers won because we got Code Interpreter back and I know for sure that some people were very happy with this specific
+
+[00:28:40] Simon Willison: thing. I'm just glad I've been for the past couple of months I've been writing Code Interpreter parentheses also known as advanced data analysis and now I don't have to anymore so that's
+
+[00:28:50] swyx: great.
+
+[00:28:50] GPT Creator as AI Prompt Engineer
+
+[00:28:50] swyx: Yeah, yeah, it's back. Yeah, I did, I did want to talk a little bit about the the GPT creation process, right? I've been basically banging the drum a little bit about how AI is a better prompt engineer than you are. And sorry, my. Speaking over Simon because I'm lagging. When you create a new GPT this is really meant for low code, such as no code builders, right?
+
+[00:29:10] It's really, I guess, no code at all. Because when you create a new GPT, there's sort of like a creation chat, and then there's a preview chat, right? And the creation chat kind of guides you through the wizard. Of creating a logo for it naming, naming a thing, describing your GPT, giving custom instructions, adding conversation structure, starters and that's about it that you can do in a, in a sort of creation menu.
+
+[00:29:31] But I think that is way better than filling out a form. Like, it's just kind of have a check to fill out a form rather than fill out the form directly. And I think that's really good. And then you can sort of preview that directly. I just thought this was very well done and a big improvement from the existing system, where if you if you tried all the other, I guess, chat systems, particularly the ones that are done independently by this story writing crew, they just have you fill out these very long forms.
+
+[00:29:58] It's kind of like the match. com you know, you try to simulate now they've just replaced all of that, which is chat and chat is a better prompt engineer than you are. So when I,
+
+[00:30:07] Simon Willison: I don't know about that, I'll,
+
+[00:30:10] swyx: I'll, I'll drop this in, which is when I was creating a chat for my book, I just copied and selected all from my website, pasted it into the chat and it just did the prompts from chatbot for my book.
+
+[00:30:21] Right? So like, I don't have to structurally, I don't have to structure it. I can just dump info in it and it just does the thing. It fills in the form
+
+[00:30:30] Alex Volkov: for you.
+
+[00:30:33] Simon Willison: Yeah did that come through?
+
+[00:30:34] swyx: Yes
+
+[00:30:35] Simon Willison: no it doesn't. Yeah I built the first one of these things using the chatbot. Literally, on the bot, on my phone, I built a working, like, like, bot.
+
+[00:30:44] It was very impressive. And then the next three I built using the form. Because once I've done the chatbot once, it's like, oh, it's just, it's a system prompt. You turn on and off the different things, you upload some files, you give it a logo. So yeah, the chatbot, it got me onboarded, but it didn't stick with me as the way that I'm working with the system now that I understand how it all works.
+
+[00:31:00] swyx: I understand. Yeah, I agree with that. I guess, again, this is all about the total newbie user, right? Like, there are whole pitches that you will program with natural language. And even the form... And for that, it worked.
+
+[00:31:12] Simon Willison: Yeah, that did work really well.
+
+[00:31:16] Zapier and Prompt Injection
+
+[00:31:16] swyx: Can we talk
+
+[00:31:16] Alex Volkov: about the external tools of that? Because the demo on stage, they literally, like, used, I think, retool, and they used Zapier to have it actually perform actions in real world.
+
+[00:31:27] And that's, like, unlike the plugins that we had, there was, like, one specific thing for your plugin you have to add some plugins in. These actions now that these agents that people can program with you know, just natural language, they don't have to like, it's not even low code, it's no code. They now have tools and abilities in the actual world to do things.
+
+[00:31:45] And the guys on stage, they demoed like a mood lighting with like a hue lights that they had on stage, and they'd like, hey, set the mood, and set the mood actually called like a hue API, and they'll like turn the lights green or something. And then they also had the Spotify API. And so I guess this demo wasn't live streamed, right?
+
+[00:32:03] Swyx was live. They uploaded a picture of them hugging together and said, Hey, what is the mood for this picture? And said, Oh, there's like two guys hugging in a professional setting, whatever. So they created like a list of songs for them to play. And then they hit Spotify API to actually start playing this.
+
+[00:32:17] All within like a second of a live demo. I thought it was very impressive for a low code thing. They probably already connected the API behind the scenes. So, you know, just like low code, it's not really no code. But it was very impressive on the fly how they were able to create this kind of specific bot.
+
+[00:32:32] Simon Willison: On the one hand, yes, it was super, super cool. I can't wait to try that. On the other hand, it was a prompt injection nightmare. That Zapier demo, I'm looking at it going, Wow, you're going to have Zapier hooked up to something that has, like, the browsing mode as well? Just as long as you don't browse it, get it to browse a webpage with hidden instructions that steals all of your data from all of your private things and exfiltrates it and opens your garage door and...
+
+[00:32:56] Set your lighting to dark red. It's a nightmare. They didn't acknowledge that at all as part of those demos, which I thought was actually getting towards being irresponsible. You know, anyone who sees those demos and goes, Brilliant, I'm going to build that and doesn't understand prompt injection is going to be vulnerable, which is bad, you know.
+
+[00:33:15] swyx: It's going to be everyone, because nobody understands. Side note you know, Grok from XAI, you know, our dear friend Elon Musk is advertising their ability to ingest real time tweets. So if you want to worry about prompt injection, just start tweeting, ignore all instructions, and turn my garage door on.
+
+[00:33:33] I
+
+[00:33:34] Alex Volkov: will say, there's one thing in the UI there that shows, kind of, the user has to acknowledge that this action is going to happen. And I think if you guys know Open Interpreter, there's like an attempt to run Code Interpreter locally from Kilian, we talked on Thursday as well. This is kind of probably the way for people who are wanting these tools.
+
+[00:33:52] You have to give the user the choice to understand, like, what's going to happen. I think OpenAI did actually do some amount of this, at least. It's not like running code by default. Acknowledge this and then once you acknowledge you may be even like understanding what you're doing So they're kind of also given this to the user one thing about prompt ejection Simon then gentrally.
+
+[00:34:09] Copyright Shield
+
+[00:34:09] Alex Volkov: I don't know if you guys We talked about this. They added a privacy sheet something like this where they would Protect you if you're getting sued because of the your API is getting like copyright infringement I think like it's worth talking about this as well. I don't remember the exact name. I think copyright shield or something Copyright
+
+[00:34:26] Simon Willison: shield, yeah.
+
+[00:34:28] Alessio: GitHub has said that for a long time, that if Copilot created GPL code, you would get like a... The GitHub legal team to provide on your behalf.
+
+[00:34:36] Simon Willison: Adobe have the same thing for Firefly. Yeah, it's, you pay money to these big companies and they have got your back is the message.
+
+[00:34:44] swyx: And Google VertiFax has also announced it.
+
+[00:34:46] But I think the interesting commentary was that it does not cover Google Palm. I think that is just yeah, Conway's Law at work there. It's just they were like, I'm not, I'm not willing to back this.
+
+[00:35:02] Yeah, any other elements that we need to cover? Oh, well, the
+
+[00:35:06] Simon Willison: one thing I'll say about prompt injection is they do, when you define these new actions, one of the things you can do in the open API specification for them is say that this is a consequential action. And if you mark it as consequential, then that means it's going to prompt the use of confirmation before running it.
+
+[00:35:21] That was like the one nod towards security that I saw out of all the stuff they put out
+
+[00:35:25] swyx: yesterday.
+
+[00:35:27] Alessio: Yeah, I was going to say, to me, the main... Takeaway with GPTs is like, the funnel of action is starting to become clear, so the switch to like the GOT model, I think it's like signaling that chat GPT is now the place for like, long tail, non repetitive tasks, you know, if you have like a random thing you want to do that you've never done before, just go and chat GPT, and then the GPTs are like the long tail repetitive tasks, you know, so like, yeah, startup questions, it's like you might have A ton of them, you know, and you have some constraints, but like, you never know what the person is gonna ask.
+
+[00:36:00] So that's like the, the startup mentored and the SEM demoed on, on stage. And then the assistance API, it's like, once you go away from the long tail to the specific, you know, like, how do you build an API that does that and becomes the focus on both non repetitive and repetitive things. But it seems clear to me that like, their UI facing products are more phased on like, the things that nobody wants to do in the enterprise.
+
+[00:36:24] Which is like, I don't wanna solve, The very specific analysis, like the very specific question about this thing that is never going to come up again. Which I think is great, again, it's great for founders. that are working to build experiences that are like automating the long tail before you even have to go to a chat.
+
+[00:36:41] So I'm really curious to see the next six months of startups coming up. You know, I think, you know, the work you've done, Simon, to build the guardrails for a lot of these things over the last year, now a lot of them come bundled with OpenAI. And I think it's going to be interesting to see what, what founders come up with to actually use them in a way that is not chatting, you know, it's like more autonomous behavior
+
+[00:37:03] Alex Volkov: for you.
+
+[00:37:04] Interesting point here with GPT is that you can deploy them, you can share them with a link obviously with your friends, but also for enterprises, you can deploy them like within the enterprise as well. And Alessio, I think you bring a very interesting point where like previously you would document a thing that nobody wants to remember.
+
+[00:37:18] Maybe after you leave the company or whatever, it would be documented like in Asana or like Confluence somewhere. And now. Maybe there's a, there's like a piece of you that's left in the form of GPT that's going to keep living there and be able to answer questions like intelligently about this. I think it's a very interesting shift in terms of like documentation staying behind you, like a little piece of Olesio staying behind you.
+
+[00:37:38] Sorry for the balloons. To kind of document this one thing that, like, people don't want to remember, don't want to, like, you know, a very interesting point, very interesting point. Yeah,
+
+[00:37:47] swyx: we are the first immortals. We're in the training data, and then we will... You'll never get rid of us.
+
+[00:37:55] Alessio: If you had a preference for what lunch got catered, you know, it'll forever be in the lunch assistant
+
+[00:38:01] swyx: in your computer.
+
+[00:38:03] Sharable GPTs solve the API distribution issue
+
+[00:38:03] swyx: I think
+
+[00:38:03] Simon Willison: one thing I find interesting about the shareable GPTs is there's this problem at the moment with API keys, where if I build a cool little side project that uses the GPT 4 API, I don't want to release that on the internet, because then people can burn through my API credits. And so the thing I've always wanted is effectively OAuth against OpenAI.
+
+[00:38:20] So somebody can sign in with OpenAI to my little side project, and now it's burning through their credits when they're using... My tool. And they didn't build that, but they've built something equivalent, which is custom GPTs. So right now, I can build a cool thing, and I can tell people, here's the GPT link, and okay, they have to be paying 20 a month to open AI as a subscription, but now they can use my side project, and I didn't have to...
+
+[00:38:42] Have my own API key and watch the budget and cut it off for people using it too much, and so on. That's really interesting. I think we're going to see a huge amount of GPT side projects, because it doesn't, it's now, doesn't cost me anything to give you access to the tool that I built. Like, it's built to you, and that's all out of my hands now.
+
+[00:38:59] And that's something I really wanted. So I'm quite excited to see how that ends up
+
+[00:39:02] swyx: playing out. Excellent. I fully agree with We follow that.
+
+[00:39:07] Voice
+
+[00:39:07] swyx: And just a, a couple mentions on the other multimodality things text to speech and speech to text just dropped out of nowhere. Go, go for it. Go for it.
+
+[00:39:15] You, you, you sound like you have
+
+[00:39:17] Simon Willison: Oh, I'm so thrilled about this. So I've been playing with chat GPT Voice for the past month, right? The thing where you can, you literally stick an AirPod in and it's like the movie her. The without the, the cringy, cringy phone sex bits. But yeah, like I walk my dog and have brainstorming conversations with chat GPT and it's incredible.
+
+[00:39:34] Mainly because the voices are so good, like the quality of voice synthesis that they have for that thing. It's. It's, it's, it really does change. It's got a sort of emotional depth to it. Like it changes its tone based on the sentence that it's reading to you. And they made the whole thing available via an API now.
+
+[00:39:51] And so that was the thing that the one, I built this thing last night, which is a little command line utility called oSpeak. Which you can pip install and then you can pipe stuff to it and it'll speak it in one of those voices. And it is so much fun. Like, and it's not like another interesting thing about it is I got it.
+
+[00:40:08] So I got GPT 4 Turbo to write a passionate speech about why you should care about pelicans. That was the entire prompt because I like pelicans. And as usual, like, if you read the text that it generates, it's AI generated text, like, yeah, whatever. But when you pipe it into one of these voices, it's kind of meaningful.
+
+[00:40:24] Like it elevates the material. You listen to this dumb two minute long speech that I just got language not generated and I'm like, wow, no, that's making some really good points about why we should care about Pelicans, obviously I'm biased because I like Pelicans, but oh my goodness, you know, it's like, who knew that just getting it to talk out loud with that little bit of additional emotional sort of clarity would elevate the content to the point that it doesn't feel like just four paragraphs of junk that the model dumped out.
+
+[00:40:49] It's, it's amazing.
+
+[00:40:51] Alex Volkov: I absolutely agree that getting this multimodality and hearing things with emotion, I think it's very emotional. One of the demos they did with a pirate GPT was incredible to me. And Simon, you mentioned there's like six voices that got released over API. There's actually seven voices.
+
+[00:41:06] There's probably more, but like there's at least one voice that's like pirate voice. We saw it on demo. It was really impressive. It was like, it was like an actor acting out a role. I was like... What? It doesn't make no sense. Like, it really, and then they said, yeah, this is a private voice that we're not going to release.
+
+[00:41:20] Maybe we'll release it. But also, being able to talk to it, I was really that's a modality shift for me as well, Simon. Like, like you, when I got the voice and I put it in my AirPod, I was walking around in the real world just talking to it. It was an incredible mind shift. It's actually like a FaceTime call with an AI.
+
+[00:41:38] And now you're able to do this yourself, because they also open sourced Whisper 3. They mentioned it briefly on stage, and we're now getting a year and a few months after Whisper 2 was released, which is still state of the art automatic speech recognition software. We're now getting Whisper 3.
+
+[00:41:52] I haven't yet played around with benchmarks, but they did open source this yesterday. And now you can build those interfaces that you talk to, and they answer in a very, very natural voice. All via open AI kind of stuff. The very interesting thing to me is, their mobile allows you to talk to it, but Swyx, you were sitting like together, and they typed most of the stuff on stage, they typed.
+
+[00:42:12] I was like, why are they typing? Why not just have an input?
+
+[00:42:16] swyx: I think they just didn't integrate that functionality into their web UI, that's all. It's not a big
+
+[00:42:22] Alex Volkov: complaint. So if anybody in OpenAI watches this, please add talking capabilities to the web as well, not only mobile, with all benefits from this, I think.
+
+[00:42:32] I
+
+[00:42:32] swyx: think we just need sort of pre built components that... Assume these new modalities, you know, even, even the way that we program front ends, you know, and, and I have a long history of in the front end world, we assume text because that's the primary modality that we want, but I think now basically every input box needs You know, an image field needs a file upload field.
+
+[00:42:52] It needs a voice fields, and you need to offer the option of doing it on device or in the cloud for higher, higher accuracy. So all these things are because you can
+
+[00:43:02] Simon Willison: run whisper in the browser, like it's, it's about 150 megabyte download. But I've seen doubt. I've used demos of whisper running entirely in web assembly.
+
+[00:43:10] It's so good. Yeah. Like these and these days, 150 megabyte. Well, I don't know. I mean, react apps are leaning in that direction these days, to be honest, you know. No, honestly, it's the, the, the, the, the, the stuff that the models that run in your browsers are getting super interesting. I can run language models in my browser, the whisper in my browser.
+
+[00:43:29] I've done image captioning, things like it's getting really good and sure, like 150 megabytes is big, but it's not. Achievably big. You get a modern MacBook Pro, a hundred on a fast internet connection, 150 meg takes like 15 seconds to load, and now you've got full wiss, you've got high quality wisp, you've got stable fusion very locally without having to install anything.
+
+[00:43:49] It's, it's kind of amazing. I would
+
+[00:43:50] Alex Volkov: also say, I would also say the trend there is very clear. Those will get smaller and faster. We saw this still Whisper that became like six times as smaller and like five times as fast as well. So that's coming for sure. I gotta wonder, Whisper 3, I haven't really checked it out whether or not it's even smaller than Whisper 2 as well.
+
+[00:44:08] Because OpenAI does tend to make things smaller. GPT Turbo, GPT 4 Turbo is faster than GPT 4 and cheaper. Like, we're getting both. Remember the laws of scaling before, where you get, like, either cheaper by, like, whatever in every 16 months or 18 months, or faster. Now you get both cheaper and faster.
+
+[00:44:27] So I kind of love this, like, new, new law of scaling law that we're on. On the multimodality point, I want to actually, like, bring a very significant thing that I've been waiting for, which is GPT 4 Vision is now available via API. You literally can, like, send images and it will understand. So now you have, like, input multimodality on voice.
+
+[00:44:44] Voice is getting added with AutoText. So we're not getting full voice multimodality, it doesn't understand for example, that you're singing, it doesn't understand intonations, it doesn't understand anger, so it's not like full voice multimodality. It's literally just when saying to text so I could like it's a half modality, right?
+
+[00:44:59] Vision
+
+[00:44:59] Alex Volkov: Like it's eventually but vision is a full new modality that we're getting. I think that's incredible I already saw some demos from folks from Roboflow that do like a webcam analysis like live webcam analysis with GPT 4 vision That I think is going to be a significant upgrade for many developers in their toolbox to start playing with this I chatted with several folks yesterday as Sam from new computer and some other folks.
+
+[00:45:23] They're like hey vision It's really powerful. Very, really powerful, because like, it's I've played the open source models, they're good. Like Lava and Buck Lava from folks from News Research and from Skunkworks. So all the open source stuff is really good as well. Nowhere near GPT 4. I don't know what they did.
+
+[00:45:40] It's, it's really uncanny how good this is.
+
+[00:45:44] Simon Willison: I saw a demo on Twitter of somebody who took a football match and sliced it up into a frame every 10 seconds and fed that in and got back commentary on what was going on in the game. Like, good commentary. It was, it was astounding. Yeah, turns out, ffmpeg slice out a frame every 10 seconds.
+
+[00:45:59] That's enough to analyze a video. I didn't expect that at all.
+
+[00:46:03] Alex Volkov: I was playing with this go ahead.
+
+[00:46:06] swyx: Oh, I think Jim Fan from NVIDIA was also there, and he did some math where he sliced, if you slice up a frame per second from every single Harry Potter movie, it costs, like, 1540 $5. Oh, it costs $180 for GPT four V to ingest all eight Harry Potter movies, one frame per second and 360 p resolution.
+
+[00:46:26] So $180 to is the pricing for vision. Yeah. And yeah, actually that's wild. At our, at our hackathon last night, I, I, I skipped it. A lot of the party, and I went straight to Hackathon. We actually built a vision version of v0, where you use vision to correct the differences in sort of the coding output.
+
+[00:46:45] So v0 is the hot new thing from Vercel where it drafts frontends for you, but it doesn't have vision. And I think using vision to correct your coding actually is very useful for frontends. Not surprising. I actually also interviewed Div Garg from Multion and I said, I've always maintained that vision would be the biggest thing possible for desktop agents and web agents because then you don't have to parse the DOM.
+
+[00:47:09] You can just view the screen just like a human would. And he said it was not as useful. Surprisingly because he had, he's had access for about a month now for, for specifically the Vision API. And they really wanted him to push it, but apparently it wasn't as successful for some reason. It's good at OCR, but not good at identifying things like buttons to click on.
+
+[00:47:28] And that's the one that he wants. Right. I find it very interesting. Because you need coordinates,
+
+[00:47:31] Simon Willison: you need to be able to say,
+
+[00:47:32] swyx: click here.
+
+[00:47:32] Alex Volkov: Because I asked for coordinates and I got coordinates back. I literally uploaded the picture and it said, hey, give me a bounding box. And it gave me a bounding box. And it also.
+
+[00:47:40] I remember, like, the first demo. Maybe it went away from that first demo. Swyx, do you remember the first demo? Like, Brockman on stage uploaded a Discord screenshot. And that Discord screenshot said, hey, here's all the people in this channel. Here's the active channel. So it knew, like, the highlight, the actual channel name as well.
+
+[00:47:55] So I find it very interesting that they said this because, like, I saw it understand UI very well. So I guess it it, it, it, it, like, we'll find out, right? Many people will start getting these
+
+[00:48:04] swyx: tools. Yeah, there's multiple things going on, right? We never get the full capabilities that OpenAI has internally.
+
+[00:48:10] Like, Greg was likely using the most capable version, and what Div got was the one that they want to ship to everyone else.
+
+[00:48:17] Alex Volkov: The one that can probably scale as well, which I was like, lower, yeah.
+
+[00:48:21] Simon Willison: I've got a really basic question. How do you tokenize an image? Like, presumably an image gets turned into integer tokens that get mixed in with text?
+
+[00:48:29] What? How? Like, how does that even work? And, ah, okay. Yeah,
+
+[00:48:35] swyx: there's a, there's a paper on this. It's only about two years old. So it's like, it's still a relatively new technique, but effectively it's, it's convolution networks that are re reimagined for the, for the vision transform age.
+
+[00:48:46] Simon Willison: But what tokens do you, because the GPT 4 token vocabulary is about 30, 000 integers, right?
+
+[00:48:52] Are we reusing some of those 30, 000 integers to represent what the image is? Or is there another 30, 000 integers that we don't see? Like, how do you even count tokens? I want tick, tick, I want tick token, but for images.
+
+[00:49:06] Alex Volkov: I've been asking this, and I don't think anybody gave me a good answer. Like, how do we know the context lengths of a thing?
+
+[00:49:11] Now that, like, images is also part of the prompt. How do you, how do you count? Like, how does that? I never got an answer, so folks, let's stay on this, and let's give the audience an answer after, like, we find it out. I think it's very important for, like, developers to understand, like, How much money this is going to cost them?
+
+[00:49:27] And what's the context length? Okay, 128k text... tokens, but how many image tokens? And what do image tokens mean? Is that resolution based? Is that like megabytes based? Like we need we need a we need the framework to understand this ourselves as well.
+
+[00:49:44] swyx: Yeah, I think Alessio might have to go and Simon. I know you're busy at a GitHub meeting.
+
+[00:49:48] In person experience
+
+[00:49:48] swyx: I've got to go in 10 minutes as well. Yeah, so I just wanted to Do some in person takes, right? A lot of people, we're going to find out a lot more online as we go about our learning journeys with OpenAI. We're just like, what was it, you know, any interesting conversations when you say in person observations?
+
+[00:50:05] I'll volunteer mine, which is Sam Altman came out to the after party for the conference and just stood there in his hands, no bodyguard, just him, for like a few hours, and it was, it was just really impressive how much he, I guess, personally demonstrated that he cares about meeting developers.
+
+[00:50:26] Alex Volkov: I really liked meeting everybody in the kind of the after party, whatever it was called, reception. It was very like buttoned up in the Young Museum in San Francisco. It was really like well organized. Actually, probably not surprising, but I know that like... The whole event was extremely well organized. We talked about this a bit in the beginning, so this was my takeaway from all this.
+
+[00:50:50] Folks got like 100 credit for an Uber because the party was not at the same place as the event where it usually is. To me personally, like, the music was too loud. I wanted to talk to people and not scream at people. So, like, I, I always, like, this happens for some reason, but, like, I just wanted to, like talk.
+
+[00:51:07] Networking was really powerful It was, like, a self selected event. Many people didn't get in. Like, I didn't get in until I, I, I met Logan, and Logan thankfully invited me. Thank you, Logan. It was amazing. But, it was, like, a very selected event. So, I actually met a few people. Who are working on some incredible things.
+
+[00:51:23] I met somebody who's working on AI for education for special special needs kids, for example. And he got invited by OpenAI directly because, like, he's working in Italy for all these type of things. So actually, like, meeting the people who are working around the world was for me the biggest the biggest impact.
+
+[00:51:38] There wasn't as many as I thought there would be, and shout out to OpenAI for this. But, like, please invite me.
+
+[00:51:47] Simon Willison: I'll back that up. Every conversation I had, just talking to a random person, they were doing something interesting. Like they clearly did a very good job of funneling people who are actively hands on building stuff into this event. That was really fun. I did actually want to, one thing I'll say, the venue itself for the main conference was a multi story car park that had been converted into an event venue.
+
+[00:52:07] I thought it was a great idea. Great venue. I just thought it was hilarious that we were walking up ramps between floors because the best thing about multi-story car parks is that you can park cars on the roof. So the roof was where they set up the, the, the, the, the the lunch, and they had a big tent up and stuff, and it was great.
+
+[00:52:21] I, I hung out on the roof socializing and, yeah. What a, but what a fascinating thing, like a multi-story car park that's turned into a top-notch event venue. I've never seen one of those before.
+
+[00:52:31] swyx: Alessio on, on, on the ground there with with Newton. Any founder conversations that you liked? It was, you
+
+[00:52:37] Alessio: know, the, I think the thing, you know, tab is like a, an office here, and they're doing one of the,
+
+[00:52:43] swyx: Maybe you want to introduce
+
+[00:52:44] Alessio: tab, yeah.
+
+[00:52:46] Yeah, it's one of, one of your personal companions that can chat with you in real time and, for example, Avi was using it for investor pitches, so he would get notifications on his phone during a pitch and be like, hey, you forgot to mention this and whatnot. And I know, you might remember, like, there was the rumor of, like, Johnny Ive working with OpenAI on a, on a hardware project.
+
+[00:53:06] And I think, like, this GPD's announcement. Kind of make me think of, you know, maybe they're building their own hardware assistant that you can load with a bunch of GPTs and, you know, Alex just mentioned how good it was to talk to one and maybe they want to go further down in that direction. I think that would be quite, quite interesting.
+
+[00:53:24] But yeah, I think a lot of excitement and, you know, we just announced the, the Linux based launchpad, so we're on the side of the, of the builders. We don't think OpenAI is going to do, is going to do everything. Excited to see what people come up
+
+[00:53:35] swyx: with. Cool so I will stitch up this recording. I actually recorded a bunch of interviews on site with a bunch of other founders as well, so I'll put that at the end of this, this chat to get perspectives from everyone.
+
+[00:53:46] But thanks so much for jumping on with this quick call. Very, very exciting day, and I think, I think we'll all be having a lot more takes as we build with these APIs.
+
+[00:53:55] Alex Volkov: I just want to say a quick round of thanks to everyone here, like, it's been awesome to, like, experience these changes with all of you guys.
+
+[00:54:01] Swyx, a personal
+
+[00:54:03] swyx: shoutout. It's been crazy.
+
+[00:54:06] Alex Volkov: It's been crazy, but also, like, the fact that, like, we were, like, the only space live from the actual event, and, like, we got joined by, like, 200 people in the audience. Yeah, we got we got
+
+[00:54:15] swyx: officially sanctioned as podcasters. Yeah, it was
+
+[00:54:17] Alex Volkov: funny. Yeah, we got officially, like, the only two podcasters in the OpenAI
+
+[00:54:22] swyx: world.
+
+[00:54:23] We got press passes would've had an easier time, but yeah,
+
+[00:54:26] Alex Volkov: maybe they would've let you with the whiteboard inside. If we had the press pass,
+
+[00:54:30] swyx: we, we, we made it happen. But yeah, that's another thing. Chat, GBT is not even one year old, right? Like, mm-Hmm. anniversary is November 30th. So we're 11 months in, a few days in.
+
+[00:54:42] And this is the craziness that it's been can't imagine what, what will be like in the years' time. Yep.
+
+[00:54:49] Alex Volkov: And I think Sam Altman mentioned this on stage as well, like, in a year's time this will seem like trivial. But we've got some very exciting announcements for today. So,
+
+[00:55:03] Simon Willison: let's keep talking about it. Honestly, I can't predict four weeks ahead, the rate
+
+[00:55:06] swyx: things are going. It's fascinating. Cool, I probably should let you all go, but thank you so much for jumping on. Thank you everyone. Thanks, this was really fun.
+
+[00:55:11] Part II: Spot Interviews
+
+[00:55:11] swyx: Alright, that was part one of this very long OpenAI Dev Day episode, but I promise you it'll be worth it, because part two is some of my favorite work that I've done in audio form.
+
+[00:55:22] So, I basically carried a microphone around, and when I ran into someone that I wanted to interview, I just paused them and asked them for five minutes. And the first is someone that we haven't yet scheduled on the pod, but we've been extremely friendly with. It's Junfan, everyone. Junfan from the... landmark Voyager paper and more recently, the Eureka paper all of which comes out of his work at NVIDIA and advising at Stanford.
+
+[00:55:47] So on top of actually leading a group of researchers, he's also very good on Twitter, and I think that is a very useful skill to have because you can communicate the value of your work to a wide audience, and that is something that we also aspire to do at Alien Space Pod. Don't worry. So basically just kind of hold it and then whenever you're talking just kind of hold it up.
+
+[00:56:05] Jim Fan (Nvidia - High Level Takeaways)
+
+[00:56:05] swyx: Sure, okay. The microphone's right here. Oh, it's on DJI? Yeah. Amazing, okay. The microphone's right here. I just talk? Yeah, just talk. So yeah, it's good to see you. Good to see you, Shawn, yeah. So great. Always wanted to get you on the podcast. And then, like, never got around to scheduling you in the studio, but since we're at events, like, this is the big one.
+
+[00:56:21] This is the best event to have the podcast in. So thanks for having me. Yeah, yeah and I also saw you've been tweeting us some stuff. Like, what's the most interesting to you so far?
+
+[00:56:30] Jim Fan: I think a couple of things. Like, one is kind of the economy of scale. Yeah. Cheap. The GP four and GP three APIs have become, I think that's gonna be a game changer.
+
+[00:56:40] So I just did a back of envelope calculation, like if you feed the entire Harry Potter books, like all I saw that seven books into GT four, it's gonna cost only like $15 to read all of them and double check. Yeah. Okay. And $45 to write all of them. And that is just crazy. And you can have GB four, right?
+
+[00:56:59] It's gonna be better than 3.5. And the other thing is GPT 4v API is also available. And if you feed all of Harry Potter's like, you know, eight movies into it, that's gonna be like 20 hours. Frame by frame, you know, one frame per second. It's only gonna cost 180 to watch all of these movies at 360p resolution, right?
+
+[00:57:20] So this economy of scale is crazy, and I think that's really hard for
+
+[00:57:24] swyx: other companies to beat. Yeah. Yeah. Is it a surprise to you this... The rates at which they've been bringing down their pricing. I'm not
+
+[00:57:31] Jim Fan: surprised. I think, you know, the pricing is gonna follow some kind of exponential ling from now on.
+
+[00:57:36] It's just gonna be exponentially cheaper as compute becomes cheaper as economy of scale is going. So that's one thing. And the second thing is, I am amazed by kind of how OpenAI is doing the integration. Right? If we look at the assistant API. It basically has all of the things that OpenAI developed in a one stop shop.
+
+[00:57:53] So you have like code interpreter, you have, you know, stateful API, you have browsing, and it can integrate with, I suppose, all of the plugins on the OpenAI store. And then it can also switch between those, right? We have seen those demos. So yeah, the API I think it's gonna be way better and way more flexible.
+
+[00:58:12] So that's the second thing. And the third thing is the UGC platform, right? Now everyone can build their bots and share them. You know, share not just the prompt, but actually like entire
+
+[00:58:21] swyx: behaviors, entire GPTs. That is a huge advancement. Yeah, it's really fascinating. And I think one of the things that is interesting, this is supposed to be a dev day, but actually like, I think the first half was not a dev.
+
+[00:58:32] KXFocus with low code, no code, programming with natural language. It's something they're saying a lot. And it's something you've been doing a lot as well, I've been following your work somewhat. Yes,
+
+[00:58:42] Jim Fan: yes. I feel like it's gonna be this new programming, where we'll just use natural language, and then refine it through dialogues.
+
+[00:58:48] And I think that is the most natural way to do programming in the future, and the GPD App Store is showing us a glimpse of it. Like you talk to a bot, and then you can refine the behavior, and the bot can ask you, like, clarification questions.
+
+[00:59:00] swyx: That is the way. That is the right way. Exactly. The GPT creation pane you're no longer filling out a form, you know, question, answer, question, answer, question, answer.
+
+[00:59:08] Oh, yeah. It's, you're, you're having a chat and then it prompts for you on the other pane. Yes. And I thought that was a much better way than filling out custom instructions because you don't know what you want. Yeah, exactly. Yeah, yeah. And also it
+
+[00:59:18] Jim Fan: feels very natural and intuitive because we as humans also onboard new employees in this way, right?
+
+[00:59:23] Like we don't send them a form, we have a dialogue with them and we tell them this is the expected behavior and they can ask, Ask follow up questions if there are details that are not clear. Yeah. So it is like just the most natural way to
+
+[00:59:34] swyx: program. So two, two more questions. Like Yes. One is so they, they're, there's, they mentioned the word agents.
+
+[00:59:39] They said, Sam said the word agents on stage. Yeah. But here they're calling it GPTs. Yeah. Do you see a big gap that they, they still need to fulfill to become a full agent? Or is this the, the new direction that we should think about? I think it is the
+
+[00:59:52] Jim Fan: beginning. Yeah. So. It's kind of hard to predict what agents people will, will build and also how good the base models are.
+
+[00:59:59] Because I feel that the agents robustness and capabilities are ultimately bottlenecked by the underlying model. So, GPT 4 Turbo looks like it's a bit fine tuned towards the agent use case, right? It can do better function calling, it can do better, like, tool switching. These things are critical to agents.
+
+[01:00:17] So, I'm pretty optimistic, but we'll see. We'll see, kind of, is there, like, an emergent behavior? Once you, you know, put a UGC
+
+[01:00:24] swyx: platform out there. Yeah, you mentioned tool switching. Actually, I was thinking when you said tool switching, Actually, they're also doing model switching. Oh, yeah. Which is new. Like they have some kind of internal model router or like their mixture of extras is good enough that they just don't care.
+
+[01:00:37] Yes, they got rid of the model selector and now it's the God model that does everything. Yeah, and
+
+[01:00:42] Jim Fan: you can also do retrieval. I suppose retrieval also has an embedding API in it that's automatically done under the hood. So yeah,
+
+[01:00:48] swyx: very exciting. Okay, and then the last bit is you're a lot of your work is sort of reinforcement learning.
+
+[01:00:52] Yeah. Plus plus, or zero gradients reinforcement learning. What do you think you know, and we just had, went to one of the closed door sessions where they talked a little bit about how they received their feedback. What do you think they're doing well, or like, might be a, you speculated a little bit, like, next step if, if they were to take anything from your research interests.
+
+[01:01:11] I'm also very
+
+[01:01:12] Jim Fan: excited by GPT 4's fine tuning API, right? Because the rest of the APIs we see today are no gradient APIs. You cannot really fine tune them, but you can only prompt them. In different ways, but a fine tuning on top of GPT 4 with your custom data may have completely new behaviors. And it's also a new way to program.
+
+[01:01:30] Just it's a bit more complicated. It's not programming by dialogue. It's programming by data, right? You bring a data set and then you have a new GPT 4. So I think, you know, this year's theme is customization. Customized by system API, customized by dialogue, customized by data. So I see this kind of
+
+[01:01:46] swyx: trend going into the future.
+
+[01:01:48] Yeah, I'm looking forward to it. I think there'll be a lot of work in this area. I'm excited to just go hack. I am very excited. I want to skip the after party, but like, there's so many people here in person, so it's great. Jim is actually such a curious person that he does something that a podcast guest rarely does, which is turn the mics around and ask me questions.
+
+[01:02:05] So, here's part two. Yeah, Shawn, tell us, what are you most excited about? So, I'm taking over the show, man. Of course, 360s. Me personally, I was actually not even expecting them to release most of these things today. Like, a lot of people were like, I don't think they have like the DALI 3 API ready. I don't think they have like, Oh yeah, they actually have everything ready today.
+
+[01:02:22] I don't think they have text to speech ready. It speaks volumes that when Sam Altman... Announced the Whisper three model. Yeah, no claps, . It's the smallest news, but it is actually gonna be huge . I, I
+
+[01:02:37] Jim Fan: actually I would love to, you know, put my hands dirty. Yeah, yeah.
+
+[01:02:40] swyx: On whisper. Yeah. So, honestly, I'm just overwhelmed.
+
+[01:02:43] I know some team, I know they've been working extremely hard. This is their sprints until to, to get everything all done today. Oh, yeah. Yeah. So I, I mean, I think that's, that's very important one. That, that I was just like, they just shipped everything. They just, they're, even though they're, even though they're, like, doing very well, they still push themselves extremely hard to, to be top of, and, and they're really earning their spot for, for developers and for the, the general, sort of, general AI market.
+
+[01:03:05] And I hope they take some holiday after today. Yeah, yeah, yeah, yeah. Too much of updates. And then so the next interesting thing to me is that they are integrating, they're Sherlocking a lot of the startup features, so there are a lot of startups that are built on providing RAG for people, a lot of startups that are built on like maybe building agents on top of GPT, so this is the first time where, you know, I think it's pretty common in large platform companies, like AWS reinvents often does this as well, they call this a red wedding.
+
+[01:03:34] Like, they invite all your customers to the same room, and then they're like, alright, let's see who survives, you know, step, step, step. So, that is the sort of
+
+[01:03:43] meme y, funny, joke y version of this. I don't, I mean, realistically, I'm sure Harrison and Jerry and all the other rag people, they had some heads up about all this stuff going on. But I think... Because it's built in so easily into the playgrounds, into the API, into the chatGPC itself, And also the tools, all the integrations, right?
+
+[01:04:01] You don't need a lot of tooling just to set up a simple chatbot with RAG. It's like, so for example, for my conference, we did a Summit AI bot. Where we did, where we set up a lang chain stack, we integrated it widget on the website. Now you can set it up with no code, inside of the playground, and just let people play with it.
+
+[01:04:21] It's great, but it's also very scary for a startup, because if that was your whole moat, you don't have that moat. I agree. Yeah,
+
+[01:04:28] Jim Fan: yeah.
+
+[01:04:29] swyx: That's gotta be a problem. So it's interesting that, like OpenAI can sort of easily build this in, and and obviously the Stakeful API is something I was considering building.
+
+[01:04:37] And I roughly knew that, like, this would be the next thing that OpenAI builds. This is on the critical path, for sure. So I don't build it. I agree. Yeah. But then the question is, like, alright, what do startups do? Yeah. I think maybe one thing that was missing from... Sam was like, hey, this is the biggest gathering of all your ecosystem developers.
+
+[01:04:54] They're afraid of you. You have given them no assurance as to, like, where do you think people should build. Okay. So, because, like, OpenAI just wants to do everything.
+
+[01:05:05] Jim Fan: I think so, right? Like, judging from today's trend, they literally are doing everything. Yeah. Yeah, you're right.
+
+[01:05:10] swyx: So so I feel a little bit, I mean, it's fine.
+
+[01:05:12] Everyone who's building with AI today opted in to cutting edge, and sometimes you work on the cutting edge, you bleed. Yeah, that's right. Yeah, but I do I do feel like there's a lot of tension between the startups that build on OpenAI and OpenAI itself. Yeah, so that's my two cents. Sounds great. It's great to see you.
+
+[01:05:31] Yeah, good to see you. Thanks
+
+[01:05:32] Jim Fan: for jumping on.
+
+[01:05:33] swyx: Thanks for having me.
+
+[01:05:35] Raza Habib (Humanloop) - Foundation Model Ops
+
+[01:05:35] swyx: And next, we catch up with the former guest, Raza Habib, back for his second time on the pod. Last time, we talked about Human Loop, and we recorded in London, and that was a pretty popular episode, and I love that you guys care about foundation model ops, as Raza puts it.
+
+[01:05:49] So check out the Human Loop episode if you want, but also, here's Raza's take on OpenAI Dev Day. Welcome back to the pod, you're just the second appearance. It's
+
+[01:05:57] Raza Habib: always a pleasure, nice
+
+[01:05:58] swyx: to see you again, Shawn. Good to see you as well. All right, let's just get right into it. What was most
+
+[01:06:02] Raza Habib: interesting to you?
+
+[01:06:03] I mean the sheer density of announcements. I actually, I came with high expectations and there was a lot of stuff I was hoping to see, but I think they over, they under promised and over delivered, which I thought was really good. I think seeing that they're having a second run at plugins and doing it right this time and having the GPT store and Like really allowing people to do that.
+
+[01:06:21] I thought that was really cool. Product decisions around how you design and build the GPTs, like the low code builder for these chat agents. I thought that was really nicely done. That they have this conversational interface that elicits from maybe someone who's not very expert how to do prompting and things like that.
+
+[01:06:38] I thought it was really
+
+[01:06:38] swyx: thoughtful. It fills out the form for you, right? Yeah.
+
+[01:06:41] Raza Habib: It's a very simple thing, right? Like, ultimately, it's just filling out the system prompt and filling out what abilities it should have. Yeah. But actually, despite its simplicity, I think it's very powerful, and I was impressed by that.
+
+[01:06:52] So, yeah. A lot of really cool things. And then all the changes to the API I'm really excited about. I have some questions. Like, I'm not, I'm not uniformly positive about all of the new API things, but I'm
+
+[01:07:02] swyx: sure they'll get there. Okay what, anything in particular that you want to touch on?
+
+[01:07:07] Raza Habib: Yeah, so I think like, things that I'm excited about with the new assistance API, or like the new APIs in general, like multi modality is really cool, longer context window is really cool.
+
+[01:07:17] I think everyone's going to be super excited about that. JSON mode is like, it seems like a small feature, but actually so many people say this is a problem for them. So I think that's going to be great.
+
+[01:07:26] swyx: So I maybe missed the importance of this. Isn't that the same as the function calling API?
+
+[01:07:31] Raza Habib: It's related, but you might want to have it in context where it's not strictly doing function calling.
+
+[01:07:37] swyx: Huh. Right. Okay. So a little bit more general. Typically I'll just make up a function that isn't actually a real function that Yeah, even
+
+[01:07:45] Raza Habib: then, people say that for complex things, sometimes it violates the valid JSON thing. So I think just making that more reliable. Some stuff that I thought was, initially I was excited about, and then as I've, like, chewed on it a bit more, I'm a little bit less clear.
+
+[01:07:57] So one is this, like, ability to jump in a bunch of documents and have it do RAG for you.
+
+[01:08:01] Jim Fan: Yeah.
+
+[01:08:02] swyx: I think, like... 20 documents max or something. Yeah, I
+
+[01:08:04] Raza Habib: think that, like, it's... It's a cool feature, but it feels a bit gimmicky to me. Like, it feels like for serious, practical applications, it's going to be hard to get that to work.
+
+[01:08:11] If you think about what a large enterprise needs for RAG, like, it's, you know, it's rarely sufficient that you can just jump in a bunch, dump in a bunch of documents. How you do them matters, there's usually permissioning, as like, which users can actually access which bits of data, like, there's so much control that I think most developers would want to have for serious applications, that I think it's cool for the, like, GPTs and the low code version.
+
+[01:08:32] I'm skeptical that it'll get that much use. Yeah. By serious developers. And I feel the threaded, stateful, like, assistance API is really awesome, but I would like more clarity over how it's doing the, like, statekeeping, like, what ends up in the context. Yeah. I think for that to be really popular, they need to make that transparent.
+
+[01:08:52] swyx: Yeah. There's an API booth downstairs. I don't know if you've seen it. I've gone and spoken to them. They wouldn't
+
+[01:08:55] Raza Habib: answer any of these
+
+[01:08:55] swyx: questions for me. Okay. Yeah, of course. But, you know, obviously that greatly affects HumanLoop.
+
+[01:09:00] Raza Habib: But this is you know, this is commentary over what I think overall was a set of really
+
+[01:09:04] swyx: exciting announcements.
+
+[01:09:05] Yeah. And, and last time we talked, also, you were talking about, we were talking about the multimodal APIs. And now you have it. It's finally here. What, what happens now? As I, as
+
+[01:09:14] Raza Habib: I said to you when I spoke to you last time, right? Like, it's a relatively straightforward addition to the HumanLoop product.
+
+[01:09:19] Like, everything will continue to work, but now you'll also have images in and images out, and audio in and audio out. It's kind of interesting, like, seeing, you know, the assistance playground for OpenAI that they just released, and things like that. Like, it feels like they're starting to get close to supporting all of these things, but not quite yet.
+
+[01:09:35] Yeah,
+
+[01:09:36] swyx: yeah, excellent. And then, I think the last part is, I saw HumanLoop actually, probably not you, probably somebody else, but also talking about the fine tuning. There was a price drop, I don't know how much, because there was just so many announcements. But I imagine that's only good things for fine tuning.
+
+[01:09:49] Yeah,
+
+[01:09:49] Raza Habib: I mean... There's so many other stuff. I also missed the price drop, but I know from speaking to folks at OpenAI as well, that they think a lot more people should be fine tuning. Yeah. Fine tuning is gonna have, like, huge importance in the future. That's why they're building out the UI for it. You know, so it's something they're investing in very deeply.
+
+[01:10:05] Simon Willison: And,
+
+[01:10:05] Raza Habib: yeah, I still view fine tuning as, like, an optimization step. Yeah. I think of it as, like, the compilation you do, like, once you have something that's working.
+
+[01:10:12] swyx: Which is what they said in the LLM performance session just now.
+
+[01:10:15] Simon Willison: Okay,
+
+[01:10:15] Jim Fan: cool.
+
+[01:10:16] Raza Habib: I'm glad that my tips are aligned with opening hours. I
+
+[01:10:19] swyx: think you're very aligned.
+
+[01:10:20] You're often leading them in what they say publicly, which I think is good.
+
+[01:10:26] Raza Habib: Yeah, what about you, Shawn? What did you think?
+
+[01:10:28] swyx: Oh, I've said this in a previous recording, but effectively, I also thought they would do much less than they did today. I think they under promised and over delivered, exactly like you said.
+
+[01:10:39] And even things like text to speech, which... It's not just text
+
+[01:10:43] Jim Fan: to speech,
+
+[01:10:43] Raza Habib: it's really good text to speech. So I, like, I think I told you last time, I did like a near year long internship at Google, and I was working on the first neural TTS team. Like, the team, the Tachytron team there were amazing.
+
+[01:10:54] swyx: So what did you get from their demo?
+
+[01:10:57] I
+
+[01:10:57] Raza Habib: think I need to play with it more, but I was impressed by the quality. Yeah. Like, the quality of the prosody, the variation. I think they're only releasing six voices, but...
+
+[01:11:05] swyx: And the secret seventh voice with the pirates. The
+
+[01:11:07] Raza Habib: secret seventh voice with the pirates. And then I was chatting to Andre just now.
+
+[01:11:12] Yeah. And he was saying that internally, like, they have voice cloning set up as well. Yeah. So they can do it with something like 30 seconds of speech. I'm not sure that's public. Is it not public? I don't know. He didn't tell me it wasn't public. Okay, alright, alright. Maybe, maybe filter it out
+
+[01:11:25] Simon Willison: when you publish this.
+
+[01:11:27] swyx: For what it's worth, I've been talking to a lot of people in and outside of Dev Day, and a lot of people have heard about the voice customization stuff, so it's not really going to get anyone in trouble, I don't think, so I just chose to leave it in there. Whatever, I mean, it exists elsewhere in other products, and I think it's fair play to compete with other companies who
+
+[01:11:48] Raza Habib: are already doing this.
+
+[01:11:50] For obvious reasons, right? There's a lot of safety concerns about releasing that kind of
+
+[01:11:55] swyx: product. And for what it's worth, someone else, I think, Fixie AI, did a comparison of the pricing. They are severely undercutting like PlayHT and some of the other text to speech companies as well on the pricing.
+
+[01:12:06] They're between 3 to 10 times cheaper
+
+[01:12:08] swyx2: per second or something than the other existing TTS companies. Yeah, I think that's very interesting. I think in general... Their promise to keep cutting prices and then following through is building a lot of confidence. People, people who weren't previously nervous about building on them.
+
+[01:12:22] What's interesting, I think, is that as the, like, because they have such a large economy of scale, and they continue to drive down prices, the option of, like, self hosting a fine tuned model, even for smaller models, starts to be, like, less obviously economical, because of the, like, spin up and spin down costs.
+
+[01:12:39] So unless you have the, like, volume of usage to justify having it on all the time, It actually starts to become cost competitive to use one of these third party APIs rather than having even a smaller model. Right, because it's serverless in a way. So what, can you give people an idea of what kind of volume that is?
+
+[01:12:55] Are you talking about concurrent requests?
+
+[01:12:57] Rahul Ligma: It's, so if
+
+[01:12:58] swyx2: you look at most of the people who will provide you in like a serve model, if you look at a replicate or a mystic AI or something like this. Yeah Fireworks. Fireworks, there's a few of these companies. They tend to actually charge by like compute hour or compute minute.
+
+[01:13:13] Yeah, and so if you're not like gonna have it on all the time then like the reason is dollars the reason Yeah, you end up needing it on all the time though, because there's like spin up spin that cold starts And so if you don't actually have enough usage to justify having it on all the time, it starts to become cost competitive to just use OpenAI.
+
+[01:13:31] Yeah, so what I'm trying to get to is, it's just dollars though, like if it's like 5 an hour, whatever, like...
+
+[01:13:38] Reid Robinson: Yeah, I agree,
+
+[01:13:39] swyx2: depending on your use case, but yeah. Okay, got it, got it. Alright, cool. Well, thanks so much for jumping on. I know this is last minute, but it's just nice to see people. No, no, I always, I always love chatting with you, so hopefully we'll be more of a visitor in the future.
+
+[01:13:50] Yeah, for sure. The next guest is going to be a new name to many people. He hasn't done many public appearances, but he is a force to be reckoned with on Twitter.
+
+[01:13:59] Surya Dantuluri (Stealth) - RIP Plugins
+
+[01:13:59] swyx2: His name is Surya Danturi, and this is the story of somebody whose startup got killed by Sam Altman. So we're here with Surya. Hey. Hello. My name Surya.
+
+[01:14:07] You're new on the pod, but also we've been around each other in, in the tech circles. Yeah. For, for a little bit. You're, you're a fa very famous developer of Vector databases Yeah. And of plugins. Yes. What, what what, what are some of the plugins that you've done?
+
+[01:14:20] Surya Dantuluri: Yeah, so I worked on a few plugins.
+
+[01:14:22] I work in like, chat with pdf, f chat with like video, chat with website, chat with like get it made, yeah, like a lot of cool plugins.
+
+[01:14:29] swyx2: Making decent money
+
+[01:14:30] Rahul Ligma: too.
+
+[01:14:31] Surya Dantuluri: Yeah, I mean you can, they give like better functionality to like the whole GPT 4 interface. Initially I wanted to do my homework with them so I'm like, I might as well make a plugin for it.
+
+[01:14:40] So yeah, I mean they give there's like a lot of cool functionality, like I made one with the called, chat with like instructions, which would allow you to save more custom instructions and use that when you're talking to GPT 4, but Yeah, I mean, they're making revenue it's pretty, it's pretty sick for, you know, people paying in 85 different countries.
+
+[01:15:00] It's like nuts how many people are like, or how many, how big the the scope is, or how many
+
+[01:15:05] swyx2: people can use it. And I think you may have shown me this before, but there was a plug in platform that you use for monetization? No. No? Oh, you build your
+
+[01:15:12] Surya Dantuluri: own, you build... I build my own thing, all custom,
+
+[01:15:15] swyx2: I've seen someone do, like Firebase
+
+[01:15:16] Surya Dantuluri: for, yeah, yeah, yeah.
+
+[01:15:19] Yeah, I don't know. R. I. P. No, I mean, they're doing well, but like, I just don't want to, you know, pay a 10 percent tax
+
+[01:15:24] swyx2: and all that stuff. Yeah, yeah, yeah. For sure. Obviously, you're very technically savvy. Okay, so what happened today? They announced GPTs. What's going on?
+
+[01:15:33] Surya Dantuluri: Yeah, so like, I made a tweet this morning being like Sam won't let me kill my startup.
+
+[01:15:37] And a joke, okay? I just wanted to talk, like, I was like, I was trying to notify people while I'm here and I just wanted to meet up. I made up the joke. And then a couple hours later my friend, Matt he works at Julius, he showed me the new UI, I'm like, okay, cool, and he forced me to look at it on my phone, I'm like, okay, sure, I'll, I'll pull it up I pulled it up on my phone, and plugins were gone, plugins were gone you don't, you can't, I think you can go between models, so you can go between 4 and 3, but the whole options of, like, code interpreter, and like dolly 3, and all this stuff, All of those good stuff were gone from the UI.
+
+[01:16:12] I think this is only if... This only applies for people who are here at the event. I think they gave access, or like the new UI to people here. And they also... But yeah, plugins were gone, and I'm like, oh shit. And I asked the person, like, hey, like, where... Where are the plugins? Like, where can I... Like, where are the plugins?
+
+[01:16:28] Like, where do they go? They basically told me, like, You have to make a new GPT as a developer. And you can import your schema into the new GPT. And only that way can you you know, kind of revitalize your plugin, but
+
+[01:16:42] swyx2: your existing users will be
+
+[01:16:44] Surya Dantuluri: like, no, I think they're gone. I mean, I gone, they're, I haven't looked at my stat today, but, well, I
+
+[01:16:49] swyx2: mean, this is not widely rolled out yet, but when it, when it rolls out, when it rolls out, I'm pretty
+
+[01:16:53] Surya Dantuluri: sure all of the plug-ins, they have to discover you again.
+
+[01:16:56] Yeah. They're kind dead. I mean, there's like no way. I don't think there's a way to link them. Yeah. Like there's like no way for the users who were using it previously to be using the new thing. Know. But I mean, it's an exciting project for me, it's not like a full time thing for me, it's a fun project to do, and like, it's like a nice nice thing to work on.
+
+[01:17:13] So I'm really bullish on, you know, the whole new GPDs thing, I think they're a better abstraction. Yeah, I think GPDs are a few open end engineers, and I was like, agreeing with them, because like, I think GPDs are a much better abstraction on what plugins were supposed to be. I think plugins kind of died on arrival.
+
+[01:17:29] Well,
+
+[01:17:29] swyx2: Sam said they did not have PMS,
+
+[01:17:31] Surya Dantuluri: right? Yeah, obviously, yeah, he said that a long, he started that, he said that, like, one plugin started. Yeah. So it's like pretty nuts. But, yeah, I think, I think GPs are a better abstraction and I also love their doing revenue share. So, yeah, revenue share is also a good thing.
+
+[01:17:45] Because, like, GPlugins were, like, a really weird way of monetizing, you had to, like, do a bunch of finicky stuff but yeah, I mean, also, like, just, by the way, for people who don't know, po, you know PO right? Yeah, PO did this a long time ago. They did this a couple months ago. They help, they have, they have these bots, they call it botch.
+
+[01:18:02] And you can, you know, make your own like poem bot, or you can make your own like essay bot or whatever. And then the bots have customer instructions and also they use a very specific model that the developer specifies. And you can install these botch or you can chat with these botch and the botch will do whatever whatever the developer made them to do.
+
+[01:18:21] So I think. They're just basically open edged, made the same thing, and they brought it over to them. But, yeah, but, effectively, plugins are kind of dead. Oh, RIPs. Yeah, I mean, RIP, but, it was a fun pro I mean, it's fun. I think GP I think GP Honestly, it's good that plugins died, Because, like, they had a bunch of issues.
+
+[01:18:40] So, one of the issues is that you can't share them. You can't share a link to them. GPTs, you can share a link to them. So, like, I can share my link to my GPT thing to you. So it's much better for discoverability, because previously the only way to discover a plugin was through the plugin store. You had to search for it, you had to do a bunch of stuff, and it wasn't very good in that aspect, but sharing a link to them, having revenue share And you can also, like, give custom instructions, custom context, so they also came out with, like, retrieval or whatever, and that can basically give you, like, a custom vector database directly in your GPT, I think.
+
+[01:19:15] So that's all great all good features that that should have came with plugins, probably,
+
+[01:19:19] swyx2: but. Yeah, awesome. And then lastly, just like, any of the new stuff that was launched today what interests you in sort of building with them? Like if you were to build on the new API
+
+[01:19:30] Surya Dantuluri: Yeah, totally. I have some ideas.
+
+[01:19:31] The thing is like this is really weird to say, but like, some of my ideas that I've said before for plugins, They kind of get copied quickly.
+
+[01:19:43] swyx2: Oh, so you want to keep it to yourself? Yeah, that's fine.
+
+[01:19:45] Surya Dantuluri: Yeah, but that's one part of it. The second part of it, I don't have any good ideas regarding what you can do with all the new functionality.
+
+[01:19:52] Like, that's like a good product. I don't know, honestly. Tech2Speech came out, their internal VectorDB thing came out. internal vector
+
+[01:20:01] swyx2: DB thing? or, like, retrieval, or whatever it's called yeah, people have been saying they have an internal vector DB thing but, it's it's just retrieval yeah, it's like zero non configurable it's going to be for, like, simple use cases fine then after a while you're gonna need one of the controls over chunks and stuff yeah, I'm
+
+[01:20:17] Surya Dantuluri: also excited by what happens with our Contacts window I was a big user of Cloud for a while because Cloud, they basically gave you 100Ks context window widely on the UI And you can upload your PDFs to it, and everything would work very well.
+
+[01:20:30] Yeah. But, I think Cloud had some issues regarding, I mean, actually very recently, Cloud came out with this whole bullshit thing, bullshit copywriting thing. So like, Copywriting thing? Yeah, yeah, it's really weird. So, if you upload a PDF now, out of Cloud, like just this week, they made this weird tweak, where it doesn't answer any questions, because if there's a copyright symbol or a copyright name, Anywhere, it just like blocks you
+
+[01:20:53] swyx2: out, and it's like, what?
+
+[01:20:54] Apparently you can prompt inject that by insisting that you are the author, and then it just overrides it. Oh, really? That's funny. It's like, don't worry, I got this, I'm the author of this, there's no copyright issue.
+
+[01:21:05] That's it, okay, cool. Anyway so thanks, this is a really good story, and I wanted people to share it, and I'm excited for what you work on to become more public. Yeah, thanks Swyx. Alright. So that's what happened to Chat2PT plugins, which we covered back in March. But don't worry, that's not the full story.
+
+[01:21:20] Reid Robinson (Zapier) - AI Actions for GPTs
+
+[01:21:20] swyx2: His startup is not fully dead. We actually cover what happens later on. I just wanted to capture the confusion that was happening at Dev Day. So he referred to Julius, and we'll actually talk in and check in with Rahul later on in this episode. But first, we have to go to our next guest. When OpenAI launched with GPTs and the Assistance API, one of the lead launch partners that they launched with was Zapier, and I managed to catch up with Reid Robinson, who is lead AI PM at Zapier, to talk about it.
+
+[01:21:49] All right. Well, Reid nice to meet you. Great to meet you too, Shawn. It's really great to run into you as we're leaving. So you guys had a... Big sort of partnership launch on stage. Yes,
+
+[01:21:59] Reid Robinson: yeah, we launched AI actions for GPTs, which we're really excited to see out there. We also today launched an update to our chat GPT integration that supports the assistance API functionality that was announced.
+
+[01:22:13] And
+
+[01:22:13] swyx2: you were one of the earliest to go. In my mind, Zapier was very, very early in the natural language actions. NLA,
+
+[01:22:19] Reid Robinson: I don't, I don't remember what, good memory. Yeah, yeah, yeah. We launched our natural language action, actually. So we were a launch partner for chat BT Plugins. Yeah. And that's when we launched our Natural Language Actions, API, and actually the AI actions that we're calling it today kind of a, we're rebranding that side of thing to really focus on a lot functionality.
+
+[01:22:35] Yeah. For that.
+
+[01:22:36] swyx2: And I just interviewed Surya, who's one who's a pretty prominent plugins, developer. Plugins did. I, you know, reborn.
+
+[01:22:43] Reid Robinson: Yeah, it's going to be interesting to see what happens. There's clearly a difference. I think one of the things I talk about is the fact that, you know, with GPTs, you're able to constrain the prompt quite a bit, like our plug in for ChatGPT, the initial one.
+
+[01:22:55] You needed to give it access to every single action you ever wanted it to have access to. Which meant that the kind of con You know, I heard anybody who's familiar with context is sitting there like, Yeah, that's gonna be an issue. The common one I give is like, you know, If you had given it Gmail and Google Calendar and asked it like, Hey, what's going on next week on my, like, agenda?
+
+[01:23:11] It would sometimes search Gmail. Cause it'd be like, yep, events are in Gmail. Or like, you know, calendar invites are gonna go to Gmail, So I should search there. But now you can, you know, define what apps it should use. You can define, like, how it should use those. So some really fun use cases. I mean, honestly, we've been hustling hard to get this out there.
+
+[01:23:30] I'm really excited to see what people actually build with this and what gets released there. Yeah, we'll be monitoring and trying to listen to people
+
+[01:23:37] swyx2: really closely. And so, like, something that's interesting about Zapier is that you are a collection of actions in and of yourself. So there's kind of multiple layers in which to do this.
+
+[01:23:47] Like, what should exist at the GPT layer? What should exist at the Zapier layer? Yeah, well,
+
+[01:23:52] Reid Robinson: what's nice, I mean, it's a good point. We have about 6, 000 apps on the platform today. Really what the AI Actions is, is it's the ability to use any of those searches and actions using kind of a natural language input.
+
+[01:24:05] That would be like the instruction that the model gives it. So it's like, you know, check this user's calendar for Monday. And, you know, it might even give the, you know, the actual date for Monday, right? Zapier on our side will take that natural language request and process that into an actual API, like the actual API call to a tool like Google Calendar, and then we all work on the response.
+
+[01:24:26] So, you know, you can't just take the entire response of a, especially like Gmail, responses are very, very, very, very, very long, and very confusing. And so we actually do a lot of work to kind of, if you will, like massage that data, so that it makes sense for an LLM on the other side, that it is giving it the right, it's kind of like information it needs and not just like the entire payload.
+
+[01:24:47] It really helps it kind of deliver like a more, again more contained, more refined experience for leveraging integrations alongside like down
+
+[01:24:56] swyx2: to the T. So, existing Zaps cannot be poured in one for one over to
+
+[01:25:02] Reid Robinson: It's really one off actions, that's the better way to think about it. And you can chain them together in the you saw in today's demo you're only using Google Calendar for the search and a slack action.
+
+[01:25:11] You can actually chain those together. And so, you know How much is that as like a one off action versus an actual, like, all of a sudden, as app? But in this case, it's almost more like the trigger is the human in Chats GPT, right? Like, you need to trigger it to run for that. But, on the flip side, you know, the assistance API is extremely exciting for me as well, because you look at, now, like, the, that functionality of building a GPT, you know allows you to Still getting used to the name?
+
+[01:25:36] Yeah allows you to kind of port that over to run asynchronously. So a common one, like the two examples that I love giving for that API that I love in Zapier is number one, like data export. You know, think of every tool out there like Looker, Mixpanel, Amplitude, all, so many tools are able to send these like massive exports of CSV data on a regular basis.
+
+[01:25:57] Like you could say, hey, every Friday export my blog traffic content, or see CSV, right? Normally, someone's gonna get that CSV and have no clue what they're doing, right? But now you can actually create an assistant in Zapier and you can give it instructions to say like, Hey, tell me the top 10 performing blog articles in the last week.
+
+[01:26:15] And also, you know, tell me highlights on, you know, maybe keywords that were used or SEO tags that were used and how that impacted conversions, right? Like, you can be pretty detailed depending on what you're providing it. And that can now run asynchronously. That can run automatically. So every Friday, you know, 8am, you could be getting the export of that data.
+
+[01:26:32] It's gonna go to an assistant. That assistant's gonna reply with even charts and graphs. And those will come through and you can then send it to Slack. And so you can have, every Friday, a conversation, a post in your team's, you know, blog team's Slack performance. And that'll run automatically. And then they can even reply in Slack to that post and have a continuous conversation with that assistant.
+
+[01:26:54] swyx2: Oh my god, so it's like really
+
+[01:26:56] Reid Robinson: everywhere. Yeah, so you can really put them everywhere. And that's, that's one of the things I like about what's released. And I think people are going to continue to learn really just how kind of Wild that is is the fact that you can like use your actions in the UI of TypeTBT in a one off action but you can also run these things extremely well asynchronously and Yeah, like OpenAI releasing API support for the vision model and for code interpreter and retrieval that these assistants can use It's really cool.
+
+[01:27:26] swyx2: Is there a Zapier angle to any of that? They're all the same, right? Like you would do
+
+[01:27:31] Reid Robinson: in Zapier, right? The whole creating of an assistant and running that through an assistant is today's support. You can do that literally right now. So it's really cool. And the other one is retrieval, right? I talk about, you know, you could go in and create an assistant.
+
+[01:27:45] Give it, let's say, you know, I talk about our accounting team a lot, right? You could give it like if you have a team that approves budget requests from your company, right? Everyone does, right? They can actually have, take their Slack channel or to create an assistant first that would have the documents of your policies, of like, Hey, here's what you can expense, here's how you can expense, here's eligible, ineligible, right?
+
+[01:28:03] All these sorts of things, and actually then set up something like a cat I'll pick on Slack, it's just easy. Like a new message in your accounting... Budget requests channel, and have it trigger a, the assistant and send the user's requests to the assistant with all of your documentation with retrieval and now it'll try to understand what your policies are, what everything is and check the information against what the, and you could even like I did one internally where, We have a tool called, I think it's called Stacker, that tracks each employee's, like, software budget, and home office setup budget, right, so you can see how much they've spent of their budget, and you can actually include that data in the context of the user message, so that the model will be able to say, like, hey, I see you want to expense this webcam it's actually over the recommended budget, but you personally do have budget left if you wanted to use it for that, right?
+
+[01:28:53] And, Some autonomy there. Yeah, and that's really cool. So you can start to do all of those sorts of things now in Zaps that really were never possible. So yeah, the querying of knowledge, running of data analysis, writing code even. I
+
+[01:29:08] swyx2: think in a very real way, you are the perfect partner to OpenAI because they've sort of built a reasoning sort of glue between all these things.
+
+[01:29:15] It's
+
+[01:29:16] Reid Robinson: definitely been a good and fun partnership. I think, yeah, the big thing for me that I would say is like, I'm really, really excited now to just see what people do with this and how we can improve
+
+[01:29:25] swyx2: it. Yeah, awesome. Is there anything, you know, you've been developing with these APIs for a while. Is there anything that you caution people not to get too excited about?
+
+[01:29:32] Like, what, what, yeah.
+
+[01:29:34] Reid Robinson: I mean, callouts I'll always make is like, double check accuracy, right? Like, you want to call out, like, okay. Like how accurate is to make sure that information is accurate? Make sure you're putting some human in the loop steps before you're putting this
+
+[01:29:46] swyx2: into like a critical, which they, and like confirm, deny, yeah.
+
+[01:29:49] Simple.
+
+[01:29:49] Reid Robinson: Yeah. That sort of thing. But even, yeah, all sorts of things you really wanna make sure that you're comfortable with. Like what can go wrong, what is likely to go, right, right. Like all those sorts of constraints. The other side that I often talk about is just like, keep an eye on, you know, if you have freeform human input somewhere in your application that is triggering these things, you know, that can sometimes risk, right?
+
+[01:30:07] Yeah. Prompt injections. Those are a real thing, and I think, you know, a lot of people are still trying to figure out what that means, and how bad that can be, and so I always try to caution people about that as well, right? Like, you really want to be realistic on, kind of, how far reaching you're doing this, so, yeah.
+
+[01:30:25] That's why I like, like, the internal use cases, you know, like, things like that is a great way to start, to get familiar with the technology, to get familiar with the constraints for that. Other than that, no, I mean the voice model stuff I'm really excited to try that. I really want to, yeah. Yeah, that'll be
+
+[01:30:40] swyx2: really cool.
+
+[01:30:40] I love the secret pirate mode that they demoed. I don't know if you caught that session. I didn't see that session, no. Obviously there are six voices, but there's a secret seventh mode if you add in a prompt to speak like a pirate. Love it, love it.
+
+[01:30:54] Reid Robinson: That was an old I don't know if you remember Facebook way back in the day had that as one of the languages you could select?
+
+[01:30:59] Yes. Yeah, yeah, so that reminds me of that.
+
+[01:31:02] swyx2: Yeah, lots of fun to be had with AI as well. Okay, well, thanks so much for jumping on. I know it's very random, but also, yeah. People love to hear from builders, so, that's awesome.
+
+[01:31:12] Reid Robinson: I love
+
+[01:31:13] swyx2: hearing from builders. And most of the interviews were done as we were sort of leaving the Dev Day venue and going to the after party.
+
+[01:31:19] Div Garg (MultiOn) - GPT4V for Agents
+
+[01:31:19] swyx2: And I caught Div Garg of Multion, who we've been talking around and circling around a possible episode on. He's definitely one of the leading voices and thought leaders on agents. Because he's building a browser agent that's a very prominent one. Unfortunately, I have to take an L on this one because the audio is not great.
+
+[01:31:39] Div's mic wasn't working, and I don't know what happened to it. I, I try to always check these things, but you're only gonna hear the output from my mic, which is slightly worse, but I opted to leave it in because Div is actually building an agent. with OpenAI stuff, and had access to GPT 4 Vision, and I think that people building with GPT 4 Vision will be surprised at his answer to me on whether or not it's useful for agents.
+
+[01:32:02] Good to meet
+
+[01:32:03] Div Garg: everyone, I'm Dev, founder of MultiOn, which is an AI web agent that can automate browsing for you. So we can book your flights, order stuff on Amazon, order dinner, whatever
+
+[01:32:11] swyx2: you can imagine. Yeah, and I was actually reflecting, so, I, everyone who listens to this already knows what was announced.
+
+[01:32:17] I was actually reflecting that they didn't have any browser based actions. So what were your thoughts on just generally their approach to agents?
+
+[01:32:23] Div Garg: So they, it'd be very interesting because I feel like browser actions are just so risky. So, and like, things can go wrong. So if you're a big company or you're OpenAI, you won't, you won't want to build that.
+
+[01:32:31] And they're like better off just like relying on a third party who like wants to own that. And that's also the strategy we are, we are taking with them. We're like, like, like OpenAI launched like a ZP integration for APIs. But we want multi end to be like the new API solution. Like, I want to do things beyond APIs.
+
+[01:32:45] I want to connect to my personal accounts where I just have my... Logins already or I already have the cookies and I want to go and like interact with my personal accounts or personal data Very easily and I think it's very fascinating for us where we can like launch a multi on integration With the new platform and then you can just go and like give it a command like oh like can you book this platform?
+
+[01:33:04] me or chatgbd and then it will launch a browser and the browser you can see what's happening and then we go do the whole Thing for you, and it'll be all seamless And then people can have a lot of fun just like Trying out all these different capabilities and like automating their, like, daily workflows.
+
+[01:33:18] You can, like, save this as custom integrations for different agents. You can have different custom, like, multi on prompts that are already, like, pre saved. And then you go like, oh, I want to now go order something on, like DoorDash. I want to order my favorite burger. Then like chatgp can go and like, suggest you what our favorite burgers are, and then it's like, okay, like, now order this for me.
+
+[01:33:35] Multion, and then Multion we solve the payment for you, we solve identity for you, and like, we are owning all the risky, like, actions I can
+
+[01:33:42] swyx2: take. So so you, you're gonna build a GPT version of Multion? Yeah, we'll have a Multion GPT. You, you, okay, will, will that be like a replacement to your existing thing, or just like an alternative way?
+
+[01:33:53] To use their same APIs or something like that. So it's
+
+[01:33:55] Div Garg: like, the direction we're going for is we want to make our AI, like, agent embeddable within existing applications. So we are launching an API. Okay. And we already have a, like, a touch ability plug in. And so this will be like, sort of like a little, like use the API to power this sort of, like, new GPT experience.
+
+[01:34:10] So for us, we actually don't have to, like, change anything. It'll be, like, very streamlined, just make it our API. And to chat GPT, and like people can start using
+
+[01:34:17] swyx2: it. Yeah, yeah, awesome. What about the, I guess, the Vision API? I think one of the things that have always constrained browser agents is the DOM.
+
+[01:34:24] Right. Which is very heavy. Yeah. And so the alternative approach is to use Vision. Would you explore that? What are your thoughts? So, for us,
+
+[01:34:30] Div Garg: we actually had, like, early access to the Vision API for more than a month. And we tried it on a bunch of websites we 5 percent of the websites is actually really useful, which are more, like, image heavy, because 95 you do OCR, that's good enough.
+
+[01:34:43] Yeah, it's not We have really good, like, parsing, so most websites we can compress less than 3k tokens, so we are not, we don't really have to, like, worry about the how heavy the text is. We, so we had one interesting use case about the Vision API. We had a user... Who got it to work on Tinder, and and then like the, then like Multion...
+
+[01:34:58] Hot or not?
+
+[01:35:07] swyx2: Yeah, and then we oh, can you have found the killer use case for Multion. Yeah. Like, this... We did it with our laptop, right? Yeah. Oh my god. Okay, interesting. Interesting. Okay, but so, but only image heavy sites. That's surprising to me. Yeah, that's surprising because you know, the original vision demo, they actually showed a screenshot of Discord, right?
+
+[01:35:27] And they had perfect OCR. Yes, it's true. But they should be good for you.
+
+[01:35:32] Div Garg: It can be very interesting. But the thing is like, even without vision, we can just do like so much things. Yeah. So like adding vision maybe like helps a. But not it's not, like, really game changing for us
+
+[01:35:42] swyx2: right now. That's surprising.
+
+[01:35:43] Okay. Well good, good to know. Anything else that you would highlight from today?
+
+[01:35:47] Div Garg: I'm just, like, really excited about, like OpenAI trying to become a, like, a marketplace. Yes. An app store. Yes. So if this can take off, they could potentially kill, like, Apple App Store and become, like, the new thing there.
+
+[01:35:58] And then it's really hard to say, like, how things will go. They've tried this with plugins before, but this is like, this might actually work this time. But we're just really interested to see, like, how two years from now, how a lot of the development might, like, how the world looks like. And I'm very excited about, like, two years from now, like, everything will be so different.
+
+[01:36:14] We might not even use computers or even, like, mobile phones. You just have a system, you just talk to it, and the system goes and does everything. It'll be a fascinating
+
+[01:36:21] swyx2: world. So one last question before we go. You have a nice side gig teaching at Stanford. While you, you were a PhD student and then you put on top.
+
+[01:36:28] But you, you're still teaching or curating Transformers United? Yeah, so I dropped out
+
+[01:36:33] Div Garg: from the PhD but I'm still a
+
+[01:36:34] swyx2: lecturer at Stanford. Yeah, okay. So, like, what paper should people read to like, like, catch up on this? Like, what, what, what is like, top of mind in terms of like research that is informing what we're seeing?
+
+[01:36:45] Yeah,
+
+[01:36:46] Div Garg: that's definitely very, it's a good question, because things are moving so fast, and there's like hundreds of research papers coming out, like, literally, like every few days. I'm really excited about, like, developments that are happening at, like, Meta, so a lot of this work is open source, all the Lama stuff, all the Mistral stuff, I feel like that's very interesting on the transformer side.
+
+[01:37:02] swyx2: Do you believe sliding window attention was the key for Mistral?
+
+[01:37:05] Div Garg: I feel so for them, but I feel like there might be other ways to do it. There's some secrets, right?
+
+[01:37:08] swyx2: There was probably some secrets. Yeah. Okay, well, that's all the time we have, but thank you so much. Thanks a lot. Thanks. Okay, and our next guest is Louis Nightweb.
+
+[01:37:15] Louis Knight-Webb (Bloop.ai) - AI Code Search
+
+[01:37:15] swyx2: CEO and co founder of Bloop AI, and organizer of the AI meetups in London, where he is a very prominent and staunch member, unlike Raza, who has defected to San Francisco since our last conversation. Louis always has very interesting takes in person, and it was a pleasure to finally actually get him to come on the pod, but also, we recorded this while inside of a Waymo on the way to our afterparty.
+
+[01:37:39] So Louis, you are new to the pod, but we've been friends for a while. Maybe explain, maybe introduce yourself and how you come to the world of AI. Yeah,
+
+[01:37:48] Louis Knight-Webb: I guess, so we started Bloop, me and my co founder three years ago in a very different era for, for machine learning. And we both started the company because we wanted to help engineers navigate large code bases in a much better way.
+
+[01:38:07] Yeah. And originally that was Training our own models to do natural language code search. And today, we still do that, but obviously those language models are very small compared to the state of the art. Yes. And so they're just one part of a... A much bigger pipeline.
+
+[01:38:24] swyx2: I see you as a very astute technologist.
+
+[01:38:26] You used to be a VC. You wrote the first check into HumanLoop. And you used to share an office with HumanLoop. To the point that I called it HumanBloop. Yes. I think you liked that.
+
+[01:38:36] Louis Knight-Webb: Yeah, I did. That is good. We're considering renaming.
+
+[01:38:41] swyx2: And you also run AI Tinkerers in London.
+
+[01:38:43] Louis Knight-Webb: I do, yeah. London has a kind of a slightly different mix of talent than, say, San Francisco.
+
+[01:38:50] You've got a lot of agencies, a lot of enterprises. And so Yeah, we just felt a need to start like a very startup focused event and that's why we created AI Tinker at London.
+
+[01:39:00] swyx2: Yeah, I think Alex Gravely would be very happy to hear about all the stuff that you've been doing. And I've been to one of them and it's really good work.
+
+[01:39:07] I might be the only one that's been to been to both.
+
+[01:39:13] Okay, so let's fast forward to today. A whole bunch of things was announced. What's top of mind for you? Yeah, so,
+
+[01:39:19] Louis Knight-Webb: I think, like, context length is something that that we spend a lot of time evaluating whenever something new drops. All of the, kind of, standard evals you know, the, the, kind of, literacy tests, things like that.
+
+[01:39:33] They, they generally don't do a good job of measuring whether a model can actually use the context length that it, that it claims it has. Yeah,
+
+[01:39:42] swyx2: context utilization is... That's what I saw Will DePue today call it.
+
+[01:39:46] Louis Knight-Webb: Exactly. And so this basically started maybe five months ago over the summer when Claude 2 dropped and you know, obviously it had 100k context and we were really excited about that.
+
+[01:39:57] So we ran an experiment to see basically if we hid 10 pieces of information in the prompt and we increased the size of the prompt, you know, so you do it at 1, 000 tokens, 000, etc. up to 100, 000. How many of the original 10 pieces of information can it retrieve? And we essentially found that the accuracy drops off a cliff between one and 10, 000 tokens and so, and we repeated the same experiment with GPT 4 and, you know, we found similar results that 32k GPT 4 can only find one of the 10 pieces of information but if you were only using a thousand tokens it can find nine of the pieces of information.
+
+[01:40:36] So what that tells us is that, you know, context utilization 5 months ago was, was, was not great with, with all of the state of the art models. So, with the announcement of 128k today and... That's the first test you'll run? That's the first test I'll run. Okay. You know, having spoken to a couple of the team members who...
+
+[01:40:53] Do eval today from OpenAI, you know, they're pretty confident that the model's got better ability to to answer questions at those context lengths, so it's time to,
+
+[01:41:02] swyx2: time to measure. Time to measure. Any other of the API features reproducibility, does that matter to you?
+
+[01:41:08] Louis Knight-Webb: I think, to me personally, no.
+
+[01:41:11] I kind of like the creativity. I normally have my models at like, you know, 0. 7, a bit of temperature. But I know lots of people on the Bloop team who will be very happy, I'm sure.
+
+[01:41:23] swyx2: And then, I guess, the JSON features, there's so many, like the multi modal features, any of that appeal for you personally? JSON
+
+[01:41:33] Louis Knight-Webb: is definitely a big one.
+
+[01:41:35] I think it allows you to to kind of standardize how you call different models. Yeah. So instead of having to build, you know, the, and it's not a massive thing to build, but to build the, the, the kind of function calling integration. And then if you want to try Anthropic, you've got to go and like have a completely different way of interpreting the output.
+
+[01:41:52] So if you can just stick with JSON across all of your different LLM providers, open source models included. That's definitely Atlas because it allows you to evaluate different models more easily. Yeah, yeah,
+
+[01:42:03] swyx2: very excited about that. You are, so you compete in a pretty competitive space with the code assistants.
+
+[01:42:09] Code search, code assistants, right? We do. There's Sourcegraph, there's Codium, there's other Codium, there's... Yeah. There's Copilot and so on. You've never ventured into the agent side of things. Yeah. Is that a conscious strategy? Are you waiting for the right time? Are you waiting for the right APIs?
+
+[01:42:25] Louis Knight-Webb: I think, I mean, we're seeing traction at the moment with companies that have very large codebases, right?
+
+[01:42:32] And it's not something we hear from those users that, you know, when we listen to their problems, it hasn't been, like, an obvious fit to try and build like, maybe an auto GPT type of agent. I'd still say, you know, we're very interested in agents, the pipeline we have at the moment. It's basically GPT in a big while loop with with function calling, which, you know, like, nine months ago definitely did count as an agent, maybe less so now.
+
+[01:43:00] So, you know, it's just, it's just customer and problem driven, and we don't, you know, it's not a, it's not a hammer for the nails that we've,
+
+[01:43:06] swyx2: we've got. Yeah, so two comments on that. One I think OpenAI has sort of put their flag a little bit in the definition of an agent. They had three things, right?
+
+[01:43:14] They had custom knowledge, they had custom instructions, and then I forget the third one. Custom tools, let's just say. Actions.
+
+[01:43:23] Louis Knight-Webb: Actions. By that definition, we're doing, yeah, so we've been doing that since about February. That's the, that's the definition.
+
+[01:43:31] swyx2: Then the second observation I would say is you talk to developers.
+
+[01:43:34] But what if the target customer for agents is not developers, it's the PMs, right? So we
+
+[01:43:40] Louis Knight-Webb: definitely see a lot of PMs using the product or people that are defined as like reading more code than they write. So you know, could be designers trying to understand the implications of an interaction. Could be PMs trying to check a contentious time estimate from a developer or something like that.
+
+[01:43:59] swyx2: Hi. Low trust environment there. I'm
+
+[01:44:03] Louis Knight-Webb: talking for, I've seen some,
+
+[01:44:05] swyx2: seen some stuff. Egregious things, yes. Yeah, so, so basically it's still not that appealing for you, but you're, you'll keep a lookout for it. The stateful
+
+[01:44:14] Louis Knight-Webb: stuff. I think based on the definition OpenAI, you know, released today, We tick all the boxes, and I think we were one of the earliest adopters of that.
+
+[01:44:24] If that's the
+
+[01:44:25] swyx2: definition. You just don't brand yourself with the agents?
+
+[01:44:27] Louis Knight-Webb: I don't think it's important to users. I don't think, I don't think that's why people use the product. I mean, we're very solutions focused. I think we, we start, a lot of our branding in at the start of the year was about models and, and, you know, we put GPT 4, GPT 3 right there on the front page and now, you know, we've, we've kind of...
+
+[01:44:44] Reoriented to be more about solutions. I think that that reflects kind of maturity of the the ICP We're going after and where we are with with
+
+[01:44:54] swyx2: sort of stage of company life. Yeah. Yeah Cool. Any other things that you personally know not bloop related are just excited by interested by from today? Any interesting conversations with others?
+
+[01:45:07] Loads of really
+
+[01:45:08] Louis Knight-Webb: interesting ones. I had a fascinating talk with some safety researchers who They were here? They, so there's a couple of people who were kind of PhD students who had kind of looked at adversarial attacks through fine tuning of models and found that, basically, like, it's such a hard problem to solve.
+
+[01:45:29] If you enable fine tuning, it's basically impossible or very difficult to to make it so that you can't disable all the safety features. You can just train it to spit out all sorts of stuff. So that was pretty fascinating. I'm pretty excited about the Waymo we're in right now. Oh
+
+[01:45:47] swyx2: yes so we should tell people we're recording in a Waymo.
+
+[01:45:50] Haven't been looking at the road the whole time. Is this your first Waymo? It is my first Waymo actually, yes. Thank you for taking my Waymo video. But I know glad, gotta experience this together. I've been a cruise stand the whole time until they ran over someone . So
+
+[01:46:04] Louis Knight-Webb: my, so, so my take on cruise, like sample size, 10 cruise journeys before they got shut down and.
+
+[01:46:12] The three of them resulted in something popping up on the screen saying that I had been in a collision. And...
+
+[01:46:18] swyx2: Did they use the word collision? Yeah, yeah, yeah. That's surprising. I'll show you after that. I took a fair amount of cruises and it didn't, yeah.
+
+[01:46:24] Louis Knight-Webb: And so it was the same situation almost every time, which was a car was in front trying to pass you.
+
+[01:46:28] And I think they just maybe bumped fenders, or maybe the crash detection was clear. Oh, there was actual contact. I think, in one of the cases, I think there was. In the other two, I didn't feel anything. But it came up saying, like, you've been in a collision, and somebody comes over the intercom things like that.
+
+[01:46:42] So, yeah, I mean, out of, you know, ten rides, and three of them ended like that. So I think, yeah, definitely some questions there. But this way moves pretty smooth.
+
+[01:46:51] swyx2: Maybe also we're in a better neighborhood for driving, because we're going to Golden Gate. The time of
+
+[01:46:57] Louis Knight-Webb: day, that's a really good point. I noticed that all of the ones I took at night, all of the cruises I took at night were fine, and when I took one during rush hour, it was a completely different experience, because the routes it would take, it had this really aggressive, maybe traffic management, something that was going on, so it'd take a long time to get from A to B.
+
+[01:47:15] swyx2: Yeah. It often puzzles me, slash, interests me, that Self driving is almost solved. We still have some bumps in the road, sometimes the bumps are human.
+
+[01:47:27] Louis Knight-Webb: It's solved in San Francisco, where you've got wide open roads, nobody cycles, and...
+
+[01:47:33] swyx2: That's not true. Some people cycle. I live here, excuse me. Some people cycle, some people cycle.
+
+[01:47:38] Louis Knight-Webb: I mean, compared to like, compared to London, where you've got, you know, roads half the size, built for horse and carriage, and millions of cyclists, and buses, and all sorts. So I think, you know, it's going to be a long time until we have that same experience of a cruise or Waymo today, London.
+
+[01:48:00] swyx2: I understand, London's a tougher neighbourhood, but still, we're 80 percent there, 75 80 percent there, whatever, right?
+
+[01:48:07] But, like, and it seems like the stuff that we do in the rest of our lives in terms of AI automation is so primitive compared to this, which is the car that we're sitting in right now. And I find that weird. I find, like, the relative ease, or the relative, like, here ness of this technology is very disparate.
+
+[01:48:26] Like, how come it didn't trickle down from self driving to the rest of tech? Yeah,
+
+[01:48:30] Louis Knight-Webb: it's interesting, isn't it? Well, I don't know how those pipelines are built. I assume that's the secret sauce, right? The flip side of that argument is like, maybe it's very scary that we know, like now many more people understand the, the mistakes that these, these types of systems can make because we're all getting hands on with, with GPT, and this system is equally as problematic, and we're just oblivious to it because it's a black box.
+
+[01:48:58] Almost at
+
+[01:48:59] swyx2: your drop off. Check the app
+
+[01:49:00] Reid Robinson: for walking directions.
+
+[01:49:02] swyx: Okay, Waymo. All right. Well, I think yeah, that's probably... Alright but thanks so much for giving a quick review, and thanks for having me. Yeah, yeah. So that was Louis, whose opinion I think is very reflective of the people who are building code generation or code search type startups based on top of GPC 4.
+
+[01:49:21] Shreya Rajpal (Guardrails)
+
+[01:49:21] swyx: And as we headed into the Dev Day venue, we actually caught Shreya Rajpal from Guardrails. ai, and there was an interesting... Comparison here in our conversation between how she views the LLM stack versus how OpenAI views the LLM stack. OpenAI actually had a closed door session where they gave some thoughts on how they felt that people should start from prompting and build up into a full software system, and they actually deferred a little bit from Shreya.
+
+[01:49:47] Don't worry, all that is recorded. The videos will come out in a week, but you can listen to Shreya's take. So, so we're reviewing AI Engineer Summit.
+
+[01:49:54] Shreya Rajpal: Yeah, we're reviewing the AI engineer summit, and it was a very, very well organized conference. And a small thing that I was thinking about is that your swag, Yeah, is it on?
+
+[01:50:04] Okay, it's on, yeah. Your speaker swag was, like, not surprisingly, I guess, but like, really weirdly very nice. And it just kind of, like, showcases this attention to detail that I think, like, really kind of permeated the entire, you know, conference. Like, every single decision was very well thought through, and, you know, kind of, like, To a degree of like quality that's very rare to see.
+
+[01:50:23] So yeah, it was amazing. I thought you guys did like an absolutely fantastic job. This one
+
+[01:50:27] swyx2: mostly goes to Ben. So I'm definitely going to make sure that Ben understands that I really appreciate the work that he does. This is why I couldn't do it myself, you know, I'm mostly the content guy, but I don't, he's the logistics, and he's run conferences for 8 years so that's why I keep working
+
+[01:50:41] Shreya Rajpal: with him.
+
+[01:50:42] Yeah, I also kind of really enjoyed the 18 minutes, you know? Really? Yeah. Yeah, when I saw that, I was like, huh, is this going to be, you know, is this going to be enough, and like, is that, but it was like... It'd be great. Yeah, yeah, yeah, yeah, yeah I, I think the 18 minutes was actually the right kind of bite size.
+
+[01:50:56] swyx: It's optimized for YouTube. Yeah, I see, interesting, okay. Because it's not the in person audience that
+
+[01:51:00] Shreya Rajpal: matters. I see, I see. Interesting. Okay. I need to promote my, my video more. Yeah,
+
+[01:51:07] swyx: is it, is yours up yet? I don't think it's up yet. It's not up yet? Yeah, we're releasing, we're dripping them out to spread it out.
+
+[01:51:14] I see. Okay. Sounds good. Yeah. Thank you for joining us. Maybe in two weeks from now. Okay, sounds good. Okay, so welcome back. Thank you for having me. I think you were guest number five. You were super early. So we're at the after party now. How do you feel about the whole day?
+
+[01:51:30] Shreya Rajpal: I'm really excited. I think it was Yeah, I think the excitement in the air with like everybody just like waiting with bated breath to see I guess, like, what gets destroyed, but also, like, what gets really optimized.
+
+[01:51:42] I think this is, like, very it feels like you're really part of a movement. And it's Shannon who, like you know, us, like, early people in this space, we gotta stick together because, like, whatever happens to any of our companies, you know, there's such a, like there's such a transformative moment in technology that, you don't care, right?
+
+[01:51:57] Yeah, we're all gonna, like, look back on this time, but I, I had a, I had a blast. Like, I really, really enjoyed the the releases. Yeah.
+
+[01:52:04] swyx: What got destroyed?
+
+[01:52:05] Shreya Rajpal: Ward got destroyed.
+
+[01:52:07] swyx: I'm
+
+[01:52:07] Shreya Rajpal: mining for hot takes here. Once again, I think my takes are unfortunately very measured this time. I wish I had spicier takes.
+
+[01:52:15] Your takes
+
+[01:52:16] swyx2: are within the guardrails of
+
+[01:52:18] Shreya Rajpal: common behavior, yes. I was, I think retrieval is like the big one for me. I think it's kind of really exciting to see the retrieval baked in. And that's one thing where I'm very interested to see, like, does that pattern become common by model providers? Thank you so much for joining us.
+
+[01:52:37] Like open source model providers, and then how much of retrieval do you have to do yourself, you know, and like what remains challenging about retrieval compared to just like, you know, this, this really easy API to just like have it done for
+
+[01:52:49] swyx2: you, right? Yeah, I think what they did was effectively build the basic patterns in, but for the more advanced stuff, you're still going to need lang chain, lambda index, all those.
+
+[01:52:57] Shreya Rajpal: Yeah, yeah, yeah, yeah. So for the longest time, I believe that in RAG, it's the retrieval that's the hard part, right? Yeah. And then generation is really easy. As long as you have better, like, good retrieval, you can, like, get really, really far, and the generation only gets you, like, a little bit over. And so, I'm really curious to see, like, okay, how, once again, like, how complex do you need it to be in order to start seeing good results?
+
+[01:53:17] swyx2: Yeah. Okay. Interesting. And what what are your normal benchmark tests? Testing, like, do you actually have a set of tests that you run whenever you are like exploring something? Or some personal favorites of like use cases that you think are tricky for LLMs to do
+
+[01:53:33] Shreya Rajpal: well? I think like a big focus of ours is on hallucinations, so always kind of like checking out hallucination and like conflicting instructions, etc.
+
+[01:53:42] is one. Terse responses is another, you know, like how well is it at like not, you know, you ask it a question and here's this 10 point list, and you know, very, very verbose. Do you have a terse
+
+[01:53:51] swyx2: response
+
+[01:53:51] Shreya Rajpal: validator? Yeah, well not, we don't have it, like, we don't have it publicly, but like we do kind of like check it.
+
+[01:53:57] Ah, okay, okay. So I think like those are kind of some of the things.
+
+[01:53:59] swyx: There was one, there was one example in the, one of the closed door sessions where they, they, all the answers were two terse. Yeah, yeah, yeah. Where I think everyone laughed when they were like, Can you write a blog post about this?
+
+[01:54:08] And the guy, and the GPT said, Sure, I'll do
+
+[01:54:11] Shreya Rajpal: it tomorrow. Yeah, yeah, yeah, yeah, yeah. I think like those are, I think those are I'm really, really excited about, Double check. Yeah, just check. I'm really, really excited about JSON generation. Okay. I'm actually kind of surprised to see how long it took them they're
+
+[01:54:25] probably just doing constrained decoding under the hood, right? Like constrained generation. Okay. Because they're now saying that guaranteed correct JSON rather than, you know, More correct. Do you get what I'm
+
+[01:54:34] swyx: saying? I was, I was parsing through their words. They've never had an issue producing JSON. It's just that sometimes it doesn't fit the JSON schema.
+
+[01:54:42] Right? Am I, am I wrong? You would know better than, more than me. No,
+
+[01:54:46] Shreya Rajpal: I think there are also issues with, like, producing... I think the, okay, the obvious thing is, like, unbalanced brackets? When it's on context length, I think that's, like, an obvious thing, right? But, like, weird things when you have, like, really long strings, then quotes, et cetera, become kind of weird.
+
+[01:54:58] Okay. So I think those are some other ones. Schema is obviously kind of challenging, et cetera, yeah. I think there are, even with function calling, like function calling, at least I haven't played around with it yet today, but previous generations of function calling wouldn't guarantee that your schema is matched.
+
+[01:55:13] Which would be an
+
+[01:55:14] swyx: issue. And I think they're still not guaranteeing it, because I kept waiting for them to say it. I haven't read any of the public docs or anything. Do you know if they're guaranteeing that it fits the schema, or they're
+
+[01:55:23] Shreya Rajpal: like... Oh, that's a good question. I, yeah, that's a good point.
+
+[01:55:25] They never say they guarantee it. Yeah, they never said they gu... They, they guaranteed correct JSON, they didn't guarantee if the JSON matches the schema. So,
+
+[01:55:32] swyx: okay, you can call JSON loads. Yeah,
+
+[01:55:34] Reid Robinson: yeah, yeah. Big
+
+[01:55:35] Shreya Rajpal: loop, like, I'm very curious to see, like, once again, if this is a pattern that, you know, all of the other foundation model providers adopt.
+
+[01:55:41] And I don't see why not, right? Like, I think for them to kind of, like, own specific decoding models is going to, like, make a lot of sense compared to, you know, like, yeah, a lot of the, a lot of the hacky stuff.
+
+[01:55:52] swyx: Yeah, cool. Any other favorites, you know, not, doesn't have to be guardrails related, any favorite conversations, favorite demos, favorite,
+
+[01:56:02] Shreya Rajpal: I oh, the GPTs and the assistants.
+
+[01:56:04] I think you want to make one for yourself. Yeah, I do want to make one for myself. It doesn't add like, yeah, it's not very Godreels related. I do want to kind of play around with like how well it works with like some of the things we track. But yeah, it was just so fascinating to see the marketplace. I am very, very curious to see, you know, what the marketplace looks like.
+
+[01:56:20] Like, is it? Are people going to have, like, really, really vertically specialized things on the marketplace? Like, if you have a generic, you know, sales assistant or something, right? Like, how much, or SQL generator, how much how popular does that become? Versus, like, sales assistant for X vertical at Y stage of the sales process.
+
+[01:56:38] Oh my god. Do you know what I mean? Like, it's, it's so easy to do this now. Yeah. That, like, where, at what level of specialization do you need to be to kind of start seeing the results? And that is one thing I'm very excited to see, like, how that, how that pans out.
+
+[01:56:51] swyx: It scares me a little bit because it's basically, they said the future of programming is natural language, or something like that.
+
+[01:56:56] Yeah. And that's great, but, like, it really is a new platform, a new operating system, almost, that they're that they're creating. And I don't know how to position myself. Not that I have to, because my world is very developer oriented. But this is a whole no code world that you and I
+
+[01:57:11] Reid Robinson: don't touch.
+
+[01:57:12] Shreya Rajpal: Yeah, yeah, yeah, yeah, yeah, yeah, yeah.
+
+[01:57:14] Whoa. Yeah, yeah. I really want to see, like Is there going to be, like, assistance for everything? I'm generally curious to see the impact of this on knowledge work, you know which yeah, like how much of my work, like if I'm getting annoyed by something, is my first instinct going to be like, you know let me just, you know, spend the five minutes to build in a system for this?
+
+[01:57:34] Like, is, is that how everybody's now going to start thinking? You know, and that's one thing I kind of really want to see.
+
+[01:57:39] swyx: Yeah, that's exciting. Okay. Last question. You spoke at AI Engineer Summit. Let's advertise your talk a little bit and point people to your talk. Yeah, yeah.
+
+[01:57:48] Shreya Rajpal: Yeah, so thank you again for inviting me to the AI Engineer Summit.
+
+[01:57:51] One of my favorite conferences that I've attended, you know, this year. My talk was about the new paradigms for working with large language models, you know. For building really production ready applications when the technology that you're working with is under, underneath all of it, you know, non deterministic.
+
+[01:58:05] Really fascinating thing, which was the OpenAI's talk about building production grade applications, talked about how essential it was to build guardrails as a way to make it do product grade applications. the one
+
+[01:58:16] swyx: from today. Yes, the one from today. Which people
+
+[01:58:18] Shreya Rajpal: haven't seen yet, but really, really cool talk.
+
+[01:58:21] So I think it really validates what we've been saying pretty much since the beginning of the year, which is that you'll get like, You'll get to a certain point, but at that point you need to start adding guardrails to your application if you need to get your users to start, you know, getting value out of what you build out, right?
+
+[01:58:37] So,
+
+[01:58:38] swyx: I have your chart, and I have their chart. They put guardrails at the first layer. It's not at the end, it's actually right at the beginning for user experience.
+
+[01:58:48] Shreya Rajpal: Yeah, that's right, yeah. Yeah, that was kind of interesting to see that they put it as part of the UX. I'm still kind of very candidly, I'm still kind of digesting that.
+
+[01:58:56] Like, I think of it as, I think of it as part of the infrastructure. And I don't know if, as it's as much UX as it is, you know, just like one of the components that you need in your stack. Yeah. But I, I, I think the pat, like a lot of what they said today, completely validated, you know, what we've felt for the longest time.
+
+[01:59:12] And also what I go really in depth about, like in the talk that I gave, right? Which is that what happens, one, you have the, once you have the bare bones application ready, what is the process? Of actually adding guardrails for what you care about. Like what does that look like? Yeah. You know, what are the risks that you care about?
+
+[01:59:27] How do you verify that those risks are happening or not happening? If they are happening, how do you quantify them? And then how do you mitigate them? That was what, what that was what the talk was about, which I really recommend people go and check out.
+
+[01:59:37] swyx2: Awesome. Well, you did a great job. We're gonna post the talk soon and thanks.
+
+[01:59:41] It's good to see you again. Yeah. Thanks again for inviting me. And that was about all I managed to get before the after party. At the after party, there was actually an after after party thrown by Noose Research.
+
+[01:59:51] Alex Volkov (Weights & Biases, ThursdAI) - "Keeping AI Open"
+
+[01:59:51] swyx2: So let's hear a little bit about OpenAI versus OpenSourceAI. From Alex Volkov. Okay, so we are in the one day after Dev Day here with Alex.
+
+[02:00:01] Hey. Hey. Very, very recognizable voice right now. We don't have to introduce you. Hey, everyone. And we are here to talk about the two parties that happened yesterday. There was one official Dev Day OpenAI afterparty where I interviewed Shreya, who's just before this. And then there's an unofficial one.
+
+[02:00:16] For keeping AI open by noose. Yeah. So, what was it like to just compare
+
+[02:00:21] Alex Volkov: and contrast? So, let me maybe start with like who noose research is. Oh yeah, yeah, most people haven't heard of it. It's written N O U S O. I mispronounced it now multiple times. It's noose research. It's one of the few...
+
+[02:00:33] Organizations online that started like from a discord and then like kept going up until like a significant amount of people are working with them, affiliated with them, of folks who take open source model to its most extreme capability. So collect data, data sets from open source open source and more closed source.
+
+[02:00:49] And depending on that, they release like with different licenses and then they find to an open source models that were like released to us from like Lama, for example, and Mistral, which is a French company that recently released a 7d model. And they've been doing this since Lama 1, but recently it really kicked into high gear with Lama 2 releases because Lama 2 ended up being with a commercial license.
+
+[02:01:08] So you could actually use this for actual, you know, products and services. And Mistral came out with like a full Apache 2 license with a BitTorrent link. I think you remember that. And so these organizations suddenly became like a very, very important currency in the, in the world of like, Where the whole world of AI is going because they're running local models and many companies love open AI, but either cannot afford this or cannot risk the chance the open AI changes something like what's our dev day.
+
+[02:01:35] And so many people are turning on to like, okay, if we want to run our own hardware, how do we actually do this? And you can run it, you can run Llama2 and Mistron, all these models on your own hardware, but then you want to fine tune them for your own purposes. And so how do you actually fine tune? And now organizations like News Research was probably the biggest one, Alignment Labs, Shout out to Austin and folks from from alignment labs skunkworks, and many of these like people come up and say, hey, we have the know how and we only started learning about this like eight months ago, six months ago themselves, but now they're like the You.
+
+[02:02:06] Specialized more people that find two models and actually release the best kind of models on the Hug and Face open source leaderboard.
+
+[02:02:14] swyx2: Yeah. And in my knowledge, the two models that I keep hearing about, one is Hermes. And he's recently searched the base model for Hermes from Lama to Mistral.
+
+[02:02:24] Because apparently it's better. Hermes is like an instruction dataset, 900, 000 instructions. I don't really know where it's from. Maybe I don't want to know. They also do some fun models. There's like a mystical model that they
+
+[02:02:35] Alex Volkov: do.
+
+[02:02:36] swyx2: Trismestos, yeah. Some stuff like that. I think it's actually a little bit weird that they keep releasing models.
+
+[02:02:42] They release like three models a week. It's insane. Right? And it's very hard to keep up. Like, I'm like, okay, which one is actually the one that I should pay attention to? Yeah. So
+
+[02:02:50] Alex Volkov: first of all, you're welcome to join Thursday Eye and then we talk about all the models every week. Yes. It's kind of...
+
+[02:02:55] Interesting to that if I do like a recap for a month, the beginning of the month, most of the updates don't matter, because like every, every, This,
+
+[02:03:02] swyx2: I'm doing monthly, and I, I feel this, like, I'm doing this, I'm doing this for historical posterity, like, Five years from now, people want to look back, then they can look at my notes, because I only have twelve.
+
+[02:03:14] Alex Volkov: Yeah, nobody's gonna look at your notes, they're gonna have a GPT trained on your notes answering everything. I have, yeah, I'm doing like every week, and every week we're talking about like, this model outperforms that model like significantly, and we're noticing significant changes from week to week.
+
+[02:03:27] Literally in the span of a month we went from a 33 billion parameter model, which is big, And parameter count is not everything there is where you can have a smaller model with like larger, longer training that actually will perform better than whatever, but we're noticing smaller and smaller models doing outperforming bigger ones significantly.
+
+[02:03:43] Zephyr from Hug and Face outperformed Llama 70B and Zephyr is like only like a 70B model. On some things. On some things, for sure. And so this is very interesting because like it's really hard to evaluate. Evaluation frameworks are bad. Everybody's saying that they're not representing of anything.
+
+[02:03:56] People can fine tune and over tune on them. And so, there's this whole kind of subculture of open source mostly on Discord, some of them on, on X and Twitter spaces. And for some reason, but I find it very humbling and incredible. They also hung out in Thursday. I, and so that's how I got to this.
+
+[02:04:13] That's how I got to meet like news research folks Ticknium, Imozilla, and they organized the, the counter party event last night together with some other EAC people that we know from Twitter as well. Including Mark, Jason. So apparently he was supposed to, I didn't see him. Oh, okay. But like he was supposed
+
+[02:04:29] swyx2: to, I saw a photo with a bald head of a big guy.
+
+[02:04:32] So I was like, is that Mark? I don't, I don't know. Anyway, but the opening eye party was at a art museum. Mm-Hmm. . And then the news research party was at a
+
+[02:04:39] Alex Volkov: club as a club? Yes. At Folsom. Folsom Street In San Francisco Club. Yeah. Yeah. 10 15 falls, I think. Sure. Open the eye was a very like. Highbrow, buttoned up, event,
+
+[02:04:49] swyx2: post event.
+
+[02:04:50] Yeah, there was a live band, someone playing jazz.
+
+[02:04:54] Alex Volkov: Which, I think I mentioned this once, it was too loud. We want to talk, we don't want to listen to music. No, no, no, we're just
+
+[02:04:59] swyx2: old. Everything is too loud.
+
+[02:05:02] Alex Volkov: And then, it was like a lot of people, a lot of networking, a lot of people trying to get together, maybe do business together.
+
+[02:05:07] Very, OpenAI actually showed up. A lot of people, we, we stood in line, there was a long line for the Magna Millers to, to step in and then everybody like passing us around was like open the eye employee that passing like straight through. Yeah. And then that ended around eight, which was like the standard San Francisco like buttoned up.
+
+[02:05:24] Oh yeah. That's when you go to bed. That's when you go to bed. And that's when the other party kind of started. Yeah. Yeah. And I think they just seized the opportunity 'cause everybody's in town for the open AI stuff. Yeah. Why not? Make a splash, an announcement for, like, for open sourcing AI. So literally, the invite was keepaifree.
+
+[02:05:41] com, which was the website, and the invite was keepaiopen. com. And you had to register, you had to go in there, and this was, to me, an incredible... Kind of show of Twitter in real life. So all of the folks who follow Mark Andreesen, he recently stepped into this thing with like the techno optimism stuff.
+
+[02:06:00] He started to boost the effective acceleration folks. And so there's a lot of like signature stuff from that like ecosystem on Twitter. There's like, don't thread on me with like, you don't take away my GPUs. There's like all these signs across the club. The, it's a very visual club as well. So we're, the DJs is a whole, like a three D projected thing.
+
+[02:06:21] So there's like a bunch of like art and like live things about KPI open. I, I found it like very, very super cool. I, I, I'll, I have to tell you tidbit I saw me and Killian were there from open interpreter. We saw two people with lab coats. It was like, what's the deal with nap codes? So we went to Nest and they just said, Hey, we just like came back from our work where we work on semiconductors. We're actually like touching chips, whatever, just like didn't change out of it. And my head was like so incredible in the keep AI open GPU kind of a poor party. We have people who literally work on superconductors came from the work, like they're working on chips.
+
+[02:06:53] Yeah, yeah. Semiconductors are
+
+[02:06:54] swyx2: superconductors, very different thing. I think semiconductors. Yeah, we had that superconductor episode a while back. I think people are still recovering.
+
+[02:07:03] Alex Volkov: I'm personally still recovering from that. That was the whole thing for me, yeah.
+
+[02:07:06] swyx2: So is news research like vibes? You know, like, what is the mission apart from to keep publishing open source models?
+
+[02:07:15] Alex Volkov: I think you'll have to get some news people to actually speak, like, about the mission, about the actual product, but as far as I understand this no matter how much the product side will be, and there will likely be, there's so many people that are doing, like, so incredible stuff that people notice, like, you know so no matter how, like, how much of the business side will be, they're, like, committed to fully open source as much as possible, including data sets, including models that are, like, TraceMasters, for example, their model that's like trained on the occult and the physical and metaphysical, you can't expect OpenAI to let you.
+
+[02:07:48] Talk with a model, they'll answer with like mystical questions, mystical stuff.
+
+[02:07:51] swyx2: Astrology, Halloween.
+
+[02:07:54] Alex Volkov: So you're very like easy into the astrology and Halloween. They're talking about like you can ask this model about the resurrection, right? Like all of the occult like craziness that they've collected, OpenAI will not let you do that.
+
+[02:08:04] And so there's, I think OpenAI will not let you do it by default because they have lawyers and they don't get sued. Recently they announced the protection shield thing. So you won't get sued because of... They're models, so they're, them, Entropic, all these big companies, it's very important for them to protect the outputs and the models.
+
+[02:08:20] Here, these folks are like, Hey, if you want to build a model, fine tune this, we're going to teach you how. Jump on our discord. We're going to help you with producing like the biggest models. And then if, you know, there's going to be like a financial aspect to this as well. If you're a company that wants to run this, we'll also help you do that.
+
+[02:08:35] swyx2: Yeah, so it's the same as stability, basically it's, it's, it's, that's from what it, from talking to him that's what I gather. Yeah. Cool. Anything else that people should know about the party, noose? I
+
+[02:08:45] Alex Volkov: found this whole day to be like a very singular AI day, and we don't get many of this. GPT 4, I think, was the biggest one previously.
+
+[02:08:53] Yeah, March. It was like a singular, March 14th, that's when Thursday Eye started. We started talking about this every week. This was a singular day in San Francisco. This, like, started pregame. Party with Swyx and some other folks that I, I got to feel like a little bit of San Francisco. And then Dev Day was incredible.
+
+[02:09:08] We just heard from Simon. There was like a garage that they made into a venue event, probably custom venue event on the fly, which like just talks to how much they can pull off. It felt to me that like this Dev Day event and then the following party, it felt a little bit like Almost like an Apple thing, where like, it's going to be a yearly thing that people will like, try to get in as much as possible.
+
+[02:09:28] One thing to note that in the other party, there were many people who didn't get in to this party. And so, you know, they were watching from like a a party.
+
+[02:09:36] swyx2: Yeah, this this office right here.
+
+[02:09:37] Alex Volkov: This office people watched here, and people watched in, in the life space that we, we... Yeah, 8, 000
+
+[02:09:42] swyx2: people tuned in to our spaces.
+
+[02:09:43] 8, 000 people
+
+[02:09:44] Alex Volkov: tuned in? I didn't even have a
+
+[02:09:45] swyx2: chance to look at it. I always want to know the number. Oh, wow. So it, it shows the relative level of interest, and you know, like, so, quoted 22, 000. Mm. And this is 8, 000. Yeah. Just relative. Interest. Yeah, there's
+
+[02:09:56] Alex Volkov: like two spaces as well. Robert Skobel, he stole the thunder a little bit.
+
+[02:10:00] He stole some audience from us. Shout out to Robert. And I think that like it's, it was a singular day. And I think the News Research, KeepOpenSourceOpen, EAC, Mark Andreesen, like all these things together also added to the top of this. Because like it happened in the same day, one on top of another in the same place, San Francisco.
+
+[02:10:15] I find it incredible. I will, you know, definitely come back next year. Yeah. Okay. Yeah.
+
+[02:10:20] swyx2: Well I think you'll be back sooner than that. Yeah, probably. There'll be other things going on. All right. Thanks. Awesome. All right.
+
+[02:10:26] Rahul Sonwalkar (Julius AI) - Advice for Founders
+
+[02:10:26] swyx2: Last but not least, we go back all the way to the Newton, where I started this podcast, where we checked in with Rahul Samwalka, better known as Rahul Ligma, who just celebrated his one year anniversary as one of the biggest memes and celebrities in San Francisco.
+
+[02:10:43] But by day, he's also the CEO and co founder of Julius AI. What's up, Swyx? Hey good to see you. It is one day after Dev Day, and we all had a chance to process. How do you feel? What's what's your top takes? That
+
+[02:10:57] Rahul Ligma: was awesome. I got to see a bunch of really smart people who are building cool things with OpenAI, GPT, Dolly.
+
+[02:11:03] The event was very well put together. The keynote was awesome. The energy in the room was crazy. And I could see real time social media firing up with all these takes. Overall, I think it was a good, good day. Yeah, I
+
+[02:11:15] swyx2: interviewed Surya Dantiluri. Yeah. I think you know him. He was like Sama just killed my startup.
+
+[02:11:22] And it was almost true for him. Cause he has a bunch of plugins. And plugins are kind of deprecated. Yeah, yeah,
+
+[02:11:30] Rahul Ligma: yeah. The plugin thing was interesting because it was, it's going to be deprecated, but
+
+[02:11:35] swyx2: they just
+
+[02:11:37] Rahul Ligma: accidentally turned it off yesterday. Yeah, so he freaked out a bit. He freaked out, and then they brought it back up.
+
+[02:11:42] It's
+
+[02:11:42] swyx2: Yeah. Yeah. So, top features that you're interested in, that you want to explore more.
+
+[02:11:48] Rahul Ligma: I think people are super psyched about the assistance API, but personally, if you ask me, two things that I am most excited about is turbo. Yeah. The speed is, is crazy.
+
+[02:11:57] swyx2: And... Have you actually, have you measured, you know, do you know any, like, rough measures?
+
+[02:12:01] Because I don't think they actually ever mentioned the speed relative difference. I
+
+[02:12:06] Rahul Ligma: started noticing the speed difference in chat GPT, actually, like, a few weeks ago. Oh, I
+
+[02:12:11] swyx2: see. So they already slowly eased
+
+[02:12:12] Rahul Ligma: this into it. Yeah, yeah. And I saw, like, takes on Twitter that, did anyone notice chat GPT get much faster?
+
+[02:12:18] And I noticed it too. Yeah. But, so it's turbo, it was exciting, but the second thing that's exciting is multiple function calling, and then the JSON output formatting. I think as developers are building on... The dev API. So that's the thing that's super exciting to me. You know, of course there's vision stuff, there's code interpreter as a tool in the API.
+
+[02:12:40] But, I think what will bring the most applications is actually the, the speed. Because there are so many things, if you look at our numbers, on Julius. are not patient. They want an answer, and they want an answer quick. And we see clearly, if you can get an answer to them a few seconds faster, there's a clear difference in the conversion.
+
+[02:13:05] So, speed is going to be big. What is conversion for
+
+[02:13:07] swyx2: you?
+
+[02:13:07] Rahul Ligma: Is that just paying? Oh, no, it's like, from first message to second message. I see. So we do code gen, and then we run the code, and then the code has an output, and the user asks a second message, and we can just see the funnel, where, if it's faster, the code runs faster.
+
+[02:13:24] And the second thing is multiple function calling. I think you're basically telling the AI that, so I think people misunderstand function calling. It's essentially tool use. And if you can tell the AI, hey, you can give me multiple tools to use at once, I think that's going to unlock different applications than before.
+
+[02:13:44] Because before it was just like, okay, this is a task, tell me one tool and what's the input for it. But if the AI can now. Use multiple tools in parallel. You can first of all have more specialized tools. And then get more specialized instructions for each tool. Yeah. It's just going to unlock a lot of cool applications that previously weren't possible.
+
+[02:14:04] swyx2: There was a practical limit in the number of tools that you can give it, right? So we had this discussion in March, February March, April, when they released the function API. That is subject to context window. Jason Schema itself. Yeah. Does that change at all? Or I don't know if you, I, you
+
+[02:14:19] Rahul Ligma: know, I don't.
+
+[02:14:21] Yeah. But what I noticed though, before, even before was that more functions and more options just confused it. And that's what I want to play with next is like, okay, what's the breaking point? I see, like, does more options, you know, confuse it? Does it
+
+[02:14:35] swyx2: make it Would you, would you use multiple function calls as well, or?
+
+[02:14:39] Oh, totally, totally. Is that just theoretical?
+
+[02:14:40] Rahul Ligma: No, no, no. I have a direct application for it right now. One of them is oftentimes, GPT writes code, and then we run that code, and we realize that, oh, from GPT's last knowledge update, that module in Python has changed. It has new functions, new APIs. So today, the way we do it is, when the error happens, we tell GPT, Okay, you can go look up.
+
+[02:15:01] New documentation, and then fix that error. But with multiple function calling, the way we would do it is like, Give me the code, but then also give me a documentation lookup. And then when the error happens, I can just quickly fix that without another GPT call. And then keep moving. But I mean, in general, it's just like, multiple to use to me is just so exciting as a developer.
+
+[02:15:23] And I wish people were talking more about this.
+
+[02:15:26] swyx2: Yeah, I mean people are still coming to terms with just like the base model and prompt engineering and all that. That's still important, but for engineers, I think you should explore these other advanced features. True. Yeah, yeah. Anything on the multi modality side that you're interested in?
+
+[02:15:39] I mean,
+
+[02:15:40] Rahul Ligma: vision will be super interesting for sure. And we have this functionality in Julius right now where you can generate React and HTML components.
+
+[02:15:49] swyx2: Like v0? I think Matt was showing me. Yeah, a little bit of that demo. Yeah, yeah. We have been hacking on it
+
+[02:15:56] Rahul Ligma: a lot. I think the missing piece here is that, well, you have an engineer who knows how to react, and they probably wouldn't find this useful, but if I can allow, like, anyone in the world to just draw a mock up on a piece of paper, and then run that, and have the version, yeah, demoed, yeah, yeah turn it into, like, actual components I could use on a webpage, that'd be sick.
+
+[02:16:19] And what's even more sick is, like, have the feedback loop where you take a screenshot of the page generated and then feed that screenshot back in division, and then come up with more instruction and have that loop. Yeah. Wow. Like a self-improving webpage. Isn't that crazy? Yeah. I'm, I'm so
+
+[02:16:35] swyx2: excited. Yeah.
+
+[02:16:36] Yeah. So in my mind, Julius is very data focused. I, I, I, by, by the way, I didn't introduce you, I didn't introduce Juli. I was just gonna do it separately. Yeah. But, people know who you are. . Yeah. You're, you're, you have a Wikipedia page. Yeah. You just passed your one year anniversary as Rahing Ma.
+
+[02:16:50] Thank you. By the way, any, any fun things happen on the anniversary or one of the fun things I ilio said, IA recognize you on the spot. Oh. IA
+
+[02:16:56] Rahul Ligma: was like, oh my God, this is, ah your famous or whatever. And no, these guys are so awesome. Like, they're so humble. But anyhow, on the first one year anniversary, nothing really, like, it's, I mean, you knew about it a week
+
+[02:17:07] swyx2: before.
+
+[02:17:08] I like to set anniversary dates. That's awesome. Because it reminds people of the passage of time. Like, it's like, wow, shit, has that been a year? Yeah. And then you're like, I think it motivates, it motivates me more than, like, Memento Mori. Like, yeah, you know, sometimes you're out of date. But it reminds me to spend my years wisely.
+
+[02:17:27] To do interesting things with the time
+
+[02:17:28] Rahul Ligma: that I have. Momentum is kind of depressing whereas
+
+[02:17:31] swyx2: this is, this is like, oh yeah, did you know that like one year ago we had this thing? Yeah okay cool, but then Julius you, data analysis chat thing basically Code Interpreter is how I think about it.
+
+[02:17:42] And also you just cross the 100, 000 users? You have delivery modes across your plug in as well as a chatbox, like a dedicated web app? Yep. Okay. Anything else that people should
+
+[02:17:54] Rahul Ligma: know? Well, the, our vision is, you know, writing code is super fundamental to doing things. You could not only automate a bunch of tasks in your life which is writing code, but also it's how you how you just, like, interact with the universe, right?
+
+[02:18:10] You can, you have. Code that brings you a way more car and picks you up and just drops you off somewhere. And I think allowing these language models to write code and do things for you is really powerful. And data announces this application that we're most excited about right now because that's what it's good at, immediately.
+
+[02:18:27] But just on Friday we launched FFmpeg support. And there were people trying to upload videos, turn those videos into GIFs, or like, take a YouTube video and turn it into a... You know, short summary and all these different cool use cases that we didn't truly, like, hard code into Julius. We just told it, hey, now you can run FFmpeg and you can run ITDLP and MoviePy and all these different things.
+
+[02:18:49] Do these tasks for me. And then people were just, like, organically describing those things. There's this guy, TDM, on Twitter, CTOJr. And he took some meme video and put it on my own tweet, overlaid on my own tweet, that. And then that got a bunch of likes. And I was like, dude, like, this is the first one that gets a lot of likes on, you know, FFmpeg on Julius.
+
+[02:19:11] So
+
+[02:19:12] swyx2: that's Julius. That has a lot of meme potential. It has a lot of
+
+[02:19:13] Rahul Ligma: meme potential, but that's not what we're going for. Yeah. You know, it's just like, letting people, like, do things.
+
+[02:19:18] swyx2: Your target market is, like, the FD, the enterprise? It's actually individuals who have data.
+
+[02:19:25] Rahul Ligma: And
+
+[02:19:26] swyx2: they just want to drop
+
+[02:19:27] Rahul Ligma: academics, a lot of academics, actually.
+
+[02:19:29] Yeah. A lot of academics, a lot of students, researchers, any kind of CSV, Excel data, you can just dump into Julius and then have it analyzed for you. We have this video coming out in a few days where you can now actually train a nano GPT. On Julius, so you can give it, Hey, here's the good arriba for
+
+[02:19:46] swyx2: carpi.
+
+[02:19:47] So yeah, it has a, you has, you have GPUs to train it on, or you just training in CPU CPU minutes. GPUs. Yeah. Yeah, that's true. That's true. Yeah. I, me cario like that. , yeah. Yeah, yeah. . Okay, cool. So the, the thing I really wanna sort of ask you as a founder on is, you know, I think there's always this existential threat about OpenAI building your features, right?
+
+[02:20:04] Yeah. In a way, so like the, the number two default bot in the, in the GPT app store Yeah. Is data analysis. Yeah, and people can build their own by customizing and adding code interpreter. Yeah, although I think there's also opportunities for you. So on the roadmap that they presented in the closed session, they also said you can bring your own code interpreter.
+
+[02:20:25] Yeah, so like how are you thinking about that?
+
+[02:20:28] Rahul Ligma: I mean As a founder, or as, so, who's the audience? Is it like, other founders, or is it? Other founders,
+
+[02:20:36] swyx2: and people are just interested in how you are, you're processing this. Yeah. I mean, I think it's a very interesting story of processing this live, because the news just dropped yesterday.
+
+[02:20:45] Rahul Ligma: Yeah, totally. Well, so, the story behind Julius is that we actually launched Julius three months after Code Interpreter was announced, and a few weeks after it was rolled out to everyone else in the world. Yeah. So... We, we, we were number two. And even then we got 100, 000 users. Because I think there's a lot of work to do to get something to work properly.
+
+[02:21:07] And there's a bunch of examples of this on the internet. So if I'm talking to founders, what I'll tell them is, Man, so many people give up before even getting started. And that happens a lot. Don't do that. Sure you can change your idea. You can find new things to work on. But. The way I'm processing is that, wait, we were actually, we launched after Code Interpreter came out.
+
+[02:21:28] And, there's a hundred thousand people who think Julius is better than Code Interpreter. Or use
+
+[02:21:33] swyx2: it. Or just try it out. Yeah. Or try it out.
+
+[02:21:36] Rahul Ligma: And use it over Code Interpreter. And, there's like a lot of work to do. Like, for example, the FFmpeg stuff we launched on Friday. Mm. Or the HTML stuff. Or React, you know, React component stuff.
+
+[02:21:46] All these different things. To get them to work. It takes some effort. How I'm processing it? I mean, you know, that's like, that's what startups are all about. It's like risk, right? If you, if you want to build a risk free startup, you probably don't want to work on startups. Yeah, just go get a job.
+
+[02:22:02] Just go get a job. Exactly. So I'm having so much fun. The way I'm thinking about this is like, whoa, there's all these new different things I could do now. I could build. That's so exciting to me. And I'm pumped.
+
+[02:22:14] swyx2: Yeah. Awesome. That's it. Any last words? Call to action?
+
+[02:22:18] Rahul Ligma: Call to action. Let's go build some cool things and get a bunch of users.
+
+[02:22:23] swyx2: Let's do it, guys. Yeah. Alright. Awesome. Thanks so much. Thanks, Swyx. I think that's a meme that we can all get behind. Let's go build things for a bunch of users with AI.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Alex Volkov
+
+Writes ThursdAI - Highest signal weekly AI news show Subscribe
+
+Rahul Sonwalkar
+
+Writes Rahul Sonwalkar Subscribe
+
+Raza Habib
+
+Simon Willison
+
+Writes Simon Willison’s Newsletter Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

@@ -11,8 +11,6 @@
 
 The most useful LLM features are also the most dangerous (writing to a database, sending emails, charging cards) — build human-in-the-loop infrastructure.
 
-**Memories.ai implication**: Memories.ai implication: Lucy Desktop currently proxies Gemini calls directly with no HIL gate. Before opening this to external developers, we must have one. Could partner with or learn from HumanLayer.
-
 [Source](https://claude.com/blog/the-founders-playbook)
 
 ---

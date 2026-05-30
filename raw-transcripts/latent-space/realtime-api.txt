@@ -1,0 +1,492 @@
+# OpenAI Realtime API: The Missing Manual
+# URL: https://www.latent.space/p/realtime-api
+# Date: 2024-11-21
+# source: Latent Space
+
+OpenAI Realtime API: The Missing Manual
+
+Everything we learned, and everything we think you need to know, from technical details on 24khz/G.711 audio, RTMP, HLS, WebRTC, to Interruption/VAD, to Cost, Latency, Tool Calls, and Context Mgmt
+
+Kwindla Hultman Kramer and Latent.Space
+
+Nov 21, 2024
+
+51
+
+2
+
+5
+
+Share
+
+We were invited to speak at OpenAI DevDay Singapore today (video), and as part of our talk we worked on building a coding voice AI agent (demo). Since release at DevDay SF, we’ve been building lots of ideas with the Realtime API, and benefited greatly from the experience and advice of Kwindla Hultman Kramer, cofounder of Daily.co, which has been in the realtime voice business since before it was cool. 
+
+So today as part of our talk, we are releasing this guest post, which has been vetted by OpenAI staff, actively discussing his learnings building Pipecat, the open source project started by Daily, which has now become a full vendor-neutral Realtime API framework with more non-Daily users than there are Daily (including us!).
+
+But first we wanted to share a couple tips that -we- have learned working with the raw Realtime API (no frameworks, no external dependencies) especially in prepping for our talk at DevDay Singapore. The standard OpenAI reference application comes with a lot of batteries included, and so we stripped as much of it out as possible while still focusing on VAD and function calling, creating a `simple-realtime-console` demo.
+
+Practically speaking, Voice Activity Detection (VAD) is still sometimes buggy, and most times you will want to demo voice applications in imperfect environments (it’s rare to actually be in a quiet room). Hence we recommend always having “mute” and “force reply” buttons as we show in the demo. This demo also shows simple patterns for adding and inserting memory and displaying transcripts of both sides.
+
+Other resources:
+
+Realtime API Solar System demo
+
+Realtime API agents demo
+
+Realtime API console with WebRTC
+
+Realtime API with Twilio
+
+Realtime API embedded SDK for microcontrollers
+
+99.9% text below is from Kwindla. Give him a follow / try out Pipecat and Daily and check out his AIE World’s Fair talk!
+
+From Pipelines to Omni-model
+
+For most of my career, I have worked on network infrastructure for human-to-human conversation — tools for building things like low-latency media streaming, video calling, and big-data collaboration environments. GPT-4 was, in March 2023, a text-only model. But it was relatively easy to hack together a voice mode for GPT-4. I wired up a speech-to-text system to turn voice input into text prompts. Then I fed GPT-4's output into a text-to-speech audio generator.
+
+[ audio input ] ➔ [ ASR ] ➔ [ GPT4 ] ➔ [ TTS ] ➔ [ audio output ] - from DevDay Realtime API Talk
+
+This multi-model pipeline approach was not new. The "natural language processing" systems we talk to when we call a telephone customer support line work like this. What was new was the GPT-4 large language model at the heart of the pipeline. You could have a real conversation with GPT-4.
+
+It was immediately obvious that those older NLP systems were obsolete. But there were also some obvious challenges.
+
+Latency was not great. GPT-4 took a second or so to begin generating a response. The STT and TTS models added another second or two.
+
+Sometimes GPT-4 wandered off the rails. Figuring out how to minimize and detect that seemed like a fairly big thing to tackle.
+
+Some of the classic NLP problems remained, such as phrase endpointing (figuring out when the LLM should respond), and interruption handling.
+
+GPT-4 was good at conversation, but there weren't good ways to integrate with existing back-end systems.
+
+Voice output quality from the available TTS models was noticeably robotic.
+
+In the 20 months since GPT-4's release, the pace of AI improvement has been astonishing. The current version of GPT-4 is good at adhering to prompts, staying on task, and avoiding hallucinations. Function calling and structured data output are reliable. The model responds quickly. And we have fast, affordable TTS models of quite high quality.
+
+The newest new GPT-4 capability is native audio input and output. GPT-4 — in the upgraded form of GPT-4o — now has its own voice (and ears)!
+
+Realtime API
+
+On October 1st, OpenAI shipped a low-latency, multi-modal API that leverages the very impressive "speech-to-speech" capabilities of GPT-4o. This new "Realtime API" manages conversation state, implements phrase endpointing (turn detection), provides bidirectional audio streaming, and supports the user interrupting the LLM's output. Wth this API, the simplest processing pipeline looks like this:
+
+[ audio input ] ➔ [ GPT-4o ] ➔ [ audio output ] - live from Singapore DevDay!
+
+I've been helping customers, friends, and people I work with on Open Source projects get up and running with the OpenAI Realtime API.
+
+Using this new API is quite different from using the OpenAI HTTP inference APIs. The new Realtime API is stateful. It defines a bidirectional events protocol on top of a long-lived WebSocket connection.
+
+Recently I wrote up my notes on what's great about the Realtime API, where I think work is still needed, and how to use it effectively. The audience for these notes is the AI engineer — someone building tools that leverage GPT-4o and other LLMs. Maybe you're hacking on this stuff because you find it interesting. Or maybe you're building things to deploy commercially. Either way, I hope to provide some helpful context, pointers to code snippets, and specific details that will save you time.
+
+In places where code is useful, I'll link to Pipecat source code and examples, however the learnings here extend beyond Pipecat. Pipecat is an Open Source, vendor-neutral Python framework for real-time, multi-modal AI agents and apps. Pipecat supports GPT-4o and GPT-4o realtime, along with 40 other AI APIs and services, and many options for network transport (WebSockets, WebRTC, HTTP, SIP, PSTN/dial-in/dial-out.) Pipecat also comes with a large core library of functionality for context management, content moderation, user state management, event handling, script following, and other important building blocks for voice (and video) agents.
+
+The complete Pipecat OpenAI Realtime API integration is here:
+
+https://github.com/pipecat-ai/pipecat/tree/main/src/pipecat/services/openai_realtime_beta
+
+Here's a single-file example voice bot that uses the Realtime API:
+
+https://github.com/pipecat-ai/pipecat/blob/main/examples/foundational/19-openai-realtime-beta.py
+
+The architecture of OpenAI's Realtime API
+
+Conversational voice is a central use case for the OpenAI Realtime API supports. A conversational voice API needs to:
+
+Manage conversation state across multiple user and LLM turns
+
+Determine when the user is finished talking (and expects a response from the LLM)
+
+Handle the user interrupting the LLM output
+
+Text transcription of the user's speech, function calling, and manipulation of the LLM context are also important for many use cases.
+
+The OpenAI Realtime API supports these things by defining a set of events that are sent and received via a long-lived WebSocket connection. The API has 9 client events (events that the client sends to the server) and 28 server events (events that the server sends to the client). Pydantic event definitions for all 37 events are here:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/events.py
+
+This event structure is quite nice. A minimal command-line client in Python is about 75 lines of code, including all imports and asyncio boiler-plate!
+
+https://x.com/kwindla/status/1843118281911308355
+
+Audio is sent and received as base64-encoded chunks embedded in input_audio_buffer.append and audio.delta events.
+
+The API currently supports uncompressed 16-bit, 24khz audio, and compressed G.711 audio. 
+
+G.711 is only used in telephony use cases; audio quality is relatively poor compared to other, more modern, codec options.
+
+Uncompressed 16-bit, 24khz audio has a bitrate of 384 kilobits-per-second. The base64 encoding overhead pushes the nominal bitrate up to about 500 kbs. But permessage-deflate standard compression will bring the bitrate back down to 300-400 kbs.
+
+300kbs is a bigger media stream than you generally want to send over a WebSocket connection, if you are concerned with achieving real-time latency. Let's talk a little bit about latency. We'll come back to WebSockets in a later section.
+
+Latency
+
+Humans expect fast responses in normal conversation. A response time of 500ms is typical. Long pauses feel unnatural.
+
+If you are building conversational AI applications, 800ms voice-to-voice latency is a good target to aim for, though this is difficult to consistently achieve with today's LLMs.
+
+The OpenAI Realtime API delivers very good inference latency. We consistently see a time-to-first-byte from the API of about 500ms for clients located in the US. If we are aiming for a total voice-to-voice latency of 800ms, that leaves about 300ms for audio processing and phrase endpointing. Which is ... just barely possible under perfect conditions.
+
+Measuring voice-to-voice latency is easy to do manually. Simply record the conversation, load the recording into an audio editor, look at the audio waveform, and measure from the end of the user's speech to the beginning of the LLM's speech. If you build conversational voice applications for production use, it's worthwhile to occasionally sanity check your latency numbers by doing this. Bonus points for adding simulated network packet loss and jitter for these tests!
+
+Measuring true voice-to-voice latency is challenging to do programmatically because some of the latency happens deep inside the operating system. So most observability tools just measure inference time-to-first-byte. This is a reasonable proxy for total voice-to-voice latency, but note that this measurement does not include phrase endpointing time (see next section).
+
+A number of "small" things can impact latency in surprisingly not-small ways. For example, bluetooth audio devices can add several hundred milliseconds of latency. For more details on everything that contributes to latency in a voice-to-voice application running in a web browser, see this tweet and this article and this AI.Engineer talk:
+
+Phrase endpointing (turn detection) and interruption handling
+
+In a conversation, people take turns talking. There are two components of turn taking in a voice AI application:
+
+The application needs to decide when the human has finished talking and expects a response. This is called phrase endpointing or turn detection. Most conversational voice applications try to do automatic turn detection. But some applications use a "push to talk" user interface.
+
+If the human interrupts the LLM, usually the LLM speech output should stop immediately. For some applications, this needs to be configurable; sometimes the LLM should complete its speech even if the user starts talking.
+
+The OpenAI realtime API has automatic phrase endpointing and interruption handling built in. These features are implemented using server-side voice activity detection (VAD). The automatic turn detection is enabled by default but can be disabled at any time.
+
+Here are the OpenAI overview docs for turn detection:
+
+https://platform.openai.com/docs/guides/realtime/realtime-api-beta#input-audio-buffer
+
+Several VAD parameters are configurable. The most important of these is silence_duration_ms. This is the amount of time the VAD will wait after the user stops talking, before a input_audio_buffer.speech_stopped event is emitted and inference is started.
+
+OpenAI maintains a server-side audio buffer that the application streams audio frames into (by sending input_audio_buffer.append events). In automatic turn detection mode, the application can just continuously send audio and rely on the OpenAI server-side VAD to determine when the user starts and stops talking.
+
+When the user stops talking, several API events are emitted and the LLM begins generating a response. When the user starts talking, any in-progress response is canceled and audio output is flushed.
+
+This is simple (in the sense of not requiring any client-side code) and works well. There are three reasons an application might choose to turn off OpenAI's turn detection, though.
+
+First, if the application does not want to allow interruptions, automatic turn detection needs to be disabled.
+
+Second, for a push-to-talk style of user interface, the application will need to manage the audio buffer and trigger LLM responses manually.
+
+Third, an application developer may prefer to use a different phrase endpointing implementation.
+
+If OpenAI's automatic turn detection is disabled, the client needs to send two Realtime API events at the end of the user's speech turn: input_audio_buffer.commit and response.create.
+
+The Pipecat code that calls these two events when the user starts speaking is here:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/openai.py#L145
+
+The OpenAI VAD seems to be more sensitive to background noise than the default phrase endpointing implementation in Pipecat. Pipecat uses a smoothed running average of input audio energy to auto-level relative to background noise. It also ignores short spikes in audio even if they have a fairly high speech confidence rating, and supports optional primary speaker separation and other advanced audio processing.
+
+OpenAI's silence_duration_ms parameter defaults to 500ms. (Pipecat calls this parameter stop_secs.) This is a good compromise between an overly long conversational response time and the LLM responding too quickly, stepping on a user's incomplete thought. For some use cases, a longer silence duration is preferable. For example, in a job interview setting, giving people more time to think about their answers while they talk generally provides a better experience. In this case 800ms or even 1s is ideal.
+
+When using a standard VAD, we don't usually recommend a setting below 500ms for anything other than voice AI demos! There are techniques to get faster response times by supplementing a standard VAD with contextually aware phrase endpointing, or doing speculative (greedy) inference, or both. These techniques are outside the scope of this article but if you're interested in them, the Pipecat Discord is a good place to hang out.
+
+Pipecat's base VAD implementation is here:
+
+https://github.com/pipecat-ai/pipecat/blob/1d4be0139aeff2ee8cc214c81ae00e5948e35977/src/pipecat/audio/vad/vad_analyzer.py#L86
+
+Managing context
+
+A multi-turn conversation is a series of user inputs and LLM responses.
+
+The LLM itself is stateless, so each time there is user input it's necessary to send all relevant conversation history to the LLM. If you have built conversational LLM applications before (either text or voice) you're familiar with keeping track of the conversation history and using that history to create an ever-increasing "context" that you send to the LLM over and over.
+
+The OpenAI Realtime API does the conversation management for you. This has two really huge benefits: much simpler code, and lower latency.
+
+Code is simpler because you don't have to keep track of the conversation history in your application.
+
+Latency is lower for several reasons. You don't have to re-send a large context each time you want the LLM to generate a response. This saves some network overhead. In addition, the current audio input can be streamed to the OpenAI server so that it is ready to be used as soon as inference is requested. Finally, OpenAI can implement internal optimizations like context caching. This is all a big win!
+
+There are two limits to be aware of: maximum context length is 128,000 tokens, and the maximum amount of time for a single session is 15 minutes.
+
+In an audio conversation, you are unlikely to run up against the token limit. Audio uses about 800 tokens per minute.
+
+The 15-minute limit may be a constraint for some applications, however.
+
+It's currently not possible either to retrieve the conversation context via the OpenAI Realtime API, to load "assistant" audio messages into the context, or to load a multiple-message history reliably. See this repo for test cases:
+
+https://github.com/kwindla/openai-realtime-test-cases
+
+It is possible to implement persistent conversations and long conversations, though. You'll need to save the conversation history as text. Then when restarting a conversation, send the full conversation history (and an appropriate prompt) as the first message in the new conversation.
+
+Here's an example voice bot that saves and reloads conversations:
+
+https://github.com/pipecat-ai/pipecat/blob/main/examples/foundational/20b-persistent-context-openai-realtime.py
+
+Here's the Pipecat code that initializes a conversation using the same messages list format that the OpenAI HTTP APIs support:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/context.py#L76
+
+A few other things about context management are worth touching on.
+
+The LLM's audio generation speed is faster than speech output speed. OpenAI adds the server-side LLM response to the conversation context as fast as it is generated. But speech is played out at a slower rate. If the user interrupts the LLM, the user will only have heard part of the LLM response. In most cases, you will want the conversation history to include only the part of the LLM response that the user actually heard.
+
+You'll need to send a conversation.item.truncate event to force the server-side context to match the audio span that the user heard. Note that you need to do this whether you are using automatic turn detection (server_vad) or not.
+
+Here is the Pipecat code that calculates the duration of audio heard by the user and calls conversation.item.truncate:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/context.py#L49
+
+For many use cases, transcription of both user input and LLM output are important. Saving a conversation so the user can return to it later is one example. Many enterprise use cases require a conversation transcript for content moderation, post-processing needs, or for compliance reasons.
+
+The OpenAI Realtime API always delivers transcriptions of the LLM output. Input transcription is turned off by default but can be enabled by setting the input_audio_transcription field when configuring the session.
+
+Output transcription is produced natively by the LLM and closely matches audio output. Input transcription is produced by a separate model and does not always match what the model "hears." This can be an issue for some use cases. It would also be useful if the transcription data included a language field. (Many voice AI use cases are multi-lingual.)
+
+Right now there's no way to align output transcription with speech timing. This makes it hard to truncate text output when there is a user interruption, and hard to build things like word-accurate streaming text captions.
+
+Input audio transcription can also lag behind model output by a few seconds. If you need to use transcription for content moderation, you may want to use your own transcription model and gate phrase endpointing behind either transcription completion or the content moderation check itself.
+
+Finally, be aware that the content format for Realtime API messages is different from the format for the OpenAI HTTP API. Here is Pipecat code that converts from the HTTP API format to the Realtime API format:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/context.py#L49
+
+Function calling
+
+Function calling works quite nicely in the OpenAI Realtime API (as is the case with all of the GPT-4 family of models).
+
+As with the format of conversation messages, the tools format differs slightly from the OpenAI HTTP API.
+
+This HTTP API tools list (with a single entry):
+tools = [
+ {
+ "type": "function",
+ "function": {
+ "name": "get_current_weather",
+ "description": "Get the current weather in a given location",
+ "parameters": {
+ "type": "object",
+ "properties": {
+ "location": {
+ "type": "string",
+ "description": "The city and state, e.g. San Francisco, CA",
+ },
+ },
+ "required": ["location"],
+ }
+ }
+ }
+]
+
+becomes this tools list in the Realtime API:
+tools = [
+ {
+ "type": "function",
+ "name": "get_current_weather",
+ "description": "Get the current weather",
+ "parameters": {
+ "type": "object",
+ "properties": {
+ "location": {
+ "type": "string",
+ "description": "The city and state, e.g. San Francisco, CA",
+ },
+ "format": {
+ "type": "string",
+ "enum": ["celsius", "fahrenheit"],
+ "description": "The temperature unit to use. Infer this from the users location.",
+ },
+ },
+ "required": ["location", "format"],
+ },
+ }
+]
+
+Function call events are available from the API in two ways:
+
+via the streaming events response.function_call_arguments.delta and function_call_arguments.done.
+
+as part of the response.done event
+
+The streaming events might be useful if you are porting from the HTTP API and want to retain as much of your existing code structure as possible. But it's nice that the Realtime API makes it to simple to pull the function call structure out of the response.done event. Streaming isn't very useful for function calling — you need the complete function call structure before you can call the function — and assembling the function call data from streamed response chunks has always been a minor annoyance when using the HTTP API.
+
+Here's the Pipecat code that extracts function calling information from the output field of the response.done event:
+
+https://github.com/pipecat-ai/pipecat/blob/main/src/pipecat/services/openai_realtime_beta/openai.py#L469
+
+Cost
+
+For conversational AI use cases, cost usually increases exponentially with session length. Most conversational AI applications and APIs use the full conversation history for each turn's inference request. The OpenAI Realtime API is no exception.
+
+However, OpenAI automatically caches and re-uses input tokens sent to the Realtime API. Cached audio tokens are 80% cheaper than non-cached tokens. This really helps keep down the cost of long conversations.
+
+Typical conversation costs:
+ - 1 minute — $0.11
+ - 2 minutes - $0.26
+ - 5 minutes - $0.92 
+ - 10 minutes - $2.68
+ - 15 minutes - $5.28
+OpenAI does not generate tokens for silent(-ish) audio input (audio with neither speech nor significant background noise). The above estimates assume 70% talk time. A lower percentage of talk time will reduce the cost.
+
+It's safe to assume that OpenAI will lower the cost of the Realtime API a lot, soon, and frequently. Today, however, if your application is cost-sensitive, you may want to rewrite the conversation context every few turns, replacing audio messages with text messages (and possibly use summarization, too, to further reduce the input token count).
+
+Here is a cost calculator spreadsheet you can copy, use, and adjust the assumptions of:
+
+https://docs.google.com/spreadsheets/d/1EL-mjqlmj4ehug8BjmgmAFm9uFZtZXY9N9EvqLm8Ebc/edit?usp=sharing
+
+WebSockets and WebRTC
+
+The OpenAI Realtime API uses WebSockets for network transport.
+
+WebSockets are great for server-to-server use cases, for use cases where latency is not a primary concern, and are fine for prototyping and general hacking. But WebSockets shouldn't be used in production for client-server, real-time media connections.
+
+If you are building a browser or native mobile app using the Realtime API, and achieving conversational latency matters to your application, you should use a WebRTC connection to send and receive audio from your app to a server. Then, from your server, you can use the Realtime API directly. (Pipecat supports WebRTC transport as well as WebSockets and HTTP, and makes building this kind of [client] <-> [server] <-> [inference server] architecture very easy.)
+
+The major problems with WebSockets for real-time media delivery to and from end-user devices are:
+
+WebSockets are built on TCP, so audio streams will be subject to head-of-line blocking and will automatically attempt packet resends even if packets are delayed so much that they can not be used for playout.
+
+The Opus audio codec used for WebRTC is tightly coupled to WebRTC's bandwidth estimation and packet pacing (congestion control) logic, making a WebRTC audio stream resilient to a wide range of real-world network behaviors that would cause a WebSocket connection to accumulate latency.
+
+The Opus audio codec has very good forward error correction, making the audio stream resilient to relatively high amounts of packet loss. (This only helps you if your network transport can drop late-arriving packets and doesn't do head of line blocking, though.)
+
+Audio sent and received over WebRTC is automatically time-stamped so both playout and interruption logic are trivial. These are harder to get right for all corner cases, when using WebSockets.
+
+WebRTC includes hooks for detailed performance and media quality statistics. A good WebRTC platform will give you detailed dashboards and analytics for both aggregate and individual session statistics that are specific to audio and video. This level of observability is somewhere between very hard and impossible to build for WebSockets.
+
+WebSocket reconnection logic is very hard to implement robustly. You will have to build a ping/ack framework (or fully test and understand the framework that your WebSocket library provides). TCP timeouts and connection events behave differently on different platforms.
+
+Finally, good WebRTC implementations today come with very good echo cancellation, noise reduction, and automatic gain control. You will likely need to figure out how to stitch this audio processing into an app that uses WebSockets.
+
+In addition, long-haul public Internet routes are problematic for latency and real-time media reliability, no matter what the underlying network protocol is. So if your end-users are a significant distance from OpenAI's servers, it's important to try to connect the user to a media router as close to them as possible. Beyond that first "edge" connection, you can then use a more efficient backbone route. A good WebRTC platform will do this for you automatically.
+
+If you're interested in network protocols designed for sending media, here's a technical overview of RTMP, HLS, and WebRTC:
+
+https://www.daily.co/blog/video-live-streaming/
+
+For a deep dive into WebRTC edge and mesh routing, here's a long post about Daily's global WebRTC infrastructure:
+
+https://www.daily.co/blog/global-mesh-network/
+
+Echo cancellation and audio processing
+
+Almost every non-telephony conversational voice application will need echo cancellation and other audio processing.
+
+Chrome, Safari, and Edge all include quite good echo cancellation via the Media Capture and Streams API. We strongly recommend not using Firefox as your primary browser for real-time voice development and testing. Firefox's echo cancellation and general audio stream management are buggy enough and far enough behind the curve that you will spend a lot of time trying to work around issues that no users on any other browser will ever see. Get things working on Chrome and Safari, and then decide whether you want to spend time to bring Firefox up to parity.
+
+As discussed above, browser WebRTC implementations and native SDKs include good implementations of echo cancellation, background noise reduction, and automatic gain control and will turn all of these on by default.
+
+Note that echo cancellation needs to be done on the client device. Other kinds of audio processing can usefully be done server-side. Pipecat includes integrations for Krisp's very good commercial noise reduction and speaker isolation models, for example.
+
+A digression about API design
+
+Every API is an engineering artifact subject to all the constraints and trade-offs that govern software design and development.
+
+Good APIs strive to be clear in what they are trying to enable, to offer abstractions at the right level of granularity for their intended users and use cases, and to make easy things easy and hard things possible.
+
+Building OpenAI Realtime API support into Pipecat has been a lot of fun. We've enjoyed comparing the two approaches to supporting conversational voice AI. In general, the OpenAI events map fairly cleanly onto Pipecat frame types. The problem space that the OpenAI Realtime API defines feels familiar to those of us who have worked on the evolution of Pipecat for the last year or so.
+
+However, the architecture of the OpenAI Realtime API is quite different from that of Pipecat. My guess is that this difference is partly motivated by a desire on the OpenAI side to use the most broadly accessible constructs possible, and partly by a difference in project scope.
+
+The Realtime API event architecture is easy to incorporate into almost any language or framework. Sending events just requires pushing some JSON (or similar) onto the wire. Receiving events just requires dispatching to functions from a read loop.
+
+Pipecat, by contrast, is a dataflow architecture, influenced by many years of work on media processing frameworks like GStreamer. Pipecat's design emphasizes composability, sequential processing, and represention of real-time behaviors as first-class abstractions.
+
+The core building block in the Realtime API is the "event." The core building block in Pipecat is the "frame processor."
+
+The voice-to-voice loop in a Pipecat process might look like this:
+pipeline = Pipeline(
+ [
+ transport.input(), 
+ context_aggregator.user(),
+ openai_realtime_llm, 
+ context_aggregator.assistant(),
+ transport.output()
+ ]
+)
+
+With the addition of speech-to-text and text-to-speech frame processors, this same voice-to-voice construct can work with any LLM.
+pipeline = Pipeline(
+ [
+ transport.input(), 
+ context_aggregator.user(),
+ stt,
+ llm,
+ tts, 
+ context_aggregator.assistant(),
+ transport.output()
+ ]
+)
+
+Here's a more complicated processing pipeline taken from a production Pipecat application, with frame processors for a variety of client commands and events, function calls implemented via webhooks, billing events, observability and usage metrics, and error handling.
+pipeline = Pipeline(
+ [
+ el,
+ transport.input(),
+ rtvi,
+ user_aggregator,
+ openai_realtime_llm,
+ rtvi_speaking,
+ rtvi_user_transcription,
+ rtvi_bot_llm,
+ rtvi_bot_transcription,
+ webhooks_processor,
+ ml,
+ rtvi_metrics,
+ transport.output(),
+ rtvi_bot_tts,
+ assistant_aggregator,
+ ]
+)
+
+And here's a fun one — an experimental pipeline that uses an LLM (in addition to VAD) to perform phrase endpointing. This pipeline does the LLM-as-a-judge inference and the main conversation inference in parallel sub-pipelines to minimize latency:
+pipeline = Pipeline(
+ [
+ transport.input(),
+ stt,
+ context_aggregator.user(),
+ ParallelPipeline(
+ [
+ # Pass everything except UserStoppedSpeaking to the elements after
+ # this ParallelPipeline
+ FunctionFilter(filter=block_user_stopped_speaking),
+ ],
+ [
+ # Ignore everything except an OpenAILLMContextFrame. Pass a specially constructed
+ # LLMMessagesFrame to the statement classifier LLM. The only frame this
+ # sub-pipeline will output is a UserStoppedSpeakingFrame.
+ statement_judge_context_filter,
+ statement_llm,
+ completeness_check,
+ ],
+ [
+ # Block everything except OpenAILLMContextFrame and LLMMessagesFrame
+ FunctionFilter(filter=pass_only_llm_trigger_frames),
+ llm,
+ bot_output_gate, # Buffer all llm output until notified.
+ ],
+ ),
+ tts,
+ user_idle,
+ transport.output(),
+ context_aggregator.assistant(),
+ ]
+)
+
+Resources
+
+OpenAI's Realtime API overview documentation:
+
+https://platform.openai.com/docs/guides/realtime/realtime-api-beta#quickstart
+
+API reference:
+
+https://platform.openai.com/docs/api-reference/realtime
+
+The excellent Realtime API console sample app:
+
+https://github.com/openai/openai-realtime-console
+
+(and don’t forget swyx’s simplified fork: https://github.com/swyxio/simple-realtime-console)
+
+The Pipecat code that implements the OpenAI Realtime API as a Pipecat service. The Pydantic event definitions might be particularly useful to other projects:
+
+https://github.com/pipecat-ai/pipecat/tree/main/src/pipecat/services/openai_realtime_beta
+
+51
+
+2
+
+5
+
+Share
+
+PreviousNext
+
+A guest post by
+
+Kwindla Hultman Kramer
+
+Infrastructure and developer tools for real-time voice, video, and AI. https://daily.co // ᓚᘏᗢ // https://pipecat.ai
+
+Subscribe to Kwindla

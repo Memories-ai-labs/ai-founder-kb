@@ -1,0 +1,1019 @@
+# Commoditizing the Petaflop — with George Hotz of the tiny corp
+# URL: https://www.latent.space/p/geohot
+# Date: 2023-06-20
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Commoditizing the Petaflop — with George Hotz of the tiny corp
+
+29
+
+1
+
+4
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:12:41
+
+-1:12:41
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Commoditizing the Petaflop — with George Hotz of the tiny corp
+
+Ep. 18: How tiny is taking on Nvidia, Google, and PyTorch, building in public with AMD, hot takes on ggml, Mojo, Elon, e/acc, and GPT-4, and why AI Girlfriend is next. Now on YouTube!
+
+Jun 20, 2023
+
+29
+
+1
+
+4
+
+Share
+
+We are now launching our dedicated new YouTube and Twitter! Any help in amplifying our podcast would be greatly appreciated, and of course, tell your friends! 
+
+Notable followon discussions collected on Twitter, Reddit, Reddit, Reddit, HN, and HN. Please don’t obsess too much over the GPT4 discussion as it is mostly rumor; we spent much more time on tinybox/tinygrad on which George is the foremost authority!
+
+We are excited to share the world’s first interview with George Hotz on the tiny corp!
+
+If you don’t know George, he was the first person to unlock the iPhone, jailbreak the PS3, went on to start Comma.ai, and briefly “interned” at the Elon Musk-run Twitter. 
+
+Tinycorp is the company behind the deep learning framework tinygrad, as well as the recently announced tinybox, a new $15,000 “luxury AI computer” aimed at local model training and inference, aka your “personal compute cluster”:
+
+738 FP16 TFLOPS
+
+144 GB GPU RAM
+
+5.76 TB/s RAM bandwidth
+
+30 GB/s model load bandwidth (big llama loads in around 4 seconds)
+
+AMD EPYC CPU
+
+1600W (one 120V outlet)
+
+Runs 65B FP16 LLaMA out of the box (using tinygrad, subject to software development risks)
+
+(In the episode, we also talked about the future of the tinybox as the intelligence center of every home that will help run models, at-home robots, and more. Make sure to check the timestamps 👀 )
+
+The tiny corp manifesto
+
+There are three main theses to tinycorp:
+
+If XLA/PrimTorch are CISC, tinygrad is RISC: CISC (Complex Instruction Set Computing) are more complex instruction sets where a single instruction can execute many low-level operations. RISC (Reduced Instruction Set Computing) are smaller, and only let you execute a single low-level operation per instruction, leading to faster and more efficient instruction execution. If you’ve used the Apple Silicon M1/M2, AMD Ryzen, or Raspberry Pi, you’ve used a RISC computer.
+
+If you can’t write a fast ML framework for GPU, you can’t write one for your own chip: there are many “AI chips” companies out there, and they all started from taping the chip. Some of them like Cerebras are still building, while others like Graphcore seem to be struggling. But building chips with higher TFLOPS isn’t enough: “There’s a great chip already on the market. For $999, you get a 123 TFLOP card with 24 GB of 960 GB/s RAM. This is the best FLOPS per dollar today, and yet…nobody in ML uses it.”, referring to the AMD RX 7900 XTX. NVIDIA’s lead is not only thanks to high-performing cards, but also thanks to a great developer platform in CUDA. Starting with the chip development rather than the dev toolkit is much more cost-intensive, so tinycorp is starting by writing a framework for off-the-shelf hardware rather than taping their own chip. 
+
+Turing completeness considered harmful: Once you call in to Turing complete kernels, you can no longer reason about their behavior. Since they have to be able to execute any instruction, they are much more complex. To optimize Turing kernels performance, you fall back to caching, warp scheduling, and branch prediction. Since neural networks only need ADD/MUL operations and only rely on static memory accesses, there’s no need to have Turing completeness. This design decision allows tinygrad to optimize instructions at a much lower level. As you might have guessed, CUDA is Turing-complete; this is one of the main differences that tinycorp wants to leverage to be competitive. 
+
+All that — covered in the first 10 minutes of our discussion. George came ready to go deep, so we went for it. Some of the other technical questions we went through:
+
+Laziness: why laziness is important and how operation fusing can help with memory efficiency
+
+Debugging & CI: Why great developer experience is a priority in tinygrad
+
+Quantization: what’s the right level of quantization, how lossless are these transformations, his quick takes on Mojo and ggml, and why fp16 is the target for their out-of-the-box LLaMA. 
+
+Building rigs for individual use: we talked a bit about the design tradeoffs of building these machines with low noise and a single power plug, the difference that PCIe 4 vs 3 makes, and more.
+
+The “personal compute cluster” is $15,000, but for businesses interested in local training and inference, George also estimates that he will be able to build you a H100-class GPU that is 5-10x faster (than a H100) for the same price.
+
+Misc: Bitter Lessons, Core Insights, Remote Work
+
+Outside of tiny, we also talked about one of George’s favorite units of measure “a person of compute”. Much of the AGI talk has been benchmark-driven, but looking at it from a compute throughput can also be interesting. One person of compute is roughly 20 PFLOPS (64 A100s, or a single dense 42U A100 rack); one A100 is ~$10-15,000, so the GPUs by themselves will come out at $640,000-$1,000,000. 
+
+We also covered a wide range of topics, including his self analysis on GPT-4, Elon Musk, Remote Work, Computer Vision and the Comma Body, and life above/below the API (and above/below the Kanban board). See show notes and timestamps for more!
+
+Recorded at the beautiful Studiopod studios in San Francisco
+
+Show Notes
+
+“Unlocked iPhone Traded for Nissan 350Z”
+
+“Unlocked iPhone” on YouTube (August 21st, 2007)
+
+“The Light It Up Contest” on YouTube (February 13th, 2011)
+
+Comma.ai
+
+NHTSA cease and desist
+
+The Hero’s Journey
+
+The Portal Story
+
+A Person of Compute
+
+Above / Below the API Line (swyx take)
+
+The Bitter Lesson
+
+The Goddess of Everything Else (listen to George read it)
+
+Meditations on Moloch
+
+George’s email to Lisa Su, AMD’s CEO:
+
+Timestamps
+
+[00:00:00] Intros & tinygrad’s “Portal Story”
+
+[00:03:00] Thesis #1
+
+[00:03:50] Thesis #2
+
+[00:05:00] Thesis #3 + Turing completeness discussion
+
+[00:10:00] tinygrad’s creation and core ideas
+
+[00:16:00] Operation fusing in tinygrad
+
+[00:17:00] Debugging & profiling in tinygrad
+
+[00:18:30] Tinygrad vs Pytorch competitiveness
+
+[00:20:30] geohot vs AMD
+
+[00:25:00] On ggml
+
+[00:26:00] Tinygrad’s CI philosophy
+
+[00:26:30] On Mojo
+
+[00:28:00] ggml quantization is made up
+
+[00:31:00] Work for tiny: benchmark int8 vs fp16
+
+[00:33:00] Why you can’t build tinybox - Design constraints
+
+[00:35:00] The Personal Compute Cluster
+
+[00:37:00] Shoutout to our MosaicML podcast
+
+[00:39:00] FLOPcoin and other use cases for the tinybox
+
+[00:43:00] Rumors on GPT-4 architecture
+
+[00:46:00] The Bitter Lesson
+
+[00:48:00] Hiring and Changing mind on remote work
+
+[00:52:00] Above/Below The API
+
+[00:55:40] Comma Bodies & Computer Vision
+
+[00:58:40] Merging with the machine and AI girlfriends
+
+[01:02:00] Is AI gonna kill us all?
+
+[01:09:00] Why Avatar 2 was bad
+
+Transcript
+
+Swyx: Hey everyone, welcome to the Latent Space podcast. This is Swyx, writer and editor of Latent Space. And Alessio is taking over with the intros, Alessio is Partner and CTO in residence at Decibel Partners. [00:00:20]
+
+Alessio: Hey everyone, today we have Geohot on the podcast, aka George Hotz. Everybody knows George, so I'm not going to do a big intro. A couple of things that people might have missed: you traded the first ever unlocked iPhone for a Nissan 350Z and three new iPhones. You were then one of the first people to break into the PS3 to run arbitrary code. You got sued by Sony, you wrote a rap song to fight against that, which is still live on YouTube, which we're going to have on the show notes. Did not go to Tesla to build vision, and instead you started Comma.ai, which was an amazing engineering feat in itself until you got a cease and desist from the government to not put these things on the street and turned that into a research only project. [00:01:00]
+
+George: You know they're out there. [00:01:01]
+
+Alessio: Yeah, yeah. [00:01:03]
+
+Swyx: They're out there. [00:01:04]
+
+Alessio: But like in a, you know, you market them as a research kind of like no warranty. [00:01:06]
+
+George: Because I use the word dev kit, that's not about the government, that's nothing to do with the government. We offer a great one-year warranty. The truth about that is it's gatekeeping. What's the difference between a dev kit and not a dev kit? Nothing. Just the question of do you think it's for you? And if you think it's for you, buy it. It's a consumer product. We call it a dev kit. If you have a problem with that, it's not for you. [00:01:28]
+
+Swyx: That's great insight. [00:01:30]
+
+Alessio: I was going through your blog posts to get ready. You've wrote this post about The Hero's Journey. And you linked this thing called the portal story, which is kind of the set of stories in movies and books about people living this arbitrary life. And then the run to this magic portals kind of takes them into a new, very exciting life and dimension. When you wrote that post, you talked about TinyGrad, which is one of the projects we're working on today. You mentioned this is more of a hobby, something that is not going to change the course of history. Obviously, you're now going full speed into it. So we would love to learn more about what was the portal that you ran into to get here. [00:02:03]
+
+George: Well, what you realize is... You know what made me realize that I absolutely had to do the company? Seeing Sam Altman go in front of Congress. Why? What are the odds they nationalize NVIDIA? What are the odds that large organizations in the government, but of course I repeat myself, decide to try to clamp down on accessibility of ML compute? I want to make sure that can't happen structurally. So that's why I realized that it's really important that I do this. And actually, from a more practical perspective, I'm working with NVIDIA and Qualcomm to buy chips. NVIDIA has the best training chips. Qualcomm has the best inference chips. Working with these companies is really difficult. So I'd like to start another organization that eventually in the limit, either works with people to make chips or makes chips itself and makes them available to anybody. [00:02:48]
+
+Alessio: Can you share three core pieces to TinyCorp? Maybe we can dive into each of them. So XLA, PrimTorch, those are the complex instruction system. TinyGrad is the restricted instruction system. So you're kind of focused on, again, TinyGrad being small, not being overcomplicated and trying to get as close to the DSP as possible in a way where it's at more. [00:03:08]
+
+George: Well, it's a very clear analogy from how processes are developed. So a lot of processes back in the day were CISC, complex instruction set, system 360, and then x86. This isn't how things stayed. They went to now the most common processor is ARM, and people are excited about RISC-V. No one's excited about it. RISC-V is even less complex than ARM. No one is excited about CISC processors anymore. They're excited about reduced instruction set processors. So TinyGrad is, we are going to make a RISC offset for all ML models. And yeah, it can run all ML models with basically 25 instead of the 250 of XLA or PrimeTorch. So about 10x less complex. [00:03:47]
+
+Swyx: Yep. [00:03:48]
+
+Alessio: You talk a lot about existing AI chips. You said if you can’t write a fast ML framework for GPUs, you just cannot write one for your own chip. So that's another one of your core insights. I don't know if you want to expand on that. [00:03:59]
+
+George: Yeah. I mean, your chip is worse, right? There's no way the chip that you're going to tape out, especially on the first try, is going to be easier to use than an AMD GPU, right? And yet there's no good stack for AMD GPUs. So why do you think you can make one for your chip? You can't, right? There's one other company, aside from NVIDIA, who's succeeded at all at making training chips. What company? [00:04:20]
+
+Swyx: AMD? Intel? [00:04:22]
+
+George: No, no, no. I've never trained. Who's trained a model on AMD or Intel? Cerebras. [00:04:26]
+
+Swyx: Cerebras! [00:04:27]
+
+George: I'm talking about, you might know some startups who trained models on these chips. [00:04:31]
+
+Alessio: Oh, TPU. [00:04:32]
+
+George: Exactly. Right? So Midjourney is trained on TPU, right? Like a lot of startups do actually train on TPUs. And they're the only other successful training chip, aside from NVIDIA. But what's unique about Google is that they also wrote their own ML framework, right? And if you can't write your own ML framework that is performant on NVIDIA, there's no way you're going to make it performant on your stuff. [00:04:53]
+
+Alessio: And they started from TensorFlow and then they made the chip after. [00:04:56]
+
+Swyx: Yeah, exactly. Exactly. [00:04:58]
+
+George: And you have to do it in that direction. Otherwise, you're going to end up, you know, Cerebras, one of those things, a million... Has anyone ever seen a Cerebras? No one's ever like, oh, I trained my model on a Cerebras. Most people are like, I trained my model on GPUs. Some people, 20%, are like, I trained my model on TPUs. [00:05:14]
+
+Alessio: And then the third one, which is the one that surprised me the most, is Turing completeness is harmful. It should be avoided. It made sense once I read it, but maybe tell us a bit more about how you got there. [00:05:25]
+
+George: Okay. So CPUs devote tons of their silicon and power to things like reorder buffers and speculative execution and branch predictors. And the reason that you need all these things is because at compile time, you can't understand how the code's going to run. This is Rice’s theorem. This is the halting problem and its limit. And this is not like, oh, the halting problem is theoretical. No, no, no, no. It's actually very real. Does this branch get taken or not? Well, it depends on X. Where does X come from? Yeah, forget it, right? But no branches depend on X in a neural net. Every branch is a static loop. Like if you're doing a matrix multiply, it's a static loop over the inner dimension. And neural networks are even better. No loads even depend on X, right? So with a GPU shader, right, your load might depend on which texture you're actually loading into RAM. But with a neural network, your load is, well, I load that way. Why? Well, because I load that way the other million times I ran the same net. Every single time you run the net, you do the exact same set of loads, stores, and arithmetic. The only thing that changes is the data. And this gives you a very powerful ability to optimize that you can't do with CPU-style things, which have branches, and even GPU-style things, which have loads and stores. Well, GPUs, if you want GPU-style stuff, you have like load based on X, you now need a cache hierarchy, and not an explicit cache hierarchy, an implicit cache hierarchy with eviction policies that are hard-coded into the CPU. You start doing all this stuff, and you're never going to get theoretically good performance. Again, I don't think there's 100X. Some startups will talk about 100X, and they'll talk about absolutely ridiculous things like clockless computing or analog computing. Okay, here, analog computing just won't work. And clockless computing, sure, it might work in theory, but your EDA tools are... Maybe AIs will be able to design clockless chips, but not humans. But what actually is practical is changing cache hierarchies and removing branch predictors and removing warp schedulers, right? GPUs spend tons of power on warp scheduling because we have to hide the latency from the memory. We'll have to hide the latency if everything's statically scheduled. [00:07:25]
+
+Alessio: Why do you think people are still hanging on to Turing completeness? [00:07:27]
+
+Swyx: Well, because it's really easy. [00:07:29]
+
+George: Turing Complete is just really easy to just, oh, you know, it would just be so nice if I could do like an if statement here and actually branch the code, right? So it requires a lot more thought to do it without Turing Completeness. [00:07:41]
+
+Swyx: And would this be qualitatively different than TPUs? [00:07:44]
+
+George: So TPUs are a lot closer. Yeah. TPUs are a lot closer to what I'm talking about than like CUDA. Okay, so what is CUDA? Well, CUDA is a C-like language, which compiles to an LLVM-like IR, which compiles to PTX, which compiles to SAS, which are all Turing Complete. TPUs are much more like this. Yeah. Their memory is pretty statically managed. They have a V—I did some reverse engineering on the TPU. It's published in TinyGrad. It has like a VLIW instruction, and it runs them. So it's similar. I think the TPUs have a few problems. I think systolic arrays are the wrong choice. I think they have systolic arrays because that was the guy's PhD, and then of course Amazon makes— [00:08:20]
+
+Swyx: Could you summarize systolic arrays for us? [00:08:21]
+
+George: Systolic arrays are just—okay, so basically you have like—it's a way to do matrix multiplication. Think of a grid of mollax, and then the grid can multiply, and then shift, multiply, then shift, multiply, then shift. And they are very power efficient, but it becomes hard to schedule a lot of stuff on them if you're not doing like perfectly sized dense matrix multiplies, which you can argue, well, design your models to use perfectly sized dense matrix multiplies, sure. [00:08:47]
+
+Swyx: Thanks for indulging on these explanations. I think we need to keep our audience along with us by pausing every now and then to explain key terms. [00:08:56]
+
+George: When I say explain a systolic array, I just immediately get a picture in my head of like tilting a matrix and shifting it. It's hard to kind of explain. Yeah. [00:09:04]
+
+Swyx: Yeah. We'll do something. We'll do something. We'll have show notes. [00:09:08]
+
+George: And we edit in visuals. Yeah, yeah, yeah. There's some great graphics that just show you, oh, so that's what a systolic array is. But it's a mollax shift machine that looks kind of different from the typical ALU sort of machine. I think the right answer is something that looks more like queues that feed into ALUs, and then you can prefetch the loads from the memory, put in a bunch of queues, and then the queue is just like, and feeds into another queue over here. But yeah, but that's not even the main problem with TPUs. The main problem with TPUs is that they're closed source. Not only is the chip closed source, but all of XLA is open source. But the XLA to TPU compiler is a 32 megabyte binary blob called libTPU on Google's cloud instances. It's all closed source. It's all hidden stuff. And you know, well, there's a reason Google made it closed source. Amazon made a clone of the TPU. It's called Inferentia. Or they have some other name for it, a training. Tranium. Yeah, yeah, yeah. And look, it's a clone of the TPU. But Google's software at least kind of works. [00:09:58]
+
+Alessio: So those are kind of like the three core pieces. The first thing you're working on, that you've been working on, is TinyGrad. And one of your Twitch streams, you said, is the best thing you've ever written. [00:10:07]
+
+Swyx: Yeah. [00:10:08]
+
+Alessio: Tell us a bit more about that creation. [00:10:10]
+
+George: For a long time, TinyGrad had a hard limit at a thousand lines of code. And what this would force you to do is really make sure you were not wasting lines. I got rid of the restriction because it became a little code golfy at the end. But once like the core framework of TinyGrad was there in those thousand lines, but like the core framework, the ideas are expressed with no boilerplate. If you go read PyTorch, you know, PyTorch I think is actually pretty good code. I think Facebook's pretty good, but there's so much boilerplate. Go in PyTorch and try to track down how an LGU actually works. [00:10:44]
+
+Swyx: Just a lot of instructions. [00:10:45]
+
+George: Oh, you're going to be diving down a long stack from Python to C to custom libraries to dispatchers to, and then I don't even know how to read TensorFlow. I don't even know where's an LU in TensorFlow. [00:10:55]
+
+Swyx: Nobody knows. [00:10:56]
+
+George: Someone at Google knows maybe. Google as an organism knows. I don't know if anyone individual at Google knows. [00:11:02]
+
+Alessio: What are like the important ergonomics like for a developer as you think about designing the TinyGrad API? [00:11:07]
+
+George: So the TinyGrad front end looks very similar to PyTorch. There's an even higher level front end you can use for TinyGrad, which is just ONNX. We have better support for ONNX than Core ML does. And we're going to have, I think we're going to pass ONNX Runtime soon, too. People think ONNX Runtime, that's the gold standard for ONNX. No, you can do better. [00:11:23]
+
+Swyx: Pass them in what, specifically? Test compliance tests. [00:11:26]
+
+George: So ONNX has a big set of compliance tests that you can check out. And we have them running in TinyGrad, and there's some failures. We're below ONNX Runtime, but we're beyond Core ML. So that's where we are in ONNX support now. But we will pass ONNX Runtime soon because it becomes very easy to add ops because you don't need to do anything at the lower levels. You just do it at this very high level, and TinyGrad compiles it to something that's fast using these minimal ops. You can write, most concretely, what TinyGrad can do that PyTorch can't really do, is if you have something like A times B plus C. If you write that in NaivePyTorch, what it's going to do on the GPU is read A, read B in a kernel, and then store A times B in memory, and then launch another kernel to do A times B plus C. Okay, got to do those loads from memory. It's a whole extra round trip to memory that I just didn't have to do. And you're like, yeah, but you can use the Torch JIT, and it corrects this. Yeah, for that one example, for that one example of MUL/ACC, but, oh, now you did three multiplies? Six multiplies? It won't compile arbitrary code. [00:12:26]
+
+Swyx: And have you looked into the other approaches like PyTorch Lightning to accelerate PyTorch itself? [00:12:32]
+
+George: Well, PyTorch Lightning, my understanding is, it's mostly a framework around PyTorch, right? PyTorch Lightning is not going to fix this fundamental problem of I multiply six tensors together. It's not going to fix it going to memory any more than a single read from each and a single write to the output. There are lower level things in PyTorch that are, I'm not exactly sure what Dynamo does, but I know they're generating some Triton stuff, which is going to generate the kernels on the fly. But, you know, PyTorch Lightning is at a higher level of abstraction. So TinyGrad's front-end stuff looks like PyTorch. I made a few tweaks. There's a few things I don't like about PyTorch. Why is Relu a class? Really, what's the state? You make a class, and there's a state. Everything should just be Torch functional and then Relu, but just dot Relu on the tensor. There's things in Torch where you have to do tensor dot and not a tensor dot. It just shows an API that's not perfectly refined. But when you're doing stuff TinyGrad style where you don't have lines, well, it has to work this way. Because even the lines to express the, well, you can't use the where operator in PyTorch. Why is it true case, condition, false case? Ugh, that's how Python expresses ifs. It's disgusting. Turner operators are much nicer. It should be, I can do my like a less than zero dot where a comma one, right? [00:13:46]
+
+Swyx: The very pandas-like API? [00:13:50]
+
+George: It looks like Torch, NumPy, pandas. They're all very similar. I tried to take the cleanest subset of them and express them. But like I said, you can also interact with it using ONNX. I have a rewrite of StableDiffusion, I have a rewrite of Llama, I have a rewrite of Whisper. You can look at them. They're shorter than the Torch versions, and I think they're cleaner. And you stream them all? [00:14:05]
+
+Swyx: Yeah. Very nice. [00:14:07]
+
+Alessio: So what's the other important concept that you're leveraging to do operation fusing? [00:14:11]
+
+George: Yeah, you have basically like a few different like models for the simplest one is eager is as soon as the interpreter sees A times B, it actually dispatches A times B, right? Then you have graph like TensorFlow, which will put A times B into a graph, and then we'll do absolutely nothing until you actually compile the graph at the end. I like this third choice, which is somewhere in the middle, laziness. Laziness is you don't know when the ops are going to dispatch, and don't worry about that. You don't have to worry about this as a programmer, you just write out all your stuff. And then when you actually type `.numpy`, it'll be ready by the time you copy the thing back to CPU. Or you can do `.realize`, and it will actually like force that tensor to be allocated in RAM. And if you think about it, PyTorch is kind of lazy in a way, but they didn't extend the paradigm far enough, right? When I do A times B in PyTorch, it's going to launch a CUDA kernel to do A times B. But it's not going to wait for that CUDA kernel to complete. So you're getting the worst possible worlds. You're getting the same laziness, but you also can't get fusion, because PyTorch doesn't know that I'm then going to do plus C. There's no way for it to be like, whoa, whoa, whoa, don't launch that CUDA kernel. Whoa, just do this one too. Right? Again, PyTorch is working on this, and it's a little bit harder. In Kama, I felt like I was competing against a lot of idiots. Here, I'm competing against smart, very smart people who've made some, I think, different trade-offs. Whereas, if you're trying to build something that is just straight up good on NVIDIA, and we have a lot of people and complexity to throw at it, yeah, PyTorch made a lot of the right choices. I'm trying to build something that manages complexity. You can always make your software do more. The magic is when you can make your software do more without adding complexity, right? Because complex things eventually collapse under their own weight, so it's kind of... [00:15:58]
+
+Alessio: How does fusing actually work? [00:16:00]
+
+George: There's this thing called lazy.py, and when you do A times B, that's... It's put into a graph, but it's a very local graph. There's no global graph optimizations. And even this can change, right? Again, the programming model for TinyGrad does not preclude eagerness, right? Laziness is not guaranteed laziness. It's just going to try its best. So you put in A times B, and that's a binary op, right? And then you put in A times B, that's a node in the graph. It's a virtual node because it's not realized yet, plus C. Okay, here's a new node, which takes the C tensor in here and takes the output of A times B. It's like, whoa, there's two binary ops. Okay, we'll just fuse those together. Okay, here I have a kernel. This kernel has A, B, and C as inputs. It does A times B plus C in the local registers, and then outputs that to memory. And you can graph.one in TinyGrad. Another amazing thing that TinyGrad has that I've not seen in any other framework is two things. Graph equals one, which is an environment variable. It will output a complete graph of all the operations. Other people are like, oh, you can use PyTorch, export it to ONNX, and use Netron. Yeah, you can. Like, what? That's not what's real. Graph equals one will show you the actual kernels that were dispatched to the GPU. You can also type debug equals two, which will print those kernels out in your command line, and it will tell you the exact number of flops and the exact number of memory accesses in each kernel. So you can immediately see, wait a second, okay, this kernel used this many flops. This was the gigaflops. This is how many bytes it read, and this was the gigabyte per second. And then you can profile without having to like, okay, I mean, in theory, in PyTorch, Sure, use the NVIDIA Insight Profiler. No one does that. No one does, of course, because it's so difficult, right? Like, actually, NVIDIA used to, I think CUDA 9 was the last one that had it. They had a command line one, but now it's like, okay, I'm going to generate this blob, use this NVIDIA GUI tool to convert it into a Chrome trace, and then load it. Yeah, no one does that, right? Just type debug equals two in any TinyGrad model, and it will show you all the kernels that it launches and the efficiency of each kernel, basically. [00:17:58]
+
+Swyx: Yeah, this is something that John Carmack has often commented about, is that when you code, you need to build in your instrumentation or observability right into that. I wonder if whatever John is working on, he's adopting this style, and maybe we can sort of encourage it by, I don't know, naming it and coining a certain kind of debugging style? [00:18:16]
+
+George: If he would like to start contributing to TinyGrad, I'd be so happy. [00:18:19]
+
+Swyx: You should hook up with them. [00:18:22]
+
+George: I've chatted with them a few times. I'm not really sure what his company's doing, but no, I mean, hopefully we get TinyGrad to a point where people actually want to start using it. So TinyGrad right now is uncompetitive on NVIDIA, and it's uncompetitive on x86. [00:18:36]
+
+Swyx: And specifically, what do you care about when you say uncompetitive? Speed. [00:18:39]
+
+George: Share of speed. It's correct. The correctness is there. The correctness for both forwards and backwards passes is there. But on NVIDIA, it's about 5x slower than PyTorch right now. Like 5x, wow, this is unsurmountable. No, there's reasons it's 5x slower, and I can go through how we're going to make it faster. It could be 100x slower, so we're making progress. But there's one place where it actually is competitive, and that's Qualcomm GPUs. So TinyGrad is used to run the model in OpenPilot. Like right now, it's been live in production now for six months. And TinyGrad is about 2x faster on the GPU than Qualcomm's library. [00:19:10]
+
+Swyx: What about Qualcomm architecture? [00:19:12]
+
+George: What makes it doable? Well, because the world has spent how many millions of man hours to make NVIDIA fast? And Qualcomm has a team of 10 Qualcomm engineers? Okay, well, who can I beat here? What I propose with TinyGrad is that developer efficiency is much higher. But even if I have 10x higher developer efficiency, I still lose on NVIDIA, right? You know, okay, I didn't put 100,000 man hours into it, right? If they put a million, like, that's what I'm saying. But that's what I'm saying we can get. And we are going to close this speed gap a lot. Like I don't support TensorCourse yet. That's a big one that's just going to, okay, massively close the gap. And then AMD. I don't even have a benchmark for AMD because I couldn't get it compiled. Oh, and I tried. Oh, I tried. I spent a day. Like, I spent actually a day trying to get PyTorch. And I got it built. I got it kind of working, then I tried to run a model, like, there's all kinds of weird errors and the rabbit holes are so deep on this. I'm like, you know, you can compare the speed. Right now, you can run LLAMA, you can run anything you want on AMD. It already all works. Any OpenCL backend works, and it's not terribly slow. I mean, it's a lot faster than crashing. So it's infinitely times faster than PyTorch on AMD. But pretty soon, we're going to start getting close to theoretical maximums on AMD. That's really where I'm pushing. And I want to get AMD on MLPerf in a couple months, hopefully. [00:20:26]
+
+Swyx: Now that you bring up AMD. [00:20:27]
+
+Alessio: Yeah, let's dive into that. Because when you announced the Semicore fundraise, you mentioned one of your first goals is like build the framework, runtime and driver for AMD. And then on June 3rd on Twitch, you weren't as excited about AMD anymore. Maybe let's talk a bit about that. You compared the quality of commit messages from the AMD kernel to the Intel work that people are doing there. What's important to know? [00:20:51]
+
+George: When I said I want to write a framework, I never intended on writing a kernel driver. I mean, I flirted with that idea briefly, but realistically, there's three parts to it, right? There's the ML framework, there's the driver, and then there's the user space runtime. I was even down to rewrite the user space runtime. I have a GitHub repo called CUDA IOControlSniffer. It's terribly called. But you can actually launch a CUDA kernel without CUDA. So you don't need CUDA installed. Just the NVIDIA open source driver and this open source repo can launch a CUDA kernel. So rewriting the user space runtime is doable. Rewriting the kernel driver? [00:21:26]
+
+Swyx: I don't even have docs. [00:21:27]
+
+George: I don't have any docs for the GPU. Like it would just be a massive reverse engineering project. I wasn't complaining about it being slow. I wasn't complaining about PyTorch not compiling. I was complaining about the thing crashing my entire computer. It panics my kernel. And I have to wait five minutes while it reboots because it's a server motherboard and they take five minutes to reboot. So I was like, look, if you guys do not care enough to get me a decent kernel driver, there's no way I'm wasting my time on this, especially when I can use Intel GPUs. Intel GPUs have a stable kernel driver and they have all their hardware documented. You can go and you can find all the register docs on Intel GPUs. So I'm like, why don't I just use these? Now, there's a downside to them. Their GPU is $350. You're like, what a deal. [00:22:03]
+
+Swyx: It's $350. [00:22:04]
+
+George: You know, you get about $350 worth of performance. And if you're paying about $400 for the PCIe slot to put it in, right, like between the power and all the other stuff, you're like, okay, nevermind. You got to use NVIDIA or AMD from that perspective. But I sent an email to Lisa Su. She responded. [00:22:19]
+
+Swyx: Oh. [00:22:20]
+
+George: And I've had a few calls since. And like, what I tried to do, first off, like, thank you for responding. It shows me that like, if you don't care about your kernel panicking, I can't, like, this is just a huge waste of my time, right? I'll find someone who will care. I'm not asking for your seven by seven Winograd convolution when transposed to be fast. Like, I'm not asking for that. I'm asking literally for- The basics of getting it running. Oh, and this isn't TinyGrad. This is your demo apps. I ran their demo apps in loops, and I got kernel panics. I'm like, no, okay. No, Lisa Su reached out, connected with a whole bunch of different people. They sent me a pre-release version of RockM 5.6. They told me you can't release it, which I'm like, guys, why do you care? But they say they're going to release it by the end of the month, and it fixed the kernel panic. The guy managed to reproduce it with the two GPUs and the computer, and yeah, sent me a driver, and it works. I had that experience, and then I had another experience where I had two calls with, like, AMD's, like, communication people. I was just like, I tried to explain to these people, like, open source culture. Like, it's not open source if you dump the source code on a GitHub repo and then forget about it until the next release. It's not open source if all your issues are from 2022. Like, it's just no one's going to contribute to that project, right? Sure, it's open source in a very, like, technical sense. To be fair, it's better than nothing. It's better than nothing, but I fixed a bug in Nickel that I fixed. There's a fun fact, by the way. If you have a consumer AMD GPU, they don't support peer-to-peer, and their all-reduce bandwidth is horrendously slow because it's using CUDA kernels to do the copy between the GPUs, and it's putting so many transactions on the PCIe bus that it's really slow. But you can use CUDA memcpy, and there's a flag to use CUDA memcpy, but that flag had a bug. I posted the issue on Nickel. I expected nothing to happen. The NVIDIA guy replied to me within an hour. He's like, try this other flag. I'm like, okay, I tried the other flag. It still doesn't work, but here's a clean repro. And I spent, like, three hours writing a very clean repro. I ended up tracking the issue down myself, but just the fact that somebody responded to me within an hour and cared about fixing the issue? Okay, you've shown that it's worth my time, and I will put my time in because, like, let's make this better. Like, I'm here to help. But if you show me that, you know, you're like, you're the kernel panics. That's just, like, expected. Okay. [00:24:36]
+
+Swyx: Well, it sounds like AMD is getting the message. [00:24:38]
+
+George: They are. And I just, I don't really think they've had someone explain to them, like, like, I was like, you can, like, build in public. And they're like, what's an example of building in public? I'm like, go look at PyTorch. Go look at PyTorch. I have two minor things merged into PyTorch because it's very responsive, you know? [00:24:53]
+
+Alessio: So that's kind of like the lowest level of the stack. And then at a slightly higher level, obviously, there's TinyGrad, there's Mojo, there's ggml. How are you thinking about breadth versus, like, depth? Like, where you decided to focus early on? [00:25:06]
+
+George: So ggml is very much like a, okay, everyone has M1s, right? Actually, I was thinking, in the beginning, I was thinking of something more like ggml, focused on the M1s. But ggml showed up and was just like, we're actually just focusing on the M1s. And actually, M1 PyTorch is considerably better than AMD PyTorch. M1 PyTorch works, it only gives wrong answers sometimes, and it only crashes sometimes. But, like, some models kind of run. When I was writing the metal backend, I was comparing to MPS PyTorch, and I had, like, a discrepancy. TinyGrad checks all its outputs compared to Torch, and I had one where it didn't match. I'm like, I checked the matrix by hand, it matches TinyGrad, I don't understand. And then I switched PyTorch back to CPU, and it matched. I'm like, oh. Well, there's, like, bugs, like, if you, like, transpose the matrix, because, like, I think it has to do with, like, multi-views in PyTorch, and, like, weird under-the-hood stuff that's not exposed to you, like, there's bugs. And maybe they fixed them, but, like, you know, it seems like there was a lot of momentum. Again, because you're getting how many engineers care about making PyTorch work on M1, right? Thousands, tens of thousands. And you have an open development process, and guess what? It's going to be good. How many engineers care about AMD working, PyTorch AMD working? Well, you got 10 guys that work for AMD, and then, like, a couple hobbyists. [00:26:15]
+
+Swyx: You revealed an interesting detail about how you debug. You hand-check the matrix math? No, I don't hand-check it. [00:26:20]
+
+George: One of the best tests in TinyGrad is a file called testops.py. And it's just a hundred small examples written in TinyGrad and PyTorch, and it checks both the forwards and backwards to make sure they match. [00:26:34]
+
+Swyx: Good test suite. Yeah. Very important. [00:26:35]
+
+George: That's, I mean, that's one of them where, like, I really, I put a lot of effort into CI for TinyGrad. I think CI is super important. Like, I want that green check to mean I can merge this, right? Like, I don't want my tests to, and if the green check, if you somehow manage to introduce a bug and get the green check, okay, we're fixing the test, top priority. [00:26:51]
+
+Swyx: Mojo? [00:26:52]
+
+George: It's closed source. No, I'm not that interested. Do you know what I mean? Like, look, I like Chris Lattner. I think he's going to do great things, and I understand the, like, kind of the wisdom, even, in keeping it closed source. But, you know, I'm interested when it's open. [00:27:05]
+
+Swyx: Yeah. You have an interesting design deviation from him, because he's decided to be a, well, promised to be a superset of Python, and you have decided to break with PyTorch APIs. And I think that affects learnability and transportability of code. [00:27:18]
+
+George: You know, if the PyTorch thing ends up being, like, a stumbling block, I could write a perfect PyTorch instead of import PyTorch. Instead of, like, yeah, import torch, you type import tinytorchestorch. And if that really becomes the stumbling block, I will do that. No, Chris Lattner went much further than PyTorch. Replicating the PyTorch API is something I can do with a couple, you know, like an engineer monitor. [00:27:44]
+
+Swyx: A shim. [00:27:44]
+
+George: Right, like a shim, yeah. Replicating Python? [00:27:47]
+
+Swyx: Hoo-hoo-hoo! [00:27:48]
+
+George: There's a big graveyard of those projects. How's Piston going? How's Jython? [00:27:57]
+
+Swyx: PyPy? Oh, you can go way back. [00:27:59]
+
+Alessio: So your core mission is commoditizing the petaflop. And then your business goal is to sell computers for more than the cost to make, which seems super reasonable. And you're going to have three tiny boxes? [00:28:11]
+
+Swyx: Red, green, blue? No, no, no, no, no, no, no. [00:28:13]
+
+George: That was my... Look, you know, a lot of people, like, I love, you know, leaning into, like, saying I'm giving up, right? It's great to give up, right? Giving up is this wonderful thing. It's so liberating. And then, like, you can decide afterward if you really give up or not. There's very little harm in saying you give up, except, like, you know, great, Twitter haters have something to talk about, and all press is good press, kids, so... Just red, only red. [00:28:32]
+
+Swyx: Tiny box, red. Tiny box, red. [00:28:34]
+
+George: Unless AMD, you know, upsets me again, and then we're back to other colors. We have other colors to choose from. [00:28:41]
+
+Alessio: When you think about hardware design, what are some of the numbers you look for? So, teraflops per second is one, but, like, memory bandwidth is another big limiter. Like, how do you make those trade-offs? [00:28:52]
+
+George: Well, I mean, fundamentally, I'm limited to what GPUs I can buy. But, yeah, for something that I think a lot of people are going to want to reasonably do, with, um... A coworker of mine described them as luxury AI computers. Right? Like, luxury AI computers for people. And that's, like, what we're building. And I think a common thing people are going to want to do is run, like, Large Llama. Right? Or Large, like, Falcon or whatever. [00:29:13]
+
+Swyx: FB-16 Llama. [00:29:14]
+
+George: FB-16, exactly. Exactly. Um, you know, Int8, I think, can work. I think that, like, what GGML is doing to go to, like, N4. Like, this doesn't work. Like, have you done... I mean, maybe they have. But, like, I read what it was, and I was like, this isn't from any paper. This is just some... Squeezing as much as possible. Yeah, you made up some quantization standards to make it run fast. And, like, maybe it works. But, okay, where's, like, the Hellaswag number? Right? Where's your, uh... [00:29:38]
+
+Swyx: The thesis is right. That, like, if you have hundreds of billions of parameters, that the individual quantization doesn't actually matter that much. [00:29:44]
+
+George: Well, the real way to look at all of that is to just say you want to compress the weights, right? It's a form of weight compression. Quantization is a form of weight compression, right? Now, this is obviously not lossless. It's not a lossless compressor, right? If it's a lossless compressor, and you can show that it's correct, then, okay, we don't have to have any other conversation. But it's a lossy compressor. And how do you know that your loss isn't actually losing the power of the model? Maybe int4 65B llama is actually the same as FB16 7B llama, right? We don't know. Maybe someone has done this yet, but I looked for it when it, like, first came out and people were talking about it. And I'm like, it's not from a paper, right? The indate stuff is from a paper where they... Like, some of the indate stuff is from a paper. There's one paper, I think it's, like, indate... LLM.indate, where they actually do all the tests. And they didn't go fully indate. They made, like, 90% of it indate and kept, like, 10% of it in FB16 for what they called, like, the outliers or whatever. So I think that this is not quite so easy. [00:30:37]
+
+Swyx: And I think being able... [00:30:38]
+
+George: Well, so first off, if you're training, no one's gotten training to work with indate yet. There's a few papers that vaguely show it. But if you're training, you're going to need BF16 or float16. So this is why I target that. Now, the thing that you're going to want to do is run these large language models out of the box on your hardware in FB16, and that's memory bandwidth. So you need large amounts of memory bandwidth, too. So ask how I trade off memory bandwidth in Flop, so what GPUs can I buy? [00:31:02]
+
+Alessio: So first of all, you have this hiring process, which is you've got to solve one of the bounties that are open on TinyGrad. There's no technical interview. One of them is indate support. Do you already have some things you want to test on? [00:31:14]
+
+Swyx: We have indate support. What I'd like to see somebody do [00:31:16]
+
+George: is just load the ggml indate llama into TinyGrad and then benchmark it against the FB16 one. Indate already works in TinyGrad. It doesn't actually do the math in indate. It does all the math still in FB32. So indate can mean you just have your weights in indate, or indate can mean you actually do your math in indate. And doing your math in indate, the big gain that people care about is actually having your weights in indate, because weights in indate mean less memory and less memory bandwidth, whereas the math, keep it in FB32. With on M1s, it doesn't matter what data type you're doing in the GPU. I'm not even sure it can do indate, but FB16 and FB32 is the same tariff ops. So yeah, no, that's one of the bounties. One of the bounties is get indate llama running [00:31:58]
+
+Swyx: with the indate weights. [00:32:00]
+
+George: And then actually, what you could even do, if you really want to test this, just take the FB16 weights, convert them to indate, then convert them back to FB16, then compare the unconverted and converted. [00:32:10]
+
+Swyx: Oh, that's a nice hack. Oh, yeah. Right, like- This should be lossless in the other direction. Yeah, I think FB16, [00:32:17]
+
+George: it should be lossless in the other direction. I'm actually not 100% about that. Why not? Oh, because like, you ever try to like, like if you want to represent, if it was like int16, it's not lossless. [00:32:25]
+
+Swyx: Sure. [00:32:26]
+
+George: All of indate can be represented in FB16, but I'm not 100% about that. [00:32:29]
+
+Swyx: Just drop the bytes. We just have to do it, right? [00:32:32]
+
+George: Just literally do it. There's only 256 to check, like. But yeah, either way, or I mean, int4, definitely. So do your int4, convert it back, and now see, even with int4 weights and FB32 math, like, okay, how much has your performance degraded this model? [00:32:47]
+
+Alessio: I think like the, you're planning to release the first tiny box, ship them in like two to six, eight months, something like that. What's top of mind for you in terms of building a team? Who should, who are you calling for? [00:32:59]
+
+George: So as the GPU is picked out and you're like, well, I could make that computer with the GPUs. And my answer is, can you? Do you know how hard it is to put six GPUs in a computer? And people think it's really easy. And it's really easy to put one GPU in a computer. It's really easy to put two GPUs in a computer, but now you want to put in eight. Okay, so I'll tell you a few things about these GPUs. They take up four slots. You can buy the nicest super micro. You can't put eight of those in there. You need two slot blowers. [00:33:25]
+
+Swyx: If you want to use one of those, [00:33:25]
+
+George: those for you super micros, you need two slot blowers or water cooling, right? If you're trying to get the four slot cards in there, you're going to need some form of water cooling. There are some like Chinese 40 nineties that are blowers, right? You have any blowers or water cooling if you're trying to get it in those things, right? [00:33:37]
+
+Swyx: So are you doing water? [00:33:39]
+
+George: No, I'm not using that chassis. Okay, so now you want to get six GPUs in a computer. So that's a big challenge. You're like, oh, I'll just use a PCIe extenders. I saw it online as tech tips. It works great. No, it doesn't. Try PCIe extenders that work at PCIe 4.0 and interconnect bandwidth, super important. They don't work at 3.0. No PCIe extender I've tested, and I've bought 20 of them, works at PCIe 4.0. So you're going to need PCIe re-drivers. Now, okay, how much is that adding cost, right? Like these things all get really hard. And then tiny boxes, I've even had another constraint to it. I want this thing to be silent, not totally silent, but my limit is like 45, maybe 50 DB, but not super micro machine, 60 DB. We have a small, we have a compute cluster at comma. You gotta wear ear protection to go in there. Like- [00:34:24]
+
+Swyx: Yeah, I've seen some videos where you give a tour. Oh yeah. It's noisy. It's super loud. [00:34:28]
+
+George: You got all these machines just screaming. All those, like if you have a blower, what is that thing? 10,000 RPM, just screaming. Like I want to be able to use the normal big GPU fans and make this thing so it can sit under your desk, plug into one outlet of power, right? Six GPUs, your GPUs are 350 Watts each. Can't plug that into a wall outlet. Okay, so how are you going to deal with that? Good questions, right? [00:34:51]
+
+Swyx: And you're not sharing them. [00:34:52]
+
+George: Well, that one, I mean, that one is pretty obvious. You have to limit the power on the GPUs, right? You have to limit the power on the GPUs. Now you can limit power on GPUs and still get, you can use like half the power and get 80% of the performance. This is a known fact about GPUs, but like that's one of my design constraints. So when you start to add all these design constraints, good luck building a tiny box yourself. Obviously it can be done, but you need something that has actually quite a bit of scale and resources to do it. [00:35:15]
+
+Alessio: And you see like the, under the desk, it's like one of the main use cases, kind of like individual developer use or. [00:35:21]
+
+George: Yeah, what I also see is more of a, like an AI hub for your home, right? As we start to get like home robotics kind of stuff, you don't want to put the inference on the robot, but you also don't want to put the inference on the cloud. Well, you don't want to put it on the robot because, okay, it's 1500 Watts, tiny box. You'll put batteries and charge them, bad idea. Just wireless. Wireless is 0.5 milliseconds, right? This is super fast. You don't want to go to the cloud for two reasons. One, cloud's far away. Okay, it's not that far away. You can kind of address this. But two, cloud's also mad expensive. Like cloud GPUs are way more expensive than running that GPU at your house. At least any rates you're going to get, right? Maybe if you commit to buy, well, yeah, I'm going to buy 10,000 GPUs for three years, then maybe the cloud will give you a good rate. But like, you want to buy one GPU in the cloud? I mean, okay, you can go to like vast, but like if you're going on Azure AWS, so that's expensive. [00:36:12]
+
+Swyx: This is like a personal data center instead of a cloud data center. [00:36:16]
+
+George: We like the term compute cluster. So we can use NVIDIA GPUs. [00:36:20]
+
+Swyx: Yeah, data centers may be a little bit dated. It's a compute cluster, [00:36:23]
+
+George: which is totally legal under the CUDA license agreement. [00:36:26]
+
+Swyx: You talk a lot about the PCIe connection. Do you think there's any fat there to trim? What do you mean? You're limited by bandwidth. [00:36:32]
+
+George: Okay, for some things, yes. So bandwidth is roughly 10x less than what you can get with NB-linked A100s, right? NB-linked A100s are going to have, and then you can even get like full fabric and NVIDIA really pushes on that stuff, 600 gigabytes per second, right? And PCIe, four, you're going to get 60, right? So you're getting 10x less. That said, why do you need the bandwidth, right? And the answer is you need it for training huge models. If you're training on a tiny box, your limit's going to be about 7 billion. If you're training on big stuff, your limit's going to be like 70 billion, right? Okay, you can hack it to get a bit higher. You can hack it, like GPT hacked it to get a bit higher, but like that 65 billion in LLAMA, like there's a reason they chose 65 billion, right? And that's what can reasonably fit model parallel on a GPU, right? So yes, you are going to end up training models. The cap's going to be like 7 billion, but I actually heard this on your podcast. I don't think that the best chatbot models are going to be the big ones. I think the best chatbot models are going to be the ones where you had a thousand training runs instead of one. And I don't think that the interconnect bandwidth is going to matter that much. [00:37:33]
+
+Swyx: So what are we optimizing for instead of compute optimal? What do you mean compute optimal? You're talking about this, the LLAMA style models where you train for like 200x. You train longer, yeah. [00:37:41]
+
+George: Yeah, yeah, yeah. You can always make your model better by doing one of two things, right? And a comma, we just have a strict limit on it. You can always make your model better by training longer, and you can always make your model better by making it bigger. But these aren't the interesting ones, right? Particularly the making it bigger because training it longer, fine. You're getting a better set of weights. The inference is the same. The inference is the same whether I trained it for a day or a week. Okay, if it's 1 billion versus 10 billion, well, I 10x my inference too, right? So I think that these big models are kind of, sure, they're great if you're research labs and you're trying to like max out this hypothetical thing. [00:38:13]
+
+Swyx: Which you can talk about later. Yeah, yeah, yeah. [00:38:15]
+
+George: But if you're like a startup or you're like an individual or you're trying to deploy this to the edge anywhere, you don't need that many weights. [00:38:22]
+
+Swyx: Yeah, yeah. You actually don't want that many weights. Optimizing for inference rather than capabilities doing benchmarks. Yes. [00:38:29]
+
+George: And I think the inference thing, right? There's gonna be so much more. Right now, the ratio between like training and inference on clouds, I think it's only still, I think it's like two or three X, right? It's two or three X more inference, which doesn't make any sense. It's way more inference. [00:38:41]
+
+Swyx: Yeah. [00:38:42]
+
+George: There should be 10 to 100 X more inference in the world than training. But then also like, what is training, right? You start to see these things like LoRa, like it's kind of blurring the lines between inference and training. And I think that that blurred line is actually really good. I'd like to see much more like on-device training or on-device fine tuning of the final layer. We're pushing toward this stuff at Comma, right? Like why am I shipping a fixed model? I totally want this model to fine tune based on like how your left tire is flat, right? Every time you cut the same turn because your left tire is flat, well, it should learn that, right? [00:39:11]
+
+Swyx: So would Comma pursue parameter efficient fine tuning? Yeah. [00:39:16]
+
+George: We're looking into stuff like that. I mean, Comma is already very parameter efficient because we have to like run this thing in a car and you have to like cool it and power it. [00:39:22]
+
+Alessio: And so this kind of like intelligence cluster you have in your home, you see when the person is using third-party model, they load them locally and kind of do the final fine tuning. It kind of stays within the box. [00:39:33]
+
+George: I think that that's one version of it for the privacy conscious. I also see a world where you can have your tiny box in its down cycles, mine flop coin, right? You know, it turns out not all crypto is a scam. [00:39:45]
+
+Swyx: There's one way to tell if crypto is a scam. [00:39:46]
+
+George: If they're selling the coin before they make the product, [00:39:49]
+
+Swyx: it's a scam. [00:39:49]
+
+George: If they have the product and then they sell the coin, it's maybe not a scam, right? So yeah, my thought is like each tiny box would let you, would have a private key on it. And you have to do it this way. You can't just let anyone join because of Sybil attacks, right? [00:40:01]
+
+Swyx: There's a real problem of like, [00:40:01]
+
+George: how do I ensure your data is correct? And the way that I ensure your data is correct on the tiny net is if you ever send wrong data, you're banned from the network for life. [00:40:08]
+
+Swyx: Yeah. [00:40:09]
+
+George: Your $15,000 hardware box is banned. [00:40:11]
+
+Swyx: So, you know, don't cheat. [00:40:11]
+
+George: Obviously if it messes up, we'll forgive you. [00:40:14]
+
+Swyx: Somebody's going to try to jailbreak your devices. There's no jailbreak. [00:40:17]
+
+George: There's no jailbreak. [00:40:18]
+
+Swyx: It's just a different network. [00:40:19]
+
+George: Well, there's just a private key on ea ch device, right? Like if you buy a tiny box from the tiny corp, [00:40:23]
+
+Swyx: I give you a private key. [00:40:23]
+
+George: It's in my backend server, right? You want to hack my server, that's illegal. Anything you want to do on the device, the device is yours. My server's mine, right? [00:40:29]
+
+Swyx: Yeah. Have you looked into like a federated training at all? [00:40:33]
+
+George: Okay. There's orders of magnitude of federated training. You mean like over the cloud and stuff? [00:40:37]
+
+Swyx: Over the internet? Yeah. Over the internet, but also distributed on a bunch of devices, right? [00:40:41]
+
+George: Yeah, I'm very bearish on this stuff. Because your interconnect bandwidth, right? So, okay. At the high end, you have your interconnect bandwidth of NVLink, which is 600 gigabytes per second, right? The tiny box has 60 gigabytes per second. And then your internet has 125 megabytes per second, right? Not gigabits, 125 megabytes, right? So, okay. That's how many orders of magnitude we're talking here? Like from 60 down to 125? Like, all right, that's over a hundred X. That's 400 X, right? So like, what you can do is inference, right? Like there's, for inference, you don't care, right? For inference, there's so little bandwidth at the top and the bottom of the model that like, yeah, you can do federated inference, right? And that's kind of what I'm talking about. There's also interesting things to push into, like you're like, but okay, what if you want to run closed source models? This stuff gets kind of interesting, like using TPMs on the boxes and stuff. But then someone might jailbreak my device. So, you know, maybe we don't try to do that. [00:41:34]
+
+Alessio: Yeah, what's like the enterprise use case? Do you see companies buying a bunch of these and like stacking them together? [00:41:39]
+
+George: The tiny box is like the first version of what we're building. But what I really want to do is be on the absolute edge of flops per dollar and flops per watt. These are the two numbers that matter. So the enterprise use case is you want to train, like Kama, right? So Kama just built out a new compute cluster. It's about a person and a half. [00:41:56]
+
+Swyx: A person being 20 petaflops. [00:41:58]
+
+George: A person is 20 petaflops. It's about 30 petaflops. We built out a little compute cluster and, you know, we paid double what you theoretically could per flop, right? You theoretically could pay half per flop if you designed a bunch of custom stuff. And yeah, I mean, I could see that being, you know, a tiny corp. Kama's going to be the first customer. I'm going to build a box for Kama and then I'm going to show off the box I built for Kama and be like, okay, like, do you want to build? I sell $250,000 training computers. Or how much is one H100 box? [00:42:26]
+
+Swyx: It's 400 grand? [00:42:27]
+
+George: Okay, I'll build you a 400 grand training computer and it'll be 10x better than that H100 box. Again, not for every use case. For some, you need the interconnect bandwidth. But for 90% of most companies' model training use cases, the tiny box will be 5x faster for the same price. [00:42:41]
+
+Alessio: You mentioned the person of compute. How do we build a human for $20 million? [00:42:47]
+
+George: Well, it's a lot cheaper now. So like I said, Kama spent about half a million on our person and a half, so. [00:42:54]
+
+Alessio: What are some of the numbers people should think of when they compare compute to like people? So GPT-4 was 100 person years of training. That's more like on the timescale. 20 petaflops is one person. I think you, right now the math was that for the price of the most expensive thing we build, which is the International Space Station, we could build one Tampa of. Yeah, yeah, one Tampa of compute. [00:43:16]
+
+Swyx: Yeah, which is the ultimate currency of measurement. [00:43:20]
+
+George: Yeah, yeah, we could build. So like the biggest training clusters today, I know less about how GPT-4 was trained. I know some rough numbers on the weights and stuff, but Lama- [00:43:28]
+
+Swyx: A trillion parameters? [00:43:30]
+
+George: Well, okay, so GPT-4 is 220 billion in each head, and then it's an eight-way mixture model. So mixture models are what you do when you're out of ideas. So, you know, it's a mixture model. They just train the same model eight times, and then they have some little trick. They actually do 16 inferences, but no, it's not like- [00:43:45]
+
+Swyx: So the multimodality is just a vision model kind of glommed on? [00:43:49]
+
+George: I mean, the multimodality is like obvious what it is too. You just put the vision model in the same token space as your language model. Oh, did people think it was something else? The mixture has nothing to do with the vision or language aspect of it. It just has to do with, well, okay, we can't really make models bigger than 220 billion parameters. We want it to be better. Well, how can we make it better? Well, we can train it longer, and okay, we've actually already maxed that out. We're getting diminishing returns there. [00:44:13]
+
+Swyx: Okay. A mixture of experts. [00:44:14]
+
+George: Yeah, a mixture of experts. We'll train eight of them, right? [00:44:16]
+
+Swyx: So, all right. [00:44:17]
+
+George: So, you know, the real truth is whenever a start, whenever a company is secretive, it's because they're hiding something that's not that cool. And people have this wrong idea over and over again that they think they're hiding it because it's really cool. [00:44:28]
+
+Swyx: It must be amazing. [00:44:29]
+
+George: It's a trillion parameters. No, it's a little bigger than GPT-3, and they did an eight-way mixture of experts. Like, all right, dude, anyone can spend eight times the money and get that. Coming back to what I think is actually gonna happen is, yeah, people are gonna train smaller models for longer and fine-tune them and find all these tricks. OpenAI used to publish stuff on this, you know, [00:44:47]
+
+Swyx: when they would publish stuff [00:44:48]
+
+George: about how much better the training has gotten holding compute constant. It's gotten a lot better, right? Think, compare like BatchNorm to NoBatchNorm. [00:45:00]
+
+Swyx: Is you're finding algorithms like FlashAttention? [00:45:02]
+
+George: Yeah, well, FlashAttention, yeah. And FlashAttention is the same compute. FlashAttention is an interesting fact where it's actually the identical compute. It's just a more efficient way to do the compute. But I'm even talking about like, look at the new embeddings people are using, right? They used to use these like boring old embeddings. Now, like, Lama uses that complex one, and now there's like Alibi. I'm not up-to-date on all the latest stuff, but those tricks give you so much. [00:45:23]
+
+Swyx: There's been a whole round trip with positional embeddings. I don't know if you've seen this discussion. I haven't followed exactly. [00:45:29]
+
+George: I mean, you quickly run into the obvious problem with positional embeddings, which is you have to invalidate your KV cache if you run off the context. So that's why I think these new ones, [00:45:38]
+
+Swyx: they're playing with them, [00:45:38]
+
+George: but I'm not an expert on like the latest up-to-date language model stuff. [00:45:43]
+
+Alessio: What are some of the things, I mean, that people are getting wrong? So back to autonomous driving, there was like the whole like LiDAR versus vision thing. People don't get into accidents because they cannot see well. They get into accidents because they get distracted and all these things. Do you see similarities today on like the Pathway GI? [00:45:59]
+
+George: Nothing I say about this is ever gonna compete with how Rich Sutton stated it. [00:46:03]
+
+Swyx: Rich Sutton, the writer of [00:46:04]
+
+George: Reinforcement Learning, The Bitter Lesson. Nothing I say is ever gonna compete with, The Bitter Lesson's way better than any way I'm going to phrase this. Just go read that, and then like, I'm sorry it's bitter, but you actually just have to believe it. Like over and over again, people make this mistake. They're like, oh, we're gonna hand engineer this thing. No, like stop wasting time. [00:46:22]
+
+Swyx: I mean, OpenAI is not taking The Bitter Lesson. They were leaders in deep learning for a long, long, long time. [00:46:27]
+
+George: Well, OpenAI was the absolute leader to the thesis that compute is all you need, right? [00:46:31]
+
+Swyx: And there's a question of how long [00:46:32]
+
+George: this thesis is going to continue for. It's a cool thesis, and look, I think I would be lying along with everybody else. I was into language models like way back in the day for the Hutter Prize. I got into AI through the Hutter Prize. Like 2014, I'm trying to build compressive models of Wikipedia. And I'm like, okay, why is this so hard? What this is is a language model, right? And I'm playing with these Bayesian things, and I'm just like, oh, but I get it. I have two data points, and they're almost the same, but how do I measure that almost, right? I just wrapped my head around this, and this was around the time Karpathy released the first RNN that generated the Shakespeare stuff. And I'm like, okay, I get it, right? It's neural networks that are compressors. Now, this isn't actually, you can't actually win the Hutter Prize with these things because the Hutter Prize is MDL. It's the model, size of the model plus the size of the encodings, embeddings. So yeah, you can't, I mean, probably now you can because it's gotten so good. But yeah, back in the day, you kind of couldn't. So I was like, okay, cool. [00:47:29]
+
+Swyx: This is what it is. [00:47:29]
+
+George: I kind of get it. I didn't expect that it would continue to work this well. I thought there'd be real limits to how good autocomplete could get. That's fancy autocomplete. But yeah, it works well. So like, yeah, what is OpenAI getting wrong? Technically, not that much. I don't know. If I was a researcher, why would I go work there? [00:47:48]
+
+Swyx: Yes, so why is OpenAI like the Miami Heat? [00:47:51]
+
+George: No, look, this is my technical stuff. I don't really want to harp on this, but like, why go work at OpenAI when you could go work at Facebook as a researcher? OpenAI can keep ideologues who, you know, believe ideological stuff and Facebook can keep every researcher who's like, dude, I just want to build AI and publish it. [00:48:08]
+
+Alessio: Yeah, any other thoughts, tiny corp, bounties? [00:48:11]
+
+George: You know, I've been thinking a lot about like what it means to hire in today's world. Okay, look, I'm a believer that machines are going to replace everything in about 20 years. So, okay, what is that thing that people can still do that computers can't? And this is a narrowing list, but like, you know, back in the day, like imagine I was starting a company in 1960. Oh, and we're going to have to hire a whole bunch of calculators in the basement to do all the, you know, math to support the, dude, have you heard about computers? Why don't we just buy a few of those? Oh, wow, man, you're right. So like, I feel like that's kind of happening again. And I'm thinking about, I will post in my Discord, I'll be like, who wants to like, okay, I just changed my unary ops used to be log and exp in like E. I changed them to be log two and exp two because hardware has log two and exp two accelerators. [00:48:59]
+
+Swyx: Yeah, and of course you can just change your base. [00:49:00]
+
+George: It's one multiply to get it back to E. But like, I made the primitives log two and exp two, right? I just posted in the Discord. I'm like, could someone put this pull request up? And someone eventually did and I merged it. But I'm like, this is almost to the level [00:49:12]
+
+Swyx: where models can do it. [00:49:14]
+
+George: We're almost to the point where I can say that to a model and the model can do it. [00:49:17]
+
+Swyx: Have you tried? Yeah, I don't know. [00:49:20]
+
+George: I think autocomplete went further than I thought it would, but I'm also relatively unimpressed with these chatbots. The problem is if your loss function is categorical cross entropy on the internet, your responses will always be mid. [00:49:32]
+
+Swyx: Yes, mode collapse is what I call it, I don't know. [00:49:35]
+
+George: Maybe, I'm not even talking about mode collapse. You're actually trying to predict the, like, look, I rap. I'm a hobbyist rapper. When I try to get these things to write rap, the raps sound like the kind of raps you read in the YouTube comments. [00:49:45]
+
+Swyx: Nursery school. [00:49:46]
+
+George: Yeah, it's like, all right, great. You rhyme box with fox, sick rhyme, bro. You know, and Drake is rhyming give it up for me with napkins and cutlery, right? Like, all right, come on. [00:49:55]
+
+Swyx: He's got like this thing about orange. Orange is famous so you can't rhyme it. Yeah, yeah, yeah, yeah, yeah. [00:49:59]
+
+George: But now, of course, you know, four-inch screws and orange juice is in GPT's training course. Yeah, so I think it went further than everyone kind of thought it would. But the thing that I really want to see is like somebody put 10 LLMs in a room and have them discuss the answer before they give it to me. Right, like, you can actually do this, right? And I think the coding things have to be the same way. There is no coder alive, no matter how good you are, that sits down, well, I'm going to start at cell A1 and type my program, and then I'm going to press run and it's going to work. No one programs like that. So why do we expect the models to, right? So there's a lot that, like, still needs to be done. But, you know, at the tiny corp, I want to be on the cutting edge of this, too. I want to be, like, program generation. I mean, what is TinyGrad? It's a compiler, it generates programs. Generate the fastest program that meets the spec, right? Why am I not just having ML do that? So, you know, it's kind of a, you have to exist fluidly with the machines. And I've come around on a lot of stuff. I'm like, wait, TinyGrad, TinyCorp should be a remote company. I can't do this in person. [00:50:58]
+
+Swyx: Really? [00:50:58]
+
+George: Yeah, like, comma makes sense to be in person. Like, comma, sure. Yeah, we're getting off in San Diego. [00:51:04]
+
+Swyx: But that was a six-year-old company, right? [00:51:05]
+
+George: And it works, and it works for a certain type of people [00:51:08]
+
+Swyx: and a certain type of culture. [00:51:08]
+
+George: But what's going to be different this time? Okay, remote, but now it's remote. And now I'm getting these, like, people who apply, and I'm like, I literally have a thousand applications. I'm not calling you to do a technical screen. I can't really tell anything from a technical screen. What am I going to do? Make a code on a whiteboard? Like, bring up a shared notebook document, so we could, oh, like, that's not going to work. Okay, so then I'm moved to the next thing. We do this at Comma with good success, programming challenges. [00:51:31]
+
+Swyx: I've also found them to be, like, [00:51:32]
+
+George: completely non-predictive. I found one thing to actually be predictive, and it's, wait a second, just write code in TinyGrad. It's open source, right? And yeah, so, you know, I'm talking to a few people who've been contributing, and, like, contribute, or, you know, the job's not for you. But you can do it remote, and it's, look, it's a chill job. Like, you're not, you're like, oh, yeah, well, I work for the tiny corp. Like, well, you're writing MIT-licensed software. Like, you see what it's doing, right? Like, we'll just, I think, think of it as maybe more of, like, a stipend than a salary. And then also some equity. Like, if, you know, I get rich, we all get rich. [00:52:01]
+
+Alessio: How do you think about agents and kind of, like, thinking of them as people versus, like, job to be done? Sean built this thing called Small Developer. [00:52:09]
+
+Swyx: It's in the same vein. Or, like, the human in the loop with the language model and just iterating while you write code. I think that's absolutely where it goes. [00:52:17]
+
+Alessio: And there's, like, a, it's not, like, one thing. It's, like, there's Small Interpreter. There's, like, Small Debugger. It's kind of, like, all these different jobs to be done. [00:52:24]
+
+Swyx: It's a small world. [00:52:25]
+
+Alessio: Yeah, it's a, I know, this is, like, the small box is, like, small AI meets tiny corp. [00:52:29]
+
+Swyx: So we're all in the same wavelength. [00:52:30]
+
+Alessio: How do you think about that? Do you think people will have a human-like interaction where it's, like, oh, this is, like, the AI developer, or, like, is it I'm the human being supercharged by the AI tools? [00:52:41]
+
+George: Oh, I think it's, yeah, much more like I'm the human supercharged by the AI tools. I think that, like, coding is tool-complete. Like, driving's not tool-complete. We hire people to drive who are, like, below the API line. Right, there's an API line in the world, right? [00:52:53]
+
+Swyx: Love that. Yes. [00:52:53]
+
+George: Yeah, yeah, yeah, there's an API line in the world. And, like, you can think, like, Uber's a really clear example, right? There's the people below the API line and the people above the API line. And the way you can tell if you're below or above, by the way, is is your manager a computer, right? Who's the manager of the Uber driver? [00:53:06]
+
+Swyx: Well, a computer, right? Does the machine tell you what to do or do you tell machines what to do? Exactly, exactly. [00:53:09]
+
+George: So, coding is tool-complete, right? [00:53:13]
+
+Swyx: Coding is tool-complete. [00:53:13]
+
+George: Coding is above the API line. So it will always be tools supercharging your coding workflow. And it will never be you performing some, like, task. Like, okay, well, I can do everything except for actually starting a Docker container. Like, it just doesn't make any sense, right? Yeah, so it will always be sort of tools. And, you know, look, we see the same stuff with all the, like, people are like, stable diffusion's gonna replace artists or whatever. It's like, dude, like- [00:53:38]
+
+Swyx: It's gonna create new artists. [00:53:39]
+
+George: Did Photoshop replace artists? [00:53:41]
+
+Swyx: Like, what are you talking about, right? [00:53:42]
+
+George: Like, you know, a real artist's finger paint. They can't use brushes. Brushes are, you know, brushes are gonna replace all the, okay, like, I just can't. Like, it's all just tools and the tools are gonna get better and better and better. And then eventually, yes, the tools are going to replace us. But, you know, that's still 20 years away. So, you know, I got a company to run in the meantime. [00:54:02]
+
+Swyx: So I've written about the API line before and I think that's from Venkatesh. I don't know if you've got your directive to it. I don't know, I definitely took it from someone. [00:54:07]
+
+George: It's definitely not mine. [00:54:08]
+
+Swyx: It's VGR. But I also have a speculated, a higher line than that, which is the Kanban board. Like, who tells the programmers what to do, right? So are you above or below the Kanban board? Has that evolved your management thinking? [00:54:21]
+
+George: Yeah, like, that's sort of what I mean. Like, it's like, I'm just gonna describe the pull request in two sentences and then like, yeah. [00:54:28]
+
+Swyx: So you are running the Kanban board? Or the bounties, you know? [00:54:31]
+
+George: Yes, the bounties are the Kanban board, exactly. And that is kind of the high level. And then like, yeah, we'll get AIs to fill in some and we'll get people to fill in others. And that's also what it means to be like, full-time at TinyCorp, right? Would you start, and I wrote this up pretty concretely. I'm like, okay, step one is you do bounties for the company. Step two is you propose bounties for the company, right? You don't obviously pay them, we pay them. [00:54:52]
+
+Swyx: But you propose them. [00:54:52]
+
+George: And I'm like, yeah, that's a good bounty. That like, helps with the main workflow of the company. And step three is you get hired full-time, you get equity, we all, you know, maybe get rich. [00:55:01]
+
+Swyx: What else are you designing differently about the employee experience? [00:55:04]
+
+George: You know, some people really like to like, [00:55:06]
+
+Swyx: like keep a separation, right? [00:55:07]
+
+George: Some people really like to keep a separation between like employees and management or customers and employees. Like a comma, you know, the reason I do the DevKit thing, it's like, dude, you buy a comma thing, you're an employee of the company. Like you're just part of the company. It's all the same thing. There's no like secrets, there's no dividing lines. There's no like, it's all a spectrum for like, you know, down here at the spectrum, like you pay. And then up here at the spectrum, you get paid. You understand this is the same spectrum of college, right? Like for undergrad, you pay, and then you get up here to like, you know, I'm doing a PhD program, you get paid. Okay, well, cool. Welcome to the, you know. [00:55:39]
+
+Alessio: What about comma bodies? You mentioned a lot of this stuff is clearly virtual, but then there's below the API line you actually need. [00:55:47]
+
+Swyx: Wait, this is a thing that's been announced? Comma bodies? We sell them. You can buy them. [00:55:51]
+
+George: They're a thousand bucks on our website. [00:55:53]
+
+Swyx: Oh, okay, no, no, no. I'm thinking about like the, what Tesla announced with like the humanoid robots. It's the same thing. [00:55:58]
+
+George: Except of course, we made the comma version of it. Tesla uses 20 actuators. We use two, right? Like how do you build the simplest possible thing that can like turn the robotics problem into entirely a software problem? So right now it is literally just a comma three on a pole with two wheels. It balances, keeps the comma three up there. And like, there's so much you could do with that already. [00:56:21]
+
+Swyx: Right? [00:56:22]
+
+George: Like this should replace, how many security guards could this replace? Right? If this thing could just competently wander around a space and take pictures and, you know, focus in on things, send you a text message when someone's trying to break into your building, you know, like, like this could already do so much, of course, but the software is not there yet. Right? So how do we turn robotics into a thing where it's very clearly a software problem? You know, that people don't accept that self-driving cars are a software problem. Like, I don't, I don't know what to tell you, man. Like literally just watch the video yourself and then drive with a joystick, right? Can you drive? And we've actually done this test. We've actually done this test where you've had someone, okay, you just watch this video and here's a joystick and you got to drive the car. And of course they can drive the car. It takes a little bit of practice to get used to the joystick, but the problem is all the model, right? So I can now make the model better. [00:57:07]
+
+Swyx: Our second most popular episode ever was about segment anything coming out of Facebook, which as far as I understand the state of the art in computer vision, what are you hoping for there that you need for Karma? [00:57:17]
+
+George: I haven't used segment anything. Like they large, large YOLOs or not. I've used like large YOLOs and I'm super impressed by them. [00:57:24]
+
+Swyx: Yeah. [00:57:25]
+
+George: I got to check out segment anything. I don't think it's a distinct problem, right? Okay, here's something that I'm interested in. All right, we have great LLMs. We have great text to speech models and we have great speech to text models. Okay, so why can I not talk to an LLM? Like I'd have a normal conversation with it. [00:57:39]
+
+Swyx: You can with the latency of like two seconds every time. Right? [00:57:42]
+
+George: And then it feels so unnatural. It's this like staccato. Like I don't like the RLHF models. I don't like the tuned versions of them. You take on the personality of our customer support agent. Right? [00:57:53]
+
+Swyx: Like, oh, come on. [00:57:54]
+
+George: I like LLMA more than ChatGPT. ChatGPT's personality just graded on me. Whereas LLMA, like, cool. I read a little bit of pretext paragraph. I can put you in any scenario I want, right? Like, that's interesting to me. So yeah, I think there is really no like distinction between computer vision and language and any of this stuff. It's all eventually going to be fused into one massive. So to say computer vision is solved, well, it doesn't make any sense because what's the output of a computer vision model? Segmentation? Like, what a weird task, right? [00:58:26]
+
+Swyx: Who cares? OCR? [00:58:28]
+
+George: Who cares? [00:58:29]
+
+Swyx: I don't care if you can segment [00:58:29]
+
+George: which pixels make up that laptop. I care if you can pick it up. [00:58:32]
+
+Alessio: And you're going to have the local cluster. You're going to have the body. [00:58:36]
+
+Swyx: Yeah. [00:58:37]
+
+George: Yeah, I think that's kind of where that goes. [00:58:39]
+
+Swyx: Maybe we can paint the future of like, the year is 2050. You've achieved all you wanted at TinyCorp. What is the AI enabled future like? [00:58:48]
+
+George: Well, TinyCorp's the second company. Comma was the first. Comma builds the hardware infrastructure. TinyCorp builds the software infrastructure. The third company is the first one that's going to build a real product. And that product is AI Girlfriend. No, like I'm dead serious, right? Like, this is the dream product. This is the absolute dream product. Girlfriend is just the like- [00:59:08]
+
+Swyx: Stand-in. [00:59:09]
+
+George: Well, no, it's not a stand-in. No, no, no, no. I actually mean it, right? So I've been wanting to merge with a machine ever since I was like, mad little. [00:59:15]
+
+Swyx: Like, you know, I was just like, [00:59:16]
+
+George: how do I merge with a machine, right? [00:59:18]
+
+Swyx: And like, you can look at like, [00:59:19]
+
+George: maybe the Elon style way of thinking about it is Neuralink, right? I'm like, I don't think we need any of this, right? You ever, some of your friends maybe, they get into relationships and you start thinking of, you know, them and their partner as the same person. You start thinking of them as like one person. I mean, they are kind of like merged, right? Like, humans can just kind of do this. It's so cool. It's this ability that we already have. Right, so I don't need to put, you know, electrodes in my brain to merge with a machine. I need an AI Girlfriend, right? So that's what I mean. Like, this is the third product. This is the third company. And yeah, in 2050, I mean like, ah, it's so hard. I just like, maybe I can imagine like 2035. I don't even know 2050, but like, yeah, 2035. Like, yeah, that'd be really great. [01:00:03]
+
+Swyx: In terms of merging, like, isn't it, shouldn't you work on Brain Upload rather than AI Girlfriend? Brain Upload, right? [01:00:09]
+
+George: I don't need Brain Upload either. Like, there's thousands of hours of me on YouTube, right? Yes. How much of my brain's already uploaded? [01:00:17]
+
+Swyx: That's only the stuff that you voice. Yeah, it's not that different. [01:00:20]
+
+George: It's not that different, right? You really think a model with, you know, an exaflop of compute couldn't extract everything that's really going on in my brain? I'm a pretty open person, right? Like, I'm not running a complex filter. Humans can't run that complex of a filter. Like, humans just can't. Like, this is actually a cool quirk of biology. It's like, well, humans like can't lie that well. [01:00:39]
+
+Alessio: So is it good or bad to put all of your stream of consciousness out there? [01:00:43]
+
+George: I mean, I think it's good. [01:00:45]
+
+Swyx: I mean, he's streaming every day. I want to live forever. We said off mic that we may be the first immortals, right? Yeah, this is how you live forever. [01:00:54]
+
+George: It's a question of, okay, how many weights do I have? Right, okay, let's say I have a trillion weights, right? So talking about a terabyte, 100 terabytes here. [01:01:02]
+
+Swyx: Okay, but it's not really 100 terabytes, right? [01:01:03]
+
+George: Because it's Kolmogorov complexity. How much redundancy is there in those weights? So, like, maximally compressed, how big is the weight file for my brain? Quantize it whatever you want. Quantization is a poor man's compression. I think we're only talking really here about, like, maybe a couple gigabytes, right? And then if you have, like, a couple gigabytes of true information of yourself up there, cool, man. Like, what does it mean for me to live forever? [01:01:27]
+
+Swyx: Like, that's me. No, I think that's good. [01:01:29]
+
+Alessio: And I think there's a bit of, like, a professionalization of social media, where, like, a lot of people only have what's, like, PC out there, you know? And I feel like you're going to get, going back to the ChatGPT thing, right? You're going to train a model on, like, everything that's public about a lot of people. [01:01:44]
+
+Swyx: And it's like- [01:01:45]
+
+George: Then no one's going to run their model and they're going to die. Don't put PC on social media. [01:01:49]
+
+Swyx: We're moving on to what would normally be called the lightning round, but just general tics, because you're a generally interesting person with many other interests. What does the goddess of everything else mean to you? [01:01:59]
+
+George: Oh, it means that AI is not really going to kill us. [01:02:01]
+
+Swyx: Really? [01:02:01]
+
+George: Of course. [01:02:02]
+
+Swyx: Tell us more. [01:02:03]
+
+George: Lex asked me this, like, is AI going to kill us all? And I was quick to say yes, but I don't actually really believe it. I think there's a decent chance that AI kills 95% of us. [01:02:11]
+
+Swyx: Okay. [01:02:12]
+
+Alessio: But they saw on your Twitch streams that you're with them, so they're not going to- [01:02:16]
+
+Swyx: No, I don't think, I actually, [01:02:18]
+
+George: I don't also think it's AI. Like, I think the AI alignment problem is so misstated. I think it's actually not a question of whether the computer is aligned with the company who owns the computer. It's a question of whether that company's aligned with you or that government's aligned with you. And the answer is no, and that's how you end up dead. [01:02:31]
+
+Swyx: So what the goddess of everything else means to me [01:02:32]
+
+George: is like, the complexity will continue. Paper clippers don't exist. [01:02:37]
+
+Swyx: You know, there are forces. [01:02:38]
+
+George: The paper clipper is cancer, right? The paper clipper is really just a perfect form of cancer. And the goddess of everything else says, yeah, but cancer doesn't win, you know? [01:02:48]
+
+Swyx: Yeah, it's a beautiful story for those who haven't heard it. And you read it out and I listened to it. Yeah, what are you grateful for today? [01:02:55]
+
+George: Oh man, I mean, it's all just like, I haven't, I haven't thinking about this stuff forever. Like, that it's actually like happening and it's happening in an accessible way too. I guess that's what I'm really grateful for. It's not like, AI is not some Manhattan project style. You don't know anything about it. Closed doors. [01:03:12]
+
+Swyx: Closed doors. [01:03:13]
+
+George: I'll fight really hard to keep it that way. I'm grateful for just how much is released out there and how much I can just learn and stay up to date. And I guess I'm grateful to the true fabric of reality that, you know, I didn't need differential equations to understand it. Like, I don't need some like, there's a limit to my math abilities. I can do most undergrad math, but I took some grad math classes and okay, now we're getting to the end of what I can do. And it's just the actual like, end of what I can do. Like, I'm limited by my brain, but you know, ML stuff, hey, you need high school math. [01:03:45]
+
+Swyx: You know what I mean? [01:03:46]
+
+George: When I learned to multiply a matrix, seventh grade, [01:03:48]
+
+Swyx: like, it's all easy. You need more electrical engineering than you need high school math early. [01:03:52]
+
+George: Yeah, well, you need electrical engineering to like, build the machines, but even that, like, these machines are simpler than the machines that have existed before. The compute stack looks really nice. So, you know, yeah, I just, I'm grateful that it's all happening and I get to understand it. [01:04:05]
+
+Alessio: John Carmack mentioned there's about six insights we have left. Do you have an intuition for what some of the paths [01:04:11]
+
+Swyx: people should be taking? [01:04:12]
+
+Alessio: Obviously you're working on one. What are some of the other branches of the tree that people should go under? [01:04:17]
+
+George: I don't think I'm working on one of the six insights. I don't think TinyGrid's any one of the six insights. Something I really like that Elon does, and I try to be inspired by it, is look at the boring tunnel machine and ask how you can build a 10X cheaper one. All right, look at the rocket. How can I build a 10X cheaper one? All right, look at the electric car and say, how can I build a 10X cheaper, like, cheaper or, you know, can go further or whatever, whatever, whatever, right? And you just do the straight up physics math, right? I'm trying to do the same thing with ML frameworks, right? And in doing so, making sure that this stuff remains accessible. You could imagine a world where if Google TPUs were actually the ultimate, if Google TPUs were actually the best training things, I mean, actually, you know, I'm kind of grateful for NVIDIA, right? Because if Google TPUs were the ultimate, now you have this huge closed source compiler in between XLA and the hardware, and yeah, that's just a really bad thing. So, I mean, something that is somewhat upsetting about the Tiny Core is that it is trying to prevent downside, but it's not all trying to prevent downside. Like, we're also building computers and we're gonna build some awesome, powerful, cheap computers along the way. So, no, I'm not really working directly on any of the six tricks. I also think the six tricks are kind of gonna be like luck. [01:05:25]
+
+Swyx: I think it's just gonna be like, you know, [01:05:26]
+
+George: please tell me more about what covariate shift is and how that inspired you to come up with batch normalization. Please tell me more about why it's a transformer and it has a query, a key, and a value, right? Like Schmidt-Huber described it better in fast weights. I mean, my theory about why transformers work have nothing to do with this attention mechanism and just the fact that it's semi-weight sharing, right? Because the weight matrix is being generated on the fly, you can compress the weight matrix, right? Like, this is what that, there's an operation in the transformer, which, and by the way, this is like, Qualcomm's SNPE can't run transformers for this reason. So, most matrix multipliers in neural networks are weight times values, right? Whereas when you get to the outer product in transformers, well, it's weight times weight. It's values times values, right? So, SNPE doesn't even support that operation, right? So, it's like that operation that gives the transformer its power. It has nothing to do with the fact that it's attention, [01:06:20]
+
+Swyx: right? [01:06:21]
+
+George: And this is a funny, like, but that is one of the six tricks, right? Batch, like these norms are a trick. Transformers are a trick. Okay, six more. [01:06:29]
+
+Swyx: So, you talk about attention as weight compression. [01:06:33]
+
+George: Compression is not exactly the right word. What I mean is that the weight can change dynamically based on the context. So, there was this thing in PAC-8 in the Hutter Prize that I absolutely loved, and I've never seen it again in neural networks, and it's a really good trick. Okay, imagine you have 256 weight sets for a layer, right? And then you choose which of the weight sets you're loading in based on some context. And that context can come from another neural net, right? So, I have another neural net, which projects 256 wide, one hot, do a softmax, predict it, and then I actually load the weights in. And I can do this operation at both test time and train time. I can do this operation at both training and inference, and I load in the weights given the context. Like, that is what transformers do. But transformers, instead of having 256 discrete ones, it's actually just that, but continuous. Which is funny that that was in language models, and I just like, when I understood that about transformers, I'm like, oh, this is a real trick, and why are they using the word attention? [01:07:23]
+
+Alessio: And today is actually the anniversary of attention is all you need. What? [01:07:27]
+
+Swyx: Oh, that's so cool. [01:07:28]
+
+Alessio: Today, six years ago. [01:07:29]
+
+Swyx: Six years. [01:07:30]
+
+George: Six years. [01:07:31]
+
+Swyx: Changed the world. Wow. [01:07:32]
+
+George: Well, there's one of your envelope tricks, right? And you could easily write it on an envelope, think about how you write out that. How many times have you written that? Because it's not in any libraries, because it's all used a little differently each time. Like, you just write out that exact same, you know. [01:07:45]
+
+Swyx: You've name checked Elon a few times. I think about both of you as systems thinkers. Input, output, thinking something in between. What's different about your style versus his? [01:07:53]
+
+George: Elon's fundamental science for the world is physics, mine is information theory. But you do a lot of physics as well. [01:07:58]
+
+Swyx: I mean, like, you base it on- [01:07:59]
+
+George: And Elon does a lot of information theory as well, too. But the difference maybe is expressed in what your ambitions are, right? Elon's ambitions may be like- [01:08:08]
+
+Swyx: Go to Mars. Go to Mars, right? [01:08:10]
+
+George: Go to Mars is the ultimate modernist physics ambition, right? It's a physics problem getting to Mars, right? [01:08:16]
+
+Swyx: Well, what are electric cars? [01:08:17]
+
+George: It's a physics problem, right? Okay, now he's like pushing on the autonomy stuff, and you push a little on information theory. But fundamentally, his dreams are physics-based dreams. My dreams are information-based dreams. I want to live forever in virtual reality with my AI girlfriend. Those are the aspirations of someone who accepts information theory as a core science. So I think that's the main difference between me and him. He has physics-based aspirations, and I have information-based aspirations. [01:08:39]
+
+Swyx: Mark Andreessen, he is a- Hi, Mark. He's a listener. He's a big proponent of effective accelerationism. You've been a bit more critical. Why do you say that IAC is not taken seriously by its adherents? [01:08:50]
+
+George: Oh, well, only the left takes ideology seriously. It's just like a fact, right? [01:08:55]
+
+Swyx: Is the right more cynical? Is that what it is? [01:08:57]
+
+George: I don't know. [01:08:58]
+
+Swyx: It's like the left actually manages [01:08:59]
+
+George: to get energy around the ideologies, right? [01:09:02]
+
+Swyx: Look, here you have- [01:09:03]
+
+George: You have two effective altruists named Sam going in front of Congress. Only one of them is in jail. [01:09:08]
+
+Swyx: You know, it's interesting. [01:09:09]
+
+George: They're both calling for regulation in their respective spaces, right? [01:09:11]
+
+Swyx: So SBF is definitely like kind of wolf in sheep's clothing, kind of, right? Like he only adopted IAC or EA to market. [01:09:19]
+
+George: Oh, and Sam Altman is a genuinely good guy who is not interested in power-seeking for himself. [01:09:24]
+
+Swyx: All right. Okay, okay. We don't have to go there. Fair enough, fair enough. [01:09:27]
+
+George: But no, IAC is not like, like you are not serious, right? Mark Andreessen, I like Mark Andreessen, but it's like someone who's like 2019, whose like eyes were opened about like the political world being not exact. You mean all the people on the news were lying to me? [01:09:42]
+
+Swyx: Bro, they were lying to you. [01:09:43]
+
+George: Like, okay, we all figured this out five years ago. Now, what are you going to do about it? I'm going to complain about it on Twitter. Great, and that's what IAC is. [01:09:50]
+
+Alessio: Last and maybe most important, why was Avatar 2 bad? [01:09:55]
+
+Swyx: Oh, I have a whole, you can go on my blog. [01:09:56]
+
+George: I rewrote the script of Avatar 2. I wrote a script that actually might make you feel something for the characters. I killed Jake Sully in the first scene. Like you had to. Do you really think his second story art topped his first one? No, of course not. You had to kill the guy and make the movie about the brothers, right? And just that alone and realizing that, like you could have kept the Titanic scene. [01:10:16]
+
+Swyx: It would have been fine. [01:10:16]
+
+George: I didn't even take it out. I left your Titanic scene, James Cameron, but I wrote you a story. So, you know, you're just, just, just. [01:10:23]
+
+Swyx: He needs ships to sink in water. [01:10:24]
+
+George: Look, it's a great scene, but like the movie was just like, like the Roman, I've never. [01:10:30]
+
+Swyx: Great CGI, you know, let down by the writing maybe. It's a beautiful world. [01:10:34]
+
+George: And that's why like I care so much, right? Like you don't hear me ranting about Pirates of the Caribbean 2 being a terrible story. Cause come on, what do you expect, man? Like Johnny Depp's like, wow, I had a movie that made me rich. I love this. [01:10:44]
+
+Alessio: But this goes back to like the midpoint. You know, I think you wrote like, feels like ChatGPT wrote the movie and that's my worry a little bit. It's like kind of converging towards that. [01:10:53]
+
+Swyx: Oh, I. Malik, Malik wrote the movie. Sorry, I didn't want to interrupt you. [01:10:59]
+
+George: I closed a pull request two days ago. I was like, was this written by ChatGPT? And I just closed it. [01:11:04]
+
+Swyx: Like, you know what? [01:11:05]
+
+George: I honestly feel bad if you were a human who wrote this. [01:11:07]
+
+Swyx: Incapable of being more perplexed. [01:11:09]
+
+George: But if you, if I have a classifier running in my head that asks, you know, is this a AI or is this a human? Like, you know, the only way to deal with all this, like, like, like, oh God, it's like the worst possible. Like, you know, people are like, how are you mad about like these chatbots? You're not mad about like Tesla. I don't want to buy a Tesla. I don't have to buy a Tesla. And it won't really impact my life negatively. But if I don't want to use a chatbot, it's still going to impact my life negatively. All the amount of like personalized spam that now makes me spend more cycles on my classifier to tell if it's spam or not, because you can now use AIs and generate this so cheaply. Like, no, I mean, we have to move to a model where everything's just a dollar, right? Like you want to send me an email, it's a dollar. Like you guys wouldn't care. None of my friends would care. No one would care, except the spammers, right? Like we just got to move to those sort of models. [01:11:54]
+
+Swyx: Awesome. [01:11:55]
+
+Alessio: One last message you want everyone to remember. [01:11:58]
+
+George: Go try TinyGrad. I hope that we're a serious competitor to what's out there. And then I want to take it all the way. We'll start with just building something for GPUs and then we'll start building chips and then we'll start building fabs and then we'll start building silicon mines and then we'll have the first self-reproducing robot using. [01:12:15]
+
+Swyx: Yeah, okay. All right, George. [01:12:18]
+
+Alessio: Thank you so much for coming on. [01:12:19]
+
+Swyx: You did a big inspiration. Thank you. Thanks. [01:12:21]
+
+Swyx: Thank you. [01:12:29]
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

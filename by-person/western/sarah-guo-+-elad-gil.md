@@ -14,13 +14,9 @@ Date: 2026 · [Source](https://podscripts.co/podcasts/no-priors-artificial-intel
 
 Don't go head-to-head with foundation models unless you have $10B+ in capital and a lab-tier research team. Positioning options: vertical SaaS with embedded inference / agent scaffolding with context management / domains where incumbents are slow (compliance, healthcare, legal).
 
-**Memories.ai implication**: Memories.ai implication: we're already doing context management + agent scaffolding — this path is validated.
-
 ### ★★★ [Hiring]
 
 "Perhaps in the entire world, there's a few hundred great product people for consumer." Consumer product talent is the binding constraint. Consumer teams must embed a researcher or they'll ship derivative experiences.
-
-**Memories.ai implication**: Memories.ai implication: When Lucy App / Desktop hire product people, embed an AI researcher — otherwise you'll end up shipping derivative work.
 
 ### ★★ [Strategy]
 

@@ -13,7 +13,6 @@ ai-founder-kb/
 ├── by-source/                   # By interview source
 ├── frameworks/                  # 20 canonical playbook documents
 ├── sources-catalog/             # Source subscription catalog
-├── memories-ai-actions/         # Memories.ai-specific action checklist
 └── sequoia-channel/             # Sequoia YouTube channel full catalog
 ```
 
@@ -69,8 +68,6 @@ Content was built in a one-time buildout (2026-05-24, 5 phases). To update:
 1. Add a new learning point: directly append to the relevant `by-person/<name>.md` file, then manually update the corresponding topic / company / source files
 2. Add a new person: create a file under `by-person/western/` or `by-person/chinese/`
 3. Add a new pattern: create a file under `patterns/` and update `patterns/README.md`
-
-Or keep the Excel file `/Users/junxiaoshen/Desktop/AI创始人访谈学习_2026-05-24.xlsx` as the source of truth, and re-run `build_kb_en.py` after each update.
 
 ## Signal-Strength Convention
 

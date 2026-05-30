@@ -6,11 +6,7 @@ The defining storyline of 2025-26: application-layer and primitive-layer both ha
 
 ## Supporting Evidence (Independent Sources)
 
-Cursor ($30B valuation but squeezed by Claude Code) / Manus (sold to Meta, citing inability to absorb complexity alone) / Monica (founder admits tool-shaped products are easily replaced) / DeepMind's "The model eats the scaffolding" / Lucy Desktop's BFF layer / Zhang Xiaojun Business Interview EP128
-
-## Action Implication for Memories.ai
-
-Either descend into the application layer (Lucy goes deep on health/career/relationships — 4 of Anthropic's 9 consumer-vertical hits), or rise to the primitive layer (portrait schema + vector infrastructure as a base layer multi super-apps can call). The most dangerous position is stuck in the middle as a "video understanding API".
+Cursor ($30B valuation but squeezed by Claude Code) / Manus (sold to Meta, citing inability to absorb complexity alone) / Monica (founder admits tool-shaped products are easily replaced) / DeepMind's "The model eats the scaffolding" / Zhang Xiaojun Business Interview EP128
 
 ---
 

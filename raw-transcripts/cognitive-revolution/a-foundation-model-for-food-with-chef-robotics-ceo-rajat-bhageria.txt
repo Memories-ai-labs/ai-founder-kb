@@ -1,0 +1,633 @@
+# A Foundation Model for Food, with Chef Robotics CEO Rajat Bhageria
+# URL: https://www.cognitiverevolution.ai/a-foundation-model-for-food-with-chef-robotics-ceo-rajat-bhageria/
+# Date: 2024-07-11
+# source: The Cognitive Revolution
+
+Transcript
+
+(0:00) Nathan Labenz: Hello and welcome to the Cognitive Revolution where we interview visionary researchers, entrepreneurs, and builders working on the frontier of artificial intelligence. Each week we'll explore their revolutionary ideas and together we'll build a picture of how AI technology will transform work, life, and society in the coming years. I'm Nathan Labenz joined by my cohost Eric Torenberg.
+
+Hello and welcome back to the Cognitive Revolution. Today my guest is Rajat Bhageria, founder and CEO of Chef Robotics, a pioneering company that's taking on one of the biggest challenges and commercial opportunities in AI today. How to incorporate the latest advances into embodied systems so that they can reliably handle the diversity of real world contexts and deliver practical economic value.
+
+Chef focuses on food assembly, which I was surprised to learn constitutes an estimated 70% of labor costs in food manufacturing facilities, more than ingredient preparation and cooking combined. And Chef Robots have now assembled some 20,000,000 meals.
+
+In this conversation, Rajat shares a detailed account of Chef's technology, including the form factor of their robots, their use of imitation learning, the tremendous efforts they've made to ensure consistency in dynamic environments, their multilayered strategy for resolving production issues, the data flywheel effects they are beginning to see, and how they are leveraging that data to create a new foundation model for food manipulation.
+
+Looking ahead, Rajat sees Chef's robots moving into commercial kitchens of all kinds and believes we will ultimately see a reorganization of the food industry with a proliferation of cheaper and more customizable meal options produced in robotic ghost kitchens and delivered by small autonomous drones.
+
+Perhaps surprisingly, in contrast to the more familiar Jetsons style vision of domestic robots that cook for us in our homes, Rajat envisions a world in which the cost of high quality food approaches the cost of ingredients, and thus home kitchens become an optional add on for hobbyist home chefs.
+
+As someone who is always looking for realistic glimpses of daily life in the AI enabled future, I found this vision quite thought provoking, and it's inspired me to think about what other second order effects we might ought to expect.
+
+As always, we appreciate it when listeners share the show, and we'd love to hear your feedback. You can contact us via our website, cognitiverevolution.ai, or you can DM me on your favorite social network.
+
+And briefly, if you're an AI engineer or an AI adviser who's excited about helping diverse real economy businesses apply AI technology, or if you're interested in sponsoring the Cognitive Revolution, I would be excited to hear from you.
+
+Now I hope you enjoy my conversation with Rajat Bhageria, founder and CEO of Chef Robotics.
+
+Rajat Bhageria, founder and CEO of Chef Robotics. Welcome to the Cognitive Revolution.
+
+(2:46) Rajat Bhageria: Thank you, Nathan. I'm super excited to be here.
+
+(2:49) Nathan Labenz: I am too. This is cool. We've done obviously a ton of episodes on a ton of different things and including a few on robotics research. But I think this is the first time that we'll have an opportunity to talk about a product that is deployed at some nontrivial scale in the robotics wild. So I'm excited to get into that with you. I guess for starters, you wanna just give us the very high level overview of what is Chef Robotics, and then I'll dig into all the technical and sociotechnical nooks and crannies from there.
+
+(3:20) Rajat Bhageria: Yeah. That sounds good. So, yeah, Chef Robotics, we make AI enabled robots for the food industry. We're starting with actually food manufacturing, and that's because it's actually a very kind of relatively good place to collect training data, add ROI to customers. And we can talk more about the nuances of that, but it's a really good starting point where we can kind of relatively quickly ship robots. It's like L2 autonomy, you could say, in the AV parlance, and we can generate ROI for our customers.
+
+And of course, the more robots we deploy in this area, the better that our chain dataset gets and our AI gets, which then allows us to have a more dexterous system, which then allows us to do, hopefully, more complex applications, right, such as ghost kitchens, such as fast casuals, etcetera. The ultimate goal, of course, is to deploy an AI enabled robot in really every commercial kitchen around the country and the world. So that's broadly what we do, of course, leave it from there.
+
+(4:09) Nathan Labenz: Cool. So when you say food manufacturing, what should I conjure up in my imagination there? Yeah. Is this a packaged meal that I would get from a Costco type outlet that is getting created?
+
+(4:25) Rajat Bhageria: Yeah. More or less. Yes. When most people think about food manufacturing, they think that's already automated, basically. And actually, like, there are parts of it that are automated. So if you think about if I'm Kraft Heinz making a ketchup or something, it's already automated. Right? On the other end, that's called low mix manufacturing, where essentially you don't have that many SKUs. So let's say you have 10 SKUs. What you're gonna do is get kind of 10 dedicated lines for each of the SKUs and you run them all day long.
+
+Then there's this idea of high mix manufacturing. High mix manufacturing is if you have hundreds of SKUs, for example, meals. So, you know, prepared sandwiches, salads, party trays, meals you say at Costco or Trader Joe's, frozen meals, things like that. Meals you might even find at the hospital, for example, patient trays, schools. They have a lot of variety. Right? Some people like vegetarian meals, some people like meat lovers, some people are vegan, some people are gluten free, etcetera, etcetera. And each of these has 20 different SKUs within it. So there's just a lot of SKUs.
+
+So the way that these meals are actually made in status quo is actually a very manual process, a lot more manual than people might think. You essentially have these long conveyor lines where you have people scooping food from big tubs into individual containers. And that's the kind of the chat, at least, that we're kind of going after to start.
+
+(5:35) Nathan Labenz: Interesting. So what is the form factor? I've checked out and seen a little bit of the video footage on the website. It appears to be an arm that is mounted to a table. Is that right?
+
+(5:49) Rajat Bhageria: We have these modules. These modules are actually on casters. So you move them around easily, wheels, basically. Right? Move them around easily. And it's kinda like a mobile manipulator, guess, you could say. But, basically, like, our customers aren't moving these robots around all the time. It's, like, maybe once a day, twice a day type thing. So you actually don't need to be autonomously mobile.
+
+We have a 6 DOF arm on it. It's a collaborative system. And then, you know, there's a bunch of different sensors on it, like RGBD cameras, force torque sensors, scales, a bunch of different sensors that kind of help us make sense of the world, make sense of the environment. And that's kind of it. It's a very simple system.
+
+And then you might have different kind of end effectors, different utensils based on what you're manipulating. On the hardware side, we really try to make it an extremely simple system that we can kind of mass manufacture. It's not like we're trying to make custom hardware for a customer. It's really let's have a module and this module is the same footprint as a person. In other words, it can slide onto an existing line without retrofitting. Let's mass manufacture it. Let's use mostly off the shelf hardware. And then it's really put our blood sweat and tears into the autonomy and make it as flexible as possible so you can do as many tasks as we possibly could.
+
+(6:52) Nathan Labenz: Interesting. Okay. So I'm imagining now I have a household of 7, so we do not infrequently buy the Costco prepared meals. And I'm imagining the sort of before is like people standing at workstations and doing an assembly line type process except managed to where the individual tasks are done by different people.
+
+So is it like today a person is sitting there chopping onions all day that go into the stir fry or whatever and then strategically people can get one of your robots and say, okay, we now don't have to have a human chop the onions, we'll have a robot chop the onions. They put in and they can roll this thing around and put it into different positions and then do it's not a mounted arm, but it is arms. Right? It's like primarily is it one arm? Is it two arms? Do the arms work together? Tell me a little bit more about the arms.
+
+(7:47) Rajat Bhageria: Yeah. The way you can think about the process right now in basically every commercial kitchen, there's 3 processes. There's prepping, there's cooking, and there's assembly or plating. Plating is what you might see at Chipotle, right, which is a human kind of scooping ingredients out of a hotel pan, a tub, and they're scooping that into a burrito or tray or a bowl, whatever it might be, but that instance.
+
+What you find is actually that the most labor intensive process is actually the assembly or plating. And the reason for this, and we could talk about this more, but the cooking and the prep actually scales relatively sublinearly when it comes to at least non fine dining. For fine dining, cooking is the most expensive. But for everything else, so like food trucks, fast casuals, prisons, hotels, universities, K through 12, manufacturing, everything else, airline catering, all of that. The prepping and cooking scale sublinearly, in other words, if you need more volume or if you need more throughput, you don't necessarily need more humans. And then on the other hand, the assembly scales more linearly. In other words, if you need more throughput or volume, you usually need linearly more units.
+
+So we really focus on food assembly. So your kind of picture is correct though, right? So when you come to a production room, you'd find a long conveyor, you'd find 20 people standing on either side of it. Each person would have a big tub of food. They're basically using a utensil, and maybe they're using their hands, scooping ingredients out of these big tubs into trays or wraps or burritos or sandwiches, and move down the line. And they might be doing this in a 34 degree room, which is actually the usual status quo.
+
+And so that's the status quo. And so now what we do is we make this robot module. It's the same footprint as a person. It can just slide onto an existing line, take the same footprint, but there doesn't need to be any retrofitting.
+
+And then basically we do the same thing that a human might be doing. Right? The idea of course is that this is a very kind of hard job, right? It's extremely monotonous. It's 34 degrees. Oftentimes, like I said, you're actually touching frozen ingredients there and you can't even feel your fingers after 5 minutes. So there's an extremely high turnover rate and it's really hard to hire for this job.
+
+So I think our idea, of course, at least for this go to market is that we can help these customers really have human equivalent that can then allow them to offset that existing labor to a different part of the plant. And that existing set of folks can hopefully help with doing kind of higher value tasks, things that humans really should be doing. Like continuous improvement, let's improve this process and make it more efficient, material handling, things like that. Right?
+
+So how the process might work. Now to your other question about number of arms, right now we actually use one arm and that's at least with this task, the food assembly task, which is of course, just to be clear, 70% of the labor at food companies. So it's a gigantic market just if we just do food assembly, right? So we're not too worried about things more than that at the moment, but of course the idea is that we can do more down the line.
+
+Right now, the hardware very much is one robot arm per module. But of course, we can have multiple end effectors, multiple utensils per robot arm to do various things.
+
+(10:39) Nathan Labenz: Okay. That's really interesting. The fact that 70% of the labor goes into plating is definitely not something I would have guessed. Calls to mind a we did an episode with one of the founders of Codium and kind of somewhat similar stat when it comes to how much time software developers actually spend coding is only maybe a third of their time as well. So that's surprising, but interesting.
+
+Okay. How do people set these things up? If they get a robot from you and now they I don't know if this comes in a box and they assemble it or you go on-site and assemble it for them and interested in kind of some of those delivery details. But once they've got the thing on wheels and they can roll it around and it's okay, mister robot, this is your station. What does the process look like of dialing in its behavior to this particular meal and the serving size and the place it's supposed to go, etcetera?
+
+(11:37) Rajat Bhageria: Yes. And then, of course, that's the hard part. Right? I think there's two different parts to this.
+
+So on the day of production, let's say so I guess maybe instead of taking a step back, like, we ship the robots in crates, like wooden crates, they'll arrive. The deployment process itself is actually quite simple. You literally take the robot out of the crate. It's already on wheels. You slide it onto the line. Usually, a food facility, so they'll wash it down and do sanitation. And they'll take like a swab, like a bacteria swab to just make sure there's no, like, pathogens we're introducing. But anyways, like, basically slide down to the line.
+
+We require two inputs from the facility, which all kind of facilities have. One is just 110 AC power, and then two is, like, compressed air. And that's just to actually manipulate the end effector. Right? It's a pneumatic end effector. So you plug those two things in, and that's, like, setup.
+
+And then part one now for actually using it is by somebody who's actually on the floor. So on the floor, we try to make it as simple as you possibly can imagine. And the reason for this is, like, our audience is not technical folks. It's not often even English speaking folks. It's often people who haven't, don't have a four year college degree, etcetera. Right? So we try to make it as simple to use as maybe they would use an oven at their house, which is to say, you go up to the robot, there's this nice touch screen, and you can use your gloves just like, hey. This is a meal I wanna run today. So this line today is doing the pad Thai meal. Just made that up, but whatever meal is doing. So I'm doing the pad Thai meal. And robot number one is gonna do the noodles. Okay. Great. So now you have that. And then the system will say, okay. Great. Now you need to attach this particular utensil. We'll recommend utensil to attach. The user will attach this utensil.
+
+And at that point, what will happen is the user will load the tray of food right into the module. And basically the system will fine tune itself, which is to say it'll pick and dump ingredients from one pan to the other and just like really fine tune with this particular batch of ingredient.
+
+And the reason, by the way, this is important is that the thing with food is it's an organic compound, but also it's cut and cooked by a human. And every human, of course, is different and every single day it's different. No batch of food is ever the same. Even if you like it to be the same, it's not. So you have to fine tune for that particular batch, which is to say today the cook added a little bit, they cooked a little bit longer or less long. It's more sticky than we would have expected, or it's more oily, or maybe it's a little more dense or maybe there's different parts of them. Like, if it's a curry, maybe it's different parts of the curry, dense or more dense. There's different properties that change based on the material.
+
+And at that point, basically, it's fine tuned, you press play, it'll start to pick and place onto the line. So that's kind of the day of. And again, that's an extremely simple process. This process is in really any language you want. So you can do it in Spanish. You can do it in whatever language you want as a user. So that's the production day out process. Right?
+
+Now there's another process, which is, okay, how do you actually onboard a new ingredient? Now, when we're first initially deploying the robots to a customer site for a new customer, our solutions engineering team would do this for the customer so that the customer kind of is ready to go day one. Right?
+
+Now, on an ongoing basis, what we do is we create a lot of software to allow our customers to self onboard new ingredients. So the way this might work, let's say I'm a production manager now or I'm a planning manager, and I have a new meal that I'm running next week or maybe even tomorrow.
+
+The way this kinda works is that each of our customers have these, like, what we call, like, meal cards. They're kinda like PDFs. This meal card might say, okay. Well, first ingredient is gonna be the noodles, and it's gonna have this image, and it's gonna be this portion size, and I wanna place it into compartment 2. And you maybe have, like, 7 or 8 ingredients on this meal card.
+
+So what we do is we have a web app that we give to customers, and we essentially upload those meal cards and then we'll use a VLM to kind of parse that. And we'll take that unstructured data about all these metadata about this meal into our database. That's step one.
+
+Now, actually that is sufficient to actually have the robot run. Can imagine that just with that which is here's the ingredient name, here's the portion size you can run. But of course the consistency might not be very good. It might be spilling. It might not be placing as precisely as you need it to place. In other words, the performance might not be there right then and there with just that initial kind of ingestion. So you need to do some stuff, which is to say, you need to kind of have a labeling process to actually make this run with high performance at runtime.
+
+So now what we do is we try to get as much information as we possibly can. So the starting policy of how the robot manipulates this novel ingredient is a good one, right? So now we kind of go ingredient by ingredient. So let's take the noodles. Now we have the image, we have the string name, we might have the portion size, maybe of the compartment.
+
+So we take all this information and we say, okay, so we use LLM to kind of give the users a few different images. We ask the user a few different questions. And for each question, we give them different images so they can have a slider about, okay, where does this ingredient stand from an attributes perspective?
+
+For the noodles we might ask the question, okay, how long are the particle sizes? And on the very left side, it might be like an edible piece. On the right side, it might be like a very long piece of noodle. And again, our goal is just to get as much understanding from the user as we possibly can about this ingredient. Another question might be, okay, how sticky is it? We might show an ingredient that's very sticky, like maybe it's cream cheese. And then on the other side, might show an ingredient that's very non sticky, like water. And of course, generated images in between here.
+
+So we generate those questions. We generate those images. And now basically the user has told us, and this takes all of a minute, by the way. The user has told us, here's generally some attributes about this new ingredient.
+
+So now we have those attributes. But we have the image itself, we have the string name, we have portion, we have a compartment. All of this kind of comes together and we have a model that spits out the starting policy of the ingredient.
+
+Of course, the starting policy is based off of existing production data. So at this point, Chef has made 18,000,000 servings in production. We have a ton of production data. We've done thousands of different ingredients. The starting policy for this novel ingredient is probably based on something we've done in the past.
+
+So now we have a starting policy. And then you can deploy that starting policy. The user, the production management deploy that starting policy on the web app to the system itself. And now we're back to that initial story.
+
+So now when the system when maybe the line manager now, or even the line worker actually says, hey, I wanna run the pad Thai and I'm running the noodles. They'll slide the noodles pan into the system. It'll pick and dump and it will fine tune that starting policy to a more fine tuned policy for that particular batch of noodles. And for that particular customer's batch of noodles, which is of course different than every other customer's how they cut and prep their noodles.
+
+That's broadly how the onboarding process works for us right now.
+
+(18:09) Nathan Labenz: Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+(18:09) Nathan Labenz: And that first process sounds like a foundation model for this form factor, where it can take in any of a super wide range of variables. And then are you actually fine tuning that same underlying model with it sounds like a self fine tuning process where, like, actual weights are getting changed based on a few iterations of whether the noodles hit the spot or not?
+
+(18:40) Rajat Bhageria: Yes. At least for the former, I think, like, Chef's been in production for a couple years before foundational models were really a thing, I would say. So there are a bunch of parts that are foundational models, and there are some parts that are more like deep learning. Right? Like deep neural networks, CNN, things like that.
+
+So now what we're doing is actually today, as of right now, basically, we're making up, like you said, like more generalized food manipulation model for that first kind of process.
+
+And then on the system itself, like you said, yeah, there's like fine tuning that's happening on the plant. The system's doing that itself. And the way this of course works is that we have a lot of metrics, right? So we can close the loop.
+
+And there's a few metrics that matter at Chef, right? The most obvious metric is the pick weight, which is to say, if you wanted X ounces, how close are you to X ounces? And of course, we look at both the kind of bias, which is like, where's the average pick weight away from the target? How far is it in the mean as a whole, the whole distribution? But we also look at like standard deviation, things like that. So that's the pick weight aspects.
+
+Then we can also look at other aspects. So we do placement QA, so we can get a sense of, okay, like when you place, is the food spreading the way it should? Is it spilling into the other compartment? And we have different scores that we assign for the placement based on this. That's another metric we have.
+
+Another metric we, of course, have is like so it's reliability and there's a lot of proxies for reliability. Right? So one proxy, for example, might be like one of the things, for example, we do is we have force torque sensors in the robot. So we can say, okay, let's take a path that's gonna minimize the incidence of like things or protective stops, for example, to make sure that the robot doesn't protect.
+
+So the idea of protective stop, by the way, is that collaborative robots are kind of pressure and force limited to 150 newtons for safety, physical human safety. That's great. But sometimes, of course, it'll protective stop when you don't want it to protect itself, which is to say when you're manipulating food, we try to prevent that, for example, from a reliability perspective, because of course that means that the line will be down for whatever 30 seconds, which is not the end of the world, but it's not great either.
+
+And then we also look at things like, we can measure the pressure and the flow of the end effector itself, we can make sure that we're not crushing the material and things like that.
+
+So there's a few different kinds of things we do to really make sure that this model is picking and dumping, it's actually converging to a policy that's going to maximize some of these outcomes we want. Mainly pick weight. That's the most important for the customers.
+
+(20:56) Nathan Labenz: How much variation is there on that in let's just start with maybe, like, a human powered setting. I think it's always instructive actually to get these baselines. And in so many instances, they're just not there. People have the sort of sense of the human is doing a good job. What is a good job, and how much variation is there in what is currently passing as a good job? So I'd be interested to know what the accuracy and consistency of a pick weight is with humans and how you guys compare to that with the robot.
+
+(21:25) Rajat Bhageria: Yes. Yeah. No. It's a really good question. And, actually, it's a really important question.
+
+And the reason for this, by the way, is, like, when our customers and, basically, this is true for humans, I think. Like, they have this perspective that the robot should be, like, perfect. You see this in autonomous vehicles too. Right? Like, people expect an AV to be perfect. People certainly expect our robots to be perfect. Like, I've had conversations where, like, customers like, oh, you do this, like, cool AI thing. Right? If you use AI, then obviously, it's gotta be perfect. So, like, you know, from a sales perspective and a customer success perspective, that, of course, leads to, like, a lot of, like, mental churn for both parties where it's like, well, the robot's never gonna be perfect because the input the food itself, it's very highly variable.
+
+Actually, as a part of our kind of deployment process, our solutions engineering processes, that when we first deploy with the customer, we'll actually go and take baselines. And these baselines are basically like, okay, let's actually collect human data in a kind of as blind as we can get manner. So we try to do that to really understand where the humans are.
+
+And what's interesting is that when we actually present this data to the customer, they are, like, often not in belief of that. They don't believe how bad their humans are, basically. Because they have these, like, very tight bounds oftentimes. And, you know, we show them this human collected data and it's, oh, wow. This is actually not that great.
+
+But by the way, what that does then is that sets our bar. That's like we have to meet or beat that.
+
+And one of the things that's interesting with the food industry is that these governing bodies like FDA and USDA and of course the customer itself, you and I as customers, right? We and people really care about if the meal itself is like x ounces, like 5 ounces. If you're below 5, then it's really bad. Right?
+
+So what that means is that like the customers, the leadership at any of our customers, food companies, they are very highly incentivized to make sure they're never under because there's gonna be fines and maybe their customers are gonna churn. So what they're telling their line managers and their production managers is to always over pick.
+
+So we usually find is there's this very high bias is what we call it. Basically, they're always picking well above the target weight. So the target weight is one ounce, they might be picking on average at 1.2 ounces. Right?
+
+That, by the way, is very expensive because in a food company, 40 to 50% of COGS is the material itself. So if they're just like giving away it's called giveaway. They're giving away food. That really hurts their bottom line.
+
+So one of the big things that we find is that we can really help them dramatically decrease that giveaway, which is a really good ROI, by the way, for our customers. And it's nice because we can also we have closed loop, so we know that we're better. We have data to show and prove that we're better.
+
+There's also some interesting more macro perspectives. Right now, we don't have enough robots to make a really big dent of this. But you can imagine if we have millions of robots in production, not only in manufacturing, but also ghost kitchens, fast casuals, prisons, hotels, etcetera, all commercial kitchens, then that can actually have a pretty big impact on food waste and things like that, which is cool too.
+
+(24:20) Nathan Labenz: Can you is that one ounce to 1.2 a typical number? I would love to get out just a little bit more concrete. Like, how much is the overshoot and how much do you improve on it?
+
+(24:31) Rajat Bhageria: It really depends on it. There's so many variables. It depends a lot on the customer. Some customers are really good at this. Some customers are not as good at it. And it really depends on the ingredient.
+
+And I'll give you some exact numbers, but just for a piece of context, like, imagine broccoli. The thing with broccoli is that the particle sizes are quite big. And oftentimes, there's 4 pieces of broccoli, like, 5 pieces. So in other words, if you scoop it and you got one broccoli too much, then you're super high. Or if you got one broccoli too low, you're super low. It's not on the other hand, like thinking about like a grain of rice. You get a few grains of rice too much, no big deal. Few grains of rice too less, too little, no big deal.
+
+So there's certain ingredients that are just really hard for humans. So for broccoli, humans might have something like 30%, 25% bias. Even for us, we have to bias up because we really want to prevent the negative taste we underpick. So we might have something like 5% bias per piece of broccoli.
+
+Generally, though, for most items, let's say, imagine something like a potato mash, a sauce, or diced vegetables, or cooked diced vegetables, whatever it might be, Humans might have something like 4%, 5% bias, which is they're over picking above the mean. And then Chef might have something like more like 1% bias. We can actually basically guarantee that we'll have less bias. We can guarantee we'll have this because we are, like, a control loop. Right? That's constantly going about like how much pick weight we had.
+
+So that's on the bias side. And then on the standard deviation side, what we do is we have this metric called CV, coefficient of variation, which is basically like standard deviation divided by the target weight. And what this basically allows us to do is standardize across pick weight. Because of course, if you have a bigger portion, of course, you're gonna have more standard deviation.
+
+So from that perspective, humans might have something like 16, 17, 18% CV. And again, just differs so much by customer. But yeah, like humans might have something like that. Chef might have something like our best is probably like 5 or 6% CV, but I think on average, probably more like higher 8% CV, but that's how we think about that. Like, CV and bias are the two metrics that we really try to optimize for at least the pick weight part of the equation.
+
+(26:28) Nathan Labenz: So you said these things are, like, drop in replacement. I think you've used the term, like, human equivalent a couple times. If I'm imagining myself doing this, I think maybe I can do 10 scoops a minute, maybe 12 scoops a minute. Is that kind of the same rate at which these things are operating?
+
+(26:48) Rajat Bhageria: Yeah. You also see a lot of variation there. So for this particular problem, there really wasn't any automation before Chef. There's just no automation that really existed for this problem before Chef. It's been an industry where you have tens of thousands, hundreds of thousands of humans who do this. Right?
+
+The reason I bring this up is because they really optimize the humans very well. There's a lot of you can imagine a lot of process optimization. And that's really that's like ergonomics. Like, how do you sit relative to the line? And yeah. It's are you sitting versus standing? Like, is your left hand versus your right hand? There's a lot of ergonomics to think about.
+
+But anyways, all of that to say that, like, I think most times we go to a customer site, they're running anywhere from 15 to 20 trays per minute type of thing. Sometimes they'll do this thing where they'll pick up a bunch of material and they'll do something like a place, place, place, like one pick multiple deposits, amortize the transport time over multiple deposits. So you get slightly higher throughput.
+
+But Chef is around 25th a minute. And then if a customer needs more than that, and sometimes customers need more than that, we also have this like multi pick system, which allows you to have multiple grippers, multiple utensils, I should say, per system. And that allows you to have a much faster throughput.
+
+The main constraint for us, of course, I think like the obvious question that many people think about is, okay, why don't you just put like an industrial robot here, right? The thing is there's a lot of safety constraints with that.
+
+The whole point of Chef philosophical perspective is like we try to partially automate a process. And the reason to partially automate a process is if you have a full line automation, the thing is if you cannot do one of the SKUs, one of the ingredients, or let's say in FedEx land like a robot can do one of my parcels, then I basically have an automated process, but I still need a human to do it.
+
+So you find a lot that if robotics somebody's trying to fully automate the process, they have a ton, a very long sales cycle that is very risky, very long deployment cycles. And the technology bar is extremely high because your autonomy needs to be able to handle literally every single SKU.
+
+Whereas for Chef, we can partially automate a line. So, you know, if there's a particular ingredient we can't do, that's okay. For example, we couldn't do let's say we can't do shrimp. That's okay. Human can do the shrimp. We can do everything else. So, you know, what's nice about this then is that like the deployment process is quick. The sales cycle is quick. The technology, the way of flywheel, the more robots we deploy, the autonomy gets better. All these things are very nice.
+
+But then what it means from a safety perspective is that you are constantly around humans. There's a human to your left, there's a human to your right, there's a human refilling the robot. So from a safety perspective, collaborative robots are a necessary requirement. And there's of course laws around the max force that you can impart and there's laws around the max kind of joint velocities you can have with not just the joint velocities, but basically there needs to be a strong safety case around this.
+
+And that's where we found that collaborative robots plus the right tooling and effective tooling allows us to get the throughputs that our customers need.
+
+(29:33) Nathan Labenz: So if it's 3 or 4 seconds per trip that comes out to pushing 1000 per hour and then you've got 20,000,000 for pushing to do, you know, round numbers. So pushing 20,000,000 servings, thousand an hour would be 20,000 hours. So it sounds like you've got kind of 10 man year worth of work completed so far.
+
+What does that look like in terms of the portfolio of customers? Like, how many robots actually is that, and how do you see that scaling into the future?
+
+(30:08) Rajat Bhageria: Yeah. Right now, we have robots in mostly in North America right now. So we have robots in 6 cities. I think it's 5 states and US and Canada right now.
+
+So we went into production in mid 2022. That's when we kinda deployed our very first systems. And since then, from 22 to 23 we grew 4x in terms of, like, revenue and this year expecting something more like 3x this year.
+
+So I think what's really nice about this market is that it's huge. It's not something that many people think about, but like production is just gigantic.
+
+And so I think right now our goal very much is to scale within our current customers and of course scale to net new customers. What's nice about our current customers, we actually have a few whales. And generally the thing with production is that if you open up a plant, you're not gonna have 5 people doing this. You're gonna have 50, 100, 20, whatever the number is, but it's gonna be a significant number. So each of our customers often have multiple plants.
+
+So the point is that to get to, let's say, bar is a $100,000,000 an hour, that doesn't require 50 or 100 or 1000 customers. Like, we can get there with 20 to 30 customers.
+
+And of course, what that requires is, like, a ton of focus on customer success and really making our customers very happy. So we spent a lot of time on customer success to really make that happen.
+
+And I think the goal is, yeah, just continue growing 3x or so per year. And over time, there's gonna be a lot more we sell, other products, other markets. But at least for this market, we think we have found product market fit, and it's kinda just, like, scale up.
+
+(31:40) Nathan Labenz: Hey. We'll continue our interview in a moment after a word from our sponsors.
+
+(31:40) Nathan Labenz: I'm gonna come back to the business model maybe a little bit more toward the end, but let's talk a little bit more about the tech stack.
+
+I mean, there's obviously been an insane and I think it's a challenge that many companies have faced, especially on the software side more so than probably on the robotics side, but maybe there too, where the you set out to, you know, build an AI company 5 years ago. And just as maybe you were starting to get things to work, like, all of a sudden, a whole new wave of enabling technologies have come online.
+
+And I think for a lot of companies, those have presented some really hard dilemmas where they're like, man, we just got this rough edge sanded down and maybe the, you know, the new foundation model paradigm doesn't quite do that in the same way, but it has all these other things. So tough choices.
+
+So how has your kind of core AI strategy evolved and you could cash that out into, like, different kinds of models or different training regimes or whatever?
+
+(32:44) Rajat Bhageria: No. It's a really good question. I really do think actually that, like, foundational models have really uncapped a lot of robotics potential, I would say.
+
+The issue with robotics has always been the world is very highly dimensional. Like, if I can pick up a wine cup, that doesn't mean I can pick up a tea cup, that doesn't mean I can pick up a water glass. It's just a very highly dimensional space.
+
+And in our world, every customer cuts food differently, cooks food differently. Every individual does that differently. Every site does it differently. Different countries do it differently. And there's just so much variety in the space.
+
+And that's always been the issue with robotics. The thing with AI is and especially, like, the more recent advancements in it, right, with VLMs and LLMs, things like that. They're really good for, like, high level task planning. Right? Which is to say, you know, what's in the scene. But they're trained on Internet data. Right? So there's a lot of, like, image and language pairs, but there's no, like, understanding about, like, how to actually move the arm. There's no motion data, if you will. Right?
+
+Unlike something like a GPT or a large language model, we at Chef can't just download the Internet, if you will, as training data. That's not possible because there's no training dataset with food manipulation.
+
+So what do you do then? There's a few options. Option one is you do sim. And sim is interesting for some companies, I would say. So for example, if I'm a self driving car company, a lot of the training does happen in sim. It's not perfect, but you can get some of the way there when it comes to modeling things.
+
+If I'm doing rigid body manipulation, let's say I'm doing, like, palletizing, depalletizing case pack and things like that, then I can use sim.
+
+With food though, of course, it's wet, sticky, deformable, malleable things. Often sometimes non Newtonian things. The physics simulators out there just aren't looking at that. So sim doesn't really work. You can do testing things from a reliability perspective for like your high level motion, but you can do that with grasping. And the hard thing with Chef is the grasping. That's the hard thing. And that's the thing you can't actually do in sim.
+
+So what we have realized is the really the best way to actually get this training data is like in production. And that's why this 20,000,000 serving through done is so important. So that's kind of like status quo.
+
+Now, where does this new stuff like I said, why does it help us? I think the part that really helps us is like leveraging transformers to do things like learning from demonstration and imitation learning.
+
+So specifically, one of the problems we face is kind of like transferring knowledge across ingredients, right? So if we see a sticky rice at customer one, can we then leverage that to do another sticky rice at a different customer? Because of course they're cooked in very differently.
+
+And transformers actually really help here. We can kind of encode important characteristics about one sticky rice into the embedding space of the transformer and then use that to determine ingredient similarity for a different ingredient.
+
+So I think imitation learning and by extension, reinforcement learning are things that we're really heavily investing in. We've already now done a lot to actually basically reduce the time it takes to onboard new ingredients.
+
+So initially we talked about the process on onboard new ingredient with this web app. That leverages a lot of like more traditional VLMs and LLMs. And of course, we've fine tuned them for our use cases. But I think a lot of the novel AI stuff we're doing, leveraging transformers and Gen AI is really imitation learning and learning from demonstration, I would say.
+
+(35:54) Nathan Labenz: Yeah. That's quite interesting to say the least. Did you see the project? I'm sure you did. It was spearheaded by folks at Google, but it involved groups across a ton of different, mostly academic labs where they collected, I think all for, like, robot arm form factors. They collected, like, a bunch of different datasets and then created essentially the foundation model combining all those different datasets and then return that back to the community. Is something like that useful to you?
+
+(36:26) Rajat Bhageria: I think it's useful. Like, something like that we haven't tried it, so I don't wanna say yes or no just yet. I think something like that could be very useful when it comes to that first part, the, like, the onboarding part of the web app for us.
+
+The key again is that, at least from what I understand, that training that the training data is really key here. So if you train on rigid body items, you're not gonna be able to manipulate malleable items.
+
+Even if you think about the food demonstrations that people do, you're not always doing the primary handling of it, I guess you could say. Right? We actually have to, like, handle the raw material and it's dripping everywhere and it's sticky and it's wet and it's all these things. Right? And it'll compress and then you can uncompress it.
+
+So I think our approach right now is how do we leverage imitation learning, reinforcement learning, and then also our production data. And I would argue that the most important part of this is the real world production data to then train our own kind of in house kind of generalized food manipulation model.
+
+And that's what we're trying to do, which is like this end to end system that we've trained to manipulate food. And we're starting with food assembly because that's the majority of the labor issue. But over time, you can imagine that this does other stuff.
+
+And of course, with imitation learning, you can very quickly teach a new task, right? It's like there's a lot of operations you see in a food facility that you might not imagine, taking sheets of baker's tray and putting them into a rack. I mean, that's not like direct engaging with the food, but there's a lot of like random tasks, right? Like this, right now we focus on assembly and plating, but over time we can do some of these other tasks, all part powered by this kind of generalized food manipulation model.
+
+Right now, I would say that we're very focused on IL and RL more than that second board, because that's like the most useful for our customers and us. Because it basically allows the time to onboard a new ingredient, just like a new class of ingredients, I guess you could say much quicker.
+
+(38:09) Nathan Labenz: So for reinforcement learning purposes, you clearly have some objective scoring capability or opportunity around, did you get the right weight, for example?
+
+I wonder if you see a use for things like the Eureka project that came out of NVIDIA. This is one that I keep going back to over and over again. Because what I'm trying to do broadly is understand what is the state of the art, what's possible now that's obviously moving so fast that it's a full time job just to keep up with.
+
+But one of the things I used to say was when I was summarizing AI, state of AI for other people, I would say no eureka moments. Like the AIs are getting really good at routine tasks but they're not coming up with insights on their own that certainly don't surpass and seldom even rival the sort of insights that people can have.
+
+Now one exception to that, I would say, has been this Eureka project where they had GPT-4 write the reward function that they used to train this robot hand to do various manipulations. And I always think about that as for one thing because I used to say no Eureka moments, and they called the project Eureka. So that's uncanny unto itself. But the idea that, like, it is better at writing these reward functions than the people that they had participating was quite interesting. So I guess you could take that question, like, very specifically at the Eureka project level or more broadly, like, is there sort of a bootstrapping dynamic that we're starting to see where models can feed into this cycle of learning new tasks?
+
+(39:42) Rajat Bhageria: Yeah. It's a very good question. So we talk a lot about this. Right? So it's like a parameterized policy with a non parameterized policy.
+
+What I mean by this is before foundational models and imitation learning like, imitation learning's been around for a while, of course, but I don't think it really started to work until transformers. And I think transformers have actually been really useful for that, like diffusion policies basically.
+
+So let's think back to like, I'm in 2019 and I'm starting the robotics campaign. I think that the software and car industry, the AV industry set a really good precedent of, okay, you have a rule based system. Of course, it's using a lot of deep learning and CNN, but it's a rules based system.
+
+What we would do is back in that time, we would have a policy per ingredient and that policy would be bootstrapped, like you said, and parametrized. So we'd have 200 parameters basically. And this would be everything from a bunch of physical attributes about how do you actually pressure and the flow and the dwell time of the food and how many shakes you do and what's the amplitude of the shakes and like a bunch of different parameters about how do you manipulate this ingredient? Right?
+
+And then we built a lot of like infrastructure and how do you like onboard new ingredients, leveraging those existing policies. That was kind of how we did it back then.
+
+Now, and that's like parameterized. There's these different parameters. But those parameters are set by a human. It's set by a human engineer or like an applications engineer. But it's not necessarily true that those are the right parameters. We don't really know. Right? We think they work well. And like we said, we have this like control loop that allows us to actually know that result we're looking for, which is things like pick weight and how much spillage there is and placement quality and all these things reliability.
+
+But we don't really know if it's actually like a local maximum or global maximum.
+
+What imitation learning allows us to do in learning from demonstrations, what we can do is we can teleop using let's say you have 2 robots side by side. You can have one robot literally mimic a human scooping it. And it's, by the way, it's embodied. It's grounded, if you will, because we have the exact embodiment that we're teleoping doing that. And the exact it's the same robot doing where the humans doing the teleop, the demonstrations, and the robot that's actually doing manipulation. So there's no grounding problem, I guess, you could say.
+
+And now, basically, it's like there's it's like not it's not like there's human written parameters. It's, like, fully end to end.
+
+And I think that's been pretty cool actually because we haven't had, like, an insane woah. Like, how did I ever think of that? We haven't had a moment like that. But it's like, cool because it's really an end to end system and it's quite simple. There's not like a bajillion lines of code and it's like quite simple and it actually works quite well.
+
+So I think that's interesting because the time it takes to onboard a new ingredient is one of the most important metrics for us. And the reason is that the crux of what we are doing is providing a flexible automation solution to our customers. And in other words, the more ingredients we can do reliably consistently, the more useful this thing is. In other words, they're gonna use it more. Like if they could go if we could do 1000 ingredients versus more applicable, if they can do a 100% of their ingredients versus 60% of the ingredients, they're just gonna run the robots more. If they run the robots more, they're gonna buy more robots, which of course is great for our business. Right?
+
+So the number of ingredients we can do is really critical. And if these new technologies allow us to compress the time it takes to onboard ingredients, then we can have high utilization of our robots, which means that our customers are gonna buy more robots, which means we have even more training data, which allows us to accelerate this data flywheel.
+
+And on top of that, there's another flywheel, which is the more robots we ship, of course, there's other flywheels. We have case studies and these case studies allow us to get even more customers. We have more volume of robots in manufacturing, which allows us to improve our bill of materials and supply chain benefits. We have operational benefits because we're scaling to more plants and more sites, which means we have more people all over the country supporting these robots, which then allows us to support other similar customers in nearby areas.
+
+There's all these kind of flywheels, but I think the crux of it always comes back to the number of ingredients we can do. And I think the reason transformers, at least I would say, and diffusion policies are really powerful is because of that idea that accelerates the flywheel for us, which is the crux of the business, ingredient coverage.
+
+(43:29) Nathan Labenz: Those sort of macro outer circles are really interesting. What about the inner loops that kind of comprise the system?
+
+Actually, I was thinking back, we did another episode with Skydio, the drone maker, and they he walked us through. They're pushing up to the point where you can give it, like, a verbal command. Hey. Go survey that cell tower and come back with a full inspection of it. So that's, like, the highest level outermost loop. And then the innermost loop, I think, was running at 10,000 hertz or something, and it was just, like, the very low level voltage control.
+
+I imagine you have something similar going on there. Although if it's 3 seconds, like, I could imagine you could maybe generate the whole 3 seconds and let it run. But what are the sort of loops? How many corrections are there moments in that 3 second cycle where you get to say, hey. I'm off course here. I better correct. What's that look like going down to the lowest level?
+
+(44:21) Rajat Bhageria: Yeah. So I think that to start, there's two computes per robot cell or per module. One is actual physical robot controller. And so the robot controller itself, that has its own kind of joint controller, just, okay, on a more high level, relatively speaking, level. What do I do? And then there's, like, a motor control. What does this particular motor do and exact kind of voltages that I need to send to actually do something? So that's on the actual physical kind of hardware controller for the actual robot arm.
+
+And then we have the Chef compute. And by the way, the reason to separate this is, like, the robot one is safety rated, and we can talk more about that. But that's really important for, like, safety and safeguarding. It's a completely safety rated system. There's, like, certifications we've gotten from a third party around safety.
+
+And then on our side, like, we have our own compute, and that is, I guess, at least two layers, more like three. So there's, like, more like high level task planning loop that's high level. And then we have like trajectory replacement loop, which is okay. Like, what are the strategies I need to take to actually execute that? And then there's like a control loop actually controlling the robot controller itself. So that's how we think about that whole thing. Right?
+
+(45:32) Nathan Labenz: Like, how controlled does the environment have to be? We've seen some of these demonstrations, which are certainly not production ready, but Google has put out a couple of these things where they give the robot a task, like, in the SayCan vein of research, right, where they say, go get me a bag of chips off the counter, and then somebody comes and, like, snags the chips out of its hand and puts it back on the counter. And because there's these nested loops, then the robot can realize, like, oh I don't have it anymore. Better go back and get it again.
+
+So do you have that kind of correction step, like, between the sort of generation of the policy if somebody moves the tray a little bit, does it adjust to that on the fly?
+
+(46:11) Rajat Bhageria: Yes. Yes. Yeah. Exactly. By the way, that's, like, super critical. I think there's multiple reasons why Chef is hard. One of them is just, like, changing material properties, But the other one is what you said. We react to and adapt, I guess, could say to a few different parts of the environment.
+
+One is like the food itself. Again, like batches, like every hotel pan, if you have a run of 6 hours, you might be going through hundreds of hotel pans. So, like, every pan is different because it's cooked by human, and humans, of course, aren't perfect. So we adapt to that. And then within each pan, so if you're like a pulled meat yeah. Yeah. Mostly meats. Right? Different parts of animal have different densities and different material properties. There's actually variations within the pan itself. So we'll adapt to that. And again, we have sensors like force torque as well, so we can get some of those readings as well. So that's one layer.
+
+Then on the placement side, of course, there's humans who are usually trading nesting or putting the trays onto the line. These trays are various orientations or sometimes farther or sometimes closer. So you have to adapt to that.
+
+Usually, customers have multiple kinds of conveyors. Some of them are different colors, different widths, different heights. You have to adapt to that. That's all dynamic. That's not a hard code. It's like dynamically figuring out where to detect and track the containers and place them in the containers.
+
+There's also a lot of, like, small little nuances that come with, like, just production and deployment. So for example, food facilities are always sloped for water drainage. Conveyors are always sloped. And you don't really know because the slopes are kinda like sinusoidal. And some of it's obviously it's a longer plane, but horizon. But, yeah, basically, you don't know, like, where the conveyor is gonna be or the slopes. You have to detect that. And that changes because the conveyor is shaking and the robot's shaking. So that changes and you have to dynamically detect that.
+
+Sometimes, like, humans will bump into it and conveyor's skewed now, so you have to place farther and higher.
+
+For example, there is some line manager who's trying to get their humans to more or less, maybe so they'll drive up the velocity of the conveyor. There's also humans, again, like I said, to the left and right, usually of the robots. So those humans are kind of interacting with the system. They're pulling bowls underneath it. They're putting bowls in. They're changing the scene a lot.
+
+So look, like Chef is not a self driving car where that's like extraordinarily highly dimensional scene, but it's a fairly kind of hectic scene. And there's a lot of changing. And like, those are the kind of issues that I think you find in production that are hard. Right?
+
+You can scoop food in a lab, it's not hard. And you can even make it consistent. You can use a bunch of these advancements in AI to make it consistent, which is already hard. And then you can even get it to be doing a lot of ingredients. But then like when you get to production, you see all these weird edge cases, you have no idea because there's a lot of humans interacting the system and they do things that you don't predict.
+
+And that's where I think a lot of work has gone until get to these 20,000,000 servings. Like, how do you actually make this thing reliable? But when you have dozens of different systems around the country to actually deal with these kind of changes in the scene.
+
+(48:54) Nathan Labenz: Yeah. The world is a messy place. So scanning down the list of kind of technology questions I had, I think we covered most of them.
+
+Oh, energy was one. I was interested in and compute. Is the compute hosted on the device, or are there, like, cloud calls that you're making? And what is the energy usage of what do these robots look like?
+
+(49:19) Rajat Bhageria: Yeah. So, like, we can divide it between training and inference. All the training is in the cloud. So, like, we use, things like A100 to kind of do training for the imitation learning and things like that. And then the inference is all, of course, on the robot itself.
+
+So the robot is, of course, connected to the Internet, but all the inference is done locally on an edge compute. And that's really important, by the way, because our customers usually have spotty Wi Fi. We can't depend on Wi Fi. Even LTE or 5G, like, you can imagine hotspot. That doesn't really work in our customers too because it's a facility, and then there's, often, obfuscation. LTE basically doesn't work great.
+
+So yeah. So that's how we think about that. And then from an energy perspective, the arm, I think, is, like, 200 watts or so, and then the CPU is, like, 35 watts. It's relatively low, and then the GPU is, like, 50 watts. Like, the entire system is actually relatively not that power hungry.
+
+And, like, one of the questions that some of our early customers asked is, like, hey. Look. Yeah. I'm not paying for labor, but my electricity bill gonna go up the roof here? And we did the math, and it wasn't actually that bad. It's $5 or so per day. I think even less than that. Even if you're running it, like, 24 hours a day type of thing.
+
+(50:27) Nathan Labenz: Yeah. In my market in Detroit where I live, it is, like, just under 20 cents per kilowatt hour. And so if you are at 300 watts, then obviously, it would take you, let's say, 3 hours to get to a kilowatt hour. So that means you're at just a couple bucks to run it 24 hours.
+
+I think that the and most of that is going to the actual operation of the robot. I have a distinct thesis that I'm working on packaging up that's like, I think the energy concerns associated with AI are significantly overstated. And what the fact that the leaders are talking more about energy concerns implies is that they see an unbelievable amount of adoption around the corner.
+
+So I think about those kind of orders of magnitude quite a bit.
+
+Does that Internet limitation also mean that teleoperation has to be done locally? Or I was understanding previously that you, like, maybe provide that as a sort of remote service, but I'm not sure now.
+
+(51:29) Rajat Bhageria: But, yeah, we don't actually do teleop in the like, what most people think about teleop. Right? Yeah.
+
+I think the crux of this is that we're working with, like, production customers. They have very low tolerances for failure. Like, basically, the thing needs to work or else pull the robot. And this is what I mean by that is, like, one of the things that's nice about Chef is, like, it's not gonna, like it's, like, relatively safe broadly. Right? It's not gonna hurt anybody. And the worst it's gonna do is it's gonna not be consistent. Or maybe if there's a bug, it's not gonna pick at all. It's gonna spill too much. But it's not like the end of the world.
+
+What will happen if there's a failure is that the operator can pull the robot off the line to put a human in type of thing or put another robot. Usually, it's not a hardware failure, by the way. So they're putting another robot in won't necessarily do, but let's just say it's a hardware failure. Pull the robot out, put another one in.
+
+But generally, yeah, like the teleop, we don't do that in the colloquial sense.
+
+The way we think about this, how do we address the reliability problem is, first of all, we try to build a system to be as autonomous as it possibly can be. So it needs to adapt to changing material properties. It needs to adapt to different tray types, rotations, distances from the robot. It's adapt all these kinds of different scenes, the thing we've talked about. Right?
+
+And then, I mean, that should hopefully solve most edge cases like a human. For example, the system detects a tray, it starts tracking the tray, and then a human randomly pulls out the tray. And now the system's confused and it's like, where did my track go? And maybe it places on the conveyor. That's a bug we might have seen. But now, of course, we've built in logic so that, okay, that'll be a little more smarter about this. That's just one example. But that's part one.
+
+Part two is that, okay, well, there's still, of course, from time to time gonna be issues. One of the things that's nice about Chef is there's always a line manager. Even if it's a fully automated Chef line, there's 6 robots on the line. There's always a line manager.
+
+Let's say the line manager finds that, oh, something's wrong. Maybe there's a tiny compartment and it's not placing right in the tiny compartment, spilling a tiny bit of the wrong compartment.
+
+And so what we do then is we try to have a really nice way for the user to visualize what's happening. We give them a really nice 3D view. Maybe you've seen similar to that. Right? We give a really nice 3D representation of what the system is understanding and what it's seen.
+
+And at least that allows the user to figure out what's happening. For some examples, that might solve. One example might be that, like I said, in the morning, they'll come in, they'll, like, crank up the conveyor velocity, and it might be running super fast. And they're like, ah, it's missing bowls. What's going on? Well, if we have a really nice 3D viewer, it shows, like, it's outside of the ODD of the system. It's just it's too fast. Then then we can very visually, right, not using words, but visually tell the user about that.
+
+Or maybe we find that the human denester is putting trays way too far from the robot. It can't reach that far. So, again, we can detect those containers. We can tell the user, oh, you need to place closer to the robot.
+
+There's a lot of operational stuff like this we see. So that's, like, part two.
+
+If that doesn't work, then then there might actually be like an issue, like something that the human needs to fix. So at that point, we give the operator very simple and coarse ability to fine tune the system. Yeah. So they can fine tune the system, whether that's in a picking perspective or placing perspective. And, of course, we don't give them too many knobs because they can potentially make it worse, but we try to give them some knobs so they can, like, fine tune.
+
+And by the way, this fine tuning is also useful when we onboard ingredients, by the way. One of our people can fine tune themselves to onboard initially too.
+
+And then finally, if that also doesn't work, then what we do is we have we built a lot of data infrastructure. So we're collecting all this telemetry, right, that's going to the cloud. And we built a lot of, like, cloud infra that kind of self annotates these events.
+
+So let's say an event might be, like, a very high weight event, like, basically super overpicked or super low weight event, a fault, a missed pull, a double deposit, whatever these events might be, like a pick hesitation. Right? There's different events we see, and we'll annotate that. It'll do it itself. And then basically, it'll collect, like, we use ROS. It'll collect the ROS bag. Here's all the data around this event, maybe 20 seconds before, 20 seconds after. It's this, like, bag file of all the data that happened and why this decision was made and why the robot reacted this way that'll get uploaded.
+
+And then we'll our customer support team will get an alert. And if it's the daytime, it'll be on Slack. If it's at night, we'll get a PagerDuty. And there's different severities, and we try to assign a severity to this too.
+
+And then that customer support person can actually, like, figure out what's happening and then fix it. If and if they can't fix it, then we'll elevate it to, like, the applications team or even the engineering team.
+
+And that's how this works from a support perspective. I think that's been fairly good for us, I would say.
+
+(56:07) Nathan Labenz: So when you mentioned earlier imitation learning of one robot to another, is that something that is all happening, like, centrally as part of the sort of predeployment process?
+
+(56:19) Rajat Bhageria: Gotcha. Exactly. Exactly. Yeah. So we would do that at our office. We don't have customers do that. You can imagine customers do it too down the line. But right now, that's something that our team would do.
+
+The value of that technology for us is onboarding that new ingredient. And by the way, if there's already like an ingredient that we can do that, we maybe we'll use it too to make this generalized food manipulation model, but we're really focusing imitation learning on like net new ingredients, new stuff that's just hard.
+
+(56:42) Nathan Labenz: So what is hard right now? I guess you've got the flywheels going. It sounds like 20,000,000 servings is a lot. What are the sort of current frontier challenges, and which of those do you think you have to solve on your own, and which can you wait and let the world do for you and just take advantage of?
+
+(57:03) Rajat Bhageria: I think the hard thing is what it's always been, which is, like, food manipulation is just really hard. And the thing is, there's really nobody else in the world that has a really good training data set for food manipulation. That's just they don't. And like a lot of the existing technology, like sim, doesn't work. So there's a lot of, like, stuff we have to, like, invent, I would say.
+
+So I think the hard thing is still food manipulation and being consistent. In other words, like, our robot can you give it literally more or less any ingredient. We can manipulate it. But that doesn't mean it's gonna be consistent. That doesn't mean it's gonna like, if you take a very soft ingredient, gonna off the shelf, it might damage the ingredient. It might spill the ingredient. It might not be able it might the ingredient might stick to the end effector. We might not be able to place in the right compartment without getting into the other compartments. We there's all these things we might not be able to do.
+
+So it's just like very hard problem, which is like, how do you have a system that can basically do any ingredient fast? Because of course, throughput is really important. Reliably and of course, in engineering, anytime you have more flexibility, reliability usually suffers. And so you need both here, reliability and flexibility, while, of course, being consistent and not having giveaway and not spilling and not damaging and placing in compartments and working with any conveyor and working with any container.
+
+Like, that whole thing becomes a really big, highly dimensional problem. And they even forget the placement part, just the picking part. The breath of ingredients is hard.
+
+So I think our big focus on this is, like, we really do think that these new technologies are, like, really gonna uncap the potential. We've already seen that.
+
+Okay. Let's take the combination of, like, production data, which we have we think we have the most production data in food now. Let's take that plus demonstrations, and let's try to build this generalized manipulation model. So we have one kind of system to manipulate food and hopefully really have the best manipulation.
+
+That's really the continued that's what that was the focus day one and that's still the focus right now because that's the hard problem here. And we solved that problem in, like, the fully formed way. Like, this is a gigantic company is the way we think about it.
+
+(59:02) Nathan Labenz: So when you look at these kind of new wave of humanoid robots, whether from Tesla or Figure or whatever, it sounds like you basically think good luck to them. They may even be successful, but food is gonna be one of the last things they're gonna come for. And it's just so far down their checklist that you don't expect to have any meaningful competition anytime soon.
+
+(59:27) Rajat Bhageria: Yeah. I think that's definitely right. I think that's definitely right. And there's a few other kind of, like, ways I think about this.
+
+One thought that always comes to mind is, like, when it comes to, like, food, let's just talk about, like, production or even, like, fast casuals, ghost kitchens. Having a system walk around is not terribly useful. It actually does not actually add much value. Right?
+
+So in, like, in the manufacturing center, it's very obvious. You have a conveyor line, you have a station, robot's on the station. That's it. Like I said, our robots are on wheels. You can move it around, but they move it around like once a day, twice a day. And if I have a humanoid, I'm spending like half of my compute just not trying to fall down. And then on top of that, have all these safety concerns. Like it just really doesn't add much value.
+
+In a fast casual setting, a ghost kitchen setting, you literally rip out the prep table, you put our prep table in, slide it in, our module in, and that's it. You don't need to like move around.
+
+So anyways, what all of that does say, I think there's going to be certain applications where a humanoid is quite useful. Right? The colloquial tote picking and facilities you often see is a good one. Maybe hospitals, right? Like moving samples around a hospital.
+
+My opinion, and I think I've talked to a few of the humanoid companies is if you look back if you think about, okay, what does the world look like in 2050? I think if you've ever watched Wall-E, I think the world's gonna look like a little bit like Wall-E, which is to say you're gonna have tens of millions, hopefully hundreds of millions of robots that are very good at certain things.
+
+Like our food manipulation robot doesn't need to walk around. It doesn't really add value. And great. So let's do that. Just like your refrigerator doesn't need to do your laundry, so to say, right? Like let's just let it do that. And there'll be millions of robots, again, like tens of millions, hundreds of millions doing specific things.
+
+And then there's millions of robots that are more general purpose. And of course, they might not be doing that particular I think it's just it's a volume question. Our robot is doing this thing for 16 hours a day. And in a fast casual, it's doing it for 8 hours a day. So it's just doing the thing all day long.
+
+Now, if I'm in a home or if I am in a hospital or if I'm in a kind of like a more a different environment where I have 50 different tasks and those tasks are radically different, there may be something like humanoid makes sense.
+
+But I think that the market is actually smaller for that than like the market for all these different applications, you can have specific things, I would say. Like that's one thought.
+
+There's another thought, which is it's a time horizon question. As of today, it's like Uber versus Uber ATG. Uber is a great business to build. Maybe over time, Uber ATG is a better business, but Uber ATG is always 10 years out. It didn't really happen yet. It still doesn't. It hasn't happened. Maybe it does happen, of course, in full form, but I think it's a time horizon question.
+
+Humanoids might be a thing in 20 years at full capacity, but AV has also taken, like, 20, 30 years to get there. It's still not totally there.
+
+I think humanoids are kinda like AV. It's just gonna take a lot of time, a lot more people than in my opinion, people think. And yeah, so it's a time horizon question.
+
+Like today, this is what makes sense. Over time, let's build software that is hardware and embodiment agnostic. Like we built our code base to work with any hardware. So let's say I'm wrong there. Right? And 10 years down the line, humanoids are the thing and every application is done by humanoids. I still don't think makes sense. I don't think it makes sense to put car doors onto cars with a humanoid, but let's just say that's true. Then we built our software to be hardware agnostic. Okay, great. Let's leverage those hardware systems to do food manipulation.
+
+So I think those are few thoughts, and we'll see how it plays out, but I think we're safe right now. There's a giant market that we can just, like, rinse and repeat and execute on.
+
+(1:02:57) Nathan Labenz: So you mentioned the sort of Chipotle line. And I guess getting circling back to your business model and the societal integration of this sort of technology.
+
+I guess for starters, I don't know if you share this publicly, but do you have, like, list pricing and are there details available on your business model? Do you sell these things? Do you lease them? What does that look like?
+
+(1:03:20) Rajat Bhageria: Yeah. So our business model's robotics as a service. We'll basically charge a yearly recurring fee to our customers. And the yearly recurring fee is usually less is always less than the cost of their status quo workers.
+
+There's a lot of benefits to this, I think. There's a lot of good reasons why we do it. The benefits like for the customers that like they don't have to have a half million dollar outlay upfront, which is quite expensive, whatever the number might be. Instead, they can pay us yearly recurring fees. They're taking it from like the payroll bucket, if you will, of their books as opposed to like the CapEx budget, which is nice. Like, you know, they don't need a ton of huge approval. They're not really like spending more money than they make right now. So that's really nice.
+
+From our perspective, of course, we have recurring costs on our side, right? There's GPU costs and cloud costs and everything else. And then of course, we're constantly upgrading the hardware and the software if there's new features we have. And that's great for the customer, but it also requires a recurring model on our side.
+
+So that's how we think about that, like robotics as a service. We don't really do CapEx sales. That's not our business model.
+
+(1:04:13) Nathan Labenz: Yeah. So I guess I wonder, like, how do you see this changing the way we live?
+
+You know, we've got like the Jetsons future is like one vision, and maybe I have a future specialist system that is in my kitchen that can maybe wheel over to the refrigerator to get something and can take it out of the refrigerator and maybe can fry it and then can plate it for me. But it's like a specialist thing that lives in my kitchen or spends the night in the closet.
+
+I can imagine one that at the Chipotle counter. And this seems like maybe the most likely as I think about this right now.
+
+Maybe you're taking the world toward more food manufacturing. Maybe the extreme of which would be like kitchenless apartments start to become a thing.
+
+So what is your kind of big vision for how life changes and maybe some like surprising knock on effects of your, you know, big success?
+
+(1:05:09) Rajat Bhageria: No. I yeah. Of course, think about this a lot. And I think there's multiple layers.
+
+So like layer one is just food manufacturing. So within food manufacturing, I think the goal would be and that's just by the way, that's just kind of go to market. That's a starting point. I think the goal there would be a few fold. Really helping this industry, which hasn't really seen a lot of innovation in a while, help overcome the labor shortage, increase production volume, and really allow them to meet demand. They have a ton of demand, but they don't have enough folks to do it. So I think that's like part one. And by the way, hopefully help reduce food wastage too, because food production of course is really a big part of that. Right? That's part one.
+
+But I do think I agree with you that the biggest impact for Chef, I actually think will be in the day to day world.
+
+And when I first started the company, I had this kind of interesting thought experiment I did with friends, which was like, let's say you have two options.
+
+Option one is like a robot in your house, the Jetsons way, if you will. And it's gonna do whatever you want it to do. That's option A.
+
+Option B and food wise, I was just thinking about food at the time. Option B is imagine a world with which has a few characteristics. One is that your food's still made by robot. And so by the way, the cost should be cheaper of your food and it should probably be more consistent. Right? In other words, you're not gonna the person Chipotle is not gonna forget the avocado or the guacamole or whatever protein you ordered. So it's quite consistent, and it's also safe. Nobody sneezed on it. So you feel good about it. And by the way, it's, like, a lot more customizable because it's a high mix robot, so it can do whatever you want it to do.
+
+So it's cheap. It's safe. It's consistent. And then let's say it's made in a ghost kitchen cloud kitchen. So the price is also lower because the real estate is cheaper. One third of the cost of food is usually real estate for delivered food, like fast casual food or restaurant food. It's usually real estate. So if your real estate's cheaper, then now you have, like, double benefits. Labor is cheaper and the real estate is cheaper. The cost of raw materials at scale is relatively cheap, I would say. So you really brought down the cost of labor and real estate.
+
+And then also imagine a future where you have delivered food. So now you have much faster delivery and also cheaper than human drivers.
+
+So which one did you choose?
+
+And, basically, everyone said they would choose option B.
+
+And this was very interesting to me because, like, at the time, I was actually really interested in the home robot. Like, beautiful, like an Apple product, beautifully, industrially designed.
+
+And this was a very interesting kind of realization. I talked to these friends why they picked option B, the second option.
+
+They said like things like, I like the brands I like. I like Sweetgreen or mixed or whatever brand I like. I like that brand. I don't want that to go away.
+
+They're like, I don't want to have to maintain a robot. Right? I don't want to have it in my house. I don't have to maintain. It's gonna break. I don't want that. I don't want to buy it. I'd rather rent the food, if you will, than buy it. It's like the Airbnb idea. I don't want to have a car. I'd rather rent the car.
+
+They said that I don't I don't have to deal with, like, refilling and groceries and stuff like that. I'd rather just have something that can press an app on my DoorDash and it just shows up and maybe I can customize it perfectly.
+
+This was interesting to me because it led me to this idea of this idea of at home robots. It might not be as big of a thing as people think. Right?
+
+There's certain things that you need to keep your house, like cleaning, but you can't actually outsource cleaning, if you will. But if you think about it, like there's many there's a lot of history about people doing things in their house and then over time outsourcing that.
+
+So textile production, people used to make textiles in their house. And over time they of course learned about factories and the cottage industry going away and then you can make textiles in a factory.
+
+I would argue that same thing is gonna happen with food. It's not gonna be in a food factory. It's gonna be happening in a ghost kitchen.
+
+But what's gonna I believe the way the future is gonna look is, yeah, you're gonna have an app, whatever the interface might be, human computer interface might be at the time where you can perfectly customize a meal. And you can say, I want this much salt or this much whatever you want. Right? And then it's gonna be made by a robot in a ghost kitchen and then delivered by a robot. And that price is gonna be at parity with cooking at your house.
+
+And yes, I do believe we're gonna see a lot more kitchenless houses, especially when you at least in America where if you look at there's a lot of studies that show like 80 to 90% of Americans do not like to cook. They just hate it. They would love to not have to cook.
+
+So I think there's a lot of, like, tailwinds around this. And I do think you're gonna see a lot more delivery using robots. So I think that's quite exciting. So that's, like, probably layer two.
+
+I think there's another layer, which is even bigger than that, which is, I think my opinion here is that the biggest impact of AI is gonna be on the physical world. I think there's a lot of innovation in the digital world. Software is of course really awesome. But if you look at the entire software industry relative to global GDP, it's very small, honestly.
+
+The biggest industry is the labor market. It's $50,000,000,000,000 of global GDP.
+
+So I think the biggest impact for AI is going to be in the physical world, which is like manual labor and things like that.
+
+And I think the food industry is a really big part of that actually. It's by market size. The food industry is number 3 by number of humans in the US who do that work. But the first one's retail salespeople, and the second one's nursing and nursing aids. Those are relatively intractable. I would say they're very human today.
+
+I think the food industry is gonna see I mean, there's like tens of millions of people who do that work. And I think that's gonna see a lot of changes.
+
+And more macro. If we can be the robotics that succeeds on a massive scale, having deployed tens of thousands, hundreds of thousands of robots, then hopefully we can inspire other engineers, founders, engineers, investors, operators to do AI plus robots as opposed to just pure AI.
+
+And I think that I would love if that is the legacy. That, of course, is a very grand vision. That's very hard. But if we can actually, like, deploy if we can be the success story, if you will, if we can be like Facebook in the era of Friendster and MySpace, or we can be like Intel in the era of, like, choppy semiconductor and fresh off semiconductor, then we can hopefully inspire the next generation of people to do AI and robots.
+
+That I hope is the real impact of Chef.
+
+(1:10:49) Nathan Labenz: I think that might be a perfect note to end on. Is there anything that we didn't get to that you wanted to make sure to touch on?
+
+(1:10:57) Rajat Bhageria: No. This is a great conversation. I would just say I would hopefully encourage everyone to like really think about embodied AI. I really think that's quite powerful. And I think there's so much great research and innovation happening. And hopefully like the more people we can have doing embodied AI, the more we can really create that Jetsons future we all want. That's, like, exciting, I think. So I'm very excited for that.
+
+(1:11:18) Nathan Labenz: Yeah. It's cool. I think your vision is really interesting, it's a great reminder of how things may be reorganized around new enabling technologies and that the ultimate equilibrium could in fact be quite different from the sort of naive first guess.
+
+I don't think many people think of kitchenless apartments as one aspect of the AI enabled future, but after hearing everything that you have built and are continuing to build it, it definitely sounds like something that we should be watching out for.
+
+So I appreciate you spending the time to educate us on all this today. Rajat Bhageria, Chef Robotics, thank you for being part of the Cognitive Revolution.
+
+(1:12:01) Rajat Bhageria: Thank you, Nathan. Appreciate you having me on again. This is fun.
+
+(1:12:04) Nathan Labenz: It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

@@ -17,8 +17,6 @@ Boris left Anthropic for Cursor and came back two weeks later — a signal of st
 
 "Underfunding teams and giving them unlimited tokens leads to better AI products" — keep org headcount tight, be generous with compute. Claude Code now accounts for 4% of public GitHub commits; DAU doubled last month.
 
-**Memories.ai implication**: Memories.ai implication: the opposite of our current practice — teams should be small, but compute / API calls should be unlimited.
-
 [Source](https://www.lennysnewsletter.com/p/head-of-claude-code-what-happens)
 
 ---

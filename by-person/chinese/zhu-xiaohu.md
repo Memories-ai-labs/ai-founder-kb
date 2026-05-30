@@ -14,19 +14,13 @@ Date: 2025-12-09 · [Source](https://www.xiaoyuzhoufm.com/episode/693834013fec31
 
 "Leaving a big tech company meant crossing one street in the mobile internet era; in the AI era you need to cross three." "We tilt 15 degrees off — wherever consensus clusters, we don't touch."
 
-**Memories.ai implication**: Memories.ai implication: the public API needs to target developer use cases that sit "three streets away" from big tech — we can't go head-to-head with OpenAI / Google.
-
 ### ★★★ [Strategy]
 
 "AI application founders today have to be brave enough to admit they have no moat. Anyone claiming technical defensibility is fooling you." The moat lies outside AI: editing capability, complex workflow integration, ecosystem.
 
-**Memories.ai implication**: Memories.ai implication: Lucy can't claim its moat is technical. It has to be the compounding data effect of personal memory + relationship graph.
-
 ### ★★★ [Strategy]
 
 "In China, everything's basically priced like a discount vegetable; you have to earn your margins overseas." Japan, Southeast Asia, and the Middle East "have no real competitors."
-
-**Memories.ai implication**: Memories.ai implication: public API pricing and sales should prioritize overseas markets first.
 
 ### ★★★ [Strategy]
 

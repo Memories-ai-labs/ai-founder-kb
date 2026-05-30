@@ -16,8 +16,6 @@
 
 **★★** [Hiring]: Orchestration expertise is critical: prioritize hires who can manage complex systems / workflows over pure model researchers.
 
-**Memories.ai implication**: Memories.ai implication: agent platform teams need systems engineers, not just ML researchers. The hiring profile needs to be adjusted.
-
 [Source](https://every.to/podcast/reid-hoffman-makes-five-predictions-about-ai-in-2026)
 
 ---

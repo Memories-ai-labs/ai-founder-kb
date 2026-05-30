@@ -1,6 +1,6 @@
 # Hiring (40 entries)
 
-Sorted by signal strength (★★★ → ★★ → ★). Each entry includes source, link, and Memories.ai implication (if any).
+Sorted by signal strength (★★★ → ★★ → ★). Each entry includes source and link.
 
 ---
 
@@ -18,8 +18,6 @@ Hires are mostly new grads and students from top schools, not seniors. The crite
 
 15-person company, 100% AI-written code, $1M/yr consulting + multiple AI products — "we hire generalists, not specialists."
 
-**Memories.ai implication**: Memories.ai implication: the Lucy team should consider "AI manager" as a role rather than splitting "frontend / backend."
-
 [Source](https://www.lennysnewsletter.com/p/inside-every-dan-shipper)
 
 ---
@@ -27,8 +25,6 @@ Hires are mostly new grads and students from top schools, not seniors. The crite
 ### Kyle Vogt — Bot Company · *Cheeky Pint* (2025-08)
 
 "Selling Cruise was a huge mistake — I'll never sell again." You lose control over the unsolved problem.
-
-**Memories.ai implication**: Memories.ai implication: be wary of early interest from strategic acquirers — especially hyperscalers hunting for video data.
 
 [Source](https://cheekypint.substack.com/p/a-cheeky-pint-with-kyle-vogt-cofounder)
 
@@ -38,8 +34,6 @@ Hires are mostly new grads and students from top schools, not seniors. The crite
 
 Interviews about 1,000 people a year on average (2-3 a day), personally vetting for sharpness.
 
-**Memories.ai implication**: Memories.ai implication: A CEO personally interviewing at hundreds of headcount is anti-scaling, but it's the key move that sustains founder-led culture.
-
 [Source](https://news.inewsweek.cn/people/2025-08-06/26202.shtml)
 
 ---
@@ -48,8 +42,6 @@ Interviews about 1,000 people a year on average (2-3 a day), personally vetting 
 
 Hires for "fearlessness" — looks for people who ask "how do I solve this?" instead of "how do I avoid failing?" Wants diversity of thinking.
 
-**Memories.ai implication**: Memories.ai implication: the Lucy team should be a mix of graphics / vision / infra people, not uniformly ML.
-
 [Source](https://podscripts.co/podcasts/no-priors-artificial-intelligence-technology-startups/teaching-ai-to-understand-the-physical-world-with-dr-fei-fei-li-of-world-labs)
 
 ---
@@ -57,8 +49,6 @@ Hires for "fearlessness" — looks for people who ask "how do I solve this?" ins
 ### Brad Jacobs — XPO / QXO · *Founders Podcast* (2025-10)
 
 The "A-player test": picture them resigning — do you panic? Panic = must keep.
-
-**Memories.ai implication**: Memories.ai implication: Shawn should run this test on every core IC, especially on the public API team.
 
 [Source](https://podscripts.co/podcasts/founders/my-conversation-with-brad-jacobs)
 
@@ -100,8 +90,6 @@ A 400-person company with only 3 levels (CEO / -1 / -2). The core interview crit
 
 "Lollapalooza effect": hire for complementary skill, not similar profile — competition winner + AI researcher + designer, all world-class. "Chips on shoulders put chips in your pockets" — preferring hungry people with no big exit, refusing to hire "recycled Instagram growth heads."
 
-**Memories.ai implication**: Memories.ai implication: our hiring formula should lean lollapalooza — 3 world-class people from different domains beat 10 generalists.
-
 [Source](https://www.gsb.stanford.edu/insights/perplexitys-aravind-srinivas-infinite-value-knowledge)
 
 ---
@@ -109,8 +97,6 @@ A 400-person company with only 3 levels (CEO / -1 / -2). The core interview crit
 ### Winston Weinberg — Harvey · *Sequoia Training Data* (2026)
 
 First test for an exec hire: can they map a 3/6/12-month roadmap for their org, including specific hires? Most leaders fail — it exposes their ability to think in terms of leverage.
-
-**Memories.ai implication**: Memories.ai implication: when hiring VP / director level, make them write a 3/6/12-month roadmap + hiring plan on the spot.
 
 [Source](https://sequoiacap.com/podcast/harvey-ceo-winston-weinberg-why-you-should-reinvent-yourself-every-4-months/)
 
@@ -136,8 +122,6 @@ AI amplifies the leverage of the hyper-generalist — people with customer empat
 
 Culture interviews from day one — not subjective "culture fit" gut calls, but explicitly written cultural values that you evaluate objectively against. The bar: a candidate should be able to "walk out of a room and say I'm going to do X differently because of cultural value Y."
 
-**Memories.ai implication**: Memories.ai implication: we should write down our cultural values now (not as PR slogans) and bake them into the interview loop.
-
 [Source](https://baincapitalventures.com/insight/anthropic-cofounder-and-president-daniela-amodei-on-how-to-maintain-startup-culture-in-hypergrowth/)
 
 ---
@@ -145,8 +129,6 @@ Culture interviews from day one — not subjective "culture fit" gut calls, but 
 ### Sarah Guo + Elad Gil — Conviction / Khosla · *No Priors* (2026)
 
 "Perhaps in the entire world, there's a few hundred great product people for consumer." Consumer product talent is the binding constraint. Consumer teams must embed a researcher or they'll ship derivative experiences.
-
-**Memories.ai implication**: Memories.ai implication: When Lucy App / Desktop hire product people, embed an AI researcher — otherwise you'll end up shipping derivative work.
 
 [Source](https://podscripts.co/podcasts/no-priors-artificial-intelligence-technology-startups/the-2026-ai-forecast-foundation-models-ipos-and-robotics-with-sarah-guo-and-elad-gil)
 
@@ -156,8 +138,6 @@ Culture interviews from day one — not subjective "culture fit" gut calls, but 
 
 Talent = Capability(experience) × Taste(value system) × Agency(will). LLMs commoditize capability, but taste and agency can't be retrofitted → barbell shape: super-junior + super-senior. One senior architect manages 2–3 juniors, each junior manages 4–6 coding agents.
 
-**Memories.ai implication**: Memories.ai implication: if our infrastructure team is still mid-level-engineer-dominated, we may be stuck in the "mid-level most replaceable" dead zone. Consider barbell hiring.
-
 [Source](https://www.youtube.com/watch?v=ill76IbVuM8)
 
 ---
@@ -165,8 +145,6 @@ Talent = Capability(experience) × Taste(value system) × Agency(will). LLMs com
 ### Ivan Zhao — Notion · *Sequoia Founder Spotlight* (2026)
 
 Sales hiring doesn't look at resumes — first round is "build something for us." "Don't reinvent the sales motion — the modern enterprise sales playbook is mature; you only get to put your innovation in 1 or 2 places."
-
-**Memories.ai implication**: Memories.ai implication: don't invent a new enterprise GTM. Hire the classic CRO + rah-rah Head of Sales pairing.
 
 [Source](https://www.youtube.com/watch?v=ill76IbVuM8)
 
@@ -176,8 +154,6 @@ Sales hiring doesn't look at resumes — first round is "build something for us.
 
 Hiring change: classical coding puzzles are obsolete. Agentic engineering hiring: "build me a Twitter clone for agents, then I'll use 10 codex 5.4x to break it." "You can outsource thinking but not understanding."
 
-**Memories.ai implication**: Memories.ai implication: Interviews at xvu / Luci-memory should be reformed — give candidates a large project and have agents evaluate.
-
 [Source](https://www.youtube.com/watch?v=96jN2OCOfLs)
 
 ---
@@ -185,8 +161,6 @@ Hiring change: classical coding puzzles are obsolete. Agentic engineering hiring
 ### Jack Dorsey — Block · *Sequoia Founder Spotlight* (2026)
 
 A board = a hire you can never fire (and they can fire you). Treat board members as a recruiting decision, not a financing decision. "A founder has a different relationship with independent vs. investor board members." Build the board before a crisis tests it.
-
-**Memories.ai implication**: Memories.ai implication: stress-test our board composition against this framework — is the truly independent / mentor seat actually filled?
 
 [Source](https://www.youtube.com/watch?v=YTVSwOY19Qs)
 
@@ -196,8 +170,6 @@ A board = a hire you can never fire (and they can fire you). Treat board members
 
 "If you take a lick of the lollipop of mediocrity, you suck forever" — worse than not hiring is hiring mediocre, because it sets a precedent. CEOs going from 100 → 500 people, 80% of hires are made by other people, so the bar inevitably slides — "it's easier to stop the slide than to recover."
 
-**Memories.ai implication**: Memories.ai implication: at 1,000 people, how much lower is the bar than at the start? Does mavi-agent / xvu-infrastructure still hire at the founding-5 level?
-
 [Source](https://www.youtube.com/watch?v=e_2opghuq88)
 
 ---
@@ -205,8 +177,6 @@ A board = a hire you can never fire (and they can fire you). Treat board members
 ### Brian Chesky — Airbnb · *Invest Like the Best* (2026-02)
 
 The 11-star exercise: imagine the most absurd version of the customer experience and reason back to PMF from there.
-
-**Memories.ai implication**: Memories.ai implication: What's the 11-star Lucy experience? Write it down — it might be "Lucy already knows what you're looking for and has it pre-edited."
 
 [Source](https://colossus.com/episode/ai-founder-mode/)
 
@@ -216,8 +186,6 @@ The 11-star exercise: imagine the most absurd version of the customer experience
 
 AI Founder Mode requires "more detail" — AI makes everything on-demand, so the CEO has to manage at finer resolution, not coarser.
 
-**Memories.ai implication**: Memories.ai implication: Shawn should personally review the DX of every public API endpoint (don't delegate this to an "API committee").
-
 [Source](https://colossus.com/episode/ai-founder-mode/)
 
 ---
@@ -225,8 +193,6 @@ AI Founder Mode requires "more detail" — AI makes everything on-demand, so the
 ### Daniela Amodei — Anthropic · *Fortune* (2026-02-07)
 
 Hard filter: "great communicators" + high EQ + kindness / compassion / curiosity + desire to help. AI is already strong at STEM, so humanities backgrounds are "more important than ever." Daniela herself was a literature major.
-
-**Memories.ai implication**: Memories.ai implication: when hiring for product / sales / GTM, don't fixate on STEM resumes — humanities backgrounds are a scarce resource in the AI era.
 
 [Source](https://fortune.com/2026/02/07/anthropic-cofounder-daniela-amodei-humanities-majors-soft-skills-hiring-ai-stem/)
 
@@ -244,8 +210,6 @@ Safety work is both a hiring filter and a culture filter — it adds hiring fric
 
 "Barrels vs. ammunition" — people who can independently own a project (barrels) are extremely rare; most are ammunition.
 
-**Memories.ai implication**: Memories.ai implication: the Lucy team needs to identify the barrels — people who can own the entire "personal AI" line themselves, not just contribute as ICs.
-
 [Source](https://www.lennysnewsletter.com/p/hard-truths-about-building-in-the-ai-era)
 
 ---
@@ -253,8 +217,6 @@ Safety work is both a hiring filter and a culture filter — it adds hiring fric
 ### Anthropic Team — Anthropic · *Founder's Playbook — Launch Stage* (2026-05-14)
 
 Don't scale by hiring. In the Launch stage, replace headcount with agents (support / onboarding / data) first; only then consider hiring.
-
-**Memories.ai implication**: Memories.ai implication: for Shawn's self-started company, before the first 10 hires, use Claude Cowork to handle 80% of the repetitive work — then decide which roles actually need a human.
 
 [Source](https://claude.com/blog/the-founders-playbook)
 
@@ -264,8 +226,6 @@ Don't scale by hiring. In the Launch stage, replace headcount with agents (suppo
 
 "Keep humans on the things only humans can do": judgment, taste, trade-offs, trust.
 
-**Memories.ai implication**: Memories.ai implication: Rewrite job descriptions from "writes code" to "exercises judgment / has taste / can build trust." Let agents handle technical execution.
-
 [Source](https://claude.com/blog/the-founders-playbook)
 
 ---
@@ -273,8 +233,6 @@ Don't scale by hiring. In the Launch stage, replace headcount with agents (suppo
 ### Anthropic Team — Anthropic · *Founder's Playbook (Cal AI + Vulcan 对标)* (2026-05-14)
 
 Cal AI hit $50M ARR with 7 people; Vulcan won government contracts with 0 engineers — Anthropic treats these two as the extreme benchmarks.
-
-**Memories.ai implication**: Memories.ai implication: the starting-stage hiring ceiling is 5 people. Any expansion beyond 5 needs an explicit explanation of why an agent can't do it.
 
 [Source](https://claude.com/blog/the-founders-playbook)
 
@@ -286,8 +244,6 @@ Cal AI hit $50M ARR with 7 people; Vulcan won government contracts with 0 engine
 
 Five founder archetypes: brave / fast learner / strong execution / good at applying tech / strong commercialization.
 
-**Memories.ai implication**: Memories.ai implication: hiring rubric for the API platform team — 3 out of 5 (execution + applied tech + commercialization).
-
 [Source](https://finance.sina.com.cn/wm/2024-11-04/doc-incuwsqc5419819.shtml)
 
 ---
@@ -295,8 +251,6 @@ Five founder archetypes: brave / fast learner / strong execution / good at apply
 ### Jia Yangqing — Lepton AI · *InfoQ Deep Interview* (2024/2025)
 
 A 20-person team acquired by NVIDIA for hundreds of millions in 2 years; positioned as "the first cloud of the AI era." Founding team = Jia + ONNX co-creator + etcd author.
-
-**Memories.ai implication**: Memories.ai implication: A lean infra-startup template — 3-5 core people plus a handful of engineers can hit a multi-hundred-million valuation.
 
 [Source](https://www.infoq.cn/article/w155khed4mr860s7cpez)
 
@@ -306,8 +260,6 @@ A 20-person team acquired by NVIDIA for hundreds of millions in 2 years; positio
 
 Time management: every day, focus on only the three most important things — a common trait Li Xiang distills from Jensen Huang, Wang Xing, and Zhang Yiming.
 
-**Memories.ai implication**: Memories.ai implication: at the exec layer, pick three from {API platform build-out, Lucy integration, external SDK} and stop there.
-
 [Source](https://www.bilibili.com/video/BV1FwY4zkEef/)
 
 ---
@@ -316,8 +268,6 @@ Time management: every day, focus on only the three most important things — a 
 
 Orchestration expertise is critical: prioritize hires who can manage complex systems / workflows over pure model researchers.
 
-**Memories.ai implication**: Memories.ai implication: agent platform teams need systems engineers, not just ML researchers. The hiring profile needs to be adjusted.
-
 [Source](https://every.to/podcast/reid-hoffman-makes-five-predictions-about-ai-in-2026)
 
 ---
@@ -325,8 +275,6 @@ Orchestration expertise is critical: prioritize hires who can manage complex sys
 ### Sam Altman — OpenAI · *Conversations with Tyler* (2026)
 
 The big green flag in candidate evaluation: "how they use AI today" + whether they think about "what their day-to-day is going to look like in three years."
-
-**Memories.ai implication**: Memories.ai implication: Ask Memories.ai candidates directly: what AI tools do you use today? What does your work look like in 3 years?
 
 [Source](https://conversationswithtyler.com/episodes/sam-altman-2/)
 
@@ -368,8 +316,6 @@ Boris left Anthropic for Cursor and came back two weeks later — a signal of st
 
 "Anecdote: an AI pings a coworker on Slack about an install issue. Two minutes later: 'This is taking too long, I've escalated to manager.' The model's EQ needs work — knowing when to escalate vs. wait."
 
-**Memories.ai implication**: Memories.ai implication: portrait / relationship write operations should have risk classification — not a uniform approval flow, but tiered auto vs. human based on "social cost."
-
 [Source](https://www.youtube.com/watch?v=bBS93A0BeNI)
 
 ---
@@ -379,8 +325,6 @@ Boris left Anthropic for Cursor and came back two weeks later — a signal of st
 ### Tom Brown — Anthropic · *YC Lightcone* (2025-08)
 
 Self-taught engineer (linear algebra: B-); networking + self-study to pivot into AI.
-
-**Memories.ai implication**: Memories.ai implication: Non-traditional backgrounds can reach the top of an AI lab — credentials aren't a hard gate.
 
 [Source](https://ca.news.yahoo.com/anthropic-cofounder-tom-brown-networked-160107558.html)
 

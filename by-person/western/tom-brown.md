@@ -14,8 +14,6 @@ Date: 2025-08 · [Source](https://ca.news.yahoo.com/anthropic-cofounder-tom-brow
 
 Self-taught engineer (linear algebra: B-); networking + self-study to pivot into AI.
 
-**Memories.ai implication**: Memories.ai implication: Non-traditional backgrounds can reach the top of an AI lab — credentials aren't a hard gate.
-
 ---
 
 ← [Person index](../README.md) · [→ KB home](../../README.md)

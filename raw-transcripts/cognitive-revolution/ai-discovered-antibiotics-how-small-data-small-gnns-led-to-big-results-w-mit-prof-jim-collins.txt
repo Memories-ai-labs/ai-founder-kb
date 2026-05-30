@@ -1,0 +1,519 @@
+# AI Discovered Antibiotics: How Small Data & Small GNNs Led to Big Results, w/ MIT Prof. Jim Collins
+# URL: https://www.cognitiverevolution.ai/ai-discovered-antibiotics-how-small-data-small-gnns-led-to-big-results-w-mit-prof-jim-collins/
+# Date: 2025-10-14
+# source: The Cognitive Revolution
+
+Transcript
+
+Introduction
+
+Hello, and welcome back to the Cognitive Revolution!
+
+Today my guest is Jim Collins, Termeer Professor of Medical Engineering at MIT and leader of an AI-powered project that has created several new antibiotics, which are not only effective against antibiotic resistance strains, but also work, at least in some cases, via entirely new mechanisms of action.
+
+The problem of antibiotic resistance is genuinely staggering in scale: more than 1 million people are estimated to die globally each year from treatment-resistant infections, and it's getting worse.  In 2016, a special commission in the UK warned that, if we don't address the resistance crisis soon, by 2050 we could have 10 million deaths per year, which would put the problem on par with all of cancer.
+
+Yet, pharmaceutical companies have largely abandoned antibiotic development because the economics simply haven't worked.  It costs just as much to develop an antibiotic as any other drug, but people take them for only a short period of time, and critically, given a new antibiotic that's capable of treating the most drug-resistant strains, the medical system would reserve it to be used as a last line of defense, limiting the size of the market.
+
+The good news is that Professor Collins and team seem to have created not just a few breakthrough drugs, but a multi-step AI-powered process, which they've refined for the last 5+ years and proven by applying it to several different bacterial targets, that can select candidate antibiotics molecules from the vast expanse of chemical space, in silico, with a high enough hit rate that it's now realistic to expect that the antibiotic resistance crisis could be, for practical purposes, solved, in just the next few years.
+
+That is obviously awesome news, but with so much AI news flying around these days, it's a story that surprisingly few people have heard – even at The Curve last weekend, where all attendees were super-well-informed AI obsessives, not many were aware of this development.
+
+Which I think is unfortunate, because on digging into Professor Collins' work, I found that this is not just a feel-good story, but example of how, even with relatively small datasets and modest compute budgets, modern ML techniques, cleverly applied, can drive huge value, without looking anything like AGI.
+
+In concrete terms, as you'll hear in much more detail, by training small convolutional graph neural networks, on datasets consisting of just a few thousand chemical structures and how effective each one was at stopping the growth of a target bacteria, the team was able to create a model that could screen 10s of millions of compounds for efficacy in just a few days time.  And then, by using these predictions as part of a pipeline that also scored candidate molecules' for novelty as compared to known antibiotics, chemical stability, ease or difficulty of synthesis, and safety or toxicity for humans, they were able to identify a small set of very promising candidates.
+
+Which, upon actual synthesis and testing, they found did contain true hits – that were not only effective against the target strains, but again – in at least some cases – work via previously unknown mechanisms, and without harming other types of bacteria.
+
+These compounds are now moving toward clinical trials, and while – barring some sort of operation warp speed for antibiotics – it will be years until they are available, I was struck by Professor Collins' estimate that, with these techniques at our disposal, the R&D costs to generate a pipeline of 15-20 promising new antibiotics could be as low as a few tens of millions of dollars, while the entire process – including clinical trials to get them approved – would cost maybe $20B.
+
+By the standard of the recent datacenter buildout deals that have been dominating the headlines recently, this is extremely affordable, and the fact that this work remains relatively unknown, even in the AI community, suggests to me that in our haste to create, understand, tame or control, and hopefully live in harmony with fully general or even superintelligent AIs, which we hope will then promptly cure all the diseases and otherwise benefit all humanity, we risk blinding ourselves to simpler, safer, surer wins, which themselves could still prove positively transformational for the human condition, without introducing poorly understood or potentially existential risks.  
+
+With that in mind, I hope you enjoy this deep dive into how AI – even with small datasets and just a few GPUs – is accelerating the discovery of life-saving drugs, with MIT Professor Jim Collins.
+
+Main Episode
+
+speaker_0: Jim Collins, Termier Professor of Medical Engineering at MIT and creator of novel antibiotics, welcome to The Cognitive Revolution.
+
+speaker_1: Yeah, thanks for having me on your show.
+
+speaker_0: I'm really excited about this, and really excited about the work that you have done. Um, it's, you know, an incredible thing. I often reflect on just how many groundbreaking milestone moments are passing us by all the time. Um, and I've been going around telling people, literally at, like, cocktail parties and stuff, about this work, and nobody's heard of it. I swear, when I was a kid, people would have heard about this. Uh- ... I- I think it would have been, like, the talk of the town. Um, but these days, there's just so much stuff flying by that people are missing it. So, I'm, I’m excited to correct that.
+
+speaker_1: Hmm. Yeah, thanks.
+
+speaker_0: Um, for starters, before we get into all the AI side and ML techniques and- and all the details, because people who subscribe to this feed, like, are very obsessed with all the AI stuff and probably don't know nearly as much about the biology-
+
+speaker_1: Hmm
+
+speaker_0: ... can we just do a little primer on the biology of antibiotics and antibiotic resistance? Like, how do antibiotics work, uh, and why do they stop working sometimes?
+
+speaker_1: Yeah. So, you know, antibiotics are generally small molecules, uh, l- like an aspirin type that you would take, uh, typically orally to treat an infection that you might have in some part of your body, a bacterial infection. Uh, the antibiotics act by basically disrupting a protein, typically inside a bacterial cell, that would be associated with an important process, be it cell division, uh, protein production, um, DNA replication. Um, this will disrupt that associated process. And we've shown that that will then lead to downstream stress responses from the bug that will lead to energetic demands that will produce toxic metabolic byproducts that will lead to additional damage inside the bug, damaging DNA, RNA, protein, membranes, lipids, that will trigger additional energetic demands, etc., leading to this cycle that will contribute to the disrupted initial process. Why resistance arises is that the bacteria have, uh, effectively an intrinsic goal of replicating, surviving and replicating. And so, you'll have mutations that occur, so alterations to the DNA, or- or the features, um, with some frequency every time the bug will divide. As well as in response to a stress directly, such as antibiotics, that will lead to changes in the target of the antibiotic or these downstream features that will make the bug less susceptible to the antibiotic. Those bacteria that have acquired that mutation then now have a fitness advantage, meaning they will survive. Whereas, the other members of the population who don't have that won't survive. So the others will die at that concentration of the antibiotic, but the ones with the appropriate mutation will live and will survive the antibiotic treatment, thus will now be resistant to it. As a result of our overuse of antibiotics, both, uh, for human use directly and through animal use, where the agricultural industry will use antibiotics both prophylactically to protect the animals from potential infection as well as a growth stimulant, we've now seen resistance growing dramatically over the last few decades. And really in the past, the- the biggest risk would be in hospitals, so-called superbugs. I tell my students, "The worst place to be when you're sick is a hospital, because of these superbugs. Get out as quickly as you can." But these superbugs, these resistant bugs to our frontline antibiotics, are now no longer restricted to our hospitals. They're on our playing fields, they're in our childcare centers, they're in our schools, they're in our shopping centers, they're in our communities. And so the problem has escalated due to our overuse and misuse of antibiotics.
+
+speaker_0: So, to just double-click on that a little bit, um, one of my mantras for AI is that AI defies all binaries. And I think that's like a p- The more I learned about biology, it seems like that's true for many aspects of biology as well. So one thing I was kind of struck to notice in reading the papers is that I think a lot of times people think of, like, an antibiotic, you know, as sort of like a, uh, you know, missile that sort of zooms in and, you know, smashes the bacteria, and it's just gone. And as I was reading, I was like, "Well, it's not... It doesn't really kinda l- look like that so much." The way that the effectiveness of the antibiotic is measured is not like a binary, but rather a scaler, right? It can be like anywhere from sort of not effective at all to like very effective, or kind of anywhere in between. Um, does that... Like, m- I'm not sure if this is right, but I was kind of inferring from that that this sort of growth slowing maybe implies that there's actually still like a major role for the immune system. Like, is it... What is the actual role of the drug? Is it killing the cells, or is it like slowing them down enough that the immune system can rally and- and destroy them for us?
+
+speaker_1: Yeah, it's interesting. So it depends upon the antibiotic and depends upon the type of antibiotic. So they're... The ones that we typically think of, you know, the- the missile that you referred to, would be bactericidal antibiotics. So those that have really been developed to kill the bacteria at a safe concentration for human use. Um, the challenge with that is that not every bug in the infection site will see the same concentration, so many will see sub-lethal concentrations. Briefly, the second class of antibiotics are so-called bacteriostatic, those that are actually selected, developed to inhibit the growth or stop the growth of a bacterial infection without killing the bugs in that infection. Interesting, as you picked up in the piece, uh, screening done for anti- identifying new antibiotics is almost always through a growth inhibition assay and not a killing assay. So a growth inhibition assay where you'll look to see when you apply some library of compounds, which...... Of these inhibit significantly the growth of the culture would then indicate there is some interesting antibacterial properties. In many cases, those are also associated with killing activity. Some are only associated then with inhibition. Um, killing assays are much more difficult to get after. The further level that's also, uh, in our piece is that, you know, you want to, and I have alluded it, you want the antibiotic to really largely impact only the bacterium and not ourselves. And frankly, if possible, so only to impact the pathogen bacteria and not the healthy bacteria that make up our gut or on our skin or on other parts of our body.
+
+speaker_0: Yeah. Defying all binaries indeed. So, um, one more just primer question there is, I also noticed in the paper that you run some experiments on, on these new antibiotics that you've found that test how quickly bacteria can develop resistance to them. And I was struck that in general, like it seems to happen pretty fast. So-
+
+speaker_1: Yeah
+
+speaker_0: ... should we understand that this is like always going on even like in our bodies on an ongoing basis? I mean, we kinda, I kinda saw this with COVID too, um, where it seemed like there was a lot of mutations happening all over the place. And not all of them, of course, break out, but should I, should my mental model be that like these resistant strains are kind of popping up all over all the time, mostly not going anywhere, but occasionally, um, you know, getting out of control? Is that the right way to think about it?
+
+speaker_1: Yeah. I, I, yeah, I think, uh, I'm not sure getting out of control, but that they, they might break out as you say, from the, the stress and survive and then propagate. You know, there's i- interesting dynamics challenges between the interactions of different mutations, which ones are beneficial under which situations, which will be retained, um, which give you an advantage, which give you a disadvantage. Um, I think it's fair to say, I, I like to say that if you come across an antibiotic researcher who tells you that they've designed or discovered an antibiotic for which there's no resistance, they're either lying to themselves or they're lying to you. And that, and to then speak to it that if you apply it for long enough, eventually resistance will develop. And it becomes interesting to then consider the role of AI as we increasingly utilize AI in this space, is that I think AI gives us an advantage in the battle then of our wits against the, the genes of these superbugs in as follows, in the two different ways around resistance. We continually discover and are designing new antibiotics that act in new ways that would not be bedeviled by existence resistance. You still have to get it through approval process and they'll introduce them. But second is also to explore how AI might be able to reduce the probability of resistance over a given time period, meaning extending the runway. And some of the ways that can happen is by discovering and designing molecules, for example, that hit more than one protein target, so that if its efficacy is linked to the action of each individual protein in independent way, now the bug would need to develop mutations in more than one site in order to provide itself with protection, which makes it that much more difficult for the bug to evolve away from the actions of the antibiotic.
+
+speaker_0: Yeah. Okay. Cool. Well, we'll come back to all that in a second.
+
+speaker_1: Yeah.
+
+speaker_0: One more just, um, angle that I wanna set this up with is the societal angle. Um, we haven't had a lot of antibiotics recently, and I understand that the pharmaceutical industry broadly has kind of given up looking for them. Given that this is such a big problem with m- my understanding is like tens of thousands of Americans and, you know, probably a couple orders of magnitude more than that, people dying annually from these, uh, antibiotic-resistant strains-
+
+speaker_1: Yeah
+
+speaker_0: ... why has that happened? Like, what i- what is the s- uh, the social failure that has led us to this state?
+
+speaker_1: It's an interesting. I, I think it's largely an economic-driven failure that tapped into some interesting aspects of how we handle things as a society. Maybe to just kind of ground the audience, um, uh, Alexander Fleming discovered penicillin a little less than a hundred years ago. So September 1928 is when he serendipitously discovered penicillin. It was not then developed and manufactured as a drug until early in World War II in the 1940s, uh, by a group at Oxford. So we haven't had them for very long, but they have transformed modern medicine, enabling us to have surgeries, deal with any number of injuries, um, cuts, bruises, blisters that in the past would've been lethal are no longer lethal. Um, interestingly, the heyday of antibiotic discovery was in the 1940s, '50s, and '60s. So before the microbiology revolution, before the biotech revolution, before the genomics revolution, before the AI revolution. What has happened since then is that we've been, uh, really in a discovery winter of sorts, that, that we haven't discovered new antibiotics. And the investment into the field has diminished dramatically. Multiple reasons for that. One is that it costs just as much to develop an antibiotic drug as it does effectively to develop a cancer drug or a blood pressure drug. But an antibiotic, you're only gonna sell for a few dollars, whereas a cancer drug or a blood pressure drug, you can sell for thousands, if not many more dollars. Antibiotic, you'll take maybe over the course of a day or a small number of days. Cancer drug, blood pressure drug, you take over many months, years, if not even for the rest of your life. So the economics support the development of non-antibiotic drugs. Further, you have that even companies that stayed in the business and made it all the way through to getting their young molecule approved, once it was approved, the community of doctors said, "Oh, we're gonna shelve your co- we're gonna shelve your product, put it on a shelf and keep it for when we really need it."And as a result, many of these companies then went bankrupt after this milestone of getting their compound approved. And so we faced this dire situation, you know, so how do we get out of it? You know, as you allude, we, we are, have this underlying academ- epidemic that's been going on for decades in that about a million to two and a half people die each year from bacterial infections around the world. And a UK commission estimated if we don't address this resistance crisis soon, we'll have upwards of 10 million deaths per year by 2050. So outpacing deaths from cancer. It's a challenge, right? How do we motivate pharma companies, biotech companies to develop these products they're really not gonna generate revenue from? And I, I think we need to explore public-private partnerships of the type we saw with Operation Warp Speed or Warp Drive, whatever it was called, around vaccine development during COVID. Second is I think we need to better engage philanthropists. So we have, you know, various months to dedicate different diseases, cancers notably. We have, uh, walks, charity walks, runs, ribbons, colors. We have none of this for antibiotic-resistant infections. Though every one of your listeners has lost a friend or family member, I guarantee, to an antibiotic-resistant infection. Your family member went into the hospital for a certain treatment for a s- caught the infection and died. And it somehow does not rise to the prominence in our consciousness of a need to address. Now, I expect you probably have some fairly prominent, very successful, wealthy listeners on the show. And it's interesting to think of, the uber-wealthy. An uber-wealthy individual could single-handedly address this challenge for the lifetime of everybody on this planet. So my estimate is for about a $20 billion investment, we could address AMR, uh, specifically antibacterial resistance over the next many decades. Okay, it's a lot of money for you and me, it's a lot of money for most of your listeners. But it's not a lot of money for an interesting number of individuals. So for any of you who would like to make history but not make a dollar or much money off of it, I think there's opportunities here to really have, uh, to leave an impact on humanity.
+
+speaker_0: Yeah. Well, let's get into then how, uh, you would put that money to work.
+
+speaker_1: Yeah.
+
+speaker_0: Um, I know you've been working on this for a number of years, and the first, uh, reported antibiotic that you found goes back to 2020.
+
+speaker_1: Yeah.
+
+speaker_0: Just give kind of a high-level overview of the trajectory of the work for the last half dozen years, and then from there we can kinda really dig in. Especially to the most recent work and the, you know, the datasets, the techniques and all the, uh, nitty-gritty details.
+
+speaker_1: Yeah, so maybe I, I'll maybe go back even a little, a little later. So we, our lab has been working on antibiotics now for a little over 20 years. And we've used machine learning, so a sub-branch of AI, in that context from the very beginning. And our initial efforts were really using machine learning to infer, reverse engineer biomolecular networks inside bacteria in order to better understand how antibiotics act. And our goal there was to better understand mechanisms of resistance as well as to identify molecules, come up with ways that we could boost existing antibiotics. Here at MIT, uh, 2018, the institute launched a campus-wide initiative in AI. Kind of recognizing that the institute had been asleep at the wheel on this third wave of AI. First wave really in the very early days, late '50s to '60s where folks like Marvin Minsky, Seymour Papert here at MIT led the way with their interest in early neural nets and perceptrons. And then in the 1980s, in the second wave, where there was interest in things such as LISP, other language-based, uh, programming languages and, uh, executive programs with folks like Patrick Henry Winston. This third wave focused on big data, deep learning, eventually then large language models. The institute realized that we really hadn't stepped up. And so in March of 2018, we launched a campus-wide initiative. I had the opportunity that just next to Regina Barzilay, one of our AI stars here on the faculty, who has done a lot of work in applying AI in problems in biology and medicine. We realized we both had interest in drug discovery and thought, "Wouldn't it be interesting if we could apply our interests, um, to get after antibiotics?" And we brought on Tommi Jaakkola who's another faculty member and AI expert. And we really didn't have money to do this, so we bootlegged the project, looking around to see what could we pull together. And pulled together a small training library of 2,500 compounds, which was remarkably small. This consisted of 1,700 FDA approved drugs, including the known universe of antibiotics, plus 800 natural compounds. Applied them to E. coli. So E. coli is both a model organism that we use in molecular biology, uh, to understand different biological processes, but it's also a pathogen that m- many of you listening have unfortunately experienced it whether a urinary tract infection or food, uh, food poisoning. Applied each of those compounds to E. coli to see which exhibit antibacterial activity as evidenced by growth inhibition. Took those data, discretized it to say yes, no, if you achieved at least 80% growth inhibition, you're considered antibacterial. If you didn't achieve that, you were considered non-antibacterial. Took the structure of each compound and trained a deep neural net, specifically a graphical neural net, that could learn bond by bond, substructure by substructure, um, those that were associated with the feature of interest, in this case, antibacterial and non-antibacterial. We then applied it to a internal library at the Broad Institute where I also run a lab that was the drug repurposing library at The Broad that consisted of just 6,100 compounds. But asked which of the molecules there were predicted to be antibacterial, which were predicted not to be toxic against human cells, and which did not look like existing antibiotics. And interestingly only one molecule fit all those three criteria, which is the molecule we call halicin.In an homage to HAL, which was the killing AI system from 2001: Space Odyssey. HAL in the movie killed humans. ALISON, our molecule, killed bacteria and turned out to be a remarkably potent new antibiotic.
+
+speaker_0: So it's really striking to me how small that dataset is. We're so used to... You know, today I... When I think of large language models, I'm like, you know, it's sort of one to 15 trillion tokens is the range of-
+
+speaker_1: Yeah
+
+speaker_0: ... dataset just on the pre-training, right? And then they do-
+
+speaker_1: Yeah
+
+speaker_0: ... you know, lots of post-training and reinforcement learning and all that kinda stuff on top as well. Um, I guess if you had proposed to me, you know, in, in my ignorance before seeing all these results that something like this could work with just a 2,500 compound library to learn from, I would have guessed that that was, like, probably at least two orders of magnitude too small. How do you think about the fact that this works at all?
+
+speaker_1: You know, it's interesting, Nathan. So I, I think your response is very similar, very consistent with the response we got from our colleagues in the AI space. So we presented what we had and what we were doing. They dismissed us and said, "Don't even start the experiment. You, you have far too little data to do anything meaningful." Um, so if... So, you know, a few points of note. One is that the growth inhibition data that we collected, um, we could have discretized. So when you look at those data, you could see that we could have said, okay, this compound achieved 90% inhibition. This one was 10, 10%, 30%. But we didn't recognize that we didn't have a lot of data so we just discretized, zero or one. Okay? So we reduced the course grain now the, the feature of the d- you know, to your earlier point, binarize in this, make it binary. Um, two is that i- i- you know, i- it is again interesting, you know, you know, to this day, let's say, you know, that these models are very data hungry. The be- the more data, the better. And the latter were not challenging, but it's interesting that here we had a good number of hits having known antibiotics of a couple hundred in that dataset, and we weren't looking to get 100% true positive rate. We would have loved it, and yet when we tested it, we had about a 51, 52% true positive rate, which might sound small if you're trying to differentiate a picture of a cat from a dog on the interweb. But really good for looking at prediction, you know, did you come up with a new antibiotic? Where usually for a random screen or large screen, it's well less than 1%. So yeah, we were... I was surprised how well the model performed, pleasantly so. And, and it... I think it speaks both to the value for positive data in these compound structures, and the fact that, that it was really rich and, and, and enriched for antibacterial in that case.
+
+speaker_0: So on the question of discretizing the data or not-
+
+speaker_1: Yeah.
+
+speaker_0: Again, I think if you had said to me, "Hey, I've got this relatively small dataset and I've got these measures which, you know, range from zero to one for how much a given compound inhibits the growth of the bacteria. Should I discretize it or should I try to train the network to predict the scaler quantity?"
+
+speaker_1: Yeah.
+
+speaker_0: I think my intuition would have been you should try to predict the scaler quantity and then maybe, like, apply the threshold at the end. Um, I imagine... Because these models are not huge, right? It wasn't like you ha- only had the, um, compute for one run. So I imagine you probably tried both?
+
+speaker_1: I s- I suspect we did. And, and I can tell you that if we did, the data weren't good. Meaning the results weren't good. So that, you know, doing a correlative model, there just really wasn't sufficient data to get predictive capacity now from a completely new structure of where we'd sit on that line. But given that I think... And where the difference is, is that getting after now that discretization of a molecule that really would inhibit growth. You're now, I think, getting after specific structural features of the compound that really make for a good antibiotic. Versus, you know, in the end, I think if you got enough data, get enough compounds, I think you could predict where you'd sit on that line from zero to one. But I think you probably, in that case, would need many, many hundreds of thousands, if not millions of compounds to fill that out. Here, you know, we've en- enriched a lot with no effect and then a good number with effect. And so the, the training set itself was kinda binarized.
+
+speaker_0: Yeah, it's really interesting. Um, how much does it cost to collect this sort of panel data in the first place? Like, if you wanted to set out to do tens of thousands, hundreds of thousands of, uh, compound to bacteria?
+
+speaker_1: So it, you know, there's two, two three levels of cost here. One is actually curating, buying the compounds themselves. So it... You know, in this case, the initial one we had, I think we had the library available. We then, eh, subsequently as part of the Antibiotics I Pri- Antibiotics I Party put together a library of 37,000 additional compounds, and I think that cost us about $150,000 to put together. So still not a large amount when you think there's what are bordering on $5 per compound. If we go to any of the vendors, you're gonna be anywhere from $10 to $20 per compound in a larger bi- to get after then, especially ones that could be of order $100 per compound. So it, it, it goes up very, very quickly. Now, for some of these larger public health challenges, there are compound libraries available in pharma that include about a million molecules or so, and maybe larger. But they don't make them publicly available. I wish they would in some cases, maybe they've already-... mine them for the features they like, but to make them available with things like antibiotics. The second level of charge is now how do you screen it? So when you start getting to these tens of thousands, that's a lot of work for a grad student. And so it's one of the few spots where we'll use robotics, liquid handling robots, but they're costly. And so it probably charge, it probably runs us about $20,000 in robot time to screen a 40,000 compound library. I wouldn't say that linearly scales when we go to a million. And so, but it's, it's, it's decent cost. And so for example, our 40,000 compound library, we've now applied to seven different bacterial pathogens and three different human cell lines. So we've done this 10 different times.
+
+speaker_0: I mean, honestly, that's like astoundingly little money in the grand scheme of things, right? I mean, in the world of AI that I'm following on a daily basis, we've got, you know, in the space of the last couple weeks, like a hundred billion dollars from Nvidia to OpenAI and Oracle. And you know, i- it's like tens of b- it has to be tens of billions, or you're not even making the news. So, I mean, we're talking like a full three orders of magnitude less to do sort of the biggest scale versions of the experiments you're running, and probably four orders of magnitude less to do some of the ones that you actually ran.
+
+speaker_1: Yeah.
+
+speaker_0: And that is, uh, you know, affordable as you said, for, um-
+
+speaker_1: It's affordable. Yeah. So let me put it and, and, and I- I'll frame it, you know, along those lines. You know, I- I saw an announcement on the news that maybe it was this morning, that xAI, so Elon Musk's company, was in the midst of raising $20 billion on their most recent round. That's the number I just quoted, could solve the antibiotic resistance crisis for the coming many decades. So, you know, you have young kids, I have slightly older kids. For, for the lifetime of your kids, that could be solved, which is stunning for a single in this case private company. If you now break it down, it's anywhere from 500 million to a billion to 2 billion per drug to be developed. I think depending upon how one sits up, you might get that even down to a hundred million in some cases, for certain drug cases with orphan status. So a- again, I think if, uh, if there are some wealthy individuals there that are, uh, publicly spirited and, and recognize the need of public good, I do think here's a great example of AI for good, and it's a great example where with additional capital, I think we can take these compounds into patients and actually begin to expand our armament, our portfolio, uh, to, to go after these superbugs.
+
+speaker_0: When you talk about solving the whole thing, big picture for decades, um, at $20 billion, I guess like how many... Which by the way, is under a 10th of a percent of US GDP, another way to think about it. Um, how many drugs are we talking there? I- is that like 20 drugs at a billion each, including all the clinical trials and all that kind of late stage stuff?
+
+speaker_1: You know, it's a border 15 to 20 drugs, um, would be the, the, the real pitch here. And you know, in fairness, it's not that everything's ready to go if, if Elon Musk wrote a check for 20 billion. I think we, we need to put in a certain infrastructure, get things in place. But, you know, when you look out of what we could do, I think it's... It's again, it's an interesting, uh, uh, for some reason, oversight or that hasn't raised to public consciousness levels at the level that should. The term existential has kind of gone out. It's been set up as being overused, but if you look at individuals' lists of existential threats to humanity, antibiotic resistant infections is on that list for most individuals. And it's the cheapest risk that could be solved on that list. Whether it's, you know, uh, global poverty, uh, hunger, uh, climate change, you know, th- those are multi-trillion dollar problems. This is, you know, a border tens of billions, low tens of billions. So it's, you know, we have some work to do to convince folks, but again, it's, you know, for those who really wanna make history without worrying about making money, I think it's a good one to go after. And I think AI is becoming, again, an interesting way where it's making it interesting. I think raising the attention to your community, to my community, where again, it's a true beautiful example of AI for good.
+
+speaker_0: Yeah. It's an area I would also love to see the US and China decide to race and, uh, you know-
+
+speaker_1: Race?
+
+speaker_0: I've proposed like-
+
+speaker_1: No, a- and maybe even team up, yeah. But, but a race, I'm, I'm a very competitive guy, so race would be marvelous as well.
+
+speaker_0: Yeah. Um, I mean, I would love to see... This is a whole other digression. I'm what passes for a China dove these days in the sense that my outlook is like, I think this AI stuff is gonna be a really big deal and we might need to work together across the US and China to-
+
+speaker_1: Mm-hmm
+
+speaker_0: ... end up in a good place, you know, the alternative being we like race to weaponize and create a-
+
+speaker_1: Mm-hmm
+
+speaker_0: ... a whole new sort of Damocles.
+
+speaker_1: Yeah.
+
+speaker_0: And that all sounds terrible to me.
+
+speaker_1: Yeah.
+
+speaker_0: Um, so but, you know, obviously the spirit of competition is high and rising, so it's kinda like, maybe we can make a metal tracker for new drug discoveries or something like that. You know, g- give out... I know that, you know, the CCP loves to, uh, collect gold medals. So if we- ... kind of create more gold medals for, um-
+
+speaker_1: Yeah
+
+speaker_0: ... antibiotics and similar, that, that could be a good thing. I guess one more talk- one more point on the money before going deeper into the techniques. The, the money to actually develop the drugs is again like a very small amount, right? Compared to all the trials and downstream stuff. Are we talking... And what do-
+
+speaker_1: Yeah, that's a fair point. Yeah. So, um, I think that, you know, it's of order of, of millions per compound to develop it pre-clinically before trial. Low millions would probably be a fair number. And really the cost comes in when you start queuing up your phase one, phase two, phase three trials for antibiotics. But of order, you know, low millions from-Early discovery hit to lead optimization is, I think, a, a decent estimate.
+
+speaker_0: Yeah.
+
+speaker_1: And so for example, we're working with Fairbio. Fairbio's a nonprofit we helped launch as part of the Antibotics AI project. And with Fairbio, we have fantastic support from ARPA-H federal agency. Together we've received a $27 million grant to develop 15 antibiotics through pre-clinical development. So to establish a very robust pipeline driven by generative AI. And so, you know, looking at that, you avoid a little under two dol- $2 million per compound to get it through to being IND ready.
+
+speaker_0: Yeah. So just a couple percentage points, uh, down payment could, uh, take that up to the-
+
+speaker_1: Yeah
+
+speaker_0: ... the scale that you'd need to, to stock the-
+
+speaker_1: Yeah
+
+speaker_0: ... shelves indefinitely. Um, all right, well, we can do another, uh, call to, uh, philanthropists at the end, but let's- ... let's go deeper into the techniques 'cause this is really where the, um, AI obsessives, uh, I think wanna understand what's going on.
+
+speaker_1: Yeah.
+
+speaker_0: So, a couple things that jumped out at me about your techniques, and I'll just kind of give this to you as a prompt-
+
+speaker_1: Yeah
+
+speaker_0: ... so to speak. And then you can, you know, elaborate on, uh, what you think people should better understand. One point was that you're using graph neural networks-
+
+speaker_1: Yes
+
+speaker_0: ... um, with a convolutional approach as opposed to some of the new graph transformers. I was kinda interested in-
+
+speaker_1: Yeah
+
+speaker_0: ... if you tried both or like how you think about that, like why that particular architecture. I also noticed that you train a number of them. I think it's 20, if I understand correctly, identical, uh, convolutional graph neural networks basically as a way I think to sort of, because I, I assume they're like all differently randomly initialized as a way to sort of avoid, uh, any one of them kind of overfitting or, or going weird and, and then you sort of ensemble all of those to-
+
+speaker_1: That's right
+
+speaker_0: ... actually make the predictions.
+
+speaker_1: That's right.
+
+speaker_0: What else do we need to know about the actual architecture of the networks?
+
+speaker_1: So, you know, you're spot on, right? So the, you know, I, I think the reason we chose the graph neural net with convolutional net as the ... you will like ... was that this was the platform that Regina and Tommy's team had developed under the banner of Chemprop. So this preceded our work on antibiotics. So this was efforts done by, uh, Yang in their lab, and I think Kyle Swanson and Wengong Jin. And really a marvelous platform. Um, you know, this was... We started this probably it was, you know, late 2018. Transformers were just beginning to appear at the time, um, weren't really, uh, yet that popular. Subsequently, so yeah, and you know, maybe just to pick up. So our, our strategy is generally we will create an ensemble of models. Uh, trained similarly, I would say tr- in fairness, trained identically, but with different initial conditions that we then will average across the ensemble, kind of a, a wisdom of crowds of sorts. Um, we subsequently, in more recent work, we've explored large language models that have been developed. So these are not graphical neural net per se, but language models where you'll look at a, a string of symbols from a compound structure and they've done okay. So many of these are pre-trained on large libraries of compounds, but they've not yet outperformed our graph neural net. We have seen, they seem to be learning a slightly little different schemes and they make predictions that are a bit different. We have explored, can we do a multimodal hybrid model with a little bit of success giving us a little bit of a bump up, but not considerably high. More recently we've actually implemented MiniMol, which is another graphical neural net, um, that is pre-trained using quantum mechanical calculations considerations and work that we'll be submitting soon shows that it significantly outperforms MiniMol. Uh, Chemprop is earlier graph neural net. So it's interesting, you know, here we, we really are, uh, I think accounting for that these models were set up in part that they could look at graphical representations and it fits beautifully for the compounds that we're looking at. You know, you can think of back to your chemistry class you had in high school or college. It's the, the, the... Those types of structures we're feeding it. Now, in many cases, the model is considering a, a 2D representation of the molecule. And we are also beginning to think about how we can better take advantage of 3D representations for improving and extending the, the predictions.
+
+speaker_0: I can't resist the follow-up question. What are the foundation models that you have looked at? Uh, the ones I've studied are like Evo, Evo2, ESMfold. Um-
+
+speaker_1: You know, so, so Evo and Evo2 are, are basically genomic ones on DNA. E- ESM are protein-based. So these we'd be looking at language models that were set up specifically for small molecules. So we looked at ChemBERT-
+
+speaker_0: Hmm
+
+speaker_1: ... was a dominant one. We looked at, uh, oh gosh, I'll think of the name, but we looked at NVIDIA has their own, IBM had a version. So we've looked at the, the leading cases. Um, Evo is not well set up for what ours 'cause we're doing small molecules as well as ESM. No. But in each case we are intrigued on each of those models for how we can apply for some other things we have going in the lab.
+
+speaker_0: Oh, okay. Cool. There's maybe another question around-
+
+speaker_1: Yeah
+
+speaker_0: ... but I'll save it a little later around kind of bridging these modalities.
+
+speaker_1: Yeah.
+
+speaker_0: Um, but okay, so we'll keep going through the process. So we got these ensemble of convolutional graph neural networks trained, then the big computational step, which I understand is still not all that big, is taking increasingly larger and larger libraries of, again, if I understand correctly, both real and hypothetical molecules out of these big libraries of molecules and just crunching through...Literally millions of them, tens of millions. I think even over a 100 million in one case, um, to get all these scores and say, "Okay, here's the ones that are predicted to kill this particular bug." There's also an interesting Monte Carlo tree search kind of algorithm that seems to, if I understand correctly, like, cluster molecules in sort of, um, not functional space, but sort of physical space, right? Those that have kind of similar structures are clustered together so that you can not only get the prediction, but also kinda look at, oh, there's a cluster of things here that are all predicted to work well, and they have something in common. Therefore, that thing that's in common seems to be the key that's actually driving it. That is really interesting too, in terms of just an alternative approach to explaining what's going on in the AI system.
+
+speaker_1: Yeah, so firstly, on the first. So yeah, we, with the trained model then, we'll feed it structures that are then from in silico libraries that are either been curated of ones that are available for purchase in some cases, and/or can be synthesized. And in other cases, it might be kind of arbitrary that they think we can synthesize one, but not really sure. In that initial halicin piece, we screened computationally a board of about 110 million compounds. So an enormous library from a real-world standpoint that you would never empirically screen in the lab. But we did it over the course of three days on the computing platform we had at the time. Since then, just as an aside, we have been doing a lot of work with Idamine, which is a small chemical synthesis company in Kiev, Ukraine. Obviously, quite occupied with the war going on right outside their synthesis company. But they've been great partners, and notably, they have much larger in silico libraries. Notably, they're real spaces of order of 65 billion to 70 billion. And we've been screening those now, which now, you know, it's getting up there, right? You're several orders of magnitude larger than that initial 110 million, which itself was very large. The second space you were speaking to was an effort that was led by Felix Wong, which is around the idea, could we get after explainable AI to better understand structures, common structures amongst the best scoring molecules, enabling us to better identify novel structural classes? Meaning, could we set up in this case, which we did, was a Monte Carlo tree search to look at rationales or substructures across the top predicted compounds to see is there a substructure rationale over-represented that would suggest that maybe we are onto a new class that goes after a similar mechanism, but has chemical diversity of some sort within that class, increasing the chance that we really did come up with something new and meaningful. And we posed that in Nature over a year ago to a lot of interest, and it really turned out to be quite a powerful approach that gave us insight into the chemical structures that have been learned by these models that could matter in the antibiotic space.
+
+speaker_0: Yeah, I find that really interesting. I find all of this really interesting because it is quite a bit less black boxy at a few different points than what I'm used to when I just look at, you know, the big foundation models that kind of dominate my consciousness most of the time. Um, and that is a really interesting alternative way to try to make the AI process explainable.
+
+speaker_1: Yeah.
+
+speaker_0: So, okay, the, the move from tens or hundreds of millions to tens of billions of molecules definitely is a huge leap.
+
+speaker_1: Yeah.
+
+speaker_0: Can you give me a little bit of an intuition for chemical space? I actually was a chemistry undergrad, but I'm embarrassed to say that I don't have much intuition for this. At that time, we were like working on natural product synthesis, and I understand there's been like a pretty big shift in the field from pick one molecule and do whatever it takes to synthesize it, to a more, um, kind of sane approach that is more like building block, kind of almost Lego-style approach to putting these things together.
+
+speaker_1: So, um, a few levels. So you know, an academic lab like ours will typically have compound libraries in order of ten thousand, tens of thousands. Large research centers will have libraries of orders of hundreds of thousands, maybe a million. Pharma will have libraries of order of millions, low millions.
+
+speaker_0: When you say libraries, these are on hand?
+
+speaker_1: These would be compounds that you have in little vials. So for example, the Broad Institute, they have a center for C-DOT, Center for Discovery of Therapeutics, that we work with and they have this beautiful robotic system that has in order of 800,000 to a million compounds on site that you can program via barcode to go, have your liquid handling robot go, grab, zoop, come right out, and then couple it to another liquid handling robot that can apply it to our bacterial cells. So there is kind of the physical world compound typical order number. So I think, for example, Idamine has maybe four to four-and-a-half molecule molecules stored, ready to send you right away. Now, you go into the in silico space, and maybe you touched nicely on your building blocks. At Idamine, their 65 billion is based on a building block, a set of building blocks and a set of recipes, synthesis steps to get there. So I don't know what the number of building blocks is, but it gets you to the 65 billion. And they're confident they can do those. So that's the order you have there. So you're in-Ten to the ten compounds. Going back again to your chemistry days, the estimate is that there should be avoid a ten to the sixty compounds that I'm, I'm not sure fall into the drug-like space, but let's just say ten to the sixty compounds, which, you know, is more than astronomical. And we're literally just scratching that surface with say, you know, I've, I've mentioned that the 65 billion, I may be off by a little bit there, their unreal space at Idomene I think is now 220 billion. Okay? So you're now ten to the eleven. Still not even close to ten to the sixty.
+
+speaker_0: Yeah. You know, ten to the sixty is really hard to wrap one's head around. Um-
+
+speaker_1: Yeah.
+
+speaker_0: What's out there? Is that like... Is that... How, how real should we think of that as being, like are those-
+
+speaker_1: You know, I, it's, I don't know. You know, I was just in a meeting with my team and they claim that there's a group that, a BioSolve I think is the team, that, that they can get to trillions of molecules from their building blocks. Okay, that doesn't sound too crazy given Idomene is confident with their 220 billion. It's okay. Order five more to get to a trillion. Yeah, I get it. Ten to the sixty, I've, I've never seen the calculation. I've heard the number, I've passed along the number. Um, you know, I've seen it in many different spots. I don't know how pragmatic or real world that number is, but avoid a trillion seems okay to me for now. It will be interesting to see to what extent AI can help us better define what the real space of possible compounds are. One of the challenges we had as we moved from discovery to design is, can you actually synthesize what the model made? And there is a big challenge. And one of the best in the business is one of my colleagues here at MIT, Connor Colley, who's developed AI models to predict the synthesizability of a compound. And there, you want to get after the answer to, can you synthesize? And then you want to ask, can you do it in a reasonable number of steps? Can you do it for a reasonable amount of money?
+
+speaker_0: Yeah. So I guess regardless of how vast the chemical space ultimately is, safe to say it's pretty big and you're turning through an increasing fraction of it with basically a pipeline of, of steps, right? You've got the prediction as to whether or not-
+
+speaker_1: Yeah
+
+speaker_0: ... it's going to kill the bug. And then you're also applying, I guess it would be filters or classifiers or scores. Uh, I'm not sure if these are applied like in sequence or all at once, but you're, you're scoring all the molecules on how novel they are, like how different they are from existing antibiotics.
+
+speaker_1: Right.
+
+speaker_0: Um, their predicted level of toxicity to human cells, which is obviously important.
+
+speaker_1: Right.
+
+speaker_0: Um, how stable they are, which is obviously-
+
+speaker_1: Yeah
+
+speaker_0: ... important for like putting them into a pill and shipping around the world. Um, as you said, the, how easy they are to synthesize. How, how is that happening? Like, is that a, a sort of sequential thing or is there one kind of heuristic that like weights all those things and gives you an order?
+
+speaker_1: So we, we in the past have done kind of multi-step application of the models and or filters. We've begun to explore multitask modeling and are there advantages to do multitask modeling. I think in the case where there's overlap in features being common across the pathogen or ... scheme. We've seen some advantages, but for the most part it's a matter of coming in with these different models in sequence really to cut down on the space, cut down of now can you move from this interesting thing in the computer to something you really got to pay to get and actually test. We're expanding that. So as you alluded, we've got, I think, really good models on antibacterial. We've got good models for toxicity. Easy to calculate is it different from an existing antibiotic. We need more data to get after drug-like properties beyond toxicity. Solubility, bioavailability, lack of metabolic liabilities, and we're working hard with FairBio to get those data to train what we're going to probably call drug prop AI, so you can get after drug properties and use this to really increase the chance that the molecule would make for a good drug, that would be effective not only in a mouse but in a human. And I'm sure your reader, your listeners have heard many times the comment that we've cured cancer, you know, 900 times in a mouse or a rat, but very few times in a human. In my world of antibiotics, if the molecule works in a mouse model effectively from a systemic delivery standpoint, the estimate is about 90% chance that would also work well in human. Our AI models to date are really good at coming up with molecules that will kill the bug in a dish. They're not as good as they need to be yet of also predicting are they good at killing the bug in a mouse. And that's where we need these additional data and additional steps to move the power of AI further down the antibiotic development pipeline.
+
+speaker_0: And I guess one other question there is, is there any role for human taste or judgment in this process?
+
+speaker_1: Absolutely. Yeah, no, absolutely. It's really a nice question. You know, I, I think, you know, the medicinal chemists remain still pretty skeptical about the value of AI. In part, they feel that their decades of work and expertise at identifying molecules, modifying the molecules, tweaking the molecules, can still outpace AI. And I think in some cases they can. Now, in fairness, there's no medicinal chemist I know that can review 110 million molecules. Um, but I do think, a few points to this. We ran an interesting case where we just had a really talented medicinal chemist as a postdoc in my lab, and we pitted him against the synthesizability model that Connor Colley's group had come up with. So we gave both the model and the postdoc 30,000 compounds...To see how they were ranked and, uh, compared it to then what Enamine would, would say. And the human outperformed the model. So then the next level is, you know, how do we better capture this intuition? I do think there's opportunities to recruit panels of medicinal chemists and develop kind of the medic- chemists in the loop with the reinforcement learning with human feedback to improve the models for these different features that, that they are able to capture and maybe not necessarily, um, describe or quantify. You know, there's the interesting anecdote which I'm sure you're aware of was, Google DeepMind was developing AlphaGo. They had trained the model on synthetic systems and even human systems, but really began to make a big leap when they actually brought in an expert. I think he was maybe the 1,000th ranked player, who could give additional human insight of strategy and moves, and it elevated their system to a, a new level. And I think we need to figure out how to do that better in drug discovery.
+
+speaker_0: So that head-to-head, when you say 30,000, eh, does that mean that the human expert actually went through and scored 30,000 things?
+
+speaker_1: So it was discreet. So the human expert right-swiped, left-swiped 30,000.
+
+speaker_0: Holy moly.
+
+speaker_1: And so i- you know, I, I've been happily married for 35 years, so I don't know what left swipe, right swipe- ... means. I know one is a like, one I don't like, so I don't know which is but... Um, but holy moly is right. That, that... You know, it was so impressive that this guy did this. And it was interesting when I- Andreas Lutin is his name. He's a talented now young professor at the Karolinska Institute in, in Stockholm. And I asked him really what was guiding him, and, and he was really looking for liabilities. So he would say, "Bad, bad, bad." And, and if he couldn't find a liability, he said, "Good." And so that was an interesting take that, uh, is not how I would have set up my model to do. And so again, I think it's examples such as this that I think we need to do a better job. Now, there's remains some dismi- you know, significant dismissiveness, but maybe some rather so and some hostility from the medicinal chemistry towards these types of approaches. And I, I think we s- need to turn to them for help to make them that much better, and do a better job of capturing the medicinal chemist in our code, in our models.
+
+speaker_0: And just to make sure I understand where that is in the pipeline, these liabilities are for a molecule that has been identified as likely to kill the bacteria. It's like, oh, but I can spot that this is gonna be hard to synthesize or it's gonna be not available or-
+
+speaker_1: I think, I think in this test, it was really only around synthesizability. But you can imagine it'd be great for me to also be able to do something similar of, you know, would this make for a good drug? Will it, will it be stable? Will it be available at the site of the infection? Will it not be cleared too quickly? Will it not be broken down by the liver too quickly? Um, and, you know, these are things where, you know, I- I don't know if you have many medicinal chemistry friends, but they can kind of look at a molecule and say, "Ah, I like that molecule," or, "Ugh, that's an ugly molecule for X, Y, Z." W- we need, we sh- need to sit these guys down and get that. Uh, I'll give another related example, which you don't hear as much about anymore. But pre-pandemic, I remember I was meeting with a number of different folks from China coming through the MIT area, and I was with someone who was either working for Baidu or had insight into Baidu. And Baidu at the time had hired 15,000 individuals to label data. So this goes back to about 2018. Supervised learning was the big thing, and so labeling, featurizing data was key. And in that, they had 2,000 medical students they had hired that were labeling medical images, might be pathology. And I thought that was brilliant that a country could, or a company within a country could have the resources, they could take advantage of that. I think we don't s- need something of that scale, but I think figuring out how I could rally a group of medicinal chemists to commit to letting me peer into what, what they've learned and how they act on what they've learned could make a big difference.
+
+speaker_0: Yeah. It's... Honestly, it's really striking how well this seems to work given how little data you start with and, you know, just how, how coarse that original signal is. I mean, the, the, the-
+
+speaker_1: Yeah.
+
+speaker_0: ... whole thing is... 'Cause it, it is, it's worth repeating too, like, a- again, if I understand it correctly, there's no encoding of the target bacteria at all, right? It's just, like, literally-
+
+speaker_1: Yeah
+
+speaker_0: ... could be anything. It's, it's totally abstracted away into a, it works or it doesn't work, yeah.
+
+speaker_1: Zero, one, yeah. No.
+
+speaker_0: That's amazing.
+
+speaker_1: Yeah.
+
+speaker_0: So when things work better, what does that mean? Like, I guess I'm... I'd like to understand a little bit better the trade-offs between you could do... You know, you've got, like, compute costs and then you've got synthesis costs, right? I guess those are kind of the two big costs in getting to the end of something that you're like, "Okay, this actually confirmed, kills a bug. Now we gotta go into the sort of medicinal chemistry phase."
+
+speaker_1: Yeah.
+
+speaker_0: How do you think about those trade-offs? Like if the, if the model works a little bit better, but maybe it's also a little bit bigger. You know, maybe we do, like, 10 times as many molecules.
+
+speaker_1: So, you know, the c- c- yeah, the compute cost isn't, isn't very large. You know, you can kind of have it as a fixed cost in the background. You know, I do think the other... You know, getting after larger training libraries is expensive. Compute, not so much. Um, synthesizing is the big challenge, right? Because you're, you're making a commitment both on just outlay of the money, the time, and what's the probability you got something that's good? The next is then animal models. Animal models are not inexpensive.And you've now gotta, you know, decide which of the ones that I'm gonna advance, and is, is it good enough to go. If that looks good, now you're back at, okay, I've gotta now maybe do an analog generation. Which of those will I synthesize? And it becomes interesting within a little academic lab like mine, how much of it are you willing to commit to? So it's the trade-offs. Given our experience on generative AI and the challenge to synthesis, I'm much more inclined towards looking at these libraries of molecules, like ethidamines, where I'm guaranteed I can synthesize. Still might need to pay a bit more for those either difficult to synthesize or not readily synthesized. But I'm, I'm more comfortable there than coming up with an exotic new molecule that I'm not sure I'm gonna synthesize. And what's the probability that it's gonna work?
+
+speaker_0: So can you give a sense of where we are today in terms of like, okay, you start with millions, tens of millions of molecules out in chemical space. You do the predictions, you do all these filters for the novelty, for the non-toxicity to humans, for the stability, for the synthesizability. It seems like we get out of that process, like dozens? And then you synthesize dozens, and then like we get down to the end, like a couple actually work at least in a mouse. Is that basically the right...
+
+speaker_1: Yeah, I'd say that we probably get down to many hundreds before we try to synthesize, would be probably the fair set of filters we've set up. Um, and then after that, you are correct. And so I think that, you know, we can expand the, the starting point of libraries, of course, but I think it's where we have not yet gone is that really from the early hit to a so-called lead development. That's where can we get after more drug-like properties, so-called ADMETS, the absorption, um, excretion, metabolism, toxicity, um, distribution, as well as PKPD, so the dynamics of the drug. It's where I think AI, again, given most of your listeners probably in the AI space, I think AI has done a really nice job in early discovery efforts, certainly antibiotics, but I think in other drug spaces. AI has not yet really been utilized much further downstream, I think because of lack of data. Um, and it becomes then interesting of where are you gonna get that data? Who makes the commitment? And, you know, it's, it's expensive, and I think the companies that make those commitments are the companies who are gonna get, gonna have advantages going forward.
+
+speaker_0: So the, the big... In terms of improving the models, the big way that that... 'Cause you're already, like, seemingly quite successful. I don't know if there's any negative results or any strains you've tried this on where it didn't work, but to read the papers, it seems like the general workflow of identify a target bacteria you wanna be able to kill, run the panel of all the, you know, test molecules against them, train the-
+
+speaker_1: Yeah
+
+speaker_0: ... network, do the pipeline, apply it to the, you know, huge swath of chemical space, get candidates out, synthesize those. It seems-
+
+speaker_1: Yeah
+
+speaker_0: ... like that is pretty consistently working. Is that right?
+
+speaker_1: I think that's fair. I think it's... Yeah, I, I think with the, with a- an acceptable success rate, it's decently working. I think, you know, our goal always is, can you do things even better, even a higher success rate? Could you, um, really identify those compounds that, boy, that's really a great starting point? And I think we have a little work to do there because, um, we still need to get after those other drug-like properties, is kind of the key thing, and figure out how do you, you know, how do you accommodate for multi-objective optimization across these compounds. And, uh, I'm hopeful we'll get there, but we're not there yet.
+
+speaker_0: Yeah. But it sounds like from the standpoint of, like, society, you know, to the degree that you can improve the models and get even more confident predictions, that would effectively reduce the cost of the development process, kind of from the end of... From where you are like, "Okay, it works in a mouse," to the, to the point where we actually get into clinical trials. But-
+
+speaker_1: Yeah
+
+speaker_0: ... that is a cost that, sure, it'd be great if it was cheaper. Um, and of course you, you have like intellectual interest in, you know, finding new techniques to make it better. But from society's standpoint, it seems like it already works well enough that we should just clone your lab 10 times and like apply this to, you know, as many targets as we can basically immediately. Um...
+
+speaker_1: You know, I, I... You know, I think, I think that's fair. I think that our group and other groups have shown that AI is a valuable tool, and I think it needs to be utilized more. I do think for sure in the early discovery, it's reducing cost, increasing hit rate, success rate, and thus increasing our chance at getting to new molecules that can make a difference for human health.
+
+speaker_0: There's a couple of o- other aspects of the results that we've barely touched on too. Um, so again, it's worth just repeating. These are drugs that are working against drug-resistant strains, right? This is not-
+
+speaker_1: That's right
+
+speaker_0: ... just that they work, but they work on things that other drugs don't work on. Key point.
+
+speaker_1: That's right.
+
+speaker_0: Worth emphasizing again. Um, at least some of what you found has been shown to work with a new mechanism, meaning it is-
+
+speaker_1: That's right
+
+speaker_0: ... working by disrupting this, the bacteria in a different way than other molecules.
+
+speaker_1: That's right.
+
+speaker_0: Um, and it's even... Oh, there's also specificity. So a- again, at least some of what you've done here has shown to work against the target and not disrupt the other, quote-unquote, "good bacteria."
+
+speaker_1: Maybe, maybe I'll just comment on that briefly. So, um, th- that's worked in several cases, and that was surprising. And why it was surprising is that the models were not designed to yield a so-called narrow spectrum. So narrow spectrum antibiotics would be one that goes after the pathogen of interest, but spares... The commensals are good guys, as well as other pathogens.In fairness, the models we've only trained against a particular pathogen. So they're only trained against the pathogen, but they weren't then counter-trained to avoid the other ones. And yet in the case of avacyn, which was a molecule we discovered to be effective against Acinetobacter baumannii, in the case of also a molecule we discovered that was, uh, designed, uh, effective against, uh, uh, gonorrhea. In each of these cases, they were narrow spectrum. And so it was intriguing that I think we got it more or less by luck, but that the model pointed us to these molecules that were sparing of most of the good guys in our gut.
+
+speaker_0: Yeah. I, I guess if I had to attribute that to something, it would be the novelty filter. The theory would be, like, if it's very different from other antibiotics, maybe it's more kind of particular to the target, even if that wasn't, like, explicitly-
+
+speaker_1: Yeah, maybe, that's an interest- We haven't th- You know, it's an interesting notion. It is possible. Um, you know, I, I- I'll- I'll- I'll put a, an esoteric spin on it, that we're doing, um, phenotypic screens and in many cases I think we're getting after membrane-acting, uh, antibiotics. So they're targeting targets in the kind of outer layer and or inside layer. And it appears that many of them are getting after lipoproteins and lipoprotein transport. Again, kind of an esoteric point. But I think that the narrow spectrum aspect of, uh, uh,
+
+speaker_0: Yeah.
+
+speaker_1: ... may be that these lipoproteins are very specific to the given pathogens. So that while we're not targeting a target, we're targeting a pathogen, we're looking at phenotypic screen, I think we're selecting for compounds that are getting at these lipoproteins that are specific to the pathogen and not to other pathogens. And I think that's what's happening. So we're also now beginning to look at can we use AI specifically now to start with the lipoprotein as a target, and then can we find small molecules that would interact with those li- with those targets, those protein targets of interest.
+
+speaker_0: And c- can you speak a little bit also to resistance-resistance? Like, the... That's another notable finding, that, again, at least some of the-
+
+speaker_1: Yeah
+
+speaker_0: ... drugs you've discovered have-
+
+speaker_1: So yeah, that's a, yeah, fair point, right? So, halicin, for example, we compared it to Cipro. So Cipro is a very commonly used quinolone antibiotic, and applied each for over 30 days inside a lab to E. coli. Within a few days, there was significant resistance to Cipro, uh, several fold. Then after 30 days, there were many hundred folds levels of resistance to Cipro. When we applied halicin, after a few days, we didn't see any resistance, and 30 days out, we didn't see any resistance. As said earlier, we'll eventually see resistance if we look out long enough. I think that the resistance to resistance of halicin was likely that it's targeting multiple molecular targets. So multiple proteins, probably at the membrane level. And again, to my earlier points where I think we can also use AI with this a- as an intent, intent to goal, intent to goal, is that because it's hitting multiple targets, the bug can develop mutation against one or even two, but because maybe three or four, and any one of those can be a killer to the bug.
+
+speaker_0: Yeah.
+
+speaker_1: I think it just puts off the development of resistance.
+
+speaker_0: Fascinating. Okay, so-
+
+speaker_1: Yeah
+
+speaker_0: ... kind of zooming out for a second, and then, you know, talking about the future and how these methods might evolve. I mean, I guess my, I want to emphasize my general sense that, like, this should just be scaled up even as it is. We don't need to worry about getting too much more clever. Um, you know, give me the warp speed for new antibiotics. Um, but that said, 'cause it's interesting if nothing else, I'm interested in... I guess, like, h- when do you think this could have first worked, is, is one interesting question. I- I'm not sure... You know, I- I'm always reading, like, new AI and ML literature, and it's always, like, some new technique. But I'm not sure here, like, what was the limiting technique, or were all these techniques kind of sitting out there potentially for a few years before you came along and figured out how to integrate them?
+
+speaker_1: Yeah. You know, I think they probably were sitting there for a few years. I do think that these graphical neural nets were the real trick. I think the ability of these models to learn chemical structures and break them down and associate them with a feature of interest, in our case, antibacterial or non-toxic. It was, th- that was the differentiating tech, and we're now expanding that to other features and other schemes. And that, you know, the deep neural nets, you know, were introduced, you know, of order many years ago, but really became quite popular about 10 years ago, largely on image analysis, uh, out of groups like Yoshua Bengio and Geoff Hinton, Yann LeCun. Um, so I think that was a differentiator that could... I think it can be scaled up, I think quite nicely. I think we need more data. I think we need more talent. I think the models can be extended in clever ways. I think the way to look at bigger chemical space, associate and bring in, uh, more biological data, more chemical data to get after mechanism, to get after features, using more and more generative AI to get after design properties. So can we design the molecule specifically to go after multiple targets by, from the get-go? I think all of this is possible, and I think we'll see developments along these lines in the coming few years.
+
+speaker_0: How far could this go in terms of other things? Like, you mentioned we've cured cancer, um, you know, in mice lots of times. Um, I mean, obviously a human cancer cell is presumably a lot closer to a other healthy human cell as compared to bacteria versus a human cell-
+
+speaker_1: Yeah. Yeah
+
+speaker_0: ... but could we imagine a similar technique working for human cancer cells?
+
+speaker_1: Yeah, most definitely. This... And, and I mean, human cells and for other conditions other than cancer as well. So Felix Huang, a post-doc in my lab who's also leading integrative biosciences in the Bay Area, is focusing among many things, but it was also, uh, age-related conditions, aging. Um, and, uh, using this platform, identify molecules that could act senolytic, so they could-
+
+speaker_0: Hm
+
+speaker_1: ... eliminate so-called zombie cells amongst our cells. So these are cells that have stopped dividing that are thought to underlie neurologic conditions, scarring, skin conditions. Worked beautifully. He's explying the approach now to many other schemes and other conditions. Uh, within the infectious disease space, w- we work with folks to do it for antifungals, antivirals, anti-parasitics. The more complex, I think there's potential for cancers, potential for neurological conditions, potential for metabolic conditions. So this and related, both phenotypic and target-based screens, I think has tremendous potential.
+
+speaker_0: I guess i- if you imagine a- applying the same kind of core approach to all these different things, and for some of the more challenging ones, it maybe doesn't work at first or it doesn't work as well, what kind of enhancements do you think you would need? E- earlier we touched on like EVO and EVO2, and I know those are sort of... Well, first of all, EVO1 was like only bacterial, uh-
+
+speaker_1: Yeah
+
+speaker_0: ... but, eh, there's an interesting possibility there where these foundation models can potentially be used to identify targets. There's like, of course, lots of different, um, models now that do like, you know, all kinds of different molecule binding, small molecule to protein binding.
+
+speaker_1: Yeah. Yeah.
+
+speaker_0: Um, you know, what... if you, if you sort of had to imagine a next generation pipeline that kind of brings in either some foundation models or other specialist models, like what kind of elaboration would it be?
+
+speaker_1: Yeah, I'd say it's, it's multiple levels. So I do think, you know, AlphaFold for predicting 3D protein structure certainly was a, a major advance and it's been widely used. But it's not really good enough yet for drug development. And that the, uh, 3D printed, 3D predictive structures are not at a fine enough level that you could use it in a target screen. We need work there. Our binding predictions for affinity of small molecules against an identified body pathway are not there yet. They're not as good as they should be. So I think if we could advance each of those now, we could do so much more in silica. From a target ID, from a understanding how the drugs act, we need, I think, to better use AI to embrace the complexity of underlying biology. We've been fixing on single targets, but these targets operate in very complicated networks that vary depending upon cell type, that vary depending upon context. I think we need to develop tools that can embrace that complexity to identify the meaningful targets to understand how the drug would interact with them. I think interfacing those layers, and then it's also how do we get to phenotype? Can we make predictions? So right now, we're not very good at predicting functional phenotype from our interactions. You know, I'll give this a case. You know, there's a lot of interest, I'm sure, uh, you've seen in, in where you are in AI scientists and AI driven kind of automated labs. And you're saying they're gonna replace all scientists. And, you know, I think it's way premature to make these claims, but they're being set up in my world largely to do things where we know exactly what needs to be done. And so you Mm-hmm. It's just a recipe to achieve. But so for example, in E. Coli, you know, is a very simple organism, model organism been studied for decades. When I first moved into molecular biology 25 years ago, I was told don't work on it by big, big people in microbiology 'cause everything's known. Well, it's a bug with 4,000 genes. You look at the genome, 1500 of those genes we still don't know what they do. And so if I now give AI, AI, so the challenge, "Okay, functionally annotate each of those 1500 genes and run the experiments to validate it." You can't, we can't come anywhere close to that. So I think that AI has tremendous op- uh, things to offer, and we've got these other types of models I alluded, but we also have a ways to go in order really to take advantage where I really still very much believe in AI as a thought partner for us. And it's still keeping the human in the loop is critical for many of these advances.
+
+speaker_0: Um, cool. I don't know if I have any additional follow-ups there. E- one, uh, question I always want to touch on at least for a second is possibility of dual use or safety concerns.
+
+speaker_1: Yeah.
+
+speaker_0: And one thing I do like about this approach and the, you know, the sort of, not just ensemble, but like pipeline nature and sort of many specialist models, is it seems like it's not really prone to, a, a dual use problem in the same way that a lot of other much more general purpose techniques might be. Maybe I'm missing something there, but what would you, you know, say is the sort of risk, if any?
+
+speaker_1: I think, I think for the most part of what we're working on, it's kind of single use. You know, can we, can we help humans from these problematic pathogens? There is one interesting case of dual use that's worrisome, and that is for these tox models that we developed. So here we're developing models to predict toxicity of a compound against a human cell or set of human cells, and we're mainly interested in identifying those that are not toxic. Well, those same models can be used to identify molecules that are toxic. And so now you can imagine bad actors using them to identify molecules in natural product space or design them in such a way that they're highly toxic. And in particular would be problematic is if they develop ones that would get after mechanism toxicity for which we don't have countermeasures. So that's a-... unfortunately dark but possible dual use that we hadn't thought about until we actually published our toxicity models that I alluded to back in 2024 in a Nature piece. And some from my friends in the federal government came and said, "Jim, you know, you, you, uh, you worried about this?" And I said, "Well, yeah." And I had to admit that we hadn't really thought about it, but we have since thought about it.
+
+speaker_0: Is there anything that can be done to, um, create versions of the model that don't have that sort of reverse the sign?
+
+speaker_1: No. No, right? Because you're gonna get a score. I mean, I guess it could be that you only score those that are not toxic and then you don't know how toxic. I guess you could, but anybody could easily pull apart the model and just shift the threshold on that.
+
+speaker_0: Yeah. Interp, that's kind of the, uh, yeah, I can imagine interpretability techniques there could be sort of applied for bad even if you, um... And I'm generally a big fan of interpretability, but-
+
+speaker_1: Yeah
+
+speaker_0: ... if you did have something that sort of only, you know, I put a score of 0.8 or higher or whatever, but-
+
+speaker_1: Yeah. Yeah
+
+speaker_0: ... masked everything below. The- presumably the model inside still does have a, um, a representation that you could access if you were determined-
+
+speaker_1: Yeah
+
+speaker_0: ... enough to do it.
+
+speaker_1: Yeah, yeah, good point.
+
+speaker_0: Um, cool. This is fascinating and I really appreciate all the time and, uh, remedial education that I've, uh, got from you.
+
+speaker_1: Good talk with you. Thanks a great, great conversation.
+
+speaker_0: Is there, um, anything more that we should say about just, you know, call to philanthropists? Like, where are, where are we on Warp Speed?
+
+speaker_1: I, you know, I think, I, I encourage young people to think about this problem and from the AI standpoint, from the microbiology standpoint, from the drug discovery standpoint, and that these are exciting practical problems that can make a big difference. And we need more young people to take them on. I think it's a great time to be a young person in science. It's okay if the world seems to be on fire, but it's still a great time to be in the young, in science young person because so many cool tech- technologies being developed and, uh, we need young folks to take on this problem. So that would be my- my call in addition to the philanthropist to at least think about, you know, can you make a difference here?
+
+speaker_0: Cool. Well, I hope that, uh, a couple listeners are inspired and might go a little bit in that direction based on your example. Again, this has been fantastic. I really appreciate it. Professor Jim Collins, thank you for being part of the Cognitive Revolution.
+
+speaker_1: Great. Thanks for having me. Really enjoyed our discussion.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

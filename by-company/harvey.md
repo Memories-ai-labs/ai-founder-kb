@@ -11,15 +11,11 @@
 
 Attack the hardest customers: Fortune 100 in-house legal + elite law firms. Their brutal requirements become the whole industry's design partner; mid-market is easy but yields little strategic learning.
 
-**Memories.ai implication**: Memories.ai implication: our public API should also recruit the toughest customers as design partners (e.g. a major TV network, a global enterprise) — not the easy ones.
-
 [Source](https://sequoiacap.com/podcast/harvey-ceo-winston-weinberg-why-you-should-reinvent-yourself-every-4-months/)
 
 ### ★★★ [Hiring] · Sequoia Training Data (2026)
 
 First test for an exec hire: can they map a 3/6/12-month roadmap for their org, including specific hires? Most leaders fail — it exposes their ability to think in terms of leverage.
-
-**Memories.ai implication**: Memories.ai implication: when hiring VP / director level, make them write a 3/6/12-month roadmap + hiring plan on the spot.
 
 [Source](https://sequoiacap.com/podcast/harvey-ceo-winston-weinberg-why-you-should-reinvent-yourself-every-4-months/)
 

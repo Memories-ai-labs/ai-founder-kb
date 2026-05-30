@@ -1,0 +1,549 @@
+# Delving into The Prompt Report, with Sander Schulhoff of LearnPrompting.org
+# URL: https://www.cognitiverevolution.ai/delving-into-the-prompt-report-with-sander-schulhoff-of-learnprompting-org/
+# Date: 2024-07-09
+# source: The Cognitive Revolution
+
+Transcript
+
+Nathan Labenz: (0:00)
+
+Hello and welcome to the Cognitive Revolution, where we interview visionary researchers, entrepreneurs, and builders working on the frontier of artificial intelligence. Each week, we'll explore their revolutionary ideas, and together we'll build a picture of how AI technology will transform work, life, and society in the coming years. I'm Nathan Labenz, joined by my co-host, Erik Torenberg.
+
+Hello and welcome back to the Cognitive Revolution. Today, I'm excited to welcome back Sander Schulhoff, creator of learnprompting.org and organizer of the Hack a Prompt contest that we discussed when Sander was last on the show back in January. This time, Sander's here to talk about the recently released Prompt Report, a mammoth 78-page survey paper covering the current state of prompting techniques for large language models.
+
+As AI capabilities have exploded over the last couple of years, so too have the number of papers exploring how to get the most out of these models through clever prompting techniques. Sander and his team took on the Herculean challenge of reviewing and categorizing this vast literature to create a comprehensive taxonomy and guide to the field.
+
+In today's conversation, we explore some of the key findings and insights from this work. We discuss best practices for few-shot prompting, the challenges of ensembling and evaluation for open-ended tasks, multilingual and multimodal techniques, the current state of prompting for AI agents, and even how automated prompt optimization systems like DSPy can outperform human prompting experts like Sander—a result that I personally can't help but see as a sign of things to come.
+
+Beyond the technical details, Sander also shares his experience leading a large research team and offers reflections on trust, testing, and project management that I think will be valuable for anyone embarking on a similarly complex technical research project.
+
+As always, if you're finding value in the show, we'd appreciate a review on Apple Podcasts or Spotify, or you can just share it online with your friends. If you have any feedback or questions, you can always reach us via our website, cognitiverevolution.ai, or you can DM me on your favorite social network.
+
+Finally, a quick update on our jobs board: I'm glad to say that I have made the first of what I hope will be many very high-quality connections between someone looking for a new role and a very interesting startup. In this case, the startup happens to be in stealth mode for a little longer yet, but I hope to tell you more about that soon. In the meantime, I hope that encourages you to submit your resume if you're interested in a new opportunity and haven't already done so.
+
+Now I hope you enjoy this wide-ranging discussion on all things prompt engineering with Sander Schulhoff of learnprompting.org.
+
+Sander Schulhoff, creator of learnprompting.org, previously here to talk about the Hack a Prompt contest and paper, and now returning to talk about the Prompt Report. Welcome back to the Cognitive Revolution.
+
+Sander Schulhoff: (2:48)
+
+Thank you very much.
+
+Nathan Labenz: (2:50)
+
+So you are prolific. I wanted to start off by just talking a little bit about what you do and how you're doing it all. You've got Learn Prompting, which was originally a project. Last we talked, it had kind of evolved into a startup. And then you've put together a couple mega papers along the way as well. So what does the Sander Schulhoff portfolio look like these days? What's the status of learnprompting.org as a business? And how are you finding time to bring these teams together and do this deep analytical work at the same time?
+
+Sander Schulhoff: (3:24)
+
+Yeah. So starting with Learn Prompting as a business, we are currently building out our generative AI course offerings and building up the team. Actually looking for our first full-time hire at the moment—something of a generalist to help with a bit of video creation and a bit on the business side.
+
+Recently, I've been experimenting a lot with automating content creation for information teaching. There are a lot of YouTubers out there, a lot of content on Coursera and all these other platforms. Talking to some C-suite execs at consulting firms, they often ask for enterprise deals and see content that's a couple years out of date, and it's really painful to fix that content. Companies don't want to buy that out-of-date content, so we currently have a way of keeping our content up to date always by building these videos that we can compile in a specific way. Say we have a script—we use ElevenLabs to read over the script. A couple months later, we get feedback from our customers to change the script. One Python script, and the whole video is updated. So we're looking at a much more reproducible way of doing content creation there.
+
+Nathan Labenz: (4:45)
+
+Interesting. And that's a technique you've developed as part of Learn Prompting's development?
+
+Sander Schulhoff: (4:50)
+
+Yeah, that's correct. There's a lot of complicated tool pipelining you need to put together. Unfortunately, there's no way to just say to an agent, "Hey, make me a video about prompting. Cover these topics. Go to these websites and do tutorials on them." That's all quite hard to set up at the moment, and we're building the infrastructure to do that.
+
+Nathan Labenz: (5:11)
+
+Yeah, interesting. I mean, that's definitely a startup in its own right if you wanted to turn it into one. Cool. So heavy use of LLMs—that's something I wanted to get into a little bit in the context of this Prompt Report on a meta level too. Before we get to the current work, are there any updates in the Hack a Prompt world or any other new techniques or vulnerabilities that you would update us on since last time?
+
+Sander Schulhoff: (5:33)
+
+Not really. There are a couple niche things coming out about attacking different systems and companies, but I haven't seen any huge new techniques come out. I think the Azure CTO put out Skeleton Key, but it's relatively similar to a lot of other techniques that we've covered.
+
+Actually, with that, there was a bit of an uptick in the debate over what constitutes prompt injection versus jailbreaking. I can send you a tweet interaction after, which is really interesting to read. Actually, I'm in this security Discord where a lot of those prompt security people are, and it has become something of a hobby to argue about or discuss the definitions of these terms. I'm pretty set on prompt injection involving developer instructions in the prompt as well as user instructions, whereas jailbreaking is just the user and the model. But there's a surprising amount of discourse behind the scenes on that.
+
+Nathan Labenz: (6:41)
+
+Interesting. What's at stake in that debate? Why does that distinction matter, or where does it become operative?
+
+Sander Schulhoff: (6:47)
+
+Good question. I mean, honestly, it's not an incredibly important distinction. For me, it's just a matter of, I guess, one, clarity, and two, following the definition of the person who originally proposed it, which was Simon Willison. Actually, I have a blog post on Learn Prompting about how my understanding of the definition changed over time. I used to believe one thing, and then actually Hack a Prompt came out, and Simon put up a tweet criticizing the definition we used. I went back, read what he was saying, and I was like, "Yes, we were wrong." So I wrote a little reflection on that, updated the paper, and it's pretty interesting, I think, seeing my thought process change over time, which you can read in the blog post.
+
+Nathan Labenz: (7:36)
+
+Okay, cool. Things that have caught my attention—I wonder if you have any thoughts on them. One is the Anthropic many-shot. I don't know if that's... I think more of a jailbreak is how they framed it, as opposed to a Hack a Prompt, but you could maybe correct me if I'm wrong there. Also, I follow Pliny, as I'm sure you do, who is doing all kinds of crazy stuff—that would be prompt hacking, right? Because he is working through consumer interfaces, which means there's presumably a system prompt. He's exposing the system prompt as one of his main exploits, right?
+
+Sander Schulhoff: (8:11)
+
+Right. I would, from a technical perspective with Simon's definition, generally consider what he does to be prompt injection, as there's often a system prompt involved. He and a lot of other people call it jailbreaking, generally. He does a lot of really impressive stuff—or I guess I should say they do a lot of really impressive stuff.
+
+As far as the many-shot prompting goes, I'm not as impressed by that because we saw a lot of techniques like that during Hack a Prompt, where people would put in a bunch of few-shot exemplars showing what they wanted. Many-shot is just many few-shot exemplars, or many exemplars rather.
+
+Nathan Labenz: (8:55)
+
+How about on the mitigation side? It seems like the OpenAI paper on hierarchical instruction following is really meant to try to address this, right? Where they define the system prompt as the first thing, and then you can follow the user prompt. There's this cascade of what's most important, which is pretty intuitive. But actually training for that and trying to get the system to respect that consistently—obviously, that's where the rubber hits the road.
+
+When I saw that, I was like, "Oh, this seems like they've made very substantial progress." And then when I watched Pliny's work and I've read some of his recent analysis, he has said that he feels it's getting easier to prompt inject/jailbreak the systems as the models get more powerful, maybe because there's just more surface area to attack. He's doing these weird things now where he's embedding prompts into images in some cases, and he just seems to be finding soft spots in the defense that people haven't anticipated.
+
+What are your thoughts, if any, on the hierarchical instruction following, and how would you characterize the offense versus defense dynamic in control of these systems over the last six months, let's say?
+
+Sander Schulhoff: (10:06)
+
+Not really any particular thoughts on specific defenses. Actually, one thing I was interested in recently was Lakera. I think they ran a competition recently and had an adaptive system prompt where whenever someone got by it, they would use that prompt injection to modify their system prompt and thus improve it. So it kind of adapted defense over time, and I think that's a super interesting approach.
+
+But I think defense here is always a losing game, unfortunately, because for whatever reason, we can't understand the models enough or can't control them enough to ensure that they won't have this adverse behavior. When you look at someone like... the other company... HAZE Labs. There we go. Yeah, so I did a bit of beta testing with them, and I talked to them like a year ago or something. Didn't really believe that they had automated jailbreaking. Actually saw their product in use, believed it a bit more. Actually used their product—was extremely impressed because it was able to perform jailbreaking for an arbitrary intent, like "give me some bomb-building instructions" or racist output, within seconds. I really did find that to be incredible, and they were the first people I ever saw doing that. So really quite impressed with that company.
+
+But overall, defending here seems to be a losing game. I really don't see a lot of promise in most of the techniques coming out, like training another model to detect it. I really think this is a problem that's going to be solved by the model creators themselves—some part of training, some architecture switch. I think it's going to be solved with the model developers at that level.
+
+Nathan Labenz: (11:58)
+
+Does that suggest that things like the Anthropic Golden Gate Claude, like runtime feature detection, are where you're thinking? Another interesting one I'm sure you've seen is from Dan Hendrycks and a bunch of co-authors on circuit breaking, where they basically, again, look at the representations through the layers and try to identify something harmful emerging and try to kind of reroute that to a refusal. Is that sort of the track that you're expecting to work?
+
+Sander Schulhoff: (12:29)
+
+I have no particular opinion or guess on the track that it will go down.
+
+Nathan Labenz: (12:35)
+
+Okay, fair enough. Well, that was all catching up on previous topics. Let's get to the Prompt Report. So this is a 78-page monster of a paper. It's really a review of probably hundreds, if not maybe even into the thousands, of papers that have been published over the last 18 months or so as prompt techniques have proliferated.
+
+I'm interested in how you brought together the team to do this, because you brought together a pretty substantial team. Also, any techniques that you used in terms of pipeline language model assistance to kind of corral this massive amount of information. And then from there, we'll dig into the actual taxonomies that you've created and all the findings.
+
+Sander Schulhoff: (13:20)
+
+Yeah. All right, I'll start with the team. Actually, I'll start a bit before that—kind of why this happened. So I was doing research under Professor Philip Resnik, and I wanted to run an AI-human interaction study where, basically, I would try to measure how much more efficient AI would make humans at a given task—generative AI in particular, LLMs, say GPT. I spent maybe a couple months learning how people do this and writing up reports.
+
+At this time, there were, I think, about 13 different studies analyzing how LLMs help people be more productive and giving hard numbers. Some of the sample sizes were quite small, like 11, but you also had a couple thousand-people studies. So I thought, "Why not do something like this?"
+
+But after I got my research done there and put a little report together, I realized that I really didn't have time to do this. It would end up being like a 6 to 9 month project, and I needed a pivot because I needed to basically deliver something for the semester. And I thought, "Well, you know, I've always sort of thought about and talked about doing a survey paper for prompting. How hard could that be?" So I gave myself a 3 or 4 month timeline.
+
+I was like, "Okay, I'll go to my NLP lab CLIP here at UMD." And also, I put an ad in the Startup Shell Discord. Startup Shell is a student-run startup incubator at UMD—a lot of very talented people there. So I got a few people there, and then we started doing weekly meetings, talking about what kinds of things we want to analyze, how we could use AI to do it. A couple more people started to get involved. Someone from OpenAI got involved, I reached out to him. Then I talked to some old advisors of mine—they got involved. I was reaching out—as I was reading through the literature, I was emailing authors of papers and saying, "Hey, you know, I really like the work you did on this paper. Would love to have you come join us on this very massive project," and got a couple people coming through there.
+
+Then closer to the end of the project, we had four suicide prevention experts join as authors. This was related to the case study at the end of the paper, which is focused on detecting suicidal intent in social media posts. And I think that is pretty much how everyone came together.
+
+I think your next question was about the tech side of things. So when the project started, a lot of it was—I personally think I know pretty much every prompting technique that exists. So I was going through the paper and making a bunch of sections for every technique I wanted in there. I was just reading through every prompting paper I could basically find. There were some smaller survey papers specific to different domains.
+
+At this time, I was trying to figure out what sections we wanted in our paper. We ended up with main text prompting, and then multimodal, multilingual, agents, evaluation—those ended up all being quite core. At the beginning, I kind of developed this list of how I felt. So somewhat arbitrary. I got the recommendation from some of the project advisors to do topic modeling to figure out what topics in the space were actually important. We did that, and funnily enough, they actually aligned with what I had already selected as the topics for the different sections. So that was good.
+
+Looking at pipeline development, we explored, "Oh, can we get GPT-4 to go and read every paper on arXiv and see if it's a prompting technique or not?" That ended up being kind of complicated and very costly. So we did a keyword search first with 44 different keywords across arXiv, Semantic Scholar, and ACL Anthology. We pulled all those papers, de-duped them. We did a little bit of human review, so we reviewed about 1,000 papers and said, "Okay, they're in or they're out," according to some survey questions, which were like, "Does this method require fine-tuning? If so, it's out."
+
+So we had humans review a bunch of papers, and then we used that dataset to prompt a model to review the rest of the papers. What that allowed us to do was, throughout the paper writing process, we could keep updating our dataset by just pulling the most recent papers and having the AI read through the ones we hadn't reviewed and decide if they're in or out. We had decently high accuracy there where it was a worthwhile thing to do.
+
+That was pretty much the data pulling pipeline. It was quite a pain to set up and keep clean, and the pipeline itself takes a couple hours to run. So you have to be kind of careful while you're testing it not to run it and waste a bunch of time and money, and then it has an error or something. So I put a considerable amount of time into that. Actually, my co-author, Michael Ilie, really led the development of that quite strongly.
+
+Nathan Labenz: (18:37)
+
+Cool. That's really interesting. I'm glad I asked about the techniques.
+
+Hey, we'll continue our interview in a moment after a word from our sponsors.
+
+I just did a control-F through the paper and confirmed that the word "delve" does not appear even once. Did you remove all the delves from the ChatGPT output, or what? Be honest with me.
+
+Sander Schulhoff: (18:58)
+
+That is a really good question. I did not explicitly do so. So I should say that all of the paper writing is human-done. People likely used ChatGPT or whatever to some small extent while writing. And I will say, you know, this is something you really need to be careful with when you're running a large research team. There were times when I was reading through and was like, "Someone used AI to generate text." And, you know, I don't really care about that—it's not a problem. The problem was that they did it badly, and so the wording didn't really make sense, and it was kind of obvious. You could tell.
+
+So I performed at least five passes of the 70-plus pages to remove all of this stuff. Just sort of over time, I would do pass and pass and pass, updating stuff. But my final pass, I was like, "Okay, I'm going to read every single word and make sure there's nothing weird here." Someone probably used the word "delve," and I removed it. But I never did a control-F to find all the delves. I'm actually very surprised that there are no delves. I would expect there to be at least a couple.
+
+Nathan Labenz: (20:07)
+
+That's very funny. Okay, cool. Really good insights there.
+
+So coming to the results then, I kind of want to just start at a high level and then go down some of these particular use cases or smaller scale areas. Let's start off with just the overall taxonomy. I've got the graphic in front of me. People can pull up the graphic and look at the hierarchy there, but how do you sort of describe this using your own heuristics, your own mental models?
+
+Sander Schulhoff: (20:33)
+
+Sure, good question. So whenever I think of prompting, I think of... this is more in the sort of advanced category of prompting, because you often need code or some kind of pipelining to build a lot of these techniques. I just kind of naturally classified things into different domains.
+
+You know, you have your few-shot prompting, your chain-of-thought prompting. Actually, a lot of people think chain-of-thought—"Oh, it's just like one thing, chain-of-thought"—but no, there's actually a ton of really super-specific chain-of-thought generation techniques. And then you have stuff like decomposition, where you're breaking the problem down into usually multiple subproblems.
+
+There's actually a lot of debate about whether to combine the decomposition and chain-of-thought generation sections into one. The argument for that is kind of like, "Okay, chain-of-thought, you're prompting it to generate its thought, and naturally it breaks the problem down in doing so, and so it's kind of decomposition." And then there's also a lot of decomposition and chain-of-thought techniques that are kind of similar, and some bridge the gap where it's like, "Okay, write out all your thoughts and break the problem down into subproblems." You know, that's your thought generation prompt. And how do you classify that?
+
+Sometimes we had to make these slightly arbitrary decisions where it could have gone either way. This is really just one way of organizing these techniques. I could imagine another where you have a very different type of graph where each technique is assigned to multiple possible categories. Another example of this is few-shot combined with chain-of-thought—lots of techniques doing that. Really a natural extension for many techniques, even if not done explicitly in the paper.
+
+So there's a lot of kind of confusing stuff, how to categorize stuff. And then you have a lot of zero-shot things like role prompting, style prompting. And then let's see—ensembling, when you have kind of multiple prompts trying to answer the same question, and then you usually use the majority result. And then self-criticism, when you get the model to criticize its own output and then usually improve it. Those are kind of all of the really fundamental classes of advanced techniques that I found. And then there were even more advanced techniques that we left for later sections, like the agents and eval section.
+
+Nathan Labenz: (23:02)
+
+Okay, cool. Yeah, it's almost like you need a... this is probably just because I have sparse autoencoders on the brain, but it's almost like we need a sparse autoencoder for the different prompt techniques to then say which of the techniques is active in any given prompt, because certainly they do recombine in all sorts of different ways.
+
+I guess, high level, highlights—anything that you've found to be diamond-in-the-rough kind of discovery, or anything you think is underrated from a prompt standpoint that people... You can assume with our audience, they're going to know few-shot techniques, they're going to know chain-of-thought. But kind of going into that second or deeper levels of your analysis, was there anything that jumped out at you as being like, "More people should know about this"?
+
+Sander Schulhoff: (23:51)
+
+Yeah. First thing, we went super in-depth on few-shot. There ended up being a lot of research there and also a lot of stuff that we could clarify there. So one thing is few-shot and in-context learning is not at all the same thing. When you prompt ChatGPT and say, "Tell me a story about a dinosaur," that is in-context learning, technically, according to Brown et al. 2020, because in-context learning is a form of task specification.
+
+The idea here is, in the past, we'd train models to do a very specific task, like classify Reddit posts as positive or negative sentiment. Now we have these LLMs that do any task. All you have to do is give them the task, and they do it. And the process of you giving them that task to do and them doing it is novel. And so in Brown et al., they call it in-context learning, but they also consider few-shot prompting to be in-context learning.
+
+So there's a lot of discourse in the community that conflates the two. We even found other research papers who had read through Brown et al. and still conflated them, which was...
+
+Nathan Labenz: (25:10)
+
+So that paper is "Language Models are Few-Shot Learners"—that's the original GPT-3 paper?
+
+Sander Schulhoff: (25:16)
+
+Yeah, yeah. So reading through that paper, I probably read through the paper actually 20 times or more. Talking to people from OpenAI about it—he was able to ask internal questions to the team, which was super helpful as well.
+
+But besides the definitions, we were able to pick out six key pieces of advice when designing a few-shot prompt. This is a diamond that I wish I had a year ago because we really go through kind of all the things you need to consider. How many exemplars do you want? Does the order of the exemplars matter? I think that's super surprising to people—that depending on how you order the exemplars in the prompt, you can be down to 0% accuracy, up to 90% accuracy, really all over the place. So that is a super surprising and honestly quite frustrating thing to realize because it feels so arbitrary, and there's no way to figure out what's optimal.
+
+Nathan Labenz: (26:13)
+
+So can we be a little more explicit about this six-point thing? Is this section 2.2.1.1, Few-Shot Prompting Design Decisions?
+
+Sander Schulhoff: (26:21)
+
+Yeah, effectively. I'm referring to Figure 2.3 in particular.
+
+Nathan Labenz: (26:28)
+
+Okay, yeah, exactly, perfect. So you want to run through that in just a little bit more detail? Let's take our time on the diamonds.
+
+Sander Schulhoff: (26:34)
+
+All right. So we have six pieces of advice, basically. Each piece of advice could hurt accuracy, but generally improves it. And I just sort of say that as a warning where these aren't guaranteed to give improved results, but many times will. All right. So first one is the quantity of exemplars. It generally helps to have more exemplars. I try to put as many as is reasonable in my prompt, weighing costs with accuracy and speed. And then exemplar ordering. We recommend that you randomly order the exemplars, because if you put all of the positive exemplars first and then all of the negative ones, the model might be biased to choose a negative one next because it's just seen so many negatives in a row. And then you have label distribution. You want a balanced label distribution, which basically means if you're doing binary classification, you want an equal number of exemplars from each class. That being said, I put an additional note here, which we don't have in the figure, but do have in the paper. If you have an already imbalanced data distribution that you're trying to predict, say 90% of classifications are going to be positive, that's just the ground truth. If you include a nine to one exemplar ratio, that can boost your accuracy overall. So generally shoot for completely balanced, but depending on your data distribution, you can change that. Next thing is exemplar label quality. Ensure exemplars are labeled correctly. The reason why we mention this is because, one, there's a lot of research that suggests that even if you input incorrect labels with your exemplars, it doesn't hurt accuracy all that much. And then the second thing is people often auto-generate prompts from datasets where they have exemplars in the datasets that might be mislabeled. And so if you really want to make sure you have the best chance of getting good accuracy, you want to make sure those exemplars are properly labeled. And then the next thing is exemplar format. A lot of the time when I put exemplars in my prompt, I do a Q colon input, enter, A colon output. So that could be question Q, I'm so mad, answer A, angry if I'm doing binary classification of sentiment, something like that. And so we say choose a common format. Reading this paper that talks about prompt mining, I don't remember the original paper, but we have it in our paper. They found that by reading through a corpus that the language model was trained on and finding common formats of questions being asked and answered, if they use that in their prompt, they were able to improve their accuracy. And I think that this has something to do with, if you have a smooth loss function, generally you can get better results when minimizing it. I think that there's a similar thing that happens where the space in which you ask questions is smoother if the language model has seen that format in the past than it would be otherwise. So if I say question, 10 equal signs, I feel sad, answer, 10 equal signs, angry or sad or negative, the language model probably hasn't seen that format before, so it's probably going to be a bit confused or a bit more confused as to what to do there. But anyways, moving on to the last one, which is exemplar similarity. So say you have a test instance. You're trying to classify the phrase, I'm so excited, and you have exemplars in your dataset that you want to put in the prompt. You can retrieve similar exemplars to that test instance, put them into the prompt, and then the language model has a better chance of accurately predicting it because it sees similar exemplars to it. And in this case, it is necessary to dynamically generate the prompt at inference time, but there's a lot of techniques that do this. However, there are other papers that suggest if you put diverse exemplars into the prompt, then you'll have improved results. But generally I found similar exemplars do the job much better, and it's more like there's specific cases where diverse exemplars might help. That is the end of the six.
+
+Nathan Labenz: (31:07)
+
+Cool. So first of all, what's the difference between an example and an exemplar?
+
+Sander Schulhoff: (31:12)
+
+Good question.
+
+Nathan Labenz: (31:12)
+
+Since we're into the nitty gritty of the terms and the definitions.
+
+Sander Schulhoff: (31:16)
+
+Yeah. So you can kind of think of it as exemplar is a technical term for the example that you're showing in the prompt. A lot of people say example equivalently. It doesn't really matter for the most part, but I try to use the technical word because it is more specific to this format. And you could say something like, oh, I have a dataset of examples that I want to put into my prompt, and only when they are actually in the prompt do I call them exemplars. So it's kind of like exemplar is just a more technically appropriate term. That's the way I like to think about it.
+
+Nathan Labenz: (31:57)
+
+Okay. Cool. We'll continue our interview in a moment after a word from our sponsors. So to recap, the more the better. Randomly order them so you're not creating a bias. I suppose you could also argue for an intentional ordering, right? If random is better than all the positives before all the negatives or whatever, then interweaving them. But I guess then too you might have an issue of creating a tick tock sort of pattern that it might also be biased to follow. So then you've got lots of little issues there. The random ordering seems best. If you're going to do some sort of ensemble or majority rules.
+
+Sander Schulhoff: (32:38)
+
+Then you could do multiple random orderings.
+
+Nathan Labenz: (32:41)
+
+But if you had to choose between random ordering and intentional ordering, do you think you can improve on random with an intentional setup?
+
+Sander Schulhoff: (32:53)
+
+Usually not. Yeah, I'd say the cases are quite limited and would be more of an instance of getting lucky.
+
+Nathan Labenz: (33:00)
+
+Interesting. Now when you're measuring these, are we measuring these at a sort of aggregate statistical level?
+
+Sander Schulhoff: (33:06)
+
+How do you mean?
+
+Nathan Labenz: (33:07)
+
+Well, this is sort of in this kind of random versus intentional ordering of the exemplars. If I'm doing one thing in ChatGPT, intuitively it feels like I should set up, you know, use my best guess as opposed to take a random guess. But then if I'm using a sort of large N benchmark to evaluate my strategy, then I might be like, well, yeah, maybe random there is better because I haven't seen all the examples, and my intentional design is inherently biased because of the few cases that I considered when making it. So I guess the question there is really, to what degree do some of these techniques depend on large N evaluation of the technique versus just like, I'm trying to do one thing right now. What's going to get me the best results? I don't know if there's any data that would allow us to resolve those.
+
+Sander Schulhoff: (33:59)
+
+Right. I will say that we report these six techniques based on other papers that study them directly. And so they generally have some empirical results where they run it on a dataset and say, oh, the random ordering is better because our ordering was biased, or something like that. We did not run studies of our own with these different pieces of advice, but they do correspond to my anecdotal experience, which is not limited really, and also my intuition as far as prompting goes.
+
+Nathan Labenz: (34:39)
+
+Okay. Cool. So again, just to quickly recap, the more exemplars the better. Use random ordering, or at least we can very confidently say beware the creation of bias in your ordering. Have a distribution that is ideally representative. Obviously look at your data. Probably the number one commandment in all of language model usage. Make sure that the exemplars that you're using are correct. I think the format one is really interesting. I wonder if you have, what's a good format? What's a common format? What's an intuitive format? One idea that comes to mind for me is, yeah, go ahead. Just ask the language model to format the thing in the most intuitive way for it. What would you say?
+
+Sander Schulhoff: (35:21)
+
+I almost always use the Q input, A output format. I've tried augmenting that to be instead of Q and A, question and answer, but Q and A seems to work really well because, well, I suppose because historically that's been what has been used in a lot of datasets. And so language models have kind of been trained to know that format really well.
+
+Nathan Labenz: (35:46)
+
+If you're doing some other task, though, that's not like a strict Q and A, do you still use it? I'm thinking about the Waymark use case. Our job is to write a script for a video. Now I suppose I could just put Q colon, everything that I have in the prompt, and then A colon, and then get the response. That feels odd, but I can't say it wouldn't work. What do you think about my intuition, though? I developed my syntax for what is the structure of a prompt kind of using my own intuition, trying to keep it minimalist, trying to keep it readable, trying to keep it clear. I will say, though, I didn't study the perplexity of every token. And so there could be some tokens in there that are placing more strain on the model than I would like. I guess looking at perplexity, I just said, would be one interesting way to kind of spot ways in which your prompt is making the model work too hard or harder than you want it to. And then my other idea is, you know, just giving it my thing and saying reformat this in the most obvious way possible. Those feel like they are good ideas, or how would you riff on that?
+
+Sander Schulhoff: (36:56)
+
+Yeah. So my general advice would be the best thing to do is use your domain expertise with an understanding of what is standard. And to give you an example of someone not following this advice, I was recently watching someone try to analyze stock data, and they were formatting their exemplars as big paragraphs all put together. And they would put in, if you see this input in quotes, comma, then output this. And then they would have another one and be like, oh, however, if you see this input instead, then output this. And so it was a very inconsistent format where it wasn't really very structured. They were just using English. Well, of course English language, but they were formatting it as kind of an essay about what to and not to do. Whereas what I always do is have a structured input output, as I said, the Q A, and that's what I've seen to be standard. And so someone like that could have benefited from knowing, oh, if I do something like Q A, that'll be a bit better than what I currently have. And so I'm sure what you're doing is fine, and I doubt that you would benefit that much from switching to Q A, for example.
+
+Nathan Labenz: (38:19)
+
+How do you think about that in the context of elaborate instructions, though? I mean, the examples in this figure are all relatively simple. They're basically classification tasks. But if I'm doing a generative task where I do have these more elaborate rules, and we do have this at Waymark where it's like, you know, we want, for example, we're writing scripts for small businesses. Right? So inevitably there's going to be contact information in there, like visit us at our website or call us today or come to our store or whatever. And we want to use those in the right place. And so we sort of have instructions that are like, you know, use the contact information where shown in the example. But sometimes the business itself has a brand that is contact information. Like in Michigan where I live, there's the legendary 1-800-54-GIANT. And, you know, that's like the brand is the contact information. So we have these kind of caveat exceptions. Is there any way to present that to the language model that would be more intuitive or, you know, more helpful to it? How do I play to its strengths when I have these sort of elaborate constructions?
+
+Sander Schulhoff: (39:26)
+
+When I have these tasks, I generally keep a structured format, but I'll probably use something like instead of Q and A, I'll say this is the input colon and put the input there, put an enter or two, and then say this is the output. And then after each exemplar, put 10 equal signs or something like that just to try to show the language model that, okay, this thing was just one exemplar all by itself because I don't want it to kind of merge multiple exemplars together and think they're all one thing. That's what my intuition has told me. I would love to see a paper come out analyzing all these different formats across models. And this would actually be a decently easy paper to write because you just have to do a bunch of different runs through the models with a number of different formats. But until then, I can't really say anything besides my intuition there.
+
+Nathan Labenz: (40:22)
+
+Okay. Cool. Well, if you're listening and you want to volunteer as tribute for this project, reach out to me and or Sander, and we'll see if we can give you some direction. More you than me. I'm volunteering you mostly there. I'll chip in, but you've got deeper expertise than I do. So the final one, just to finish my recap, is exemplar similarity. This is kind of a RAG style, if I understand correctly, strategy where it's like we've got a big database of examples, and then we want to pull in some. And I would also imagine probably doing this maybe in a hybrid way where I maybe would fix a couple of them and then bring in a couple more dynamically at runtime to try to make sure I have some control still, but that I'm also finding the most similar ones to give it the best guidance that I possibly can. That's good. I think that's really practical stuff that people can take and run with. How much do you see this varying across models? I mean, I don't know how well you sleep at night, but if you're up worrying about the generalization of your research, I would imagine one big worry would be like, shit, how does this apply to Gemini 1.5, you know, next or whatever? Right? How much variation do you see?
+
+Sander Schulhoff: (41:34)
+
+This is honestly kind of a question that I hate, not because it's a bad question, but because it's such a good question and I can't answer it well. In the paper, we did studies with really just one model, which is GPT 3.5. I would have loved to do it across a lot of different models. In fact, we even did it to some extent with GPT-4, but we found that time, more than anything, was restricting our ability to do all this. And not time in terms of setup time, in terms of running all these prompts. It would have taken about a month to run all of this through the models we would have wanted, which would have included Q 2 4 and others. And that's because we're doing it through these sort of public APIs, which are slower than training APIs. Or if you have access to the base model like maybe Scale does, you can run these evals a lot faster. So I am concerned about how these techniques do generalize, but I think the few shot advice is sound across models, and also every technique in that paper can be implemented with any standard language model. So OpenAI, Claude, Google, all of those can be used to implement these techniques. There's probably some performance difference across them as far as reasoning and ability to break down problems goes, but I'm only reasonably concerned, not too concerned, I guess.
+
+Nathan Labenz: (43:01)
+
+Okay. Sounds good. How about another sort of weirdness. Right? We see these examples all the time where some seemingly innocuous change to a prompt can make the difference between good and bad performance. Some of that may just be noise, but even at temperature zero, it seems like we've got examples where, you know, I add one extra space between sentences or whatever, and it's like, oh my god, something seemingly so inconsequential becomes quite consequential in some cases. Do you have any sense of how real of a problem that is? I mean, you know, I don't want to be dwelling too much on just cherry picked random examples. But I honestly have no idea if that's something that I really should be worried about. I've always been a two space person between sentences, and I've stood up for that for a long time. However, if it's going to hurt my language model performance, then that would be one really good reason to reconsider.
+
+Sander Schulhoff: (43:53)
+
+Interesting. I am definitely a one space person. So what you're saying, it is absolutely a problem. I think we talk about it in our reliability or alignment section. It should be less of a problem over time as the models get better. And in fact, I believe that GPT-4 is much, much better at dealing with that than GPT-3 was. I honestly haven't seen anything recently about this having a big impact on prompt performance. And whenever I'm developing a prompt, I'm not studying, oh, if I change this word or remove this one word, is that going to have a big impact? So it's kind of something that I just know is there, but can't do too much about and generally assume won't affect performance too much.
+
+Nathan Labenz: (44:42)
+
+Okay. Cool. I guess basically the trend is that it's less of a problem over time. And it seems like with kind of maybe more epochs of training, more overfitting in general, and more RLHF, we're just kind of gradually hammering these oddities out of the models. Is that basically the underlying story?
+
+Sander Schulhoff: (45:02)
+
+I would say more and better training. Honestly, I'm not sure about the RLHF part because I think that has been shown to decrease accuracy and so maybe would introduce more of those oddities. I think RLHF in general decreases the accuracy because it's kind of a trade off between model accuracy and niceness of human interaction.
+
+Nathan Labenz: (45:26)
+
+Interesting. So you think you can get better performance? I certainly have experienced this on some tasks, like joke writing, for example, or imitating a certain famous writer's style. You get a way better imitation out of the base model than you do out of the RLHF model. Also just random number generation, you know, has been reported as way better from base models as opposed to RLHF. You think that's an across the board trade off? If it was something like a coding task, I would have assumed that the RLHF models would give you more accurate code than the base models would have. But I don't know. Maybe not.
+
+Sander Schulhoff: (46:06)
+
+I think that really depends how you're using the RLHF. If the learning signal is code accuracy or how much humans like the code and how it looks. The latter is a poorer signal of performance than the former, which is directly based off of code performance.
+
+Nathan Labenz: (46:26)
+
+Yeah. Okay. That makes sense.
+
+Sander Schulhoff: (46:28)
+
+And I guess as far as the sort of RLHF safety tuning goes, I've been reasonably frustrated with GPT-4 because it's too closed off. So I've been trying to understand credit scores, like my credit score recently better and trying to get the model to tell me, you know, how the credit score calculation might work. And it's like, oh, it's proprietary information. So I'm like, oh, well, could you just give me an example of how the formula might look? And it says, oh, it might be harmful to output such information. And, you know, I'm trying to learn, and that's pretty frustrating. So, yeah, I don't want to see that.
+
+Nathan Labenz: (47:09)
+
+So do you use base models regularly? I was just looking at Llama 3 70B and comparing instruct versus non-instruct on the Together AI API. They do have both the instruct and non-instruct set up there for people to play with and to call via API. How often do you go to a base model?
+
+Sander Schulhoff: (47:34)
+
+No. I generally only use ChatGPT or Claude for coding tasks. Those are my two mains at the moment. I don't use a lot of base models unless I'm going to do a research paper using them.
+
+Nathan Labenz: (47:51)
+
+Interesting. Well, you might actually have a pretty good experience with that. I was looking at a couple different things like synthetic opinion data and trying to think about how could we kind of take a seed of somebody's opinion profile and expand on it. And my intuition is that the base models would probably be better for that. And then also with this impersonation task, or, you know, again, joke writing, it can be a lot better. The RLHF models are not funny. I would say that's pretty limited in that regard. Even just titling the podcast, sometimes I have, you know, I know what I want to title it. Other times, I'm like, can I get something a little punny? I need to start going to the base models a little bit more because the RLHF ones are just so often a little boring. And I think I can maybe get some more outside the box ideas. Probably just higher variance in general. I'm sure if you were to score them, you know, take the average score across all the ideas generated, they would probably score worse. But where I'm really looking for the highest max score, then I think you would find something often from the base models that could be better. Okay. Cool. Let me just pitch you a notion of how I typically work and how I advise others to work and tell me if you would change it at all. Obviously you've got tremendous detail here. But if somebody comes to me and they're like, hey, I'm trying to get an AI to do X task, and it's kind of complicated. I asked it to do it. It's not really working or it's not working well enough. What do I do next? What I always tell them is staple your pants to the chair for a couple hours and write out a handful of gold standard examples where you're going to explain your reasoning in painful detail on your way toward the actual output that you want. And most of these outputs, obviously with benchmarks, it's very helpful to have sort of a ground truth answer. But a lot of what people actually want to do in applications and in workflows and their businesses and whatnot is not limited to a classification or a multiple choice where there's a concrete ground truth right answer. People want it to generate something and they want that thing to be good. So I'm always like, you know, kind of use the task decomposition, really think super hard, introspect hard on what are the logical jumps that you're making, what are the cues that you're zeroing in on that really matter. Try to get explicit about that stuff to the maximum degree possible. When you think you've said it all, go back and try to be even more explicit about all the hints, all the cues, etc. that you're using. And then finally work your way up to generating something good. And then with a handful of these, you are probably going to get much better results. If that still isn't good enough, then maybe you could think about using that as a bootstrap into a fine tuning loop, which I know is out of scope for this paper. But how does that compare to the advice that you give people who are, you know, not 76 pages into all the different techniques, but are like, this isn't working for me. What do I do? You know, short answer.
+
+Sander Schulhoff: (51:03)
+
+Honestly, I think I'd have pretty much the same advice. The exemplars are super important. My favorite way to improve the prompt is because a lot of people come in and, you know, just put their instructions and hope that it'll do the job. But showing multiple, at least three examples of what should be done can really, really help. So completely agree with you there.
+
+Nathan Labenz: (51:27)
+
+Okay. Cool. Good to know. Next section, I have just kind of a number of questions that came to mind as I was reading through the paper that are on kind of specific subdomains. On ensembling, there's a lot of different ensembling techniques, of course. Mostly, again, they seem to sort of be predicated on this ground truth or some sort of discrete nature of the answer where if it's a classification task or multiple choice, if you run a model 10 times and you take the most common answer, that'll help boost your overall correctness score. Is there any way to extend to domains that are not like single answer that's right or wrong, but, you know, a more kind of open ended generative task? I would love something there if there's any known techniques.
+
+Sander Schulhoff: (52:11)
+
+So okay. Do you have ground truth examples of what you like?
+
+Nathan Labenz: (52:16)
+
+Yeah. I'll say yes. Or I can make them.
+
+Sander Schulhoff: (52:18)
+
+Maybe I missed part of the question. Would you mind reiterating the question?
+
+Nathan Labenz: (52:23)
+
+Yeah. I guess a somewhat abstracted way to say this is we know that there are a number of ways to spend more compute to get better results. And you can do that by chain of thought is often described that way. You can do it by this sort of majority vote if you have something that's concrete to vote on. But if I want to write a video script for Waymark, for example, or, you know, anything along those lines where it's like there's not a right answer, but there are definitely better and worse responses. How can I spend more compute to get a better video generation? Maybe it's not ensembling. Maybe it's self criticism. That was going to be my next question. But just beyond the simple chain of thought, how do I spend more tokens, spend more money to get better results?
+
+Sander Schulhoff: (53:10)
+
+Right. All right. I understand your question now. Thank you for clarifying. I do have an answer, but it's kind of frustrating in that it's a lot more complicated than for techniques where you do have simple accuracy based metrics. And so number one, that would be you have some pipeline where you generate the initial script, and then you pass it with a new prompt that says, oh, you know, revise this script according to, insert blank guidelines that you want. And then maybe you even have a couple different parts of the script generated independently. So you have your outline, maybe then there's a criticism of the outline, and then the new outline gets passed in, say, generate the script, and then you have the bot criticize each part individually. Another thing you could do is a multi-agent setup where you give each agent a role where one is the sort of main writer, and then there's a grammar checker and a style checker, and they all kind of work together. I've seen a couple papers coming out using that multi-agent technique and even multi-agent debate techniques, which are very interesting. I don't think they're there yet or it'd be worth spending time implementing them. But the former where you have sort of the self criticism according to some guidelines might be worthwhile. But if I were doing this, I probably wouldn't implement it because I still feel like the techniques are not there yet where it would be super helpful. It's a bit of a frustrating domain where I don't know of a good solution to the problem.
+
+Nathan Labenz: (54:49)
+
+So maybe the better way to spend compute for those kinds of things is going back to that bootstrapping into fine tuning loop. The second part of my advice to people is if you've written, let's say, at least five, you know, maybe 10 really detailed painstaking gold standard examples and that's still not working for you, then I say, okay. Now start generating. First of all, you could do just more generation by hand, but people typically tire of that pretty quickly, especially because they're going to need another order of magnitude in all likelihood. So my next advice is beyond pure prompting, but use those examples with the best available model to generate more examples. Now you have a human classification problem of what you like and what you don't like. Basically expand your dataset of things that you like by generating and filtering and then fine tune on those. And hopefully with 10x more, I usually think of it as start with a couple examples, fine tune potentially with as few as 10, certainly fine tune again at 100, you know, maybe go to 1,000. Hopefully you'll both get more robust coverage. Hopefully you'll get better performance, and you're just spending that compute at the fine tuning stage instead of the inference time. Is that what you would recommend? I mean, it's fine, you know, for the purpose of whatever gets best results. We're not limited to pure prompting. So is that where you would kind of steer people?
+
+Sander Schulhoff: (56:13)
+
+I like that idea in the same regard as I like the other two ideas I mentioned. It can definitely help, but I would not necessarily have more certainty in that technique than the other two prompting based ones. But if it's working for you, is it working for you?
+
+Nathan Labenz: (56:31)
+
+Yes. I mean, we could always debate how well it's working. Obviously, we could always hope that it could work better. But I would say in our experience, yes, we have. The biggest leap for us with the Waymark tasks specifically was fine-tuning on chain of thought reasoning as opposed to fine-tuning purely on inputs and outputs. And then, yeah, it seems like a bigger dataset helps. We also try to cover edge cases progressively over time. When we see things that aren't working, we try to go back and generate a few examples of those and include them in the fine-tuning dataset next time. And yeah, I would say that broadly seems to be working. Cost-wise, it ends up being prohibitive, and latency-wise to some degree, it ends up being prohibitive to try to cover all the edge cases in the runtime exemplars. The fine-tuning, at least with OpenAI, is more expensive, of course, but it's not as much more expensive as trying to put 20 examples into a single prompt to cover everything. So I would say it is working, although this also brings up the evals question, which is, how do we really know and who are we trusting to make that decision? I wouldn't say we've entirely left the vibes domain in terms of how we're assessing this. We do have some structured evals, but we see enough edge cases there that we don't fully trust them. We're definitely still trying to live by the "look at the data and actually use the product regularly" sort of approach, because I don't think there's anything automated that we trust to really tell us for sure if the new fine-tune is better than the old fine-tune or whatever. That's not the kind of thing I would say we can resolve through a purely automated approach as of now.
+
+Sander Schulhoff: (58:19)
+
+Right. Yeah. Fair enough. That is a pretty awesome development for you all.
+
+Nathan Labenz: (58:24)
+
+Okay. I've got five more things, and I'll just limit my side of the discussion. So multilingual is another area that you cover. I've seen in the past that English seems to be best. That seems to be the main takeaway. And so the kind of techniques here are translate to English first, then do the hard part, then translate back. I also noted an interesting bit from the paper on running certain tasks in multiple languages and then a sort of multilingual ensembling approach, which I thought was very creative. I'd never seen that before. Any other notes or surprises, fun tidbits from the multilingual section?
+
+Sander Schulhoff: (59:03)
+
+I was going to say the second one that you said because that was my favorite as well.
+
+Nathan Labenz: (59:07)
+
+Okay. Cool. How about multimodal? This is a area that I feel is very much black magic. I've seen a number of things that seem like they help, but it seems like it's just all way less studied, way less established, and that's kind of a reflection of where we are in AI generally, where the capabilities are coming online faster than they can be systematically studied. But what jumps out to you from multimodal?
+
+Sander Schulhoff: (59:32)
+
+Yeah. So my favorite one there is chain of image prompting, where the model has some sort of visual reasoning question, like, given a line y equals x and a circle defined in its mathematical function, do they cross? And so what it can do is, okay, it graphs the circle and then graphs the line and then generates an image, renders an image using maybe some SVG Python package. It looks at the image and then prompts itself to ask itself, do they cross? And then there's sort of longer chains of reasoning you can do there. So I really like that one because it was a direct adaptation of chain of thought to the image domain, using images as the steps in the thought process. So I like that a lot. But kind of bigger picture, Gen-3 came out with Runway, and I've been experimenting with that. And I found that prompting it is extraordinarily difficult. So where we were with GPT-2 prompting, GPT-3 prompting at the very beginning, where you had to be really, really specific about a lot of things, similar with the image prompting things. With video, it's even worse. You need to be a really good prompt engineer in order to get decent results in video. Though I haven't gotten to try Sora, so maybe something like that or Kling is a lot easier. But Gen-3 for me, and even one of my friends who is more specifically focused on video prompt engineering, finds it quite difficult to get the result you want.
+
+Nathan Labenz: (1:01:14)
+
+Yeah. Those are dense. The examples that I've seen are super dense. Just to make clear here, we're kind of crossing over between multimodal prompting of your sort of large multimodal models like your GPT-4os, and then you're also kind of talking about the asset generation side, and that's a whole other beast that I honestly haven't studied super deeply. But the density of the prompts that I have seen in the Runway Gen-3 so far is pretty intense. You're talking whole paragraphs to generate a few seconds worth of video, and people are being very precise in terms of the compositions that they want and the transitions that they want. I think DALL-E 3 basically has that same kind of super dense prompt, although they, in ChatGPT, kind of generate that for you and extrapolate your presumably generally naive—not you, but the royal you—the common user's naive prompt. They kind of extrapolate that into a very dense prompt and then give you the results of that back, and you can sort of iterate on that. I think in general, my sense of the asset generation things is that the trend is toward very dense prompting where it's, again, just being extremely, extremely explicit and painstakingly detailed in what you want is kind of what they are rewarding now, even if they're sort of abstracting that out of the user experience in some cases. I've seen a couple other things in image. This going back to the image inputs to language models, where overlaying a grid or sort of overlaying the output of an image segmentation model or in some cases running a dedicated OCR model and then taking those outputs and including that with the image can be really helpful. I've been trying to do some things with looking at plumbing parts catalogs of all things, which in many cases were originally paper and then they were scanned. And so there's kind of fidelity issues on top of the fact that these were definitely not intended for language models. But the OCR seemed to really help there. If we just ask any of the frontier models to do the full thing without the benefit of the pre-OCR processing, it can't get the parts numbers right. But if you give it those parts numbers in text and then also the diagram, you get a much better output that actually returns the appropriate parts numbers.
+
+Sander Schulhoff: (1:03:37)
+
+Very interesting.
+
+Nathan Labenz: (1:03:39)
+
+Does that bring anything else to mind for you?
+
+Sander Schulhoff: (1:03:41)
+
+No. Not in particular. I have kept my prompting mostly in the text-only domain until recently experimenting with content generation stuff.
+
+Nathan Labenz: (1:03:52)
+
+Yeah. Cool. We'll compare notes about that another time. Agents, obviously, super hot topic. Conventional wisdom is they don't quite work. We did an episode once with one of the founders of Codium. They put out a paper called Flow Engineering, which I really liked, which we exchanged some notes about. Any hidden gems in the study of agent prompting?
+
+Sander Schulhoff: (1:04:11)
+
+I agree with the conventional wisdom that agents don't quite work. I like the simpler approaches, something like ReAct, where you have a super simple interaction with environment, and I think you can get tool use working reliably well when it's very specific tools. Overall, I am very excited about agents, but I think this is going to be something where we kind of need a next step in architecture to make tool use more of a first-order subject. Because right now, it's like, oh, you prompt there. You fine-tune the LM to output some specific wording to use the tool, but you could also prompt it to output a new type of token. Or I really love reinforcement learning. I think that LMs or whatever comes after LMs are going to have to learn on their own and produce their own reward signal. And so I think RL is the way to do that. Hopefully, eventually, RL will have its NLP, LM moment. Agents right now are quite frustrating because it looks so promising, but in practice, it's so hard to get stuff working even for me. So do I have any wonderful takeaways here? Honestly, not really. There's a ton of different approaches to agents. They can do specific things somewhat well, but why can't I have something that I say, "Oh, I just got an email. I need to pay someone. Go to my bank website and send them this much money." You know, that seems pretty straightforward, that I could just say that and it strings a couple website URLs together. But I can't have that right now, and I want that.
+
+Nathan Labenz: (1:05:54)
+
+Sounds like a fast way to drain your bank account at the moment.
+
+Sander Schulhoff: (1:05:59)
+
+True. And security concerns are huge.
+
+Nathan Labenz: (1:06:01)
+
+Cool. I think, actually, we've buried one of the leads here, which is the really interesting finding that after all of your intensive study, you were brave enough to face off head-to-head with an automated system for prompt optimization. Specifically, I actually don't know how this is normally verbalized, but I think it's DSPy. Maybe it's verbalized another way. This is sort of a weird project that a lot of people rave about that I've kind of studied a little bit and can't say I totally get it or it doesn't feel super intuitive to me, but it's sort of an optimization framework that can kind of optimize everything in your system, including the prompt. And I guess at least under certain controlled conditions, it beat you on a head-to-head. So tell me that story. Give me a little more intuition for this thing, and tell me what that means for the future of prompt engineering as a profession.
+
+Sander Schulhoff: (1:06:59)
+
+Sure. Let me start with the naming. I call it DSPy, and I think a lot of the people in my lab do as well. But DSPy or, I guess, D-S-P-Y also seem valid. Actually, Omar came and talked at UMD, and I was there for his talk, but I don't remember exactly how he pronounced it, unfortunately. But on to the prompting stuff. Yeah. So I spent 20 hours developing this prompt for a binary classification task, and I was pretty happy with it. And then my advisor used DSPy and put in the training data that I used as exemplars, and was able to create a prompt with the exact same data that I had that blew me out of the water on the test set. So as far as does automated prompt engineering work, I can now say, yes, it does. And I think you do need ground truth examples. I don't think it can optimize just any prompt because it needs some kind of signal to optimize towards, but I was super, super impressed with it. I definitely didn't think I could be defeated by an automated prompt engineering system.
+
+Nathan Labenz: (1:08:17)
+
+And this thing can use proprietary models. Right? It's black box. It doesn't have to have access to the weights.
+
+Sander Schulhoff: (1:08:25)
+
+That's correct. That is correct.
+
+Nathan Labenz: (1:08:26)
+
+Yeah. I was pretty sure about that. How much data did you have, and how much data did it also have?
+
+Sander Schulhoff: (1:08:32)
+
+Let's see. I probably gave it less than 20 exemplars to use, and we had maybe a couple hundred. The dataset itself was quite small.
+
+Nathan Labenz: (1:08:42)
+
+Interesting. One wonders if it could be used to help solve the ARC challenge. That's connecting a couple of threads. Cool. Well, down to the last couple of minutes here. Any thoughts on productizing all this? I mean, obviously, you've got the Learn Prompting. I can sort of imagine a lot of businesses would be interested in an extension of Learn Prompting that is—I mean, you have content, you have instruction, you have best practices, but what about a prompt coach that follows me around and applies this taxonomy to what I'm doing in my day-to-day use of AI and coaches me on how to get better? I'm sure that's something you've at least thought about. And with the DSPy results suggesting that you wouldn't even necessarily be leaving much on the table in terms of theoretical performance to follow the advice of a system. Claude has done that, you know. Anthropic has done that a little bit with Claude. Anything in the works there, or are you going to leave that to others?
+
+Sander Schulhoff: (1:09:41)
+
+Right now, we do have a RAG chatbot you can ask questions about our docs. But as far as putting in your prompt and getting advice on it, I could see it being useful. I think it is quite a struggle because in different domains, people are just doing things that look completely different. And so I'm not sure if we would be able to prompt the model to do consistently well across domains. And then I also don't know if that's something people would be willing to pay for at all. But it is something we considered, not a main product we're focusing on at the moment. But if we saw interest, we would look more closely in that direction.
+
+Nathan Labenz: (1:10:20)
+
+Cool. Okay. Well, it's a tour de force paper with a ton of—you know, for me, I would say now it is kind of the starting point for any inquiry into available prompting techniques and a great place to navigate your way toward deeper studies of all sorts of different things. Anything else that we didn't cover that you think bears mention or highlight before we break?
+
+Sander Schulhoff: (1:10:43)
+
+Yes. That would be sort of my takeaways from running a team of this size. And let's see. I have my reflection document. I did a what I later learned is called a 360 review at the end of the project where I wrote a reflection about my performance and then had my team do that anonymously as well. And so one of my conclusions was trust no one, not even yourself. And in practice, that means something like you always have tests. You always have a CI pipeline. So anytime someone makes a PR, including me, all those tests and styling checks run against it, and so you make sure you don't have any regressions. I found that to be super helpful in past projects and no different on this one. So, overall, I don't recommend doing a systematic literature review because this took me twice as long. You know, I ended up taking nine months. But I did enjoy doing it. I am happy I did it, and I really learned quite a lot doing so.
+
+Nathan Labenz: (1:11:49)
+
+Well, your hard work is to the community's benefit and to our benefit today. So thank you for putting in all that blood, sweat, and tears, elbow grease, and everything else, and organizational legwork as well. I think it is a great resource, and I appreciate you coming on and returning to talk it through with us. I know you've got to go. So for now, Sander Schulhoff, thank you again for being part of the Cognitive Revolution.
+
+Sander Schulhoff: (1:12:14)
+
+Thank you very much.
+
+Nathan Labenz: (1:12:15)
+
+It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

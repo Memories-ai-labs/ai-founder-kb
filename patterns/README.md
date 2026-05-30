@@ -2,7 +2,7 @@
 
 This is the highest-value collection in the knowledge base. Each pattern appears in 3+ independent interviews/sources — these are the recurring lessons of AI startup-building in 2025-2026.
 
-They are NOT organized by topic, because they CROSS topics. Each pattern includes: a one-line summary / 3-5 supporting sources / a specific action implication for Memories.ai.
+They are NOT organized by topic, because they CROSS topics. Each pattern includes a one-line summary and 3-5 supporting sources.
 
 ## Index
 

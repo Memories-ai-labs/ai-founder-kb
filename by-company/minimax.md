@@ -11,8 +11,6 @@
 
 "The AI industry is not an extension of the internet industry" — it requires entirely new organizational forms, product philosophy, and definitions of talent.
 
-**Memories.ai implication**: Memories.ai implication: Memories.ai is an AI-native company. Don't graft on the internet playbook of building DAU first and selling ads later.
-
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 
 ### ★★★ [Strategy] · Luo Yonghao's Crossroads (2025-12-10)
@@ -31,15 +29,11 @@ A 400-person company with only 3 levels (CEO / -1 / -2). The core interview crit
 
 "The real product is the model itself — traditional products are just distribution channels"; DAU is a vanity metric.
 
-**Memories.ai implication**: Memories.ai implication: the public API is the product; Lucy products are just distribution channels for it.
-
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 
 ### ★★★ [Engineering & Management] · Luo Yonghao's Crossroads (2025-12-10)
 
 Wobbled for six months early on — "we thought AI talent + internet talent was enough; it just didn't work." The two logics can't coexist.
-
-**Memories.ai implication**: Memories.ai implication: don't mix "big-tech veterans" with "AI people" in hiring — the culture will tear apart.
 
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 

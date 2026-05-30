@@ -8,8 +8,6 @@
 
 **★★★** [Hiring]: Culture interviews from day one — not subjective "culture fit" gut calls, but explicitly written cultural values that you evaluate objectively against. The bar: a candidate should be able to "walk out of a room and say I'm going to do X differently because of cultural value Y."
 
-**Memories.ai implication**: Memories.ai implication: we should write down our cultural values now (not as PR slogans) and bake them into the interview loop.
-
 [Source](https://baincapitalventures.com/insight/anthropic-cofounder-and-president-daniela-amodei-on-how-to-maintain-startup-culture-in-hypergrowth/)
 
 ---

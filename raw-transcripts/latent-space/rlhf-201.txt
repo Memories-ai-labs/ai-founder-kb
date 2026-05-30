@@ -1,0 +1,607 @@
+# RLHF 201 - with Nathan Lambert of AI2 and Interconnects
+# URL: https://www.latent.space/p/rlhf-201
+# Date: 2024-01-11
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+RLHF 201 - with Nathan Lambert of AI2 and Interconnects
+
+29
+
+1
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:25:30
+
+-1:25:30
+
+Audio playback is not supported on your browser. Please upgrade.
+
+RLHF 201 - with Nathan Lambert of AI2 and Interconnects
+
+Back to foundations! The origins of RLHF, sociology's influence on it, the tension between human vs synthetic data, and emerging research in the field
+
+Nathan Lambert
+
+Jan 11, 2024
+
+29
+
+1
+
+2
+
+Share
+
+Transcript
+
+In 2023 we did a few Fundamentals episodes covering Benchmarks 101, Datasets 101, FlashAttention, and Transformers Math, and it turns out those were some of your evergreen favorites! So we are experimenting with more educational/survey content in the mix alongside our regular founder and event coverage. Pls request more!
+
+We have a new calendar for events; join to be notified of upcoming things in 2024!
+
+Today we visit the shoggoth mask factory: how do transformer models go from trawling a deeply learned latent space for next-token prediction to a helpful, honest, harmless chat assistant? 
+
+Our guest “lecturer” today is Nathan Lambert ; you might know him from his prolific online writing on Interconnects and Twitter, or from his previous work leading RLHF at HuggingFace and now at the Allen Institute for AI (AI2) which recently released the open source GPT3.5-class Tulu 2 model which was trained with DPO. He’s widely considered one of the most knowledgeable people on RLHF and RLAIF. 
+
+He recently gave an “RLHF 201” lecture at Stanford, so we invited him on the show to re-record it for everyone to enjoy! You can find the full slides here, which you can use as reference through this episode. 
+
+Full video with synced slides
+
+For audio-only listeners, this episode comes with slide presentation along our discussion. You can find it on our YouTube (like, subscribe, tell a friend, et al).
+
+Theoretical foundations of RLHF
+
+The foundation and assumptions that go into RLHF go back all the way to Aristotle (and you can find guidance for further research in the slide below) but there are two key concepts that will be helpful in thinking through this topic and LLMs in general:
+
+Von Neumann–Morgenstern utility theorem: you can dive into the math here, but the TLDR is that when humans make decision there’s usually a “maximum utility” function that measures what the best decision would be; the fact that this function exists, makes it possible for RLHF to model human preferences and decision making.
+
+Bradley-Terry model: given two items A and B from a population, you can model the probability that A will be preferred to B (or vice-versa). In our world, A and B are usually two outputs from an LLM (or at the lowest level, the next token). 
+
+from Nathan’s presentation, which you can also find on our video podcast!
+
+It turns out that from this minimal set of assumptions, you can build up the mathematical foundations supporting the modern RLHF paradigm!
+
+The RLHF loop
+
+One important point Nathan makes is that "for many tasks we want to solve, evaluation of outcomes is easier than producing the correct behavior". For example, it might be difficult for you to write a poem, but it's really easy to say if you like or dislike a poem someone else wrote. Going back to the Bradley-Terry Model we mentioned, the core idea behind RLHF is that when given two outputs from a model, you will be able to say which of the two you prefer, and we'll then re-encode that preference into the model.
+
+An important point that Nathan mentions is that when you use these preferences to change model behavior "it doesn't mean that the model believes these things. It's just trained to prioritize these things". When you have preference for a model to not return instructions on how to write a computer virus for example, you're not erasing the weights that have that knowledge, but you're simply making it hard for that information to surface by prioritizing answers that don't return it. We'll talk more about this in our future Fine Tuning 101 episode as we break down how information is stored in models and how fine-tuning affects it.
+
+At a high level, the loop looks something like this:
+
+For many RLHF use cases today, we can assume the model we're training is already instruction-tuned for chat or whatever behavior the model is looking to achieve. In the "Reward Model & Other Infrastructure" we have multiple pieces:
+
+Reward + Preference Model
+
+The reward model is trying to signal to the model how much it should change its behavior based on the human preference, subject to a KL constraint. 
+
+The preference model itself scores the pairwise preferences from the same prompt (worked better than scalar rewards).
+
+One way to think about it is that the reward model tells the model how big of a change this new preference should make in the behavior in absolute terms, while the preference model calculates how big of a difference there is between the two outputs in relative terms. A lot of this derives from John Schulman’s work on PPO:
+
+We recommend watching him talk about it in the video above, and also Nathan’s pseudocode distillation of the process:
+
+Feedback Interfaces
+
+Unlike the "thumbs up/down" buttons in ChatGPT, data annotation from labelers is much more thorough and has many axis of judgement. At a simple level, the LLM generates two outputs, A and B, for a given human conversation. It then asks the labeler to use a Likert scale to score which one it preferred, and by how much:
+
+Through the labeling process, there are many other ways to judge a generation:
+
+Ouyang, Long, et al. "Training language models to follow instructions with human feedback." Advances in Neural Information Processing Systems 35 (2022): 27730-27744.
+
+We then use all of this data to train a model from the preference pairs we have. We start from the base instruction-tuned model, and then run training in which the loss of our gradient descent is the difference between the good and the bad prompt.
+
+Constitutional AI (RLAIF, model-as-judge)
+
+As these models have gotten more sophisticated, people started asking the question of whether or not humans are actually a better judge of harmfulness, bias, etc, especially at the current price of data labeling. Anthropic's work on the "Constitutional AI" paper is using models to judge models. This is part of a broader "RLAIF" space: Reinforcement Learning from AI Feedback.
+
+By using a "constitution" that the model has to follow, you are able to generate fine-tuning data for a new model that will be RLHF'd on this constitution principles. The RLHF model will then be able to judge outputs of models to make sure that they follow its principles:
+
+Emerging Research
+
+RLHF is still a nascent field, and there are a lot of different research directions teams are taking; some of the newest and most promising / hyped ones:
+
+Rejection sampling / Best of N Sampling: the core idea here is that rather than just scoring pairwise generations, you are generating a lot more outputs (= more inference cost), score them all with your reward model and then pick the top N results. LLaMA2 used this approach, amongst many others.
+
+Process reward models: in Chain of Thought generation, scoring each step in the chain and treating it like its own state rather than just scoring the full output. This is most effective in fields like math that inherently require step-by-step reasoning.
+
+Direct Preference Optimization (DPO): We covered DPO in our NeurIPS Best Papers recap, and Nathan has a whole blog post on this; DPO isn’t technically RLHF as it doesn’t have the RL part, but it’s the “GPU Poor” version of it. Mistral-Instruct was a DPO model, as do Intel’s Neural Chat and StableLM Zephyr. Expect to see a lot more variants in 2024 given how “easy” this was.
+
+from the DPO paper
+
+Superalignment: OpenAI launched research on weak-to-strong generalization which we briefly discuss at the 1hr mark.
+
+Note: Nathan also followed up this post with RLHF resources from his and peers’ work:
+
+Interconnects
+
+RLHF learning resources in 2024
+
+I’ve given a lot of effort into sharing information on Reinforcement Learning from Human Feedback (RLHF). I figured I would categorize them in one place for people who come to me or Interconnects looking to learn about the topic. This was inspired by…
+
+Read more
+
+2 years ago · 28 likes · Nathan Lambert
+
+Show Notes
+
+Full RLHF Slides
+
+Interconnects
+
+Retort (podcast)
+
+von Neumann-Morgenstern utility theorem
+
+Bradley-Terry model (pairwise preferences model)
+
+Constitutional AI
+
+Tamer (2008 paper by Bradley Knox and Peter Stone)
+
+Paul Christiano et al. RLHF paper
+
+InstructGPT
+
+Eureka by Jim Fan
+
+ByteDance / OpenAI lawsuit
+
+AlpacaEval
+
+MTBench
+
+TruthfulQA (evaluation tool)
+
+Self-Instruct Paper
+
+Open Assistant
+
+Louis Castricato
+
+Nazneen Rajani
+
+Tulu (DPO model from the Allen Institute)
+
+Timestamps
+
+[00:00:00] Introductions and background on the lecture origins
+
+[00:05:17] History of RL and its applications
+
+[00:10:09] Intellectual history of RLHF
+
+[00:13:47] RLHF for decision-making and pre-deep RL vs deep RL
+
+[00:20:19] Initial papers and intuitions around RLHF
+
+[00:27:57] The three phases of RLHF
+
+[00:31:09] Overfitting issues
+
+[00:34:47] How preferences get defined
+
+[00:40:35] Ballpark on LLaMA2 costs
+
+[00:42:50] Synthetic data for training
+
+[00:47:25] Technical deep dive in the RLHF process
+
+[00:54:34] Projection / best event sampling
+
+[00:57:49] Constitutional AI
+
+[01:04:13] DPO
+
+[01:08:54] What's the Allen Institute for AI?
+
+[01:13:43] Benchmarks and models comparisons
+
+Transcript
+
+Alessio [00:00:00]: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO in Residence at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol AI.
+
+Swyx [00:00:15]: Hey, and today we have Dr. Nathan Lambert in the house. Welcome.
+
+Nathan [00:00:18]: Thanks guys.
+
+Swyx [00:00:19]: You didn't have to come too far. You got your PhD in Berkeley, and it seems like you've lived there most of the time in recent years. You worked on robotics and model-based reinforcement learning on your PhD, and you also interned at FAIR and DeepMind. You bootstrapped the RLHF team at Hugging Face, and you recently joined the Allen Institute as a research scientist. So that's your quick bio. What should people know about you that maybe is not super obvious about you on New LinkedIn?
+
+Nathan [00:00:43]: I stay sane in various insane sport and ultra-endurance sport activities that I do.
+
+Swyx [00:00:50]: What's an ultra-endurance sport activity?
+
+Nathan [00:00:52]: Long-distance trail running or gravel biking. Try to unplug sometimes, although it's harder these days. Yeah.
+
+Swyx [00:00:59]: Well, you know, just the Bay Area is just really good for that stuff, right?
+
+Nathan [00:01:02]: Oh, yeah. You can't beat it. I have a trailhead like 1.2 miles from my house, which is pretty unmatchable in any other urban area.
+
+Swyx [00:01:11]: Pretty excellent. You also have an incredible blog, Interconnects, which I'm a fan of. And I also just recently discovered that you have a new podcast, Retort.
+
+Nathan [00:01:20]: Yeah, we do. I've been writing for a while, and I feel like I've finally started to write things that are understandable and fun. After a few years lost in the wilderness, if you ask some of my friends that I made read the earlier blogs, they're like, oh, this is yikes, but it's coming along. And the podcast is with my friend Tom, and we just kind of like riff on what's actually happening on AI and not really do news recaps, but just what it all means and have a more critical perspective on the things that really are kind of funny, but still very serious happening in the world of machine learning.
+
+Swyx [00:01:52]: Yeah. Awesome. So let's talk about your work. What would you highlight as your greatest hits so far on Interconnects, at least?
+
+Nathan [00:01:59]: So the ones that are most popular are timely and or opinion pieces. So the first real breakout piece was when April and I also just wrote down the thing that everyone in AI was feeling, which is we're all feeling stressed, that we're going to get scooped, and that we're overworked, which is behind the curtain, what it feels to work in AI. And then a similar one, which we might touch on later in this, was about my recent job search, which wasn't the first time I wrote a job search post. People always love that stuff. It's so open. I mean, it's easy for me to do in a way that it's very on-brand, and it's very helpful. I understand that until you've done it, it's hard to share this information. And then the other popular ones are various model training techniques or fine tuning. There's an early one on RLHF, which is, this stuff is all just like when I figure it out in my brain. So I wrote an article that's like how RLHF actually works, which is just the intuitions that I had put together in the summer about RLHF, and that was pretty well. And then I opportunistically wrote about QSTAR, which I hate that you have to do it, but it is pretty funny. From a literature perspective, I'm like, open AI publishes on work that is very related to mathematical reasoning. So it's like, oh, you just poke a little around what they've already published, and it seems pretty reasonable. But we don't know. They probably just got like a moderate bump on one of their benchmarks, and then everyone lost their minds. It doesn't really matter.
+
+Swyx [00:03:15]: You're like, this is why Sam Altman was fired. I don't know. Anyway, we're here to talk about RLHF 101. You did a presentation, and I think you expressed some desire to rerecord it. And that's why I reached out on Twitter saying, like, why not rerecord it with us, and then we can ask questions and talk about it. Yeah, sounds good.
+
+Nathan [00:03:30]: I try to do it every six or 12 months is my estimated cadence, just to refine the ways that I say things. And people will see that we don't know that much more, but we have a bit of better way of saying what we don't know.
+
+Swyx [00:03:43]: Awesome. We can dive right in. I don't know if there's any other topics that we want to lay out as groundwork.
+
+Alessio [00:03:48]: No, you have some awesome slides. So for people listening on podcast only, we're going to have the slides on our show notes, and then we're going to have a YouTube version where we run through everything together.
+
+Nathan [00:03:59]: Sounds good. Yeah. I think to start skipping a lot of the, like, what is a language model stuff, everyone knows that at this point. I think the quote from the Llama 2 paper is a great kind of tidbit on RLHF becoming like a real deal. There was some uncertainty earlier in the year about whether or not RLHF was really going to be important. I think it was not that surprising that it is. I mean, with recent models still using it, the signs were there, but the Llama 2 paper essentially reads like a bunch of NLP researchers that were skeptical and surprised. So the quote from the paper was, meanwhile, reinforcement learning known for its instability seemed a somewhat shadowy field for those in the NLP research community. However, reinforcement learning proved highly effective, particularly given its cost and time effectiveness. So you don't really know exactly what the costs and time that Meta is looking at, because they have a huge team and a pretty good amount of money here to release these Llama models. This is just the kind of thing that we're seeing now. I think any major company that wasn't doing RLHF is now realizing they have to have a team around this. At the same time, we don't have a lot of that in the open and research communities at the same scale. I think seeing that converge would be great, but it's still very early days. And the other thing on the slide is some of Anthropic's work, but everyone knows Anthropic is kind of the masters of this, and they have some of their own techniques that we're going to talk about later on, but that's kind of where we start.
+
+Alessio [00:05:17]: Can we do just a one-second RL version? So you come from a robotics background, which RL used to be, or maybe still is, state-of-the-art. And then now you're seeing a lot of LLM plus RL, so you have the gym fans, Eureka, you have MPU, which we had on the podcast when they started with RL. Now they're doing RL plus LLMs. Yeah. Any thoughts there on how we got here? Maybe how the pendulum will keep swinging?
+
+Nathan [00:05:46]: I really think RL is about a framing of viewing the world through trial and error learning and feedback, and really just one that's focused on thinking about decision-making and inputs in the world and how inputs have reactions. And in that, a lot of people come from a lot of different backgrounds, whether it's physics, electrical engineering, mechanical engineering. There are obviously computer scientists, but compared to other fields of CS, I do think it's a much more diverse background of people. My background was in electrical engineering and doing robotics and things like that. It really just changes the worldview. I think that reinforcement learning as it was back then, so to say, is really different. You're looking at these toy problems and the numbers are totally different, and everyone went kind of zero to one at scaling these things up, but people like Jim Phan and other people that were... You saw this transition in the decision transformer and papers and when people are trying to use transformers to do decision-making for things like offline RL, and I think that was kind of like the early days. But then once language models were so proven, it's like everyone is using this tool for their research. I think in the long run, it will still settle out, or RL will still be a field that people work on just because of these kind of fundamental things that I talked about. It's just viewing the whole problem formulation different than predicting text, and so there needs to be that separation. And the view of RL in language models is pretty contrived already, so it's not like we're doing real RL. I think the last slide that I have here is a way to make RLHF more like what people would think of with RL, so actually running things over time, but a weird lineage of tools that happen to get us to where we are, so that's why the name takes up so much space, but it could have gone a lot of different ways. Cool.
+
+Alessio [00:07:29]: We made it one slide before going on a tangent.
+
+Nathan [00:07:31]: Yeah, I mean, it's kind of related. This is a...
+
+Swyx [00:07:35]: Yeah, so we have a history of RL.
+
+Nathan [00:07:37]: Yeah, so to give the context, this paper really started because I have this more diverse background than some computer scientists, such as trying to understand what the difference of a cost function or a reward function and a preference function would be without going into all of the details. Costs are normally things that control theorists would work with in these kind of closed domains, and then reinforcement learning has always worked with rewards that's central to the formulation that we'll see, and then the idea was like, okay, we now are at preferences, and each step along the way there's kind of different assumptions that you're making. We'll get into these, and those assumptions are built on other fields of work. So that's what this slide is going to say, it's like RLHF, while directly building on tools from RL and language models, is really implicitly impacted and built on theories and philosophies spanning tons of human history. I think we cite Aristotle in this paper, which is fun. It's like going pre-BC, it's like 2,300 years old or something like that. So that's the reason to do this, I think. We kind of list some things in the paper about summarizing what different presumptions of RLHF could be. I think going through these is actually kind of funny. It's fun to talk about these, because they're kind of grab bags of things that you'll see return throughout this podcast that we're talking about it. The core thing of RLHF that, in order to be a believer in this, is that RL actually works. It's like, if you have a reward function, you can optimize it in some way and get a different performance out of it, and you could do this at scale, and you could do this in really complex environments, which is, I don't know how to do that in all the domains. I don't know how to exactly make chat GPT. So it's kind of, we'll overshadow everything. And then there's, go from something kind of obvious like that, and then you read the von Neumann-Morgenstern utility theorem, which is essentially an economic theory that says you can weight different probabilities of different people, which is a theoretical piece of work that is the foundation of utilitarianism, and trying to quantify preferences is crucial to doing any sort of RLHF. And if you look into this, all of these things, there's way more you could go into if you're interested in any of these. So this is kind of like grabbing a few random things, and then kind of similar to that is the Bradley-Terry model, which is the fancy name for the pairwise preferences that everyone is doing. And then all the things that are like, that Anthropic and OpenAI figured out that you can do, which is that you can aggregate preferences from a bunch of different people and different sources. And then when you actually do RLHF, you extract things from that data, and then you train a model that works somehow. And we don't know, there's a lot of complex links there, but if you want to be a believer in doing this at scale, these are the sorts of things that you have to accept as preconditions for doing RLHF. Yeah.
+
+Swyx [00:10:09]: You have a nice chart of like the sort of intellectual history of RLHF that we'll send people to refer to either in your paper or in the YouTube video for this podcast. But I like the other slide that you have on like the presumptions that you need to have for RLHF to work. You already mentioned some of those. Which one's underappreciated? Like, this is the first time I've come across the VNM Utility Theorem.
+
+Nathan [00:10:29]: Yeah, I know. This is what you get from working with people like to my co-host on the podcast, the rhetoric is that sociologist by training. So he knows all these things and like who the philosophers are that found these different things like utilitarianism. But there's a lot that goes into this. Like essentially there's even economic theories that like there's debate whether or not preferences exist at all. And there's like different types of math you can use with whether or not you actually can model preferences at all. So it's pretty obvious that RLHF is built on the math that thinks that you can actually model any human preference. But this is the sort of thing that's been debated for a long time. So all the work that's here is like, and people hear about in their AI classes. So like Jeremy Bentham, like hedonic calculus and all these things like these are the side of work where people assume that preferences can be measured. And this is like, I don't really know, like, this is what I kind of go on a rant and I say that in RLHF calling things a preference model is a little annoying because there's no inductive bias of what a preference is. It's like if you were to learn a robotic system and you learned a dynamics model, like hopefully that actually mirrors the world in some way of the dynamics. But with a preference model, it's like, Oh my God, I don't know what this model, like I don't know what chat GPT encodes as any sort of preference or what I would want it to be in a fair way. Anthropic has done more work on trying to write these things down. But even like if you look at Claude's constitution, like that doesn't mean the model believes these things. It's just trained to prioritize these things. And that's kind of what the later points I'm looking at, like what RLHF is doing and if it's actually like a repeatable process in the data and in the training, that's just unknown. And we have a long way to go before we understand what this is and the link between preference data and any notion of like writing down a specific value.
+
+Alessio [00:12:05]: The disconnect between more sociology work versus computer work already exists, or is it like a recent cross contamination? Because when we had Tri Dao on the podcast, he said FlashAttention came to be because at Hazy they have so much overlap between systems engineer and like deep learning engineers. Is it the same in this field?
+
+Nathan [00:12:26]: So I've gone to a couple of workshops for the populations of people who you'd want to include this like R. I think the reason why it's not really talked about is just because the RLHF techniques that people use were built in labs like OpenAI and DeepMind where there are some of these people. These places do a pretty good job of trying to get these people in the door when you compare them to like normal startups. But like they're not bringing in academics from economics, like social choice theory. There's just too much. Like the criticism of this paper that this is based on is like, oh, you're missing these things in RL or at least this decade of RL and it's like it would be literally be bigger than the Sutton and Barto book if you were to include everyone. So it's really hard to include everyone in a principled manner when you're designing this. It's just a good way to understand and improve the communication of what RLHF is and like what is a good reward model for society. It really probably comes down to what an individual wants and it'll probably motivate models to move more in that direction and just be a little bit better about the communication, which is a recurring theme and kind of my work is like I just get frustrated when people say things that don't really make sense, especially when it's going to manipulate individual's values or manipulate the general view of AI or anything like this. So that's kind of why RLHF is so interesting. It's very vague in what it's actually doing while the problem specification is very general.
+
+Swyx [00:13:42]: Shall we go to the, I guess, the diagram here on the reinforcement learning basics? Yeah.
+
+Nathan [00:13:47]: So reinforcement learning, I kind of mentioned this, it's a trial and error type of system. The diagram and the slides is really this classic thing where you have an agent interacting with an environment. So it's kind of this agent has some input to the environment, which is called the action. The environment returns a state and a reward and that repeats over time and the agent learns based on these states and these rewards that it's seeing and it should learn a policy that makes the rewards go up. That seems pretty simple than if you try to mentally map what this looks like in language, which is that like the language models don't make this easy. I think with the language model, it's very hard to define what an environment is. So if the language model is the policy and it's generating, it's like the environment should be a human, but setting up the infrastructure to take tens of thousands of prompts and generate them and then show them to a human and collect the human responses and then shove that into your training architecture is very far away from working. So we don't really have an environment. We just have a reward model that returns a reward and the state doesn't really exist when you look at it like an RL problem. What happens is the state is a prompt and then you do a completion and then you throw it away and you grab a new prompt. We're really in as an RL researcher, you would think of this as being like you take a state, you get some completion from it and then you look at what that is and you keep kind of iterating on it and all of that isn't here, which is why you'll hear RLHF referred to as bandits problem, which is kind of like you choose one action and then you watch the dynamics play out. There's many more debates that you can have in this. If you get the right RL people in the room, then kind of like this is an RL even when you zoom into what RLHF is doing.
+
+Alessio [00:15:22]: Does this change as you think about a chain of thought reasoning and things like that? Like does the state become part of the chain that you're going through?
+
+Nathan [00:15:29]: There's work that I've mentioned on one slide called process reward models that essentially rewards each step in the chain of thought reasoning. It doesn't really give the part of interaction, but it does make it a little bit more fine grained where you can think about like calling it at least you have many states from your initial state. That formulation I don't think people have fully settled on. I think there's a bunch of great work out there, like even OpenAI is releasing a lot of this and let's verify step by step is there pretty great paper on the matter. I think in the next year that'll probably get made more concrete by the community on like if you can easily draw out like if chain of thought reasoning is more like RL, we can talk about that more later. That's a kind of a more advanced topic than we probably should spend all the time on.
+
+Swyx [00:16:13]: RLHF for decision making. You have a slide here that compares pre-deep RL versus deep RL.
+
+Nathan [00:16:19]: This is getting into the history of things, which is showing that the work that people are using now really came from well outside of NLP and it came before deep learning was big. Next up from this paper, Tamer, which is from 2008. Some names that are still really relevant in kind of human centric RL, Bradley Knox and Peter Stone. If you have an agent take an action, you would just have a human give a score from zero to one as a reward rather than having a reward function. And then with that classifier, you can do something with a policy that learns to take actions to maximize that reward. It's a pretty simple setup. It works in simple domains. And then the reason why this is interesting is you compare it to the paper that everyone knows, which is this Paul Christiano et al. Deep Reinforced Learning from Human Preferences paper, which is where they showed that learning from human preferences, you can solve like the basic RL tasks at the time. So various control problems and simulation and this kind of like human preferences approach had higher rewards in some environments than if you just threw RL at the environment that returned a reward. So the preferences thing was you took two trajectories. So in this case, it was like complete trajectories of the agent and the human was labeling which one is better. You can see how this kind of comes to be like the pairwise preferences that are used today that we'll talk about. And there's also a really kind of interesting nugget that is the trajectory that the humans were labeling over has a lot more information than the RL algorithm would see if you just had one state, which is kind of why people think that it's why the performance in this paper was so strong. But I still think that it's surprising that there isn't more RL work of this style happening now. This paper is in 2017. So it's like six years later and I haven't seen things that are exactly similar, but it's a great paper to understand where stuff that's happening now kind of came from.
+
+Swyx [00:17:58]: Just on the Christiano paper, you mentioned the performance being strong. I don't remember what results should I have in mind when I think about that paper?
+
+Nathan [00:18:04]: It's mostly like if you think about an RL learning curve, which is like on the X axis, you have environment interactions on the Y axis, you have performance. You can think about different like ablation studies of between algorithms. So I think they use like A2C, which I don't even remember what that stands for as their baseline. But if you do the human preference version on a bunch of environments, like the human preference labels, the agent was able to learn faster than if it just learned from the signal from the environment, which means like it's happening because the reward model has more information than the agent would. But like the fact that it can do better, I was like, that's pretty surprising to me because RL algorithms are pretty sensitive. So I was like, okay.
+
+Swyx [00:18:41]: It's just one thing I do want to establish as a baseline for our listeners. We are updating all the weights. In some sense, the next token prediction task of training a language model is a form of reinforcement learning. Except that it's not from human feedback. It's just self-supervised learning from a general corpus. There's one distinction which I love, which is that you can actually give negative feedback. Whereas in a general sort of pre-training situation, you cannot. And maybe like the order of magnitude of feedback, like the Likert scale that you're going to talk about, that actually just gives more signal than a typical training process would do in a language model setting. Yeah.
+
+Nathan [00:19:15]: I don't think I'm the right person to comment exactly, but like you can make analogies that reinforcement learning is self-supervised learning as well. Like there are a lot of things that will point to that. I don't know whether or not it's a richer signal. I think that could be seen in the results. It's a good thing for people to look into more. As reinforcement learning is so much less compute, like it is a richer signal in terms of its impact. Because if they could do what RLHF is doing at pre-training, they would, but they don't know how to have that effect in like a stable manner. Otherwise everyone would do it.
+
+Swyx [00:19:45]: On a practical basis, as someone fine-tuning models, I have often wished for negative fine-tuning, which pretty much doesn't exist in OpenAI land. And it's not the default setup in open-source land.
+
+Nathan [00:19:57]: How does this work in like diffusion models and stuff? Because you can give negative prompts to something to like stable diffusion or whatever. It's for guidance.
+
+Swyx [00:20:04]: That's for clip guidance.
+
+Nathan [00:20:05]: Is that just from like how they prompt it then? I'm just wondering if we could do something similar. It's another tangent.
+
+Swyx [00:20:10]: I do want to sort of spell that out for people in case they haven't made the connection between RLHF and the rest of the training process. They might have some familiarity with it.
+
+Nathan [00:20:19]: Yeah. The upcoming slides can really dig into this, which is like this in 2018 paper, there was a position paper from a bunch of the same authors from the Christiano paper and from the OpenAI work that everyone knows, which is like, they write a position paper on what a preference reward model could do to solve alignment for agents. That's kind of based on two assumptions. The first assumption is that we can learn user intentions to a sufficiently high accuracy. That doesn't last with me because I don't know what that means. But the second one is pretty telling in the context of RLHF, which is for many tasks we want to solve, evaluation of outcomes is easier than producing the correct behavior. And this is the whole thing. It's like we can compare two poems that the model generates and it can be viewed as liking a positive example, or it could be viewed as really disliking a negative example. And that's what I think a lot of people are doing in like the harm space is like a harmful response to a language model, whether or not you agree with the company's definition of harms is that it's a really bad negative example and they downweight them by preferring something more benign in the RLHF process, among other ways of dealing with safety. So that's a good way of saying it's like this is core, this kind of like comparison and positive or negative example is core to all of the RLHF work that has continued.
+
+Swyx [00:21:29]: People often say, I don't know what I want, but I'll know when I see it. This is that expressed in reinforcement learning tools.
+
+Nathan [00:21:35]: Yeah, it is. Yeah, it is. That's what everyone's doing in the preference modeling stage that we'll get to. Yeah. Yeah. And you can see there are more papers. This is really just to have all the links for people that go deeper. There's a Ziegler et al. paper in 2019, which shows that you can do this RLHF process on language models. This familiar diagram starts to emerge in 2019, and it's just to show that this goes really far back. I think we can kind of breeze through some of these. And then 2020 is the first open AI experiment that I think caught people's eyes, which is this learning to summarize experiment. It has this three-step process that we'll go to into more when I kind of go into the main concepts. But this is like the first time you see this diagram that they reuse with InstructGPT, they reuse with ChatGPT. And the types of examples that they would have, I don't think I need to read these exactly, but one that I have read a whole bunch of times is like, they took these prompts from Reddit that was like, explain like I'm five or get career advice, and people really pour their heart and soul into these. So these are like multi-paragraph pieces of writing. And then they essentially do comparisons between a vanilla language model, like I think it was either GPT-2 or GPT-3, I don't always get the exact years.
+
+Swyx [00:22:42]: 3 was early 2020. So that's about right.
+
+Nathan [00:22:45]: Yeah. So this is probably done with GPT-2. It doesn't really matter. But the language model does normal things when you do few shot, which is like it repeats itself. It doesn't have nice text. And what they did is that this was the first time where the language model would generate like pretty nice text from an output. It was restricted to the summarization domain. But I think that I guess this is where I wish I was paying attention more because I would see the paper, but I didn't know to read the language model outputs and kind of understand this qualitative sense of the models very well then. Because you look at the plots in the papers, these Learning to Summarize and Destruct GPT have incredibly pretty plots, just like nicely separated lines with error bars and they're like superfine tuning works, the RL step works. But if you were early to see like how different the language that was written by these models was, I think you could have been early to like things like ChatGPT and knowing RLHF would matter. And now I think the good people know to chat with language models, but not even everyone does this. Like people are still looking at numbers. And I think OpenAI probably figured it out when they were doing this, how important that could be. And then they had years to kind of chisel away at that and that's why they're doing so well now. Yeah.
+
+Swyx [00:23:56]: I mean, arguably, you know, it's well known that ChatGPT was kind of an accident that they didn't think it would be that big of a deal. Yeah.
+
+Nathan [00:24:02]: So maybe they didn't. Maybe they didn't, but they were getting the proxy that they needed.
+
+Swyx [00:24:06]: I've heard off the record from other labs that it was in the air. If OpenAI didn't do it, someone else would have done it. So you've mentioned a couple of other papers that are very seminal to this period. And I love how you say way back when in referring to 2019.
+
+Nathan [00:24:19]: It feels like it in my life.
+
+Swyx [00:24:21]: So how much should people understand the relationship between RLHF, instruction tuning, PPO, KL divergence, anything like that? Like how would you construct the level of knowledge that people should dive into? What should people know at the high level? And then if people want to dive in deeper, where do they go? Is instruct tuning important here or is that part of the overall process towards modern RLHF?
+
+Nathan [00:24:44]: I think for most people, instruction tuning is probably still more important in their day to day life. I think instruction tuning works very well. You can write samples by hand that make sense. You can get the model to learn from them. You could do this with very low compute. It's easy to do almost in like no code solutions at this point. And the loss function is really straightforward. And then if you're interested in RLHF, you can kind of learn from it from a different perspective, which is like how the instruction tuning distribution makes it easier for your RLHF model to learn. There's a lot of details depending on your preference data, if it's close to your instruction model or not, if that matters. But that's really at the RLHF stage. So I think it's nice to segment and just kind of understand what your level of investment and goals are. I think instruction tuning still can do most of what you want to do. And it's like, if you want to think about RLHF, at least before DPO really had taken off at all, it would be like, do you want to have a team of at least like five people if you're really thinking about doing RLHF? I think DPO makes it a little bit easier, but that's still really limited to kind of one data set that everyone's using at this point. Like everyone's using this ultra feedback data set and it boosts AlpacaVal, MTBench, TruthfulQA and like the qualitative model a bit. We don't really know why. It's like, it might just be a data set combined with the method, but you've got to be ready for a bumpy ride if you're wanting to try to do RLHF. I don't really recommend most startups to do it unless it's like going to provide them a clear competitive advantage in their kind of niche, because you're not going to make your model chat GPT like better than OpenAI or anything like that. You've got to accept that there's some exploration there and you might get a vein of benefit in your specific domain, but I'm still like, oh, be careful going into the RLHF can of worms. You probably don't need to.
+
+Swyx [00:26:27]: Okay. So there's a bit of a time skip in what you mentioned. DPO is like a couple months old, so we'll leave that towards the end. I think the main result that I think most people talk about at this stage, we're talking about September 2020 and then going into, I guess maybe last year was Vicuña as one of the more interesting applications of instruction tuning that pushed LLAMA1 from, let's say a GPT 3-ish model to a GPT 3.5 model in pure open source with not a lot of resources. I think, I mean, they said something like, you know, they use like under $100 to make
+
+Nathan [00:26:58]: this. Yeah. Like instruction tuning can really go a long way. I think the claims of chat GPT level are long overblown in most of the things in open source. I think it's not to say, like Vicuña was a huge step and it's just kind of showing that instruction tuning with the right data will completely change what it feels like to talk with your model. Yeah.
+
+Swyx [00:27:19]: From text completion to actually chatting back and forth. Yeah. Yeah.
+
+Nathan [00:27:23]: Instruction tuning can be multi-turn. Just having a little bit of data that's like a couple of turns can go a really long way. That was like the story of the whole first part of the year is like people would be surprised by how far you can take instruction tuning on a small model. I think the things that people see now is like the small models don't really handle nuance as well and they could be more repetitive even if they have really good instruction tuning. But if you take that kind of 7 to 70 billion parameter jump, like the instruction tuning at the bigger model is like robustness, little things make more sense. So that's still just with instruction tuning and scale more than anything else.
+
+Swyx [00:27:56]: Excellent. Shall we go to technical overview?
+
+Nathan [00:27:58]: Yeah. This is kind of where we go through my own version of this like three phase process. You can talk about instruction tuning, which we've talked about a lot. It's funny because all these things, instruction tuning has the fewest slides, even though it's the most practical thing for most people. We could save the debate for like if the big labs still do instruction tuning for later, but that's a coming wave for people. And then like preference data and training and then kind of like what does reinforce learning optimization actually mean? We talk about these sequentially because you really have to be able to do each of them to be able to do the next one. You need to be able to have a model that's chatty or helpful instruction following. Every company has their own word that they like to assign to what instructions mean. And then once you have that, you can collect preference data and do some sort of optimization.
+
+Swyx [00:28:39]: When you say word, you mean like angle bracket inst or do you mean something else?
+
+Nathan [00:28:42]: Oh, I don't even know what inst means, but just saying like they use their adjective that they like. I think Entropic also like steerable is another one.
+
+Swyx [00:28:51]: Just the way they describe it. Yeah.
+
+Nathan [00:28:53]: So like instruction tuning, we've covered most of this is really about like you should try to adapt your models to specific needs. It makes models that were only okay, extremely comprehensible. A lot of the times it's where you start to get things like chat templates. So if you want to do system prompts, if you want to ask your model, like act like a pirate, that's one of the ones I always do, which is always funny, but like whatever you like act like a chef, like anything, this is where those types of things that people really know in language models start to get applied. So it's good as a kind of starting point because this chat template is used in our early childhood and all of these things down the line, but it was a basic pointer. It's like, once you see this with instruction tuning, you really know it, which is like you take things like stack overflow where you have a question and an answer. You format that data really nicely. There's much more tricky things that people do, but I still think the vast majority of it is question answer. Please explain this topic to me, generate this thing for me. That hasn't changed that much this year. I think people have just gotten better at scaling up the data that they need. Yeah, this is where this talk will kind of take a whole left turn into more technical detail land. I put a slide with the RLHF objective, which I think is good for people to know. I've started going back to this more, just kind of understand what is trying to happen here and what type of math people could do. I think because of this algorithm, we've mentioned this, it's in the air, direct preference optimization, but everything kind of comes from an equation of trying to learn a policy that maximizes the reward. The reward is some learned metric. A lot can be said about what the reward should be subject to some constraint. The most popular constraint is the KL distraint, which is just a distributional distance. Essentially in language models, that means if you have a completion from your instruction or RLHF model, you can compare that completion to a base model. And looking at the log probs from the model, which are essentially how likely each token is, you can see a rough calculation of the distance between these two models, just as a scalar number. I think what that actually looks like in code, you can look at it. It'd be like a sum of log probs that you get right from the model. It'll look much more simpler than it sounds, but it is just to make the optimization kind of stay on tracks.
+
+Make sure it doesn't overfit to the RLHF data. Because we have so little data in RLHF, overfitting is really something that could happen. I think it'll fit to specific features that labelers like to see, that the model likes to generate, punctuation, weird tokens like calculator tokens. It could overfit to anything if it's in the data a lot and it happens to be in a specific format. And the KL constraint prevents that. There's not that much documented work on that, but there's a lot of people that know if you take that away, it just doesn't work at all. I think it's something that people don't focus on too much. But the objective, as I said, it's just kind of, you optimize the reward. The reward is where the human part of this comes in. We'll talk about that next. And then subject to a constraint, don't change the model too much. The real questions are, how do you implement the reward? And then how do you make the reward go up in a meaningful way? So like a preference model, the task is kind of to design a human reward. I think the equation that most of the stuff is based on right now is something called a Bradley-Terry model, which is like a pairwise preference model where you compare two completions and you say which one you like better. I'll show an interface that Anthropic uses here. And the Bradley-Terry model is really a fancy probability between two selections. And what's happening in the math is that you're looking at the probability that the chosen completion, the one you like better, is actually the better completion over the rejected completion. And what these preference models do is they assume this probability is correlated to reward. So if you just sample from this probability, it'll give you a scalar. And then you use that reward later on to signify what piece of text is better. I'm kind of inclined to breeze through the math stuff because otherwise, it's going to be not as good to listen to.
+
+Alessio [00:32:49]: I think people want to hear it. I think there's a lot of higher level explanations out there. Yeah.
+
+Nathan [00:32:55]: So the real thing is you need to assign a scalar reward of how good a response is. And that's not necessarily that easy to understand. Because if we take back to one of the first works, I mentioned this tamer thing for decision making. People tried that with language models, which is if you have a prompt in a completion and you just have someone rate it from 0 to 10, could you then train a reward model on all of these completions in 0 to 10 ratings and see if you can get chat2BT with that? And the answer is really kind of no. Like a lot of people tried that. It didn't really work. And then that's why they tried this pairwise preference thing. And it happened to work. And this Bradley Terry model comes from the 50s. It's from these fields that I was mentioning earlier. And it's wild how much this happens. I mean, this screenshot I have in the slides is from the DPO paper. I think it might be the appendix. But it's still really around in the literature of what people are doing for RLHF.
+
+Alessio [00:33:45]: Yeah.
+
+Nathan [00:33:45]: So it's a fun one to know.
+
+Swyx [00:33:46]: I'll point out one presumption that this heavily relies on. You mentioned this as part of your six presumptions that we covered earlier, which is that you can aggregate these preferences. This is not exactly true among all humans, right? I have a preference for one thing. You have a preference for a different thing. And actually coming from economics, you mentioned economics earlier. There's a theorem or a name for this called error impossibility, which I'm sure you've come across..
+
+Nathan [00:34:07]: It's one of the many kind of things we throw around in the paper.
+
+Swyx [00:34:10]: Right. Do we just ignore it?
+
+Nathan [00:34:14]: We just, yeah, just aggregate. Yeah. I think the reason this really is done on a deep level is that you're not actually trying to model any contestable preference in this. You're not trying to go into things that are controversial or anything. It's really the notion of preference is trying to stay around correctness and style rather than any meaningful notion of preference. Because otherwise these companies, they don't want to do this at all. I think that's just how it is. And it's like, if you look at what people actually do. So I have a bunch of slides on the feedback interface. And they all publish this.
+
+Swyx [00:34:43]: It's always at the appendices of every paper.
+
+Nathan [00:34:47]: There's something later on in this talk, which is like, but it's good to mention. And this is when you're doing this preference collection, you write out a very long document of instructions to people that are collecting this data. And it's like, this is the hierarchy of what we want to prioritize. Something amount like factuality, helpfulness, honestness, harmlessness. These are all different things. Every company will rank these in different ways, provide extensive examples. It's like, if you see these two answers, you should select this one and why. And all of this stuff. And then my kind of like head scratching is like, why don't we check if the models actually do these things that we tell the data annotators to collect? But I think it's because it's hard to make that attribution. And it's hard to test if a model is honest and stuff. It would just be nice to understand the kind of causal mechanisms as a researcher or like if our goals are met. But at a simple level, what it boils down to, I have a lot more images than I need. It's like you're having a conversation with an AI, something like type GPT. You get shown two responses or more in some papers, and then you have to choose which one is better. I think something you'll hear a lot in this space is something called a Likert scale. Likert is a name. It's a name for probably some research in economics, decision theory, something. But essentially, it's a type of scale where if you have integers from like one to eight, the middle numbers will represent something close to a tie. And the smallest numbers will represent one model being way better than the other. And the biggest numbers will be like the other models better. So in the case of one to eight, if you're comparing models A to B, if you return a one, if you really liked option A, you return eight if you really like B, and then like a four or five if they were close. There's other ways to collect this data. This one's become really popular. We played with it a bit at Hugging Face. It's hard to use. Filling out this preference data is really hard. You have to read like multiple paragraphs. It's not for me. Some people really like it. I hear I'm like, I can't imagine sitting there and reading AI-generated text and like having to do that for my job. But a lot of these early papers in RLHF have good examples of what was done. The one I have here is from Anthropic's collection demo because it was from slides that I did with Anthropic. But you can look up these in the various papers. It looks like Chat2BT with two responses, and then you have an option to say which one is better. It's nothing crazy. The infrastructure is almost exactly the same, but they just log which one you think is better. I think places like Scale are also really big in this where a lot of the labeler companies will help control like who's doing how many samples. You have multiple people go over the same sample once and like what happens if there's disagreement. I don't really think this disagreement data is used for anything, but it's good to know like what the distribution of prompts is, who's doing it, how many samples you have, controlling the workforce. All of this is very hard. A last thing to add is that a lot of these companies do collect optional metadata. I think the Anthropic example shows a rating of like how good was the prompt or the conversation from good to bad because things matter. Like there's kind of a quadrant of preference data in my mind, which is you're comparing a good answer to a good answer, which is like really interesting signal. And then there's kind of the option of you're comparing a bad answer to a bad answer, which is like you don't want to train your model on two different issues. This is like, we did this at Hugging Base and it was like, our data was like, we don't know if we can use this because a lot of it was just bad answer to bad answer because you're like rushing to try to do this real contract. And then there's also good answer to bad answer, which I think is probably pretty reasonable to include. You just prefer the good one and move on with your life. But those are very different scenarios. I think open AIs of the world are all in good answer, good answer, and have learned to eliminate everything else. But when people try to do this in open source, it's probably like what Open Assistance saw is like, there's just a lot of bad answers in your preference data. And you're like, what do I do with this? Metadata flags can help. I threw in the instruct GPT metadata. You can see how much they collect here. And like everything from the model fails to actually complete the task, hallucinations, different types of offensive or dangerous content, moral judgment, expresses opinion. Like, I don't know exactly if they're doing this now, but you can kind of see why doing RLHF at scale and prioritizing a lot of different endpoints would be hard because these are all things I'd be interested in if I was scaling up a big team to do RLHF and like what is going into the preference data. You do an experiment and you're like, okay, we're going to remove all the data where they said the model hallucinates like just that and then retrain everything. Like, what does that do?
+
+Swyx [00:38:59]: Yeah, so hallucination is big, but some of these other metadata categories, and I've seen this in a lot of papers, it's like, does it contain sexual content? Does it express a moral judgment? Does it denigrate a protected class? That kind of stuff, very binary. Should people try to adjust for this at the RLHF layer or should they put it as a pipeline where they have a classifier as a separate model that grades the model output?
+
+Nathan [00:39:20]: Do you mean for training or like a deployment? Deployment. I do think that people are doing it at deployment. I think we've seen safety and other things in the RLHF pipeline. Like Lama 2 is famous for kind of having this like helpfulness and safety reward models. Deep in the Gemini report is something that Gemini has like four things, which is like helpfulness, factuality, maybe safety, maybe something else. But places like Anthropic and Chattopadhyay and Bard almost surely have a classifier after, which is like, is this text good? Is this text bad? That's not that surprising, I think, because you could use like a hundred times smaller language model and do much better at filtering than RLHF. But I do think it's still so deeply intertwined with the motivation of RLHF to be for safety that some of these categories still persist. I think that's something I'll kind of settle out, I think.
+
+Swyx [00:40:11]: I'm just wondering if it's worth collecting this data for the RLHF purpose, if you're not going to use it in any way, separate model to-
+
+Nathan [00:40:18]: Yeah, I don't think OpenAI will collect all of this anymore, but I think for research perspectives, it's very insightful to know, but it's also expensive. So essentially your preference data scales with how many minutes it takes for you to do each task and every button is like, it scales pretty linearly. So it's not cheap stuff.
+
+Swyx [00:40:35]: Can we, since you mentioned expensiveness, I think you may have joined one of our spaces back in Lama 2 was released. We had an estimate from you that was something on the order of Lama 2 costs $3 to $6 million to train GPU-wise, and then it was something like $20 to $30 million in preference data. Is that something that's still in the ballpark? I don't need precise numbers.
+
+Nathan [00:40:56]: I think it's still a ballpark. I know that the 20 million was off by a factor of four because I was converting from a prompt number to a total data point. So essentially when you do this, if you have multi-turn setting, each turn will be one data point and the Lama 2 paper reports like 1.5 million data points, which could be like 400,000 prompts. So I would say it's still say like 6 to 8 million is safe to say that they're spending, if not more, they're probably also buying other types of data and or throwing out data that they don't like, but it's very comparable to compute costs. But the compute costs listed in the paper always are way lower because all they have to say is like, what does one run cost? But they're running tens or hundreds of runs. So it's like, okay, like... Yeah, it's just kind of a meaningless number. Yeah, the data number would be more interesting.
+
+Alessio [00:41:42]: What's the depreciation of this data?
+
+Nathan [00:41:46]: It depends on the method. Like some methods, people think that it's more sensitive to the, this is what I was saying. It was like, does the type of instruction tuning you do matter for RLHF? So like, depending on the method, some people are trying to figure out if you need to have like what is called like, this is very confusing. It's called like on policy data, which is like your RLHF data is from your instruction model. I really think people in open source and academics are going to figure out how to use any preference data on any model just because they're scrappy. But there's been an intuition that to do like PPO well and keep improving the model over time and do like what Meta did and what people think that OpenAI does is that you need to collect new preference data to kind of edge the distribution of capabilities forward. So there's a depreciation where like the first batch of data you collect isn't really useful for training the model when you have the fifth batch. We don't really know, but it's a good question. And I do think that if we had all the LLAMA data, we wouldn't know what to do with all of it. Like probably like 20 to 40% would be pretty useful for people, but not the whole data set. Like a lot of it's probably kind of gibberish because they had a lot of data in there.
+
+Alessio [00:42:51]: So do you think like the open source community should spend more time figuring out how to reuse the data that we have or like generate more data? I think that's one of the-
+
+Nathan [00:43:02]: I think if the people are kind of locked into using synthetic data, people also think that synthetic data is like GPT-4 is more accurate than humans at labeling preferences. So if you look at these diagrams, like humans are about 60 to 70% agreement. And we're like, that's what the models get to. And if humans are about 70% agreement or accuracy, like GPT-4 is like 80%. So it is a bit better, which is like in one way of saying it.
+
+Swyx [00:43:24]: Humans don't even agree with humans 50% of the time.
+
+Nathan [00:43:27]: Yeah, so like that's the thing. It's like the human disagreement or the lack of accuracy should be like a signal, but how do you incorporate that? It's really tricky to actually do that. I think that people just keep using GPT-4 because it's really cheap. It's one of my like go-to, like I just say this over and over again is like GPT-4 for data generation, all terms and conditions aside because we know OpenAI has this stuff is like very cheap for getting pretty good data compared to compute or salary of any engineer or anything. So it's like tell people to go crazy generating GPT-4 data if you're willing to take the organizational like cloud of should we be doing this? But I think most people have accepted that you kind of do this, especially at individuals. Like they're not gonna come after individuals. I do think more companies should think twice before doing tons of OpenAI outputs. Also just because the data contamination and what it does to your workflow is probably hard to control at scale.
+
+Swyx [00:44:21]: And we should just mention at the time of recording, we've seen the first example of OpenAI enforcing their terms of service. ByteDance was caught, reported to be training on GPT-4 data and they got their access to OpenAI revoked. So that was one example.
+
+Nathan [00:44:36]: Yeah, I don't expect OpenAI to go too crazy on this cause they're just gonna, there's gonna be so much backlash against them. And like, everyone's gonna do it anyways.
+
+Swyx [00:44:46]: And what's at stake here to spell it out is like, okay, that's like cost $10 to collect one data point from a human. It's gonna cost you like a 10th of a cent with OpenAI, right? So like it's just orders of magnitude cheaper. And therefore people-
+
+Nathan [00:44:58]: Yeah, and it's like the signal you get from humans is from preferences isn't that high. The signal that you get from humans for instructions is pretty high, but it is also very expensive. So like the human instructions are definitely like by far and away the best ones out there compared to the synthetic data. But I think like the synthetic preferences are just so much easier to get some sort of signal running with and you can work in other, I think people will start working in other goals there between safety and whatever. That's something that's taking off and we'll kind of see that. I think in 2024, at some point, people will start doing things like constitutional AI for preferences, which will be pretty interesting. I think we saw how long it took RLHF to get started in open source. Instruction tuning was like the only thing that was really happening until maybe like August, really. I think Zephyr was the first model that showed success with RLHF in the public, but that's a long time from everyone knowing that it was something that people are interested in to having any like check mark. So I accept that and think the same will happen with constitutional AI. But once people show that you can do it once, they continue to explore.
+
+Alessio [00:46:01]: Excellent.
+
+Swyx [00:46:01]: Just in the domain of human preference data suppliers, Scale.ai very happily will tell you that they supplied all that data for Lama 2. The other one is probably interesting, LMSYS from Berkeley. What they're running with Chaterina is perhaps a good store of human preference data.
+
+Nathan [00:46:17]: Yeah, they released some toxicity data. They, I think, are generally worried about releasing data because they have to process it and make sure everything is safe and they're really lightweight work. I think they're trying to release the preference data. I have, if we make it to evaluation, I'd pretty much say that Chaterina is the best limited evaluation that people have to learn how to use language models. And like, it's very valuable data. They also may share some data with people that they host models from. So like if your model is hosted there and you pay for the hosting, you can get the prompts because you're pointing the endpoint at it and that gets pinged to you and you're any real LLM inference stack saves the prompts that you get. So like that is some signal. I don't know if the shared preferences. I do think they're trying to. They're trying to do all the right things. They're just very strapped and moving data comes with other like legal and liability concerns in some cases. Awesome. So kind of looping back a little bit from that very valuable digression on like what preference data is, it's worth talking about the actual loss function because it's kind of like this classifier approach that might not make too much sense to people. You take a language model and you chop it into pieces a little bit at the end so that it outputs one number. It's like in technical level, it's a logit that corresponds to the probability that we talked about earlier. But in order to train this, you can't just have like prompt and completions. You need to have these pairs because we talked about scalars don't really work. So in order to train it, you use the magical batching of all language model, all deep learning architectures and you put in the chosen prompt and the rejected prompt at the same time and then you end up with two numbers and then there's this fun loss function and you essentially have to increase the difference between these two predicted numbers. It's always fun when you think about like automatic differentiation, it updates the same parameters to kind of separate these two numbers at once and there's this loss function that you'll see in OpenAI, Anthropic and everyone's papers. What it looks like is it's like some log of a scalar with an exponential that's the difference between these two predicted rewards. It's just some fancy math around a difference, a subtraction between the predicted reward for the rejected completion and the predicted reward of the chosen completion. Fun fact is that these loss functions look different and Anthropic and OpenAI's papers, but they're just literally just log transforms. So if you start like expandiating both sides and taking the log of both sides, both the two papers end up being the same thing. And people don't know how to train preference models particularly well now. I think if you zoom into any of the details to look at like the agreement number, so how if you look at a test set, you'll have a chosen and rejected and you can take the reward model you're training, pass in those completions and you see if the chosen predicted reward, so the scalar number is higher than the rejected predicted reward. And this is the agreement numbers in all of these datasets is like that where you see they have the 65 to 75% agreement. This just means that like these scalar numbers were ordered correctly. And that's a pretty low number. It's not gonna get to a hundred percent. That goes to show the kind of like deep questions at play here. People are playing with different loss functions and samples, different models to try to address this, but it's really a fundamental issue. It's like, it goes back to like, what does it mean to do RLHF? And we're not gonna answer that now, but it's good to know that like this 65 to 75% agreement, you'll see these numbers everywhere. It's like, we don't have a hundred percent agreement with the reward model and the data and that's fine. That's just where we're at. And we essentially take this model and then we start throwing RL at it. I think PPO, proximal policy optimization, it's pretty complicated compared to what you really need to know. It really just does RL under the hood. Things like PPO, it learns a value function and then it uses the value function to update the model. If you actually look at like a feedback diagram, more of like a systems problem than an RL problem. So you'll see things like you need to have two copies of the language model. This is for the KL constraint that we talked about before. You need to have the reward model, which is either a separate reward model or value head on your base model. And then you need to have your like RL code that actually learns a value function and updates all the parameters. I think it just is really messy to actually set up, but if you dig into it, most people could understand what each of the components are. And then the hard parts are like, how do we actually make a language model that works out of this? Which is not something that people know that well. I think things that I talk about a lot, it's just like, okay, like what is the signal flow? How do you access the reward model? The reward model is used in RLHF exactly what you would think. You have a prompt, the language model generates a completion and then that completion is given a score. That score gets plugged into the whole RL stuff and it updates the parameters. That's kind of the core of it. There's a lot of different things zooming in on where exactly you put this distance penalty between the base model and the RL model. Most people say that you just deduct it from the reward. So if you go all the way back to RL as an agent acting in the world, the reward from that world would be a combination of the reward model and any constraints like KL that you put on it. There's a lot of different ways to do this because a lot of RL algorithms like PPO actually have a KL constraint built into them. So it's confusing because you hear KL twice, but those are different KLs. One of them is about the text and one of them is about the value function distance or the policy distance or something like this. So those are different. It really ends up being kind of like gibberish that I think is less important now because it's more about data and infrastructure than RL details, than like value functions and everything. A lot of the papers have different terms in the equations. I think InstructGPT does something where they like try to get the RL model to match the instruction tuning dataset because they were really happy with that dataset to constrain the distribution. LLAMA does some different things, but I think these are all small gains over just getting the deep understanding of the data in the infrastructure setup. This is why we say it's like so little RL. It's like now we're getting to the point where you don't even really need this to get a good model. So that's why it's like, okay, the RL is such a small part of the actual, like doing RLHF, like RLHF is a metaphor for like all language model adaptation and RL is one tool used at one point in the time. So that's kind of where I wrap up like the core overview in my mind to say like RL doesn't really do as much as people think, but you could put up flashy equations and do all sorts of stuff if you want to. It's just like, I think it's kind of misleading even because I don't think about those equations on a regular basis.
+
+Swyx [00:52:20]: But what if we call it Q star?
+
+Alessio [00:52:23]: Yeah.
+
+Alessio [00:52:26]: So in your mind, it's a takeaway for this kind of next generation of people working on models. Maybe the underlying theories is less important than actually getting good data, basically.
+
+Nathan [00:52:38]: Yeah, I think it's getting good data and we'll see like, I have this like advanced topics thing in the slides, which it starts with the vowels and then it talks about a lot of different ways that people are using reward models or constructing training signals really. And I think that's like about understanding what your information flow is and like if your reward signal is good and like if your language model is generating right, like zooming in on the tokens is generating and kind of understanding how those things change over time. Like this is something we could also talk about evaluation, but it's really like RLHF is not that shown to improve capabilities yet. I think one of the fun ones is from the GPT-4 technical report. They essentially listed their kind of bogus evaluations because it's a hilarious table because it's like LSAT, AP exams and then like AMC 10 and AMC 12 are like kind of reasonable vowels in language model land. But they just showed that like RLHF doesn't improve their evaluation metrics. We don't know if internally they have other ones.
+
+Alessio [00:53:30]: They probably do.
+
+Nathan [00:53:30]: But from what OpenAI has shown us externally, like RLHF improves some metrics. It decreases some metrics. No one could really see. I do think it does things that they care about, but it's like RLHF is not an easy tool to make numbers go up with. It's a powerful tool to change your language model. But like, as we've seen with LLAMA and safety RLHF, like that doesn't always mean that people are gonna be happy with those changes or it's gonna do exactly what you want. It's like-
+
+Swyx [00:53:56]: Well, I think this is intuitive. Like a lot of these tests are multiple choice and RLHF isn't necessarily intended to improve your multiple choice reasoning capabilities.
+
+Nathan [00:54:04]: Yeah, I think it is reasonable, but I don't think a lot of people have like connected the dots there. And like, what is it in a preference point? Like what if your preference data was between a correct and a wrong answer? Like it could conceivably do it, but I just don't think that is remotely what it is actually doing.
+
+Swyx [00:54:22]: It's much better being a sommelier.
+
+Nathan [00:54:24]: Yeah. That was the weirdest one that was included in GPT-4
+
+Alessio [00:54:29]: I just see that the last three down there. That's really funny. I can't even taste it.
+
+Nathan [00:54:38]: Yeah, so this is essentially how to use RLHF-like things to make the bottle better without using PPO because PPO is kind of a nightmare to scale. The first thing that I started with is kind of the ideas of rejection sampling and best event sampling. I think best event sampling is what people often encounter first, which is the idea of you take a prompt, you generate like 10, 20 responses through it. You pass it through a reward model. The reward model assigns a scaler for each of them. You pick the one with the highest number and that's the one you answer the question with. It seems pretty logical to people because it's just spending more inference time compute to make your outputs better. And it works in a lot of things. This Let's Verify step-by-step paper that I talked about from OpenAI, they use it, lots of papers use it. It's just kind of like a good thing to know that you can do. You can spend more inference compute based on a preference dataset to make your answers better. The interesting thing that people are confused about more is rejection sampling because Meta talked about it in LLAMA 2. Essentially, a rejection sampling is putting something like best event sampling in a feedback loop. And instead of just returning the best answer to a user, you take the best few answers and then you apply instruction tuning on that dataset. And then you do the instruction tuning and then you could collect more preference data, do a new reward model. And then you rank some new outputs and you do instruction tuning again. So essentially, LLAMA started their RLHF process with this to get some signal out of preference data. That preference data went into a reward model. And then the reward model did a good enough ranking that it was like essentially super powered instruction tuning based on rewards. Works pretty well, much easier to implement than PPO because you can use it in all of your kind of like, it's still instruction tuning. So it's the same autoregressive loss. It's easy to plug into things like transformers and stuff like that. A lot easier to start with than whatever freaking mess doing RL at scale is going to be. So that's one. A quick nod that offline RL is something that people talk about for RLHF essentially because your model doesn't have to generate. In that case, you look at data and it back propagates through your reward model directly. So in PPO, you have the step of like needing to generate everything and passing it through the reward model. How offline RL essentially works is that all of this is kind of just done in one big data set. I'm not an expert in this, but essentially you do much less inference costs during the RLHF process. If you do offline RL, there's a few papers that people have published. Not a lot of traction. I think it could take off some people that I know in the RLHF area really think a lot of people are doing this in industry just because it makes the kind of training process simpler in the number of things you have to have running. Different feedback types are probably going to come into play. There's papers like written feedback or labeling multiple scores or multiple pairwise preferences for every completion that's coming. It's also kind of related to what we mentioned in process reward models where you're labeling each step in the chain of thought reasoning just to kind of make the problem more specific. It seems very likely that different feedback will be used for different domains.
+
+Chain of thought reasoning is great for math and that's where these process reward models are being designed. Probably not great for things like poetry, but as any tool gets better, it gets more specific. Then kind of get into more of a talking point, which I think is fun.
+
+The next one I have is constitutional AI. I think this is something that people really just kind of misunderstood. I mean, I think most people thought that constitutional AI was doing something where it's like created the preference data based on the specific principles in some way, where it's like, what did you two think of constitutional AI?
+
+Swyx [00:58:10]: I'll be the dumb person and you correct me. As far as I understood, Anthropic came out and said that the best way of generating this sort of preference data or alignment is give a second model, a constitution to evaluate the first model's outputs.
+
+Nathan [00:58:21]: Yeah.
+
+Swyx [00:58:22]: The constitution is unspecified, but like this is draws from like the UN Declaration of Human Rights and the Apple Terms of Service for some reason.
+
+Alessio [00:58:28]: Yeah.
+
+Nathan [00:58:28]: And this leads into the question is like, what is the other model evaluating? And like, how is it evaluating in a way that you can train on? And that's what I mean. It's like, people didn't think about this. A lot of the CAI paper was actually talking about instruction tuning, which is if you have an instruction, you then have a language model that critiques the instruction based on principles. And then your instruction responses are closer to the constitutional principles. This was the first half, which is like they have some acronym for all of this.
+
+The diagram in their papers wild on this one. I think their papers are sometimes pretty funny because they're not capabilities papers. They're like alignment papers. So like they don't make everything super clear. So the first half of constitutional AI is fine tuning your instructions based on principles. That's one half. And then the second half is what people really thought that they knew, which is like, how do you use these other model to provide a critique based on principles? And in the paper, they list essentially they like say what their prompt was, which is like for the synthetic feedback for generating new preferences, which is essentially pick between these two answers based on this principle. So they're kind of sampling from the principles in their constitution and from kind of A, B, like two options of completions. And then the AI model is essentially given the context of a certain principle to pick the A or B preference. And then that's a new preference data set is just the two completions without the context of the principles. So with this kind of like sampling idea, they're sampling from like 30 principles and a wide data set of two candidate completions across the different prompts. So to me, it's a very like loose, like the values are not explicit in this. It's just kind of how they're guided. It's a very machine learning approach because it is relying on averages and scale to get the principles in there. But it is way less explicit than I thought it was going to be. I kind of thought there was this like feedback thing in the preference data or like check to see if the principles were satisfied or anything like this. It's really just like a modification to the RLHF setup that we've talked about with instruction, tuning and preference data collection where there's an AI model providing critiques. And a lot of those critiques are based on like sampling of constitutional values. It almost sounds more tractable in that way. But I would also guess while I just like say like, oh, look, I figured it out. I'm guessing they do different things than they said in the paper. Like this paper is in 2022. It's a pretty old paper. They're surely doing more. But it's good to know like where they started, at least in this case.
+
+Swyx [01:00:51]: I thought the communication around the Pareto optimal improvements was helpful in understanding that you do actually want it to be more helpful and honest while maintaining the same level of harmlessness or something. Yeah, right.
+
+Nathan [01:01:03]: Yeah, so that figure right at the top of the constitutional AI paper is worth seeing if you don't have it immediately pop into your head where they essentially compare like constitutional AI to other RLHF that they're doing internally. And that's something that most RLHF papers don't do is like they have little dots on the lines to indicate intermediate checkpoints and be really great to see more RLHF papers showing how per epoch or per half epoch of training because most RLHF is only a few epochs, at least in the open models, like what is happening there. People release checkpoints, but that's how we should be thinking about it because the optimizer is so strong and it's like we don't know what's happening in this kind of intermediate land.
+
+Swyx [01:01:41]: I don't know if this is a relevant comparison for you, but OpenAI also recently released a weak to strong generalization paper where they actually talked about a few intermediate checkpoints for GPT-4. Any comments on the comparison between constitutional AI and weak to strong generalization?
+
+Nathan [01:01:55]: I didn't see the paper. I think I saw people criticizing it for like just being like safety washing from the fact that they're like talking about GPT-2 still, which is such a kind of like odd model to focus on. I didn't really look at the paper. I think that it's a thing with OpenAI. It's like they're sharing less than they know. So I think they probably have things that are pretty cool that they're doing internally. And I'll summarize for listeners who may not have seen the paper because it's impossible to keep up and everything. I do think that what constitutional AI and RLAIF represents is that we are starting to come to a point where it's just impossible for manual human preference data collection to scale. And the only way to scale this is to trust our AI overlords to model our human preferences. And constitutional AI was the first version of this. What the second version or what weak to strong is, is that anticipating a future of the need for super alignment, where the thing that we're trying to control is smarter than us. So you take GPT-2 and try to use GPT-4 to teach it to be smarter than itself, because this is what we're going to have to do in the future as well. When we are not, we're no longer fully in control. Are we the metaphorical GPT-2? No, we're like not even in the process anymore at the point of super intelligence.
+
+Alessio [01:03:10]: They're prepping. And they're saying this will happen. And humans will be like so far like in the dust that we just have no say in this debate.
+
+Swyx [01:03:18]: How do we still control systems then? And weak to strong generalization seems to be the answer. And I see a lineage from constitutional AI to this.
+
+Nathan [01:03:26]: Yeah, the constitutional AI and the super alignment is like very conceptually linked. It's like a group of people that has like a very similar intellectual upbringing and they work together for a long time, like coming to the same conclusions in different ways. And I understand the argument and I mostly just don't. I think they're just waiting to see more from the super alignment team because I just didn't really put it together in my brain, quickly looking at weak to strong generalization of like exactly how it all fits. But I'm also not a safety researcher. Yeah, but I think that could be feedback for them. It's like I understand what synthetic data means and all of this is like how could they communicate that a little bit more specifically in this context? Because like I want to know what they think about this. Which is why I like that Pareto optimal thing, because it steers the debate away from X risk to like, no, like this makes knowledge models more useful and we can all get behind that.
+
+Swyx: I agree.
+
+Nathan [01:04:13]: I think the last kind of emerging direction that I have might just be like this debate. You can control how long we talk about this, which is about direct preference optimization. You could go read my blog post on this. I had tried to summarize this already, but essentially DPO is a different class of algorithms. I still call it RLHF because RLHF is so vague in how it's defined. I think DPO is closer to RLHF than RLHF is to RL. You can unpack that if you need to need to. But what DPO is doing is essentially deriving a optimal reward function from the preference data where the preference data is the same thing that we've talked about. And then the clever math in the paper emerges optimal policy to that based on an implicit reward function. That's a ratio of like log probs. It's very odd. Like the difference between what a DPO reward is and a classifier reward is very different, where like the classifier is trained to output a scalar value based on this kind of like contrastive like loss where DPO is purely based on like the difference between two log prob ratios. So the reward there is the ratio between like the policy generation likelihood and the base model generation likelihood. I don't have intuitions for what that means yet, but like what the reward actually is is very different. The data starting point in principle could be the same. And I think we've seen a lot of successes in open source with it. It's way simpler implement and to work with in that regard, which is why I think we'll keep seeing a lot of success with it in the short term. I think we'll keep seeing DPO models for the time being, but we won't really answer like what the fundamental differences are, because it depends on your data. It depends on your infrastructure. Rumors seem to be that people still think that PPO like methods or other RL methods have like higher top end, but I don't necessarily think like.
+
+Swyx [01:05:56]: Sorry, what is top end?
+
+Nathan [01:05:57]: Just like the absolute best model you could get. So like I see Google and OpenAI aren't using DPO because they could do something more complicated, but like that's not what academics and open source people really care about. They care about like being able to improve on their methods and understand where to like iterate the model and kind of work off of each other. So like in a lot of ways, I think DPO still will be what people see, but like in some ways it's probably like slightly more constrained. There's other ways that you could think of PPO like working nicely in code where it's like if your code runs is the score that you give it, you have to generate like you have to kind of do canned things to get DPO to have the same data. So there are specific cases where like the DPO formulation is a little bit harder, but I expect to see more DPO models than anything else in the next six months. That's probably like what most people need to know unless they're an RLHF expert. And like I would love to learn more about PPO and a lot of authors in this space from the DPO authors who are great to talk to. You can reach out to all three of them.
+
+Swyx [01:06:54]: So as of the time of recording, we actually about to publish our NeurIPS recap where we talk to the authors. Yeah, so for people who are listening to this in the future, you can refer to that episode.
+
+Nathan [01:07:02]: Yeah, so like Raphael, Eric and Archit, I've talked to all of them at a good length and they're all fantastic. And it's like they'll say similar things and they'll also defend their method because it's an awesome paper. If you want to learn how like a good math, like I'm kind of mathy but still experimental paper in language models is like the DPO paper is a really good one to spend more time on. Yeah.
+
+Swyx [01:07:25]: When I ask them questions about it, they just kind of gestured at the poster and said, look at the equation, just stare at it. And yeah, that's my criticism for them is they're still in the academic world where some of their answers reflect that. But I've done it enough with them that I understand what they're saying.
+
+Alessio [01:07:44]: Yeah.
+
+Swyx [01:07:44]: I would say like it does remind me of FlashAttention a little bit in a sense that like kind of an equivalent thing to the thing it's replacing and it's just faster, cheaper, just better.
+
+Nathan [01:07:53]: It's a very different optimization tool. There's essentially the thing in my mind that I can't get past is the difference between the control you get in training a reward model and then training a policy because essentially everything you want your reward model to do might not be everything that you train the policy to do in the RLHF step where you have like the two different prompt distributions. But with DPO, you're doing both at once. So you don't control that. And we don't know if you have fancy engineering abstractions and like test your reward model to do different things if that separation is really important. And I think that's where this like benefit at the absolute biggest scale and most investment could come from. But DPO is one update. Like it is one model. You can't separate that. So like that's the thing to know. Probably doesn't matter for most people, but it is very different. And like I was asking somebody who was on some of those earlier OpenAI papers that's not OpenAI anymore. And they were like, I wish we had thought of that. So like it is a really cool idea. And like that's the type of thing that academia still can do and can do really well and hopefully continues to do.
+
+Alessio [01:08:54]: Yeah.
+
+Swyx [01:08:54]: One thing I wanted to make sure I cover before we leave this topic, you know, one of the DPO models that were trained apart from Zephyr and McStraw, which is two of the more high profile ones is Tulu from the Allen Institute. And you're one of the few people maybe placed to explain. Like maybe like what's Allen Institute doing here? And like, you know, what's the backstory? Yeah.
+
+Nathan [01:09:15]: So the Allen Institute for AI is I think the 10 year birthday is in January. This is a special event for that. And also like people should know this is Paul Allen from Microsoft. Paul Allen owns everything in Seattle. Not literally. I mean, he's passed and his estate is still operating in a lot of great ways. But the Allen Institute is mostly known as being like a super academic lab where they have more resources than academia and publish like hit after hit of research paper. And they're trying to move more in the direction of releasing models. And this is part of why I joined. It's like talking with new CEO, Ali Farhadi. I don't know if I pronounced the last name right, but he's trying to move from an org that does papers only to something that does papers, releases models, is active in policy, maybe is like helping work with these for profit institutions that don't have like an established place where they could all go through to new things. So they're really trying to expand the scope. It's part of why I joined and like the Tulu2 model is the type of thing I've joined. And they were talking about this and I was like, okay, we should just train it and release it because no one has done this direct preference optimization at a scale of like a really like 70 billion parameter scale. And this experiment is hilarious. This is like classic of like everything kind of works right now in ML. Like I showed up in the grad student Hamish Ivison and I need to learn how to pronounce last names better. But he had some Jack's DPO code built on this EZLM framework. And we have the TPUs that we could access for research purposes. So it's like, okay, we have a huge TPU. It's like, let's just try the Zephyr recipe on 70 billion parameters. And it's literally like the first run. It's like, we did no ablations, didn't change any parameters. We just copied them all over. And like, that's the model that people have been working with. It's like, that goes to show that there's a lot of runway and understanding and improving on this. It's like, we took the same data and just took it to a different JAX implementation and scaled it up 10X and it still returned a model that was pretty good. It's like on benchmarks and in people using it. So let's say it's like 2024, we'll be busy in this space as we do. Like we're running data ablations to try to understand what's best. Then Allen Institute is pre-training language models who are pre-training like open language models where we'll be able to share like data, code, everything, the kind of horn that everyone likes to get annoyed about these days. It's like, well, I'm not releasing data. So that'll come in the new year. And then things like Tulu2 or the recipes that we will apply to that. And we'll kind of keep doing both as the pre-trained models get better. Those will probably become more of a priority, but like starting pre-training is very hard. So it's like you still want to learn from LLAMA2 and LLAMA3. So that's fun. I think DPO releases are kind of becoming expected because Mistral released a DPO model as well. There's a ton. There's like Intel releases DPO models, Stability releases DPO models.
+
+At some point, you just have to accept that that's where we're going, whether or not you care about the whole like DPO debate. And that's why I find it so funny because there's really interesting, like debatable questions between DPO and other RL methods. But we just won't have the answer. And it'll look like there isn't a debate because everything that is published is with DPO. But that doesn't mean that anything is answered in the time being. Yeah, kind of last of this stuff is evaluation. And these slides were prepared kind of last minute. But I think the question is, how do you evaluate these models and what you should be doing? I think the PSA is like, don't trust your numbers and actually talk to models. It's very hard to do if you're an engineer or a researcher because you have your specific thing that you're zoomed in on. And it feels like a waste of time to just go play with chat GPT or go play with chat arena. But I really don't think it is. It's something that I, this is like me telling myself what I should be doing. But there's the question of like, is the Hugging Face leaderboard good for open source? And then what else can people do?
+
+The Hugging Face leaderboard came out of the team that I was on there. We were trying to build a framework to automatically evaluate the models that we were training and the models that people were releasing and then have them in a central place where it could be like, look, here's the evaluation scores. This is what we're competing with. It obviously blew up. I think it's very good for companies trying to operate in the open LLM space to build businesses around it. I think it's bad for people building LLMs that they think are the best because it's easy to overfit if you're training and focusing on them as a developer. But it's good to have distribution of models when there's so many people training them. But it's like now it has six evaluation tools. I can't even name all of them off the top of my head. It's like ARC, Hella Swag, MMLU. There was Drop on it at one point, but they dropped a drop, which was pretty funny. Truthful QA. And then I think maybe some other math. I don't know.
+
+Swyx [01:13:42]: This benchmark question is something that everyone's talking about because there's a lot of gaming that it seems to be going on. Is there some discussion about sort of held out benchmarks that Hugging Face could hold on to?
+
+Nathan [01:13:55]: Mostly it's who's going to pay for it. We're thinking about this at Allen AI too. We're specifically thinking about improving on AlpacaEval, which is-
+
+Swyx [01:14:01]: Who's going to pay for running the evals? Right now Hugging Face is just running every eval every day?
+
+Nathan [01:14:06]: Yeah. So they have like a thousand GPUs. At one point they were going to do more training. It was going to be used for that. But now they have less training and they do, they've run a good amount of GPUs. And one of their blog posts, they said how much compute it was. I don't think it's a ton to run these, but it is like, you have to have hundreds of GPUs to maintain this leaderboard.
+
+Swyx [01:14:23]: So one technical question, like some of these are open source models that they don't change. So you just have to run them once. Yeah. It's only the closed source models that need to be revalued.
+
+Nathan [01:14:37]: Yeah. So if you look at the like chat arena, they take specific dates. And then there's this whole controversy of like, is ChatGPT from March better than ChatGPT from June? So like on like one of these future slides, it's slide 58 is like the chatbot arena leaderboard. If you're looking later, which chatbot arena is this thing from LMSys that we were looking at, and then like on the X-axis is models. And you can see that GPT-4 from March has a higher score. It's like, this is not a perfect comparison, but there are signs that are pretty funny there. That like, there are things cooking, but you don't know who's collecting this data, what prompts they're doing. It's such a funny timeline.
+
+Swyx [01:15:20]: So for those listening, GPT-4 March 14th is 40 Elo points higher than GPT-4 June 13th.
+
+Nathan [01:15:26]: Yeah, it's like outside of the error bars on the LMSys thing. And the other piece of context is that GPT-4 Turbo is also notably ahead of the other GPT-4s, which it kind of showed up immediately once they added it to the arena. And I was like, all the GPT-4.5 memes aside, it seems like this is effectively a bump in the model. If you zoom into this, the leaderboard is very close for many like strata of models. So there are levels where you can get your model to, and it'll be really close to your peers. So in the open source, there's things like Mixtral Instruct 2.2.7db, which is effectively, it's a way bigger model than Mixtral. Mixtral's the mixture of expert model. Like I'll do credit, it's a very good model. And that's gonna be like the next level once people get better at fine tuning it. Like Ye34bchat, like this is one level. And then there was like a level with like the Alpacas and the Vicunas. But all of these open source models, there's then another step up to GPT-4, and then there's another step up to GPT-4 Turbo. So it's like the difference from the GPT-4 Turbo to like the GPT-4 that was first released is bigger than the difference from Tulu2 to GPT-4. So that's just like, there's something good going on there. And I was like, okay, that's a new model by my standards, but they're not gonna tell us about it. Like they did in DevDay, they said it's our new model, but they weren't like, this is our new best performing model because it's like the benchmark scores are probably the same, but they made it so that people like using it more.
+
+Swyx [01:16:57]: There's some hints that 4.5 might drop at some point. We don't actually know how true those things are, but I don't think it really matters.
+
+Nathan [01:17:03]: It's like they could call anything, they're retraining these models and they could call any of them GPT-4.5. Yeah, cool.
+
+Swyx [01:17:10]: And the other last points in, you have a couple more extra slides here.
+
+Nathan [01:17:14]: There's a bunch of an evaluation. I think the two tools that I talk about most in research domains on RLHF is like Alpaca Valid MT Bench. They're two academic maintained leaderboards for evaluating chat capabilities. Evaluating chat is really hard. And what they both do is they have GPT-4 provide some sort of feedback. MT Bench is called MT for multi-turn and they have a prompt and a follow-up question. So what they do is they ask GPT-4 to score both the initial response and the second response and provide the average kind of given up on following the slides. This is all on the slides if you look for it. And then Alpaca Val is a little bit different where you're comparing a candidate model. So the model we've trained. So like when we're training Tulu, we compare that we submit this and what it's doing under the hood is comparing the new model to DaVinci 0.0.3 which is one of OpenAI's older instruction models and calculating the win rate that GPT-4 sees between the new model and DaVinci. So that's kind of like it has many more prompts than MT Bench. MT Bench is custom prompts that they made to just kind of like take a stance on what is a good chat model. Alpaca Val sources theirs from Self-Instruct which is a popular paper from AI2. Open Assistant, Vicuna, Koala, Anthropix, Helpful Harmfulists. So like Alpaca Val is from sources that people know and love. MT Bench is its own thing. We were more focused on MT Bench at Hugging Face at AI2. We're a little bit more focused on Alpaca Val but it really can go either way. These are kind of like table stakes to saying that you have a good RLHF model is like you should be able to have a pretty good score on both of these. And then the kind of proof is in people actually talking to it. So I think like the Zephyr model from Hugging Face was a kind of step change in people's perception of open models that got integrated into a bunch of products within a few weeks. Like you.com was experimenting with it and someone else, like I saw some sub stacker was using it as like a writing feedback bot instead of chat GPT. But like that's what happens when a good open release is there now. It's like the evaluations are good and people pick it up and the evaluations are just enough to like say like, okay, we're in the right ballpark but you never really know if the model is the one or one of these big ones without talking to it. So it's like however much you talk about Vals that's still where we're at. You can't prove anything definitively and Google seeing that and like until Gemini Ultra comes out like we don't know. It's probably a great model but we don't know what they have.
+
+Swyx [01:19:47]: Yeah, Gemini Pro didn't do so great on the other stuff too.
+
+Nathan [01:19:51]: Yeah, I wanna know if Gemini Pro is just like some intermediate checkpoint or if it was like a major deliverable for them or not. Which if it wasn't a major deliverable it's probably a strategy headache for Google but it's not my problem.
+
+Alessio [01:20:05]: You have a bunch of open questions here. One of our lightning round question is always. Yeah, we just do inverted lightning round. Yeah, exactly.
+
+Swyx [01:20:12]: You asked people open questions.
+
+Nathan [01:20:16]: Oh, I mean, there's so much to do here. They're kind of like summarization of things that will be hinted at in the talk to this point which is like I split it up in my work between like data training and model which is essentially like how do we evaluate what's happening at the model level with RLHF. I think big labs are indexed on their own base models so they don't know like what's swapping between CloudBase or GPT-4 base how that would change any notion of preference or what you do with RLHF. I think in the open we could do that. We can swap between Lama2 and Mixedraw and kind of see like does RLHF work the same for both of those? Do they both get alpaca valve bumps when you use the same dataset in the same framework down the line? That'd be good to know if like how sensitive RLHF is. On the data we talk a lot about aggregation. On the research side there's a lot of interesting things as like does getting your data from scale or a Discord army change the quality of the data based on like professional contexts. They probably should do it internally. They should do like internal market analysis on that line.
+
+Swyx [01:21:18]: We should also mention there has been a report that a lot of these labelers use ChatGPT to do their work.
+
+Nathan [01:21:25]: Yeah, I mean I'm not surprised. So it's like it's a lot of messy grounds in RL these days. And then there's more trading questions which is like what happens at the end of the day. I mentioned what I call like qualitative alignment earlier on which is like do the models get better in ways matching the preference data preferences? So if you like collect two matches of preference data with different priorities like what does the downstream model change? I don't know if it does anything. Should all data be equal? Like if you have like healthcare questions should it be the next same as like write me a joke? Like this is all implicit to deep learning. Like deep learning just scales and aggregates and like I think we are going to be on that ride but it's not necessarily what some people would call fair or good. And then the kind of last slide that I have is fun which is just like John Schulman talks about this in his ICML talk. His ICML talk on proxy objectives for RLHF is public now. They made it public like three months after the conference or some weird timeline. But he talks about things like ChatGPT being verbose and have self-doubt refusals. Things that are really like in vogue in the conversation right now and like how those can emerge in the process of continually trying to adjust the RLHF process based on what users are seeing in the model. And this is like a sort of outer loop optimization that no one in the open is even remotely qualified to talk about. But OpenAI does monitor and they'll like rerun RLHF and train a new reward model with a mixture of their curated data and user prompts to try to make it work better over time. And like that's the different model versions. And while there's a lot of critiques about this they're definitely like intentional and trying to fix. I feel like it's probably whack-a-mole where they're like, oh, there's this problem. We have the data, we can fix this. And then it like pops up some new problem after doing RLHF and they're studying this. And if you could really figure it out this is where things start to look more like RL. You could automate it. Things are just like longer timeframe of optimizing the model.
+
+Alessio [01:23:19]: It would be cool.
+
+Nathan [01:23:20]: But I feel like I'm years away from ever actually working on this but we can try to get details from people who are. Excellent.
+
+Swyx [01:23:28]: Awesome.
+
+Alessio [01:23:29]: Anything else that we missed? I think we covered a lot of it. I mean, I'm good.
+
+Nathan [01:23:33]: I would ask you guys about if you know companies that are doing this and things. Like I know some that are in the like the RLHF as a service space will become busy. I think for good reason, just because like.
+
+Swyx [01:23:44]: There's companies doing RLAIF as a service.
+
+Nathan [01:23:46]: Yeah, both of them are. It depends if synthetic data is going to win over human data. If human data is the real winning feature in the end like it's a big capital investment. So it kind of makes sense as a VC model anyways but there's going to be both of them for a while. It'd be cool.
+
+Alessio [01:24:01]: You see a lot of people because I know Louis Castricato is starting a company. Is there a lot of ambition in this field to start companies or is this more such a research-driven part of the stack that maybe it just stays there?
+
+Nathan [01:24:16]: There definitely is. Because I know my former colleague, Nazneen Rajani from Hugging Face is also starting a company in this space. The Falcon team who left Hugging Face I think is also working in this space. I don't really know. I don't know exactly what. I haven't talked to them since the guy's email. So I don't know what they're doing. Startups change a lot but there are definitely a lot of people looking at this space. I mean, Scale's probably trying to do it. If I was Scale, they would want to do it. I think they've historically had trouble keeping like technical ML talent but they've started a new research lab. So that should help. It's a busy area.
+
+Alessio [01:24:50]: Cool. Yeah. Awesome, Nathan. Thank you.
+
+Swyx [01:24:52]: That was a masterclass. I think this is the first 201 that we've ever had and you set the bar very high.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Nathan Lambert
+
+Writes Interconnects AI Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

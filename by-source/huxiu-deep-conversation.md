@@ -8,8 +8,6 @@
 
 **★★★** [Strategy]: "The biggest mistake is over-optimizing for the current model's limitations — your application should be decoupled from model capabilities."
 
-**Memories.ai implication**: Memories.ai implication: API design should leave room for fast model evolution, not hardcode today's constraints. Are Lucy Desktop's self-built pHash dedup and on-device STT already over-optimized?
-
 [Source](https://www.huxiu.com/article/4092015.html)
 
 ---

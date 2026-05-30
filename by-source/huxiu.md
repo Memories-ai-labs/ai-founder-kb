@@ -8,8 +8,6 @@
 
 **★★★** [Fundraising]: $250M revenue in 2025; a million units shipped across 170 countries. Only returned to China in September 2025 (validated PMF overseas first, then went home).
 
-**Memories.ai implication**: Memories.ai implication: the going-global path is validated yet again — overseas PMF before domestic.
-
 [Source](https://m.huxiu.com/article/4800322.html)
 
 ---

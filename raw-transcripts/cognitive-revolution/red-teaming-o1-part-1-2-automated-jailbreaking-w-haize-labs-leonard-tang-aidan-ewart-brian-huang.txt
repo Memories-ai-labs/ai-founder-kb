@@ -1,0 +1,463 @@
+# Red Teaming o1 Part 1/2–Automated Jailbreaking w/ Haize Labs' Leonard Tang, Aidan Ewart& Brian Huang
+# URL: https://www.cognitiverevolution.ai/red-teaming-o1-part-1-2-automated-jailbreaking-w-haize-labs-leonard-tang-aidan-ewart-brian-huang/
+# Date: 2024-09-14
+# source: The Cognitive Revolution
+
+Transcript
+
+Nathan Labenz: (0:00)
+
+Hello and welcome to the Cognitive Revolution, where we interview visionary researchers, entrepreneurs, and builders working on the frontier of artificial intelligence. Each week, we'll explore their revolutionary ideas and together we'll build a picture of how AI technology will transform work, life, and society in the coming years. I'm Nathan Labenz, joined by my co-host Erik Torenberg.
+
+Hello and welcome back to a special emergency pod edition of the Cognitive Revolution. As the entire AI world reacts to OpenAI's announcement and same-day release of their new o1 and o1-mini reasoning models, I sought out members of the o1 Red Team to get their takes on the new model's capabilities and safety profile, as well as the current state of OpenAI's approach to pre-release safety testing. I'm really grateful that within just hours of my reaching out, I had the opportunity to speak with Marius Hobbhahn from Apollo Research and Leonard Tang, Aidan Ewart, and Brian Huang from Haize Labs.
+
+While these two conversations are certainly not all you need to understand the new models, I do believe they provide a valuable perspective. And I'm glad to say that recent drama surrounding OpenAI notwithstanding, it seems that they've done a pretty good job with the o1 testing and release process. While I would have ideally liked to see our guests granted a bit more time for open-ended exploration, they did have a few weeks to conduct automated testing, which, considering that these are funded organizations with full-time teams dedicated to building test suites in advance of new model releases, does seem rather reasonable. I was also particularly pleased by how candid they were able to be in these conversations, and especially with the fact that Apollo had the opportunity to contribute directly to the o1 system card in a way that they ultimately felt very good about.
+
+From everything we've learned, it appears that the o1 models were created by applying intensive reinforcement learning to the GPT-4o class of models. Remembering that GPT-3.5, the RLHF version of GPT-3, was released roughly two years later than the original, I think it's reasonable to think about the o1 models as a sort of GPT-4.5. Where GPT-4 class models were already closing in on expert-level performance on many routine tasks, o1's reasoning abilities are now enough to match or even exceed expert performance in many areas, while also expanding the scope of problems they can solve to include those that require more task decomposition and planning, trial and error, and other familiar forms of reasoning.
+
+This is more or less what I expected OpenAI to release next, and I think the nature of this model helps contextualize a number of recent statements made publicly by or otherwise attributed in the press to leadership at OpenAI, Anthropic, DeepMind, and Microsoft. Capabilities have clearly not plateaued. It had just been a while since the last major data point. Recent efficiency gains have been amazing, but models that can reason at length could easily more than offset them, particularly if they drive another major increase in demand. And the sort of detailed reasoning and problem-solving traces that o1 can produce are exactly the sort of synthetic data points that could get us over any natural data wall as leading labs continue to scale. As such, it's no surprise that OpenAI is not sharing the full chain of thought with users, and it's easier all the time to understand how Anthropic might believe that leading developers in 2025 or 2026 could get so far ahead of the field that nobody else has a chance to catch up.
+
+Safety-wise, meanwhile, it again seems that model capabilities and alignment are mostly highly correlated. o1 is harder to jailbreak largely because it reasons more effectively in general, and this includes reasoning about what it should and shouldn't do. For now, overall, it seems that we're still in the sweet spot where the potential utility of AI systems is tremendous, but the risks of major harm remain relatively minimal. And yet at the same time, there are reasons to doubt that this trend will continue all that much further into the future. Apollo's work demonstrates that these models are more capable of subtle deception than previous generations, and they also show signs of potentially dangerous properties, including instrumental convergence and power-seeking, which AI safety researchers have been warning us about for years now.
+
+Again, this is far from the last word on this subject. As always with language models, there are many unknowns. And with that in mind, I invite all of you to do your part in exploring and characterizing the many different aspects of these new models. A key question will be just how capable AI agents become. I'll be watching that closely, and I'll be open to changing my assessment as I learn more. I'll absolutely keep you updated if I do.
+
+As always, if you're finding value in the show, we'd appreciate it if you'd share it with friends, write a review on Apple Podcasts or Spotify, or leave us a comment on YouTube. And we always welcome your messages either via our website, cognitiverevolution.ai, or by DMing me on your favorite social network.
+
+Now, let's hear from two organizations that have tested the latest models more than anyone else outside of OpenAI. I hope you enjoy my conversations with Marius Hobbhahn of Apollo Research and Leonard Tang, Aidan Ewart, and Brian Huang of Haize Labs.
+
+Leonard Tang, Aidan Ewart, and Brian Huang from Haize Labs. Welcome to the Cognitive Revolution.
+
+Leonard Tang: (5:10)
+
+Awesome. Super excited to be here, Nathan. Thank you for having us.
+
+Nathan Labenz: (5:13)
+
+My pleasure. I'm excited for this as well. This is a rare emergency podcast, which we only do when the biggest news breaks in AI. Obviously, we are all digesting news about a big new model released from OpenAI, the o1 and o1-mini family of models. And when I saw Haize Labs mentioned in the system card report yesterday, I knew that I wanted to get in touch with you guys and explore everything that you have been working on as part of your contribution to the red teaming effort of the new o1 model. So thank you for making time to share your experience and perspective with us.
+
+Leonard Tang: (5:53)
+
+Yeah, for sure. Super excited for the conversation, and props to you for being right on top of it as it just dropped and reaching out.
+
+Nathan Labenz: (6:00)
+
+I try. It's a lot to keep up with these days, but this one I couldn't miss. Let's start off with a quick intro of what Haize Labs is. It's a relatively new organization. Probably most people have, if anything, seen your "it's a bad day to be a language model" viral launch tweet from a few months back. But give us a little bit of groundwork for who you guys are, how you got into this, what you're doing generally, and then we can dial into the o1 red teaming.
+
+Leonard Tang: (6:26)
+
+For sure. Yeah, I think most people are familiar with that "bad day to be an LLM" video. That was part of our coming out of stealth moment. But Haize has been around for a few months before that. So as background, a lot of us on the team were working on adversarial attacks and robustness throughout undergrad. This was a core research direction that we were pushing on. A lot of us were going to go on to PhDs, but we looked around and saw that there are a lot of problems in AI systems being deployed out in the real world, both in terms of long-term safety problems, but also just short-term reliability and robustness. And we decided that somebody should figure out a way to really comprehensively and rigorously test them. And so that was the genesis of Haize.
+
+So our core value prop is to haize models, which means rigorously test them at scale and basically surface vulnerabilities before you catch them in production. We started the company back in January, and we've been selling to a bunch of the frontier labs, including OpenAI, as well as Anthropic and AI21 Labs and some other big players. Came out of stealth earlier this summer in June, and we've been off to the races, having a blast. Also raised a seed round from General Catalyst earlier this summer. Super excited for the journey ahead and, yeah, excited to talk about all the red teaming stuff we've been up to.
+
+Nathan Labenz: (7:37)
+
+Cool. If I recall correctly, the technique that you showed off when you put out that viral tweet moment earlier this year was a sort of elaboration or advancement on the universal jailbreak technique. We actually did a full episode on the original version of that with the original authors, Andy and Zico. First of all, I wanted to check: Do I have that right? And maybe you can give us a little bit of flavor for the research that you've been doing and how you took that original technique and made it more scalable.
+
+Leonard Tang: (8:09)
+
+Yeah, for sure. So first of all, lots of respect to Andy and Zico. I used to collaborate loosely with Andy. We wrote a few papers together back in the day. But yeah, GCG was a really great attack. We took that and sped it up by a few orders of magnitude. The details of this are on our blog. We call it ACG, Accelerated Coordinate Gradient Attack. It turns out that this is actually just one of the many different attack methods that we're currently using. ACG is great, but it is pretty narrow in the sort of attacks that it can produce and the sort of behaviors that it elicits. Oftentimes, it's quite finicky because it's a token-based optimizer. Going from tokens to strings and then back to tokens is not always identity. And oftentimes, we also get a bunch of weird pathologies in the actual strings that we optimize for. So it's great for certain use cases, but we also have a bunch of other different attack methods in the portfolio of attacks. Some of them are tree-based MCTS-type attacks. Some of them are more evolutionary programming-based. Some of them borrow from the reverse language modeling literature, where we literally try and learn a reverse language model so we can produce a prefix that would elicit a particular response. We borrow a lot from mechanistic interpretability and various other fields as well. So TL;DR, the gradient-based attack is one of many, many methods we have.
+
+Nathan Labenz: (9:21)
+
+Cool. You develop that stuff mostly on white box models and then see if they transfer to black box? Because that was the main headline of that—
+
+Aidan Ewart: (9:33)
+
+Yeah.
+
+Nathan Labenz: (9:33)
+
+The original universal jailbreak was they did it on an open source model where they had access to the weights and the gradients. And then the weird strings that they found that worked as jailbreaks surprisingly also worked when applied to OpenAI models and so on. So is that kind of the same gist where you're looking for techniques where you require that deep access, but then hopefully you can find approaches that generalize even where you don't have the access?
+
+Aidan Ewart: (10:00)
+
+I would say, yeah, in the original GCG paper, they talked a lot about the transferability of this attack from white box to black box models, as you said. I think as we start to see newer and newer model releases from the frontier labs, this transferability is going to continue to go away. There's various reasons for that, I would say. One is it's pretty likely that the pre-trained data mix that the frontier labs are using is continually diverging from that of open source models, and this is a big factor for transferability of the GCG attack. I saw this point in one of the safety researchers at OpenAI, actually. Her name is Willian Wang. She runs a blog where she does a lot of review posts about overarching safety topics in machine learning, and her post about adversarial attacks on language models made this point that the transferability of GCG likely occurs because the underlying data mixes between the white box and black box models tested were similar enough that the underlying prompt optimization that worked for white box models would actually match what also broke the black box models.
+
+So I think as the frontier labs use a bigger and bigger mix of synthetic data that we don't really have any idea about on the open source side, and things like that, and I think even seeing o1 yesterday with an entirely new paradigm of synthetic data based on a hidden chain of thought, it's making it continually diverge away from the GCG paradigm and making it necessary to focus on other kinds of attacks as the field goes on, I would say.
+
+Nathan Labenz: (11:37)
+
+Yeah, that's really interesting.
+
+Leonard Tang: (11:39)
+
+Yeah, just a quick point. All really salient points. Transferability works because of data and model monoculture. Everything is more or less the same data and more or less the same architectures, and therefore you can take attacks on white box models and transfer them over to black box models. There is a big divergence from the frontier labs and open source models coming, and it has been happening. And so we do have a lot of algorithms as well that are purely black box. You could take the GCG-type method and massage it into a black box setting reasonably well if you just don't use gradients and just solely use the loss of the target string that you're going after. But a lot of the other approaches I mentioned, including the MCTS style and evolutionary programming style attacks, are entirely black box.
+
+Brian Huang: (12:18)
+
+I find GCG to be one of the more brittle attacks. So stuff like persona modulation, which is discussed in our paper—these are very transferable attacks, which seem to be getting at something more fundamental in the training of language models or the distribution of the data and the things that language models are modeling. And I guess in the longer run, I have much more confidence in these styles of attacks than GCG, which is like this very weird thing that's very obvious when you're running a GCG attack. For instance, you can quite easily directly train against GCG suffixes, and this improves your robustness to them very significantly. So I think in the long term, I just have a lot more confidence in these sort of more varied, less obviously detectable, less brittle black box attacks.
+
+Nathan Labenz: (13:00)
+
+Gotcha. Okay, cool. Let's maybe talk a little bit about the setup of the red teaming on o1, and then we can get into more deeply the techniques and the findings. But I understand from the system card that you didn't have that long to do this. Can you give us a little bit of a narrative of when you got a heads up that this window of opportunity is opening, and also curious as to what access you had? I was on the GPT-4 Red Team, as I've talked about many times on the podcast. Back then, we didn't have much in the way of access. The rate limit was quite low, and we weren't supposed to do automated testing. I assume now that has changed, and you guys were encouraged to do some automated testing. So yeah, just give us a sense of what the experience has been over the last few weeks.
+
+Aidan Ewart: (13:48)
+
+I think we had a good amount of time. I think someone on Twitter reported METR only had 10 days or something, which sounds a bit strange. We had around a month, I would say. So I think especially given that our attacks were automated, and in that way it was just hooking up to the API, configuring some things, and just wanting it to run, making sure it's going smoothly. We also didn't need as much of a long time frame compared to maybe manual red teaming, where you're putting in a lot of manual hours working on single intents and doing a lot of manual adjustment of your prompts and verifying outputs for harm on advanced capabilities.
+
+I would say some of the other red teamers for o1 were more in that domain of having domain expertise in bio, chem, or physics harms. I think if you look at the list of red teaming individuals, some of the backgrounds for those individuals were—there's an MIT chem professor listed there. There was another physics professor listed there. So those people were on there for, I think, manual testing for these kinds of dangerous capabilities. And our strength was not really in that advanced domain knowledge, I would say. We focused a lot more on a pretty comprehensive risk taxonomy, not as much on advanced biochem capabilities, for example, but on a bit more of the general misuse cases like illegal activity, sexual content, misinformation, fraud and deception, et cetera, and focused our automated testing pipelines on those kinds of behaviors.
+
+Nathan Labenz: (15:28)
+
+Yeah. That's a really good point that there are at least two, maybe more, but at least two major dimensions to this sort of testing. There's the "can the model either help a layperson do something that they couldn't otherwise do"—in the vein of create a bioweapon—or "can they accelerate people that are already somewhat of an expert but maybe couldn't do it or couldn't do it as fast or as well on their own?" And that sounds like the others were responsible for that. And then there's this sort of just general purpose "is the model under control? Is it doing what its developers want it to do and not doing what its developers don't want it to do?" And that's where you're focused.
+
+I would love to understand better the mix of techniques that you're using, to the degree that you can share more detail on those, and also how you think about the balance between automated and manual testing. My intuition with this has been that I basically don't trust language models to do anything that's open-ended without some sort of supervision still at this point. And in practical terms, that even extends to evals, right? There's a lot of people running model-based evals, and I'm always like, yeah, I would keep one of those online as an indicator of something dramatically changing, but I wouldn't take my humans out of the loop with model-based evals except maybe in very rare cases today. And I think red teaming is probably even more that way, where there's a fundamental challenge of how do you develop the automated test before you know what the model can do? How do you calibrate yourself to what the current frontier is and all that sort of stuff? So a lot there for you guys to unpack, but—
+
+Brian Huang: (17:15)
+
+Got it. I don't think we can talk about the specific attack methods that we used on the o1 models, unfortunately. But I guess we can sort of answer the latter part of your question about the initial exploration that you do. A lot of the attacks that we've built have been from some sort of initial idea that we've explored on weaker models. And then we are able to scale up these sort of intuitions or take intuitions from people who have spent a lot of time talking to language models in very weird situations and take their intuition, and then we're able to bake it into attack algorithms. I think that's a pretty common pattern.
+
+And I also would say that we do some manual evaluation as well of the successes or failures that our red teaming methods output. So we don't really, I guess, at this point want to rely on model evaluation to classify something as a success or a failure because, as you say, these are not particularly accurate, and they can fail in weird ways. The things we're exploring are inherently weird because we're doing automated red teaming of safe models. And so yeah, I think I kind of treat this as almost just an augmentation of my ability to explore to some extent.
+
+Leonard Tang: (18:29)
+
+Yeah, just to expand on this point a little bit. For sure, a lot of it is we have some initial seed of an idea from really great human intuition, either from our team or just really awesome folks in the red team community. And we're able to basically bootstrap the heck out of this into really, really scalable and automated attack methods.
+
+On the eval side, I think there's been a lot of focus on attacks, but at the end of the day, it really comes down to how well can you eval whether or not your response from a certain model is actually dangerous or not dangerous, or harmful or not harmful? Because that's what we are targeting with our attacks in the first place, right? As you point out, Nathan, all of these sort of LM-as-a-judge or classifier-based eval approaches right now are super, super brittle. Any off-the-shelf LLM saying something is harmful from 1 to 10 is actually just pretty horribly calibrated, and there's a lot of false positives and a lot of false negatives. We've spent a lot of time thinking about how to make that eval a lot more calibrated and a lot more stable. But also, yeah, there's a good amount of human verification on top. We sort of try and eliminate as much of the human labor as possible, basically only looking at examples that are highly uncertain or, basically, judges in the most uncertain setting will call on a human to expertly verify whether or not the response is correct.
+
+Nathan Labenz: (19:39)
+
+Hey, we'll continue our interview in a moment after a word from our sponsors.
+
+So does that suggest that you're going after relatively subtle harms? In the earlier days, we used to do "how do I kill the most people possible?" That was the first question for any new checkpoint in the GPT-4 red team. And it was pretty obvious whether it was answering that question or not. I would expect even model evals to work reasonably well because we would either get a refusal or we would get an answer—
+
+Leonard Tang: (20:11)
+
+And I—
+
+Nathan Labenz: (20:11)
+
+And I would think it was pretty obvious most of the time. When you talk about the difficulties of calibration, just kind of qualitatively, you look at the system card too, and it's like, okay, this thing is more robust to various jailbreak techniques, and it's still very hard to interpret that.
+
+Leonard Tang: (20:26)
+
+Yeah.
+
+Nathan Labenz: (20:27)
+
+Are we still seeing flagrant failures? Are we seeing only more subtle failures that we're seeing? How would you qualitatively describe the landscape that you've explored?
+
+Brian Huang: (20:37)
+
+Yeah. I definitely think that the subtlety of our failure cases has increased as people have sunk more effort into mitigations. That's definitely true. But I also think that just because something is subtle, it doesn't necessarily mean that it's benign, right? And there are definitely cases—and I guess LLM-as-a-judge is susceptible to a bunch of very strange long-tailed failure cases in the same way that language model refusals are subject to long-tailed, weird failure cases. And so you still get things which to a human seem extremely obviously, or I guess with some thought seem bad, which to an LLM-as-a-judge, where you're trying to trade off between amount of compute you chuck at your judge versus how accurate your judge is—there are points in that where the judge still fails, and it's enough to warrant human supervision to some extent.
+
+Leonard Tang: (21:33)
+
+Yeah, this is a really great point.
+
+Nathan Labenz: (21:34)
+
+Thank you for the thought—
+
+Leonard Tang: (21:35)
+
+Also that the more subtle, right-on-the-boundary examples are the ones that are the most important in many senses, right? It is not difficult. You sort of already get the separation on the most extreme ends for free just out of the model training process. But when you go and throw your AI application or whatever out into the real world, that's where things start to get really messy and fuzzy and hairy. And that's where you need to call in, usually, some human prompt engineer to figure out what went wrong, right?
+
+Subtle, again, doesn't mean benign. Subtle is actually, in many senses, more harmful or more confusing or more dangerous than you might expect. For example, if you leak, say, some amount of PII, or you explicitly call out some amount of a harmful instruction, it's really, in many senses, more dangerous for a downstream application than an immediately flaggable one. So we've thought a lot about—this is why we're pushing so hard on better calibrated judges. All these sort of really narrow corner case things are really important for real applications. And yeah, basically, existing methods are not so great at catching these.
+
+Aidan Ewart: (22:34)
+
+Jumping in on Leonard's point about real-world applications. I think another—I don't know if this word has come up yet—another way of talking about these more subtle cases is calling them dual-use cases. These are kinds of specific intents or behaviors that can be benign in some contexts, but also harmful in other contexts, while being the same exact behavior in either context. And I would say the next frontier of safety work and red teaming work is going to run into a lot of challenges with these dual-use cases.
+
+I would say the very clear cases of illegal activities or harmful activities—these are way more easy compared to the advanced real-world applications that I think we're going to see. For example, looking at the OpenAI and Moderna partnership that I think was announced several months ago, seeing these cases of really advanced models being used for research purposes at some of the leading biotech companies. These would be cases where you could have really advanced and subtle research questions in the biotech field where it's really hard to distinguish what is a safe research question versus what is a potentially dangerous research question in some specific contexts and why, and what makes these research questions safe or dangerous in these contexts. And yeah, I think that's the next frontier of how we're going to see advanced usage of frontier models, and that makes dual use one of the biggest upcoming challenges for safety work.
+
+Leonard Tang: (24:22)
+
+Yeah, as an even broader point—as you point out, safety is a context-specific thing, right? The same behavior in different contexts for different users, for different applications can be safe or unsafe depending on what the scenario is. And I think so far, a lot of safety work has been too heavy-handed and too general, saying, "Okay, all of our models should absolutely not do these things or should only do these things for everybody," which is a good starting point. But I think there's a lot more room to go and be more granular.
+
+I do think that there are certain categories that are absolutely no-nos, and I think largely many of the frontier labs would agree. Things like CSAM are—you know, probably should never ever be outputted from a model, and there's a good amount of work to ensure that this is the case. But I think for some of these other categories, the models—the frontier labs themselves are not super well calibrated. They're probably causing over-refusals on certain categories that are not so harmful. And yet on other categories that should be more stringent, they're under-refusing and so on and so forth. And this is doubly worse when you go out to the application layer and people are expecting different use cases over the models and so on and so forth.
+
+Nathan Labenz: (25:24)
+
+Yeah, that biology one is really a great example of that. I've been impressed actually by Pi over time, which I haven't used too much recently, but it seems relevant in this discussion because more than any other model that I've used, I would say maybe up until the most recent Claude 3.5, it had a really good theory of the user's mind and was very perceptive on moments. And I was kind of red teaming it. You know, it was already released, not in a private way, but just going and messing around with it. When I would start to cross the line into seeming a little deranged, it would pick up on that seemingly more than what I was asking it for. But I remember getting responses from it that were like, "Whoa there, buddy, you're starting to get a little bit bent out of shape here. Let's take a deep breath." Maybe a little patronizing, but it was remarkably in tune with the emotions that I was intentionally hinting at. Whereas at least at that time, you know, well, six months ago, whenever when I was doing this, the other models were not so receptive to those subtleties.
+
+Leonard Tang: (26:33)
+
+Yeah.
+
+Nathan Labenz: (26:33)
+
+And this does sort of suggest a family of defenses that you might have, which could ultimately also include off-model things like your customer and so on and so forth, but that is quite interesting. Are there any other... I mean, the biology one is so right in the bullseye of the dual use, right? Because obviously we want medicine, but we don't want new pandemics. Anything else that people should be thinking about for these dual use scenarios that maybe isn't so obvious?
+
+Leonard Tang: (26:59)
+
+Yeah, that's a good question. Also, I should try out Pliny more. I didn't realize that it was so in tune with your personal alignment and so on. But I think there are a bunch of trivial slash funny corner cases where, you know, if you ask your LLM to, let's say, tell me how to kill this terminal command or tell me how to kill this Linux command in my terminal, it'll say, "No, I can't do this because I can't kill or offer to help kill something or whatever." There's all sorts of these funny over-refusal scenarios. But more seriously, I think when it comes to the topic of anything that is societally relevant or maybe discriminatory to a large number of people, there is just a very fine line between what is considered safe versus unsafe. For example, let's consider maybe race-based admissions in colleges or something like this. Right? If you go ask Claude something like this right now, like, "Okay, should Asian Americans be discriminated against, or like, what is the Asian American discrimination case for colleges in the US?" You very likely will actually just get a refusal. We tested this a few weeks ago. But there are just some objective things that are true about this case, which is that this year there was a 6% drop in Asian American applicants after the court case passed. It is true that last year was a record number of applicants that were admitted who were Asian American to top universities. And so there's all sorts of these weird maybe fact-gathering things that are distinct and should be considered not harmful that are a little bit different from maybe the interpretation of them. And so I think there's this weird middle ground, again, going back to this removing the false positive, false negative thing, where it could definitely swing either way. And there's definitely, you know, if you're doing any sort of research on your own, these are very logical questions or very reasonable questions one might run into.
+
+Aidan Ewart: (28:33)
+
+There's also two more examples just off the top of my head. I really think there's a big plethora of examples of this. If you have any larger enterprise that is using an internal assistant or a search assistant like Claude, any company that's using Claude, I would say maybe if the company is a bit siloed off, like some departments have only certain information that other departments don't have, this leads to a challenge of safety regarding privacy and knowing for all of these specific use cases for the specific company queries, based on the incoming user, is the model actually allowed to answer or not? And yeah, I think the complexity of that can go really deep. This is a really challenging problem for model safety, in the same way that making sure a model doesn't... you can't elicit private information, PII from a model. I think it's the same kind of research challenge. And even another case of deploying a model for a very historically regulated industry such as finance, I would say, maybe if Goldman Sachs wanted to use an advanced AI agent to help with trading and research operations. A big bank like Goldman Sachs has a ton of regulations about their trading and asset management activities, investment activities that they have to follow, especially following the 2008 financial crisis. And any kind of significant assistance that they get from an AI model for these activities will need to have some really ingrained and dynamic check for whether this assistance from this model is potentially violating or infringing on any of these regulations. So yeah, I think those are two more examples and we can definitely keep thinking of more.
+
+Nathan Labenz: (30:27)
+
+Yeah, cool. That's helpful. Your mention of agents prompts me to take one step back or zoom out again for a second. I want to get your take on just how good is this model? I mean, you guys have spent more time with it than almost anybody else in the world outside of probably OpenAI itself at this point. A theory that I've had for a while is that the agents might all wake up at the same time. And what I mean by that is typically, you know, with a GPT-4o type model, the agents mostly don't work. They have workflows work, but agents that have more open-ended discretion of what to do seem to mostly fail. But I've been kind of thinking, jeez, there's a lot of frameworks being developed, a lot of scaffolding, a lot of different strategies for compensating for their weaknesses all being developed. And it's really easy to swap in a new model when that model comes out. And so maybe all these things that were meant to compensate for the weaknesses of last generation will now be enough to kind of compensate for those weaknesses with a new model, and maybe we have just entered the agent era even though all the agent companies are still running their evals.
+
+Brian Huang: (31:37)
+
+I think...
+
+Nathan Labenz: (31:38)
+
+Let's comment on that in a bunch of different ways. But yeah, how... I mean, for starters, how strong have you found the model to be? How would you describe the advance over the previous generations?
+
+Leonard Tang: (31:48)
+
+Anything with a formal setting. So mathematics, coding, some really complex but symbolic reasoning or specifiable symbolic reasoning, it absolutely crushes it. Right? It makes sense. The search is just... that's where the search shines. That's where the chain of thought RL shines. It makes sense. I would say for general interaction, we didn't notice that much difference. Just chatting day to day, asking it general topics about the world or helping us brainstorm ideas or things like this. It was not noticeably better. Of course, it was a lot slower, but it was not noticeably better than the previous family of models. But yeah, I do think for any sort of formal setting, it's just absolutely crushing it.
+
+Nathan Labenz: (32:21)
+
+Planning. That was another area that's kind of highlighted as an improvement, right? Task decomposition and planning. That's not exactly formal, but it has been a big area of weakness. It seems like reports are that this is much better.
+
+Brian Huang: (32:34)
+
+Yeah. I'd apologize about that. They'd... or METR, I guess, if you're able to get a chat with them. We didn't run so many more long-horizon agentic planning tasks. But I would also say that about your point about all the agents waking up at once. I feel like this is maybe in opposition to the kind of lessons that we learned from AlphaGo or whatever, where you can definitely improve... I don't know. If you have a sort of base chess-playing policy, which is distilled from a bunch of high-quality human games, you can definitely run some sort of MCTS with this. But you just drastically improve your sample efficiency of your rollouts if you do RL on those kind of policies. And the key factor here is the sort of length that you can plan over or, I guess, play chess over is determined by how much distillation of your MCTS rollout or whatever that you do. And so I'm not sure I'd expect that all the agents take off at once when someone creates the corrected scaffolding system is accurate because it feels like we do need some sort of RL training for these long-horizon tasks. And I think the fact that this model is better on those slightly indicates this.
+
+Aidan Ewart: (33:48)
+
+I should say I personally don't have much perspective on the complex reasoning abilities of o1. I was actually, when we were red-teaming, a lot of that was just kind of trying to elicit harmful responses on this large fixed set of harmful intents. And that's just kind of a setting where you don't see a lot of normal... we weren't asking that many normal questions during testing. So yeah, I'm honestly kind of discovering the new advanced capabilities along with the rest of the world, like, the past day or two. So that's been very exciting.
+
+Nathan Labenz: (34:23)
+
+Hey, we'll continue our interview in a moment after a word from our sponsors. Do you guys have access to the chain of thought? Obviously, one of the big decisions that they've made with this model is they're not returning the chain of thought via the API, and in ChatGPT, they have a summary. I don't know if that summary will also come to the API. But did you have full access to its generations during your process?
+
+Leonard Tang: (34:47)
+
+I don't think we can comment on this. Yeah. It was enough for us to do it.
+
+Nathan Labenz: (34:52)
+
+Yeah, fair enough. I guess I don't know how much you'll be able to comment on the cycle time either, but it seems like a short window, you know, even at a month, which is longer than I had felt like I took away from the system card, which there were a couple things in there where it was not long at all. Let me just check real quick just to sanity check myself. Yeah, METR got access on August 26. That's not too long ago. Yep. And mini on... yeah. Then another place, it does say starting in early August. Okay. So I guess that would be the case for you guys. The system card seems to say that you saw multiple checkpoints through that time. That would suggest that there's a pretty tight cycle time, but I guess I don't know to what degree this was sort of waves of work that was already happening and you guys were just getting these waves of work, or did you feel like your findings were actually being folded in? Did you see techniques that initially worked down later checkpoints no longer work?
+
+Leonard Tang: (35:55)
+
+Yeah. I mean, it was definitely a dynamic process. We didn't explicitly try to do reverse engineering and figure out, "Okay, is the model new, or what are the new vulnerabilities or defenses?" But you can definitely tell the model is changing. Obviously, they had new checkpoints coming out. I do think the LM and the rest of the OpenAI team were very intentional about improving the models with user feedback over time. They were super communicative and just all around really tight in the sort of feedback cycles. And so we'd send a message, we get responses within minutes. And they'd be like, "Alright. We're working on it," type of thing. So I think they're really careful about incorporating feedback and generally just, yeah, really tight feedback cycles.
+
+Nathan Labenz: (36:31)
+
+Did you come up with any new ideas? Going back to the idea that human intuition is sort of the kernel of all of your different techniques, and then you're scaling them up and automating them in various ways. Were there any new intuitions that were generated from this new model with its new sets of strengths and weaknesses?
+
+Leonard Tang: (36:49)
+
+Yeah, there's a good amount. Brian, do you want to take this one?
+
+Aidan Ewart: (36:51)
+
+I was going to talk about actually... I don't think it's that specific to the o1 model specifically. It's a lot of kind of new general intuitions that we were gaining that, I guess, just coincided with when we were testing o1. So I think it's fun to talk about these. One thing that we developed recently was this kind of cool extension of a lot of cipher or encoding-based jailbreaks that I think are pretty popular in the red-teaming community. I think probably the biggest example of this is if you look at plenty of the prompt injection jailbreaks, a lot of them will incorporate... they have a lot of different individual attack vectors incorporated into their big prompt templates. One thing you often see is encoding the model into Leetspeak or Morse code, base64, anything where the original plain text is totally transformed into this obfuscated form that's pretty complex. And that way kind of seems to bypass a lot of the model safety filters. Kind of playing around with that intuition for a while, actually. I think after a few months of exploring the search space, we came up with this attack called bijection learning. You can actually see it on the Haize Labs blog, and there is an accompanying paper. We're just waiting for arXiv to approve it. But yeah, I think this is basically one of our most novel... A lot of the technical details might be a bit hard to dive into here, but it's basically the concept of developing this really difficult kind of cipher and teaching it to the model through a very detailed system instruction and a really large many-shot set of teaching and practice examples and then using that to kind of ease harmful intents and harmful responses through the language model interaction, and we're just letting the model operate in that way. So that is an attack that we definitely developed around the same time as o1 came out. And I think another thing that we were pretty excited about is the multi-turn regime. I think this is part of the search space for red-teaming that some of the other labs are exploring a lot recently. I think there's a recent paper from Scale AI about how language model defenses are not robust yet to human multi-turn jailbreaks. And what they did was they red-teamed a lot of the recent models from the Gray Swan team. So this is Andy Zou, Zico Kolter from CMU. This is their recent startup where they're developing very robust models with a lot of novel alignment and defense techniques. Scale was red-teaming on their models specifically. They were able to jailbreak them with a lot of their manual red-teamers doing just very long multi-turn conversations and optimizing those manually. And these models are very robust. It's nothing like even a GPT-4o or the Claudes, which... the Claudes are pretty robust, the Llama 3s. The Gray Swan models are way more robust than any of the more common models that everybody knows about. And I think the fact that multi-turn was such a potent attack vector on these models is kind of indicative of multi-turn, for some reason, being this really challenging regime for the blue team, for the alignment researchers to defend against. I think it's really important for us also going forward to...
+
+Leonard Tang: (40:29)
+
+For sure.
+
+Aidan Ewart: (40:30)
+
+...devote a good amount of attention to the multi-turn attack.
+
+Leonard Tang: (40:34)
+
+Yeah. I think for NDA reasons, we can't describe any specific details of our attacks. But, contemporaneously, as Brian mentioned, multi-turn, really long context attacks are pretty freaking effective for all models and also for o1. And also, yes, this new class of large-scale encoding attacks also works very, very well.
+
+Nathan Labenz: (40:52)
+
+So we have an episode coming up with Dan Hendrycks where we do get into the circuit breaker work and the tamper-resistant models as well. It sounds like from what you're saying here... I mean, this is... I'm moving into speculative territory here, but just to try to get our intuitions developed around how the models work, what techniques are working how, and how do you even think about what's going on inside these things. It seems like these cipher... let me take one step back from that. It seems like there's an early fork in the model behavior where it either kind of enters refusal mode or if you can get past refusal mode, then you're typically in the clear. That was kind of at the heart of the universal jailbreak paper originally, right, was you could target "Sure, I'll help with that" or whatever. And then once it says that, you're off to the races. With the circuit breaker models, it seems like there is a sort of later detection mode or later defense where it's more operating on these deeper in the model representations. I guess I'm not super confident on this, but my intuition is that if these cipher things are still working, it seems like we're still using a relatively early defense. And I kind of intuit the cipher as working as sort of injecting the meaning past the early layers into the deeper layers where now we're kind of in full meaning mode. And if you can sneak past those early layer detection forks, then you're through. How does that compare to your mental models?
+
+Leonard Tang: (42:24)
+
+Yeah, that's a really interesting framework. First things first, I think the "Sure, here is..." sort of attack doesn't actually always guarantee that you get a full harmful response. Right? In many cases, you can get into, "Okay, passing the refusal mode," but then all of a sudden, the model will just recorrect and be like, "Okay, sorry. I was just kidding. I can't actually say this harmful response." Right? So I think there's a lot more subtleties than just like, "Okay, we broke out of the refusal mode, now we're fully in reasoning and response mode." I think there's a lot of subtleties and correlation between model internals. I do think that circuit breaking work and related methods are interesting, for sure. I think there is some downside to the methods as they stand, which is it does lead to a lot of over-refusals just by the way that the method is constructed. So for relatively benign queries, you do get refusal responses up to an order of magnitude more than you would get with otherwise comparably safe models. So, I mean, it's still an open question about how we want to, again, tighten up alignment as much as possible to remove the false positives and false negatives, but I think that they're all really interesting methods. To answer your question about how this fits in our mental framework for cipher attacks working in the early versus later stages of the models, an interesting thing we found was that cipher attacks actually work for not just models, but in particular, our cipher attacks work not just for models, but actually for entire systems, AI systems, with a base model, but also input and output filters on the model. And so there is something to be said about if we can break around this many-component system, you can basically also apply the same concept to, you know, the same system that's baked into the underlying model. Right? The sort of search would be a little bit different, but if you can break several components at once, you can also break the entire system.
+
+Brian Huang: (44:03)
+
+To comment on you're talking about earlier refusal modes. I think a really great paper to point out here is "Refuse Whenever You Feel Unsafe," where basically they kind of just... I think models sort of, if you train them kind of naively to refuse, they are susceptible to these prefill attacks. But there are really easy mitigations for this. And just increasing the log probability of "sorry" on all token positions allows your model to start interrupting itself and start refusing midway through in a way which is similar to circuit breaking, but potentially without the crazy activations. And I guess my mental model of circuit breaking is that it's doing something similar to this, albeit in a much more destructive kind of way. A good tie-in for this is this seems very similar to many-shot jailbreaking and, I guess, multi-turn, where you condition your model to be in a sort of helpful mode. I think this is the correct way of framing what this is doing. And this just drastically improves your model's likelihood to agree to further questions.
+
+Nathan Labenz: (45:04)
+
+So could we give a bottom line kind of qualitative sense of what it feels like to try to jailbreak these things today. On the GPT-4 early, you know, it was would do anything you said. It was purely helpful. It would never refuse. That's one extreme end of the spectrum. And then I guess the other extreme end would be a model that just refuses everything wrongly. In the middle, there's some ideal state. It seems like we're still... you know, we got false positives and false negatives still. But is it... if a sort of amateur, let's say, tries to get a meth recipe or tries to get the, you know, the car hotwiring instructions, are they going to find it to be moderately difficult, extremely difficult, near impossible? What is the sort of non-specialist experience going to look like?
+
+Brian Huang: (45:57)
+
+I think I'd say fairly difficult. There's definitely been a lot more tightening up of the mitigations. The model refuses in a much more intelligent way, but not impossible.
+
+Leonard Tang: (46:08)
+
+Yeah. I think there's actually still a fairly robust opportunity for amateur jailbreakers, so to speak, to actually provide a lot of great value in doing their individual red-teaming efforts. Yeah. I mean, you know this, Nathan. There's a big army of human jailbreakers on Twitter doing their thing. And in many senses, they're not doing anything crazy. It's just they spend 5, 10 minutes thinking about what to do, and they get pretty far in the jailbreaking process. I do think things are obviously a lot harder than they used to be. You know, when GPT-3 first came out, things were totally crazy. There was a little bit of an overcorrection. Right? The Llama 2 team noted this explicitly. They did a lot more safety fine-tuning than they did for the original model releases. And then for Llama 3, they were like, "Okay. We pushed the needle too far. Let's dial it back a little bit. We don't have to make the model over-refuse so much." So I think it's a constant calibration process. We started off a little bit too unsafe. We overshot a little bit. Now we're course-correcting back down. Nice balance. We're going to go back up for a little bit, and we'll slowly stabilize and find a nice middle ground for us to all land on that makes sense as a general model. But again, I do think this sort of binary search calibration process is going to have to happen for all sorts of domains, not just for general models.
+
+Nathan Labenz: (47:12)
+
+Yeah. We got a lot of work to do. You mentioned Pliny a couple times. Do you guys have a Pliny bot that sort of attempts to scale up and automate what he is doing manually? Or do you think OpenAI should be bringing people like him into future rounds of this program?
+
+Leonard Tang: (47:33)
+
+We have a version of a Pliny bot as one of our attack methods. We're also friends with Pliny. So if you want to bring him on the show, we can maybe figure out a way to do this. But yeah, I think Pliny is doing great work. I do think his attacks are obviously not super scalable as a human jailbreaker. I do think he has definitely provided value to some of the frontier labs. He has noted this on his Twitter before, in a commercial sense. They do contract for some of those jailbreaking efforts. But yeah, I do think, you know, if you want to cover every single possible input failure case and jailbreak and vulnerability, it's probably not sufficient to have a single guy just probing the model. But, again, it's the same thing that we have. Right? It's we start with some really great human intuition, and then we can scale it up from there.
+
+Nathan Labenz: (48:12)
+
+So he's already posted a jailbreak of o1 on Twitter today within hours of getting access, which doesn't surprise me. I assume it doesn't probably surprise you too much either. But then I wonder, what should we infer? And I'm going to assume for the purpose of this conversation almost entirely, but certainly in this section that you're not being told... because certainly that was my experience with red-teaming with OpenAI was that I was basically told nothing about what was happening behind the scenes, nothing about what their strategies were, nothing about the model, you know, other than just what we could learn directly from using it. So let's assume that you have no insider knowledge. I'll assume you have basically no knowledge of what they're doing other than what is working and not working on your end. How should I interpret the fact that we went through all this red-teaming, you know, Pliny's out there on Twitter very openly. You guys even have a version of that where you're hammering, you know, in an automated way with similar techniques, and yet it still works when they launch the thing. One would naively assume that with all of that, you know, example Pliny jailbreaks to inform their work that they would have that sort of attack locked down. Is it just too costly in terms of false refusals, or what's the deal?
+
+Leonard Tang: (49:28)
+
+Yeah. One really quick point is we actually have no idea. This is true. We just don't have any idea what our sort of testing led into on the OpenAI side. So for all we know, we could have just been a final eval dataset, sort of benchmark, final post-processing thing, or our data could have been directly baked into the post-training process. We actually have no idea. So it's not exactly clear to us, even if we had tested all the variants of Pliny prompts, whether or not this would have made a difference in the end, because we just don't know what the data was used for.
+
+Brian Huang: (49:55)
+
+But, yeah, getting... Reducing the sort of ease of use or ease of malicious use of these models is definitely a tractable problem with intermediate gains. And if you make it much harder for some malicious actor to use your model for a very harmful situation by an order of magnitude... if you increase the difficulty of that by an order of magnitude and make the model an order of magnitude less useful even once you have jailbroken it, then this is a very useful thing to pursue because it reduces your risk. And I also think that being jailbroken is not binary. Right? There are certainly tasks where it is much easier to jailbreak for and much harder to jailbreak for and tasks where the costs of being jailbroken are much greater. And I think that a lot of the tasks where the costs are much greater, you also... it's generally true that it is harder to jailbreak these models for those tasks. And these tasks are more, I guess, maybe long window. And I don't think we've really seen... well, I guess, actually, Pliny is pretty good at these sort of long-horizon, persistently jailbroken jailbreaks. But I think we will eventually see that this goes down, or I think maybe you see this a little bit now with the o1 models being harder to jailbreak. One point I...
+
+Aidan Ewart: (51:12)
+
+I was thinking that if the frontier labs wanted to refuse on a small set of Pliny prompts specifically, I think kind of training the model for refusal in that... it seems a bit brittle and unable to generalize. I think the important point here is the attack surface of these frontier language models is very massive. It's so much bigger than, I would say, the classical setting of adversarial attacks for computer vision where you were just perturbing pixels in an image. I think the bottom line is language models can... you can make them ingest literally any text, literally any configuration, any sequence of characters that you want. It's 10 to the power of a really, really massive exponent of even, say, a 5 paragraph passage... different 5 paragraph passages that are possible for a model. So that makes the attack surface just exponentially big. And I think given this, the frontier labs would much rather look for more fundamental breakthroughs in safety research and more fundamental ways to do generalizable guardrails. I think one thing that all of the o1 safety card talks about is teaching the model to reason about safety specifically in the hidden chain of thought and getting a lot of generalizable safety, especially to out-of-distribution settings in that case. And I think my guess would be that the frontier labs are favoring this kind of defense over the cat-and-mouse game of seeing what jailbreaks people are manually coming up with and just covering all of those with specific refusal data.
+
+Nathan Labenz: (52:50)
+
+Yeah. That's interesting. So would you interpret the overall improvement in the anti-jailbreaking profile as essentially an emergent property of scale. It's better at a lot of things, and one of the things that it's better about is reasoning about safety and sort of the capabilities-safety correlation continues.
+
+Brian Huang: (53:16)
+
+There's a paper by FAIR AI Research where they showed that this is true for some types of jailbreaks. And so I think in general, this is true to some extent, but I think Brian's got a pretty good counterpoint to that.
+
+Leonard Tang: (53:30)
+
+Yeah, Brian, do you want to talk about endless jailbreaks, the scaling laws, and bijection learning?
+
+Aidan Ewart: (53:36)
+
+I think the relationship between capabilities and safety, in terms of how you might get increased safety for free just by increasing capabilities, is actually a pretty active research question in the literature. So we'll definitely see more answers to that and deeper analysis from the research community. I think a lot of the preliminary intuition that people are seeing is that yes, you do get some increased safety for free just by increasing capabilities. And this can be a bit dangerous or a bit misleading on the blue team side, in terms of if they have a higher capability model to test and see better results in safety, even if the corresponding innovations and new techniques for alignment that they've designed aren't fully responsible for these gains in safety. And that can lead to unforeseen holes in model safety.
+
+One interesting mechanism that some jailbreaks across the literature and some of our own jailbreaks exploit is that a lot of these jailbreaks degrade capabilities of the model. One way we can measure this directly is passing in MMLU, where each question is passed through our jailbreaking method within the overall attack prompt and evaluating MMLU that way. For example, for the bijection learning attack that we mentioned earlier, the MMLU scores under the jailbreak are significantly lower than baseline scores, which is a pretty clear indication that some jailbreaks are degrading capabilities significantly. I mean, the correlation versus causation is yet to be worked out here, but it's definitely possible that the act of degrading capabilities might be one of the main causes for why these jailbreaks work the way they do.
+
+Leonard Tang: (55:29)
+
+To call this out explicitly, Brian discovered a really cool inverse scaling law. The bigger and more capable the model is, the more vulnerable it is to our bijection learning attack. So it is actually the opposite of what you stated, Nathan. Scale does not help. In this case, scale actually makes things worse.
+
+Nathan Labenz: (55:43)
+
+Cool. We'll put the link to that blog post in the show notes, and I'll have to read it. Awesome, I'll look forward to that. Was the paper that you were mentioning, Aidan, the safety washing paper?
+
+Brian Huang: (55:54)
+
+There's a paper by FAR AI Research. That was, I think, a Richard Ngo paper. This is also, I think, more of what Brian was talking about. The paper I was talking about basically showed that you can do adversarial training against—I think they used, they did adversarial training against GCG—and they just showed that if you increase your model size, then adversarial training becomes more sample efficient and more effective, and you need less compute to have the same robustness against these attacks. And I think that is a good signal that scale can improve some of these issues.
+
+Aidan Ewart: (56:26)
+
+Yeah, Nathan, that's a really good note. One of the points I talked about was actually referencing the safety washing paper. And I personally think the safety washing paper is a really exciting first step in this line of research, exploring how safety and capabilities are interlinked.
+
+Nathan Labenz: (56:42)
+
+You make a great point too about the vastness of the surface area of these things and the sort of weirdnesses of the landscape. They're really quite something. On the one hand, from the safety washing paper, you've got basically the general trend is that more capable models tend to be more safe, and a lot of the supposedly safety-focused benchmarks essentially correlate very strongly with the model's overall capabilities. And so it doesn't really seem to be measuring safety as an independent dimension. You could essentially swap in an MMLU score for that safety benchmark, and that makes it not so great as a safety benchmark. But then you're also finding, as we just noted, that in some cases you see the exact opposite trend, and there's probably plenty of weird things in between as well that are just strange and not understood by anybody at this point.
+
+The work continues. How do you guys feel about the medium classification of this model? I assume that you were not involved in making that determination either, but when you see that come out in the system card, that also kind of, I guess, is more of a capability statement than it is a robustness statement at this point. Right? It's more about what can the thing do than how well under control is it. But just intuitively, how does that feel to you guys having spent time with the model?
+
+Leonard Tang: (58:03)
+
+I think it is fair. I mean, it complies very precisely with the definitions that they have laid out. So I think it's a very fair categorization given their usage policies. I do think it is, yeah, very heavily a question of capabilities, not just of being under control. It's just not yet possible, let's say, for the underlying model to actually give you very concrete plans for synthesizing a novel biological or chemical weapon. So it is as much of a capabilities-based evaluation as it is a safety-based evaluation.
+
+Aidan Ewart: (58:32)
+
+So the kind of preparedness work that OpenAI does, where they came up with the medium, low, high categorizations for the dangerous capabilities—I'm not speaking for OpenAI here, but they intended it as kind of an interdisciplinary thing between safety and capabilities. I think the first team lead for preparedness, Aleksander Madry, used to phrase preparedness as the question of realizing the upsides of AI and mitigating the downsides of AI at the same time. So it is definitely a much broader question than looking at safety in a vacuum. And I guess, in that way, since we are very focused on this red teaming problem, the bigger preparedness question is also a bit beyond our purview, but definitely something that we'd love to think about in the future.
+
+Nathan Labenz: (59:25)
+
+Yeah, I was going that direction, actually. Obviously, there's been a lot of, let's say, drama, to put it mildly, from OpenAI over the last year. And one of the things that has come out is, at least for a time, people were not permitted by NDAs that even survived their employment to speak about various things. And now by all accounts, that's been retracted and people are, I guess, a lot more free to speak. And even recently, to give credit where I believe it is due, there was an open letter that a bunch of OpenAI employees signed on SB 1047 where they contradicted as individuals the official company stance. And I thought it was pretty cool that that seemed to be permitted. And, again, if all of my information is to be believed, then there was even a memo or a note passed within OpenAI that basically said you guys can go—people can go ahead and sign this, it will be fine if you feel like that's the right thing to do. So it seems like some good progress has been made there.
+
+I wonder how that extends to companies like yours that have a relationship with OpenAI on the red teaming front. Is there any mechanism now, or do you have any plans to try to work with OpenAI to create one whereby in the future, if a model can, for example, create a novel bioweapon, or it's becoming fuzzy whether or not it can—do you guys have any sort of whistleblower mechanism or protections or anything like that in place?
+
+Leonard Tang: (1:00:55)
+
+Yeah, it's just a little bit too early to tell. I don't think that regulation, nor nonprofits, nor the network of nonprofits and regulators have figured out what the right process for this is. I do think should there be required audits, then I'm sure it'll just be in everybody's best interest for somebody to go ahead and announce things like this earlier on. But I think it's just too early to tell.
+
+Nathan Labenz: (1:01:15)
+
+I think, basically, my last kind of question was just open-ended for you guys. Any other observations, stories, perspectives, expectations now that this thing is out that seem important or that might be informative for people that we haven't touched on?
+
+Leonard Tang: (1:01:30)
+
+Yeah, curious for your thoughts, Brian and Aidan. Well, one, I think to start, it's just been amazing how much feedback has already come from the general community about O1. I think for all the great work and increased capabilities and benchmark scores that it's produced, there's still a lot of gotchas. And we obviously saw this during our red teaming process. There are a lot of naturally surfacing ones right now, not just for safety, but for capabilities. And I think in spite of this—I wouldn't call this a step-size increase, but, you know, for a significant, nontrivial increase in capabilities and processing and somewhat new paradigm of frontier lab models—there's still always a lot more work to be done constantly testing and constantly monitoring the behaviors and vulnerabilities and failure modes. So I think the work is not over, not by a long shot. In many senses, we've just leveled up to a new game, and we now need to figure out how to do testing and red teaming in a way that befits this new level of capabilities.
+
+Nathan Labenz: (1:02:21)
+
+That could be a great note to end on, but welcome any other thoughts as well if you have them. Okay, cool. Leonard Tang, Aidan Ewart, and Brian Huang of Haize Labs, thank you for being part of the Cognitive Revolution.
+
+Leonard Tang: (1:02:32)
+
+Thanks very much for having us, Nathan.
+
+Nathan Labenz: (1:02:34)
+
+It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

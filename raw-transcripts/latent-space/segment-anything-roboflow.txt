@@ -1,0 +1,1023 @@
+# Segment Anything Model and the Hard Problems of Computer Vision — with Joseph Nelson of Roboflow
+# URL: https://www.latent.space/p/segment-anything-roboflow
+# Date: 2023-04-13
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Segment Anything Model and the Hard Problems of Computer Vision — with Joseph Nelson of Roboflow
+
+11
+
+4
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:19:35
+
+-1:19:35
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Segment Anything Model and the Hard Problems of Computer Vision — with Joseph Nelson of Roboflow
+
+Ep. 7: Meta open sourced a model, weights, and dataset 400x larger than the previous SOTA. Joseph introduces Computer Vision for developers and what's next after OCR and Image Segmentation are solved.
+
+Latent.Space
+
+Apr 13, 2023
+
+11
+
+4
+
+Share
+
+2023 is the year of Multimodal AI, and Latent Space is going multimodal too! 
+
+This podcast comes with a video demo at the 1hr mark and it’s a good excuse to launch our YouTube - please subscribe! 
+
+We are also holding two events in San Francisco — the first AI | UX meetup next week (already full; we’ll send a recap here on the newsletter) and Latent Space Liftoff Day on May 4th (signup here; but get in touch if you have a high profile launch you’d like to make). 
+
+We also joined the Chroma/OpenAI ChatGPT Plugins Hackathon last week where we won the Turing and Replit awards and met some of you in person!
+
+This post featured on Hacker News.
+
+Out of the five senses of the human body, I’d put sight at the very top. But weirdly when it comes to AI, Computer Vision has felt left out of the recent wave compared to image generation, text reasoning, and even audio transcription. We got our first taste of it with the OCR capabilities demo in the GPT-4 Developer Livestream, but to date GPT-4’s vision capability has not yet been released. 
+
+Meta AI leapfrogged OpenAI and everyone else by fully open sourcing their Segment Anything Model (SAM) last week, complete with paper, model, weights, data (6x more images and 400x more masks than OpenImages), and a very slick demo website. This is a marked change to their previous LLaMA release, which was not commercially licensed. The response has been ecstatic:
+
+from star-history
+
+SAM was the talk of the town at the ChatGPT Plugins Hackathon and I was fortunate enough to book Joseph Nelson who was frantically integrating SAM into Roboflow this past weekend. As a passionate instructor, hacker, and founder, Joseph is possibly the single best person in the world to bring the rest of us up to speed on the state of Computer Vision and the implications of SAM. I was already a fan of him from his previous pod with (hopefully future guest) Beyang Liu of Sourcegraph, so this served as a personal catchup as well. 
+
+Enjoy! and let us know what other news/models/guests you’d like to have us discuss!
+
+ - swyx
+
+Recorded in-person at the beautiful StudioPod studios in San Francisco.
+
+Full transcript is below the fold.
+
+Show Notes
+
+Joseph’s links: Twitter, Linkedin, Personal
+
+Sourcegraph Podcast and Game Theory Story
+
+Represently
+
+Roboflow at Pioneer and YCombinator
+
+Udacity Self Driving Car dataset story
+
+Computer Vision Annotation Formats
+
+SAM recap - top things to know for those living in a cave
+
+https://segment-anything.com/
+
+https://segment-anything.com/demo
+
+https://arxiv.org/pdf/2304.02643.pdf 
+
+https://ai.facebook.com/blog/segment-anything-foundation-model-image-segmentation/
+
+https://blog.roboflow.com/segment-anything-breakdown/
+
+https://ai.facebook.com/datasets/segment-anything/
+
+Ask Roboflow https://ask.roboflow.ai/
+
+GPT-4 Multimodal https://blog.roboflow.com/gpt-4-impact-speculation/
+
+Cut for time:
+
+WSJ mention
+
+Des Moines Register story
+
+All In Pod: timestamped mention
+
+In Forbes: underrepresented investors in Series A
+
+Roboflow greatest hits
+
+https://blog.roboflow.com/mountain-dew-contest-computer-vision/
+
+https://blog.roboflow.com/self-driving-car-dataset-missing-pedestrians/
+
+https://blog.roboflow.com/nerualhash-collision/ and Apple CSAM issue 
+
+https://www.rf100.org/
+
+Timestamps
+
+[00:00:19] Introducing Joseph
+
+[00:02:28] Why Iowa
+
+[00:05:52] Origin of Roboflow
+
+[00:16:12] Why Computer Vision
+
+[00:17:50] Computer Vision Use Cases
+
+[00:26:15] The Economics of Annotation/Segmentation
+
+[00:32:17] Computer Vision Annotation Formats
+
+[00:36:41] Intro to Computer Vision & Segmentation
+
+[00:39:08] YOLO
+
+[00:44:44] World Knowledge of Foundation Models
+
+[00:46:21] Segment Anything Model
+
+[00:51:29] SAM: Zero Shot Transfer
+
+[00:51:53] SAM: Promptability
+
+[00:53:24] SAM: Model Assisted Labeling
+
+[00:56:03] SAM doesn't have labels
+
+[00:59:23] Labeling on the Browser
+
+[01:00:28] Roboflow + SAM Video Demo 
+
+[01:07:27] Future Predictions
+
+[01:08:04] GPT4 Multimodality
+
+[01:09:27] Remaining Hard Problems
+
+[01:13:57] Ask Roboflow (2019)
+
+[01:15:26] How to keep up in AI
+
+Transcripts
+
+[00:00:00] Hello everyone. It is me swyx and I'm here with Joseph Nelson. Hey, welcome to the studio. It's nice. Thanks so much having me. We, uh, have a professional setup in here.
+
+[00:00:19] Introducing Joseph
+
+[00:00:19] Joseph, you and I have known each other online for a little bit. I first heard about you on the Source Graph podcast with bian and I highly, highly recommend that there's a really good game theory story that is the best YC application story I've ever heard and I won't tease further cuz they should go listen to that.
+
+[00:00:36] What do you think? It's a good story. It's a good story. It's a good story. So you got your Bachelor of Economics from George Washington, by the way. Fun fact. I'm also an econ major as well. You are very politically active, I guess you, you did a lot of, um, interning in political offices and you were responding to, um, the, the, the sheer amount of load that the Congress people have in terms of the, the support.
+
+[00:01:00] So you built, representing, which is Zendesk for Congress. And, uh, I liked in your source guide podcast how you talked about how being more responsive to, to constituents is always a good thing no matter what side of the aisle you're on. You also had a sideline as a data science instructor at General Assembly.
+
+[00:01:18] As a consultant in your own consultancy, and you also did a bunch of hackathon stuff with Magic Sudoku, which is your transition from N L P into computer vision. And apparently at TechCrunch Disrupt, disrupt in 2019, you tried to add chess and that was your whole villain origin story for, Hey, computer vision's too hard.
+
+[00:01:36] That's full, the platform to do that. Uh, and now you're co-founder c e o of RoboFlow. So that's your bio. Um, what's not in there that
+
+[00:01:43] people should know about you? One key thing that people realize within maybe five minutes of meeting me, uh, I'm from Iowa. Yes. And it's like a funnily novel thing. I mean, you know, growing up in Iowa, it's like everyone you know is from Iowa.
+
+[00:01:56] But then when I left to go to school, there was not that many Iowans at gw and people were like, oh, like you're, you're Iowa Joe. Like, you know, how'd you find out about this school out here? I was like, oh, well the Pony Express was running that day, so I was able to send. So I really like to lean into it.
+
+[00:02:11] And so you kind of become a default ambassador for places that. People don't meet a lot of other people from, so I've kind of taken that upon myself to just make it be a, a part of my identity. So, you know, my handle everywhere Joseph of Iowa, like I I, you can probably find my social security number just from knowing that that's my handle.
+
+[00:02:25] Cuz I put it plastered everywhere. So that's, that's probably like one thing.
+
+[00:02:28] Why Iowa
+
+[00:02:28] What's your best pitch for Iowa? Like why is
+
+[00:02:30] Iowa awesome? The people Iowa's filled with people that genuinely care. You know, if you're waiting a long line, someone's gonna strike up a conversation, kinda ask how you were Devrel and it's just like a really genuine place.
+
+[00:02:40] It was a wonderful place to grow up too at the time, you know, I thought it was like, uh, yeah, I was kind of embarrassed and then be from there. And then I actually kinda looking back it's like, wow, you know, there's good schools, smart people friendly. The, uh, high school that I went to actually Ben Silverman, the CEO and, or I guess former CEO and co-founder of Pinterest and I have the same teachers in high school at different.
+
+[00:03:01] The co-founder, or excuse me, the creator of crispr, the gene editing technique, Dr. Jennifer. Doudna. Oh, so that's the patent debate. There's Doudna. Oh, and then there's Fang Zang. Uh, okay. Yeah. Yeah. So Dr. Fang Zang, who I think ultimately won the patent war, uh, but is also from the same high school.
+
+[00:03:18] Well, she won the patent, but Jennifer won the
+
+[00:03:20] prize.
+
+[00:03:21] I think that's probably, I think that's probably, I, I mean I looked into it a little closely. I think it was something like she won the patent for CRISPR first existing and then Feng got it for, uh, first use on humans, which I guess for commercial reasons is the, perhaps more, more interesting one. But I dunno, biolife Sciences, is that my area of expertise?
+
+[00:03:38] Yep. Knowing people that came from Iowa that do cool things, certainly is. Yes. So I'll claim it. Um, but yeah, I, I, we, um, at Roble actually, we're, we're bringing the full team to Iowa for the very first time this last week of, of April. And, well, folks from like Scotland all over, that's your company
+
+[00:03:54] retreat.
+
+[00:03:54] The Iowa,
+
+[00:03:55] yeah. Nice. Well, so we do two a year. You know, we've done Miami, we've done. Some of the smaller teams have done like Nashville or Austin or these sorts of places, but we said, you know, let's bring it back to kinda the origin and the roots. Uh, and we'll, we'll bring the full team to, to Des Moines, Iowa.
+
+[00:04:13] So, yeah, like I was mentioning, folks from California to Scotland and many places in between are all gonna descend upon Des Moines for a week of, uh, learning and working. So maybe you can check in with those folks. If, what do they, what do they decide and interpret about what's cool. Our state. Well, one thing, are you actually headquartered in Des Moines on paper?
+
+[00:04:30] Yes. Yeah.
+
+[00:04:30] Isn't that amazing? That's like everyone's Delaware and you're like,
+
+[00:04:33] so doing research. Well, we're, we're incorporated in Delaware. Okay. We we're Delaware Sea like, uh, most companies, but our headquarters Yeah. Is in Des Moines. And part of that's a few things. One, it's like, you know, there's this nice Iowa pride.
+
+[00:04:43] And second is, uh, Brad and I both grew up in Brad Mc, co-founder and I grew up in, in Des Moines. And we met each other in the year 2000. We looked it up for the, the YC app. So, you know, I think, I guess more of my life I've known Brad than not, uh, which is kind of crazy. Wow. And during yc, we did it during 2020, so it was like the height of Covid.
+
+[00:05:01] And so we actually got a house in Des Moines and lived, worked outta there. I mean, more credit to. So I moved back. I was living in DC at the time, I moved back to to Des Moines. Brad was living in Des Moines, but he moved out of a house with his. To move into what we called our hacker house. And then we had one, uh, member of the team as well, Jacob Sorowitz, who moved from Minneapolis down to Des Moines for the summer.
+
+[00:05:21] And frankly, uh, code was a great time to, to build a YC company cuz there wasn't much else to do. I mean, it's kinda like wash your groceries and code. It's sort of the, that was the routine
+
+[00:05:30] and you can use, uh, computer vision to help with your groceries as well.
+
+[00:05:33] That's exactly right. Tell me what to make.
+
+[00:05:35] What's in my fridge? What should I cook? Oh, we'll, we'll, we'll cover
+
+[00:05:37] that for with the G P T four, uh, stuff. Exactly. Okay. So you have been featured with in a lot of press events. Uh, but maybe we'll just cover the origin story a little bit in a little bit more detail. So we'll, we'll cover robo flow and then we'll cover, we'll go into segment anything.
+
+[00:05:52] Origin of Roboflow
+
+[00:05:52] But, uh, I think it's important for people to understand. Robo just because it gives people context for what you're about to show us at the end of the podcast. So Magic Sudoku tc, uh, techers Disrupt, and then you go, you join Pioneer, which is Dan Gross's, um, YC before yc.
+
+[00:06:07] Yeah. That's how I think about it.
+
+[00:06:08] Yeah, that's a good way. That's a good description of it. Yeah. So I mean, robo flow kind of starts as you mentioned with this magic Sudoku thing. So you mentioned one of my prior business was a company called Represent, and you nailed it. I mean, US Congress gets 80 million messages a year. We built tools that auto sorted them.
+
+[00:06:23] They didn't use any intelligent auto sorting. And this is somewhat a solved problem in natural language processing of doing topic modeling or grouping together similar sentiment and things like this. And as you mentioned, I'd like, I worked in DC for a bit and been exposed to some of these problems and when I was like, oh, you know, with programming you can build solutions.
+
+[00:06:40] And I think the US Congress is, you know, the US kind of United States is a support center, if you will, and the United States is sports center runs on pretty old software, so mm-hmm. We, um, we built a product for that. It was actually at the time when I was working on representing. Brad, his prior business, um, is a social games company called Hatchlings.
+
+[00:07:00] Uh, he phoned me in, in 2017, apple had released augmented reality kit AR kit. And Brad and I are both kind of serial hackers, like I like to go to hackathons, don't really understand new technology until he build something with them type folks. And when AR Kit came out, Brad decided he wanted to build a game with it that would solve Sudoku puzzles.
+
+[00:07:19] And the idea of the game would be you take your phone, you hover hold it over top of a Sudoku puzzle, it recognizes the state of the board where it is, and then it fills it all in just right before your eyes. And he phoned me and I was like, Brad, this sounds awesome and sounds like you kinda got it figured out.
+
+[00:07:34] What, what's, uh, what, what do you think I can do here? It's like, well, the machine learning piece of this is the part that I'm most uncertain about. Uh, doing the digit recognition and, um, filling in some of those results. I was like, well, I mean digit recognition's like the hell of world of, of computer vision.
+
+[00:07:48] That's Yeah, yeah, MNIST, right. So I was like, that that part should be the, the easy part. I was like, ah, I'm, he's like, I'm not so super sure, but. You know, the other parts, the mobile ar game mechanics, I've got pretty well figured out. I was like, I, I think you're wrong. I think you're thinking about the hard part is the easy part.
+
+[00:08:02] And he is like, no, you're wrong. The hard part is the easy part. And so long story short, we built this thing and released Magic Sudoku and it kind of caught the Internet's attention of what you could do with augmented reality and, and with computer vision. It, you know, made it to the front ofer and some subreddits it run Product Hunt Air app of the year.
+
+[00:08:20] And it was really a, a flash in the pan type app, right? Like we were both running separate companies at the time and mostly wanted to toy around with, with new technology. And, um, kind of a fun fact about Magic Sudoku winning product Hunt Air app of the year. That was the same year that I think the model three came out.
+
+[00:08:34] And so Elon Musk won a Golden Kitty who we joked that we share an award with, with Elon Musk. Um, the thinking there was that this is gonna set off a, a revolution of if two random engineers can put together something that makes something, makes a game programmable and at interactive, then surely lots of other engineers will.
+
+[00:08:53] Do similar of adding programmable layers on top of real world objects around us. Earlier we were joking about objects in your fridge, you know, and automatically generating recipes and these sorts of things. And like I said, that was 2017. Roboflow was actually co-found, or I guess like incorporated in, in 2019.
+
+[00:09:09] So we put this out there, nothing really happened. We went back to our day jobs of, of running our respective businesses, I sold Represently and then as you mentioned, kind of did like consulting stuff to figure out the next sort of thing to, to work on, to get exposed to various problems. Brad appointed a new CEO at his prior business and we got together that summer of 2019.
+
+[00:09:27] We said, Hey, you know, maybe we should return to that idea that caught a lot of people's attention and shows what's possible. And you know what, what kind of gives, like the future is here. And we have no one's done anything since. No one's done anything. So why is, why are there not these, these apps proliferated everywhere.
+
+[00:09:42] Yeah. And so we said, you know, what we'll do is, um, to add this software layer to the real world. Will build, um, kinda like a super app where if you pointed it at anything, it will recognize it and then you can interact with it. We'll release a developer platform and allow people to make their own interfaces, interactivity for whatever object they're looking at.
+
+[00:10:04] And we decided to start with board games because one, we had a little bit of history there with, with Sudoku two, there's social by default. So if one person, you know finds it, then they'd probably share it among their friend. Group three. There's actually relatively few barriers to entry aside from like, you know, using someone else's brand name in your, your marketing materials.
+
+[00:10:19] Yeah. But other than that, there's no real, uh, inhibitors to getting things going and, and four, it's, it's just fun. It would be something that'd be bring us enjoyment to work on. So we spent that summer making, uh, boggle the four by four word game provable, where, you know, unlike Magic Sudoku, which to be clear, totally ruins the game, uh, you, you have to solve Sudoku puzzle.
+
+[00:10:40] You don't need to do anything else. But with Boggle, if you and I are playing, we might not find all of the words that adjacent letter tiles. Unveil. So if we have a, an AI tell us, Hey, here's like the best combination of letters that make high scoring words. And so we, we made boggle and released it and that, and that did okay.
+
+[00:10:56] I mean maybe the most interesting story was there's a English as a second language program in, in Canada that picked it up and used it as a part of their curriculum to like build vocabulary, which I thought was kind of inspiring. Example, and what happens just when you put things on the internet and then.
+
+[00:11:09] We wanted to build one for chess. So this is where you mentioned we went to 2019. TechCrunch Disrupt TechCrunch. Disrupt holds a Hackathon. And this is actually, you know, when Brad and I say we really became co-founders, because we fly out to San Francisco, we rent a hotel room in the Tenderloin. We, uh, we, we, uh, have one room and there's like one, there's room for one bed, and then we're like, oh, you said there was a cot, you know, on the, on the listing.
+
+[00:11:32] So they like give us a little, a little cot, the end of the cot, like bled and over into like the bathroom. So like there I am sleeping on the cot with like my head in the bathroom and the Tenderloin, you know, fortunately we're at a hackathon glamorous. Yeah. There wasn't, there wasn't a ton of sleep to be had.
+
+[00:11:46] There is, you know, we're, we're just like making and, and shipping these, these sorts of many
+
+[00:11:50] people with this hack. So I've never been to one of these things, but
+
+[00:11:52] they're huge. Right? Yeah. The Disrupt Hackathon, um, I don't, I don't know numbers, but few hundreds, you know, classically had been a place where it launched a lot of famous Yeah.
+
+[00:12:01] Sort of flare. Yeah. And I think it's, you know, kind of slowed down as a place for true company generation. But for us, Brad and I, who likes just doing hackathons, being, making things in compressed time skills, it seemed like a, a fun thing to do. And like I said, we'd been working on things, but it was only there that like, you're, you're stuck in a maybe not so great glamorous situation together and you're just there to make a, a program and you wanna make it be the best and compete against others.
+
+[00:12:26] And so we add support to the app that we were called was called Board Boss. We couldn't call it anything with Boggle cause of IP rights were called. So we called it Board Boss and it supported Boggle and then we were gonna support chess, which, you know, has no IP rights around it. Uh, it's an open game.
+
+[00:12:39] And we did so in 48 hours, we built an app that, or added fit capability to. Point your phone at a chess board. It understands the state of the chess board and converts it to um, a known notation. Then it passes that to stock fish, the open source chess engine for making move recommendations and it makes move recommendations to, to players.
+
+[00:13:00] So you could either play against like an ammunition to AI or improve your own game. We learn that one of the key ways users like to use this was just to record their games. Cuz it's almost like reviewing game film of what you should have done differently. Game. Yeah, yeah, exactly. And I guess the highlight of, uh, of chess Boss was, you know, we get to the first round of judging, we get to the second round of judging.
+
+[00:13:16] And during the second round of judging, that's when like, TechCrunch kind of brings around like some like celebs and stuff. They'll come by. Evan Spiegel drops by Ooh. Oh, and he uh, he comes up to our, our, our booth and um, he's like, oh, so what does, what does this all do? And you know, he takes an interest in it cuz the underpinnings of, of AR interacting with the.
+
+[00:13:33] And, uh, he is kinda like, you know, I could use this to like cheat on chess with my friends. And we're like, well, you know, that wasn't exactly the, the thesis of why we made it, but glad that, uh, at least you think it's kind of neat. Um, wait, but he already started Snapchat by then? Oh, yeah. Oh yeah. This, this is 2019, I think.
+
+[00:13:49] Oh, okay, okay. Yeah, he was kind of just checking out things that were new and, and judging didn't end up winning any, um, awards within Disrupt, but I think what we won was actually. Maybe more important maybe like the, the quote, like the co-founders medal along the way. Yep. The friends we made along the way there we go to, to play to the meme.
+
+[00:14:06] I would've preferred to win, to be clear. Yes. You played a win. So you did win, uh,
+
+[00:14:11] $15,000 from some Des Moines, uh, con
+
+[00:14:14] contest. Yeah. Yeah. The, uh, that was nice. Yeah. Slightly after that we did, we did win. Um, some, some grants and some other things for some of the work that we've been doing. John Papa John supporting the, uh, the local tech scene.
+
+[00:14:24] Yeah. Well, so there's not the one you're thinking of. Okay. Uh, there's a guy whose name is Papa John, like that's his, that's his, that's his last name. His first name is John. So it's not the Papa John's you're thinking of that has some problematic undertones. It's like this guy who's totally different. I feel bad for him.
+
+[00:14:38] His press must just be like, oh, uh, all over the place. But yeah, he's this figure in the Iowa entrepreneurial scene who, um, he actually was like doing SPACs before they were cool and these sorts of things, but yeah, he funds like grants that encourage entrepreneurship in the state. And since we'd done YC and in the state, we were eligible for some of the awards that they were providing.
+
+[00:14:56] But yeah, it was disrupt that we realized, you know, um, the tools that we made, you know, it took us better part of a summer to add Boggle support and it took us 48 hours to add chest support. So adding the ability for programmable interfaces for any object, we built a lot of those internal tools and our apps were kind of doing like the very famous shark fin where like it picks up really fast, then it kind of like slowly peters off.
+
+[00:15:20] Mm-hmm. And so we're like, okay, if we're getting these like shark fin graphs, we gotta try something different. Um, there's something different. I remember like the week before Thanksgiving 2019 sitting down and we wrote this Readme for, actually it's still the Readme at the base repo of Robo Flow today has spent relatively unedited of the manifesto.
+
+[00:15:36] Like, we're gonna build tools that enable people to make the world programmable. And there's like six phases and, you know, there's still, uh, many, many, many phases to go into what we wrote even at that time to, to present. But it's largely been, um, right in line with what we thought we would, we would do, which is give engineers the tools to add software to real world objects, which is largely predicated on computer vision. So finding the right images, getting the right sorts of video frames, maybe annotating them, uh, finding the right sort of models to use to do this, monitoring the performance, all these sorts of things. And that from, I mean, we released that in early 2020, and it's kind of, that's what's really started to click.
+
+[00:16:12] Why Computer Vision
+
+[00:16:12] Awesome. I think we should just kind
+
+[00:16:13] of
+
+[00:16:14] go right into where you are today and like the, the products that you offer, just just to give people an overview and then we can go into the, the SAM stuff. So what is the clear, concise elevator pitch? I think you mentioned a bunch of things like make the world programmable so you don't ha like computer vision is a means to an end.
+
+[00:16:30] Like there's, there's something beyond that. Yeah.
+
+[00:16:32] I mean, the, the big picture mission for the business and the company and what we're working on is, is making the world programmable, making it read and write and interactive, kind of more entertaining, more e. More fun and computer vision is the technology by which we can achieve that pretty quickly.
+
+[00:16:48] So like the one liner for the, the product in, in the company is providing engineers with the tools for data and models to build programmable interfaces. Um, and that can be workflows, that could be the, uh, data processing, it could be the actual model training. But yeah, Rob helps you use production ready computer vision workflows fast.
+
+[00:17:10] And I like that.
+
+[00:17:11] In part of your other pitch that I've heard, uh, is that you basically scale from the very smallest scales to the very largest scales, right? Like the sort of microbiology use case all the way to
+
+[00:17:20] astronomy. Yeah. Yeah. The, the joke that I like to make is like anything, um, underneath a microscope and, and through a telescope and everything in between needs to, needs to be seen.
+
+[00:17:27] I mean, we have people that run models in outer space, uh, underwater remote places under supervision and, and known places. The crazy thing is that like, All parts of, of not just the world, but the universe need to be observed and understood and acted upon. So vision is gonna be, I dunno, I feel like we're in the very, very, very beginnings of all the ways we're gonna see it.
+
+[00:17:50] Computer Vision Use Cases
+
+[00:17:50] Awesome. Let's go into a lo a few like top use cases, cuz I think that really helps to like highlight the big names that you've, big logos that you've already got. I've got Walmart and Cardinal Health, but I don't, I don't know if you wanna pull out any other names, like, just to illustrate, because the reason by the way, the reason I think that a lot of developers don't get into computer vision is because they think they don't need it.
+
+[00:18:11] Um, or they think like, oh, like when I do robotics, I'll do it. But I think if, if you see like the breadth of use cases, then you get a little bit more inspiration as to like, oh, I can use
+
+[00:18:19] CVS lfa. Yeah. It's kind of like, um, you know, by giving, by making it be so straightforward to use vision, it becomes almost like a given that it's a set of features that you could power on top of it.
+
+[00:18:32] And like you mentioned, there's, yeah, there's Fortune One there over half the Fortune 100. I've used the, the tools that Robel provides just as much as 250,000 developers. And so over a quarter million engineers finding and developing and creating various apps, and I mean, those apps are, are, are far and wide.
+
+[00:18:49] Just as you mentioned. I mean everything from say, like, one I like to talk about was like sushi detection of like finding the like right sorts of fish and ingredients that are in a given piece of, of sushi that you're looking at to say like roof estimation of like finding. If there's like, uh, hail damage on, on a given roof, of course, self-driving cars and understanding the scenes around us is sort of the, you know, very early computer vision everywhere.
+
+[00:19:13] Use case hardhat detection, like finding out if like a given workplace is, is, is safe, uh, disseminate, have the right p p p on or p p e on, are there the right distance from various machines? A huge place that vision has been used is environmental monitoring. Uh, what's the count of species? Can we verify that the environment's not changing in unexpected ways or like river banks are become, uh, becoming recessed in ways that we anticipate from satellite imagery, plant phenotyping.
+
+[00:19:37] I mean, people have used these apps for like understanding their plants and identifying them. And that dataset that's actually largely open, which is what's given a proliferation to the iNaturalist, is, is that whole, uh, hub of, of products. Lots of, um, people that do manufacturing. So, like Rivian for example, is a Rubal customer, and you know, they're trying to scale from 1000 cars to 25,000 cars to a hundred thousand cars in very short order.
+
+[00:20:00] And that relies on having the. Ability to visually ensure that every part that they're making is produced correctly and right in time. Medical use cases. You know, there's actually, this morning I was emailing with a user who's accelerating early cancer detection through breaking apart various parts of cells and doing counts of those cells.
+
+[00:20:23] And actually a lot of wet lab work that folks that are doing their PhDs or have done their PhDs are deeply familiar with that is often required to do very manually of, of counting, uh, micro plasms or, or things like this. There's. All sorts of, um, like traffic counting and smart cities use cases of understanding curb utilization to which sort of vehicles are, are present.
+
+[00:20:44] Uh, ooh. That can be
+
+[00:20:46] really good for city planning actually.
+
+[00:20:47] Yeah. I mean, one of our customers does exactly this. They, they measure and do they call it like smart curb utilization, where uhhuh, they wanna basically make a curb be almost like a dynamic space where like during these amounts of time, it's zoned for this during these amounts of times.
+
+[00:20:59] It's zoned for this based on the flows and e ebbs and flows of traffic throughout the day. So yeah, I mean the, the, the truth is that like, you're right, it's like a developer might be like, oh, how would I use vision? And then all of a sudden it's like, oh man, all these things are at my fingertips. Like I can just, everything you can see.
+
+[00:21:13] Yeah. Right. I can just, I can just add functionality for my app to understand and ingest the way, like, and usually the way that someone gets like almost nerd sniped into this is like, they have like a home automation project, so it's like send Yeah. Give us a few. Yeah. So send me a text when, um, a package shows up so I can like prevent package theft so I can like go down and grab it right away or.
+
+[00:21:29] We had a, uh, this one's pretty, pretty niche, but it's pretty funny. There was this guy who, during the pandemic wa, wanted to make sure his cat had like the proper, uh, workout. And so I've shared the story where he basically decided that. He'd make a cat workout machine with computer vision, you might be alone.
+
+[00:21:43] You're like, what does that look like? Well, what he decided was he would take a robotic arm strap, a laser pointer to it, and then train a machine to recognize his cat and his cat only, and point the laser pointer consistently 10 feet away from the cat. There's actually a video of you if you type an YouTube cat laser turret, you'll find Dave's video.
+
+[00:22:01] Uh, and hopefully Dave's cat has, has lost the weight that it needs to, cuz that's just the, that's an intense workout I have to say. But yeah, so like, that's like a, um, you know, these, uh, home automation projects are pretty common places for people to get into smart bird feeders. I've seen people that like are, are logging and understanding what sort of birds are, uh, in their background.
+
+[00:22:18] There's a member of our team that was working on actually this as, as a whole company and has open sourced a lot of the data for doing bird species identification. And now there's, I think there's even a company that's, uh, founded to create like a smart bird feeder, like captures photos and tells you which ones you've attracted to your yard.
+
+[00:22:32] I met that. Do, you know, get around the, uh, car sharing company that heard it? Them never used them. They did a SPAC last year and they had raised at like, They're unicorn. They raised at like 1.2 billion, I think in the, the prior round and inspected a similar price. I met the CTO of, of Getaround because he was, uh, using Rob Flow to hack into his Tesla cameras to identify other vehicles that are like often nearby him.
+
+[00:22:56] So he's basically building his own custom license plate recognition, and he just wanted like, keep, like, keep tabs of like, when he drives by his friends or when he sees like regular sorts of folks. And so he was doing like automated license plate recognition by tapping into his, uh, camera feeds. And by the way, Elliot's like one of the like OG hackers, he was, I think one of the very first people to like, um, she break iPhones and, and these sorts of things.
+
+[00:23:14] Mm-hmm. So yeah, the project that I want, uh, that I'm gonna work on right now for my new place in San Francisco is. There's two doors. There's like a gate and then the other door. And sometimes we like forget to close, close the gate. So like, basically if it sees that the gate is open, it'll like send us all a text or something like this to make sure that the gate is, is closed at the front of our house.
+
+[00:23:32] That's
+
+[00:23:32] really cool. And I'll, I'll call out one thing that readers and listeners can, uh, read out on, on your history. One of your most popular initial, um, viral blog post was about, um, autonomous vehicle data sets and how, uh, the one that Udacity was using was missing like one third of humans. And, uh, it's not, it's pretty problematic for cars to miss humans.
+
+[00:23:53] Yeah, yeah, actually, so yeah, the Udacity self-driving car data set, which look to their credit, it was just meant to be used for, for academic use. Um, and like as a part of courses on, on Udacity, right? Yeah. But the, the team that released it, kind of hastily labeled and let it go out there to just start to use and train some models.
+
+[00:24:11] I think that likely some, some, uh, maybe commercial use cases maybe may have come and, and used, uh, the dataset, who's to say? But Brad and I discovered this dataset. And when we were working on dataset improvement tools at Rob Flow, we ran through our tools and identified some like pretty, as you mentioned, key issues.
+
+[00:24:26] Like for example, a lot of strollers weren't labeled and I hope our self-driving cars do those, these sorts of things. And so we relabeled the whole dataset by hand. I have this very fond memory is February, 2020. Brad and I are in Taiwan. So like Covid is actually just, just getting going. And the reason we were there is we were like, Hey, we can work on this from anywhere for a little bit.
+
+[00:24:44] And so we spent like a, uh, let's go closer to Covid. Well, you know, I like to say we uh, we got early indicators of, uh, how bad it was gonna be. I bought a bunch of like N 90 fives before going o I remember going to the, the like buying a bunch of N 95 s and getting this craziest look like this like crazy tin hat guy.
+
+[00:25:04] Wow. What is he doing? And then here's how you knew. I, I also got got by how bad it was gonna be. I left all of them in Taiwan cuz it's like, oh, you all need these. We'll be fine over in the us. And then come to find out, of course that Taiwan was a lot better in terms of, um, I think, yeah. Safety. But anyway, we were in Taiwan because we had planned this trip and you know, at the time we weren't super sure about the, uh, covid, these sorts of things.
+
+[00:25:22] We always canceled it. We didn't, but I have this, this very specific time. Brad and I were riding on the train from Clay back to Taipei. It's like a four hour ride. And you mentioned Pioneer earlier, we were competing in Pioneer, which is almost like a gamified to-do list. Mm-hmm. Every week you say what you're gonna do and then other people evaluate.
+
+[00:25:37] Did you actually do the things you said you were going to do? One of the things we said we were gonna do was like this, I think re-release of this data set. And so it's like late, we'd had a whole week, like, you know, weekend behind us and, uh, we're on this train and it was very unpleasant situation, but we relabeled this, this data set, and one sitting got it submitted before like the Sunday, Sunday countdown clock starts voting for, for.
+
+[00:25:57] And, um, once that data got out back out there, just as you mentioned, it kind of picked up and Venture beat, um, noticed and wrote some stories about it. And we really rereleased of course, the data set that we did our best job of labeling. And now if anyone's listening, they can probably go out and like find some errors that we surely still have and maybe call us out and, you know, put us, put us on blast.
+
+[00:26:15] The Economics of Annotation (Segmentation)
+
+[00:26:15] But,
+
+[00:26:16] um, well, well the reason I like this story is because it, it draws attention to the idea that annotation is difficult and basically anyone looking to use computer vision in their business who may not have an off-the-shelf data set is going to have to get involved in annotation. And I don't know what it costs.
+
+[00:26:34] And that's probably one of the biggest hurdles for me to estimate how big a task this is. Right? So my question at a higher level is tell the customers, how do you tell customers to estimate the economics of annotation? Like how many images do, do we need? How much, how long is it gonna take? That, that kinda stuff.
+
+[00:26:50] How much money and then what are the nuances to doing it well, right? Like, cuz obviously Udacity had a poor quality job, you guys had proved it, and there's errors every everywhere. Like where do
+
+[00:26:59] these things go wrong? The really good news about annotation in general is that like annotation of course is a means to an end to have a model be able to recognize a thing.
+
+[00:27:08] Increasingly there's models that are coming out that can recognize things zero shot without any annotation, which we're gonna talk about. Yeah. Which, we'll, we'll talk more about that in a moment. But in general, the good news is that like the trend is that annotation is gonna become decreasingly a blocker to starting to use computer vision in meaningful ways.
+
+[00:27:24] Now that said, just as you mentioned, there's a lot of places where you still need to do. Annotation. I mean, even with these zero shot models, they might have of blind spots, or maybe you're a business, as you mentioned, that you know, it's proprietary data. Like only Rivian knows what a rivian is supposed to look like, right?
+
+[00:27:39] Uh, at the time of, at the time of it being produced, like underneath the hood and, and all these sorts of things. And so, yeah, that's gonna necessarily require annotation. So your question of how long is it gonna take, how do you estimate these sorts of things, it really comes down to the complexity of the problem that you're solving and the amount of variance in the scene.
+
+[00:27:57] So let's give some contextual examples. If you're trying to recognize, we'll say a scratch on one specific part and you have very strong lighting. You might need fewer images because you control the lighting, you know the exact part and maybe you're lucky in the scratch. Happens more often than not in similar parts or similar, uh, portions of the given part.
+
+[00:28:17] So in that context, you, you, the function of variance, the variance is, is, is lower. So the number of images you need is also lower to start getting up to work. Now the orders of magnitude we're talking about is that like you can have an initial like working model from like 30 to 50 images. Yeah. In this context, which is shockingly low.
+
+[00:28:32] Like I feel like there's kind of an open secret in computer vision now, the general heuristic that often. Users, is that like, you know, maybe 200 images per class is when you start to have a model that you can rely
+
+[00:28:45] on? Rely meaning like 90, 99, 90, 90%, um,
+
+[00:28:50] uh, like what's 85 plus 85? Okay. Um, that's good. Again, these are very, very finger in the wind estimates cuz the variance we're talking about.
+
+[00:28:59] But the real question is like, at what point, like the framing is not like at what point do it get to 99, right? The framing is at what point can I use this thing to be better than the alternative, which is humans, which maybe humans or maybe like this problem wasn't possible at all. And so usually the question isn't like, how do I get to 99?
+
+[00:29:15] A hundred percent? It's how do I ensure that like the value I am able to get from putting this thing in production is greater than the alternative? In fact, even if you have a model that's less accurate than humans, there might be some circumstances where you can tolerate, uh, a greater amount of inaccuracy.
+
+[00:29:32] And if you look at the accuracy relative to the cost, Using a model is extremely cheap. Using a human for the same sort of task can be very expensive. Now, in terms of the actual accuracy of of what you get, there's probably some point at which the cost, but relative accuracy exceeds of a model, exceeds the high cost and hopefully high accuracy of, of a human comparable, like for example, there's like cameras that will track soccer balls or track events happening during sporting matches.
+
+[00:30:02] And you can go through and you know, we actually have users that work in sports analytics. You can go through and have a human. Hours and hours of footage. Cuz not just watching their team, they're watching every other team, they're watching scouting teams, they're watching junior teams, they're watching competitors.
+
+[00:30:15] And you could have them like, you know, track and follow every single time the ball goes within blank region of the field or every time blank player goes into, uh, this portion of the field. And you could have, you know, exact, like a hundred percent accuracy if that person, maybe, maybe not a hundred, a human may be like 95, 90 7% accuracy of every single time the ball is in this region or this player is on the field.
+
+[00:30:36] Truthfully, maybe if you're scouting analytics, you actually don't need 97% accuracy of knowing that that player is on the field. And in fact, if you can just have a model run at a 1000th, a 10000th of the cost and goes through and finds all the times that Messi was present on the field mm-hmm. That the ball was in this region of the.
+
+[00:30:54] Then even if that model is slightly less accurate, the cost is just so orders of magnitude different. And the stakes like the stakes of this problem, of knowing like the total number of minutes that Messi played will say are such that we have a higher air tolerance, that it's a no-brainer to start to use Yeah, a computer vision model in this context.
+
+[00:31:12] So not every problem requires equivalent or greater human performance. Even when it does, you'd be surprised at how fast models get there. And in the times when you, uh, really look at a problem, the question is, how much accuracy do I need to start to get value from this? This thing, like the package example is a great one, right?
+
+[00:31:27] Like I could in theory set up a camera that's constantly watching in front of my porch and I could watch the camera whenever I have a package and then go down. But of course, I'm not gonna do that. I value my time to do other sorts of things instead. And so like there, there's this net new capability of, oh, great, I can have an always on thing that tells me when a package shows up, even if you know the, the thing that's gonna text me.
+
+[00:31:46] When a package shows up, let's say a flat pack shows up instead of a box and it doesn't know what a flat pack likes, looks like initially. Doesn't matter. It doesn't matter because I didn't have this capability at all before. And I think that's the true case where a lot of computer vision problems exist is like it.
+
+[00:32:00] It's like you didn't even have this capability, this superpower before at all, let alone assigning a given human to do the task. And that's where we see like this explosion of, of value.
+
+[00:32:10] Awesome. Awesome. That was a really good overview. I want to leave time for the others, but I, I really want to dive into a couple more things with regards to Robo Flow.
+
+[00:32:17] Computer Vision Annotation Formats
+
+[00:32:17] So one is, apparently your original pitch for Robo Flow was with regards to conversion tools for computer vision data sets. And I'm sure as, as a result of your job, you have a lot of rants. I've been digging for rants basically on like the best or the worst annotation formats. What do we know? Cause most of us, oh my gosh, we only know, like, you know, I like,
+
+[00:32:38] okay, so when we talk about computer vision annotation formats, what we're talking about is if you have an image and you, you picture a boing box around my face on that image.
+
+[00:32:46] Yeah. How do you describe where that Monty box is? X, Y, Z X Y coordinates. Okay. X, y coordinates. How, what do you mean from the top lefts.
+
+[00:32:52] Okay. You, you, you, you take X and Y and then, and then the. The length and, and the width of the, the
+
+[00:32:58] box. Okay. So you got like a top left coordinate and like the bottom right coordinate or like the, the center of the bottom.
+
+[00:33:02] Yeah. Yeah. Top, left, bottom right. Yeah. That's one type of format. Okay. But then, um, I come along and I'm like, you know what? I want to do a different format where I wanna just put the center of the box, right. And give the length and width. Right. And by the way, we didn't even talk about what X and Y we're talking about.
+
+[00:33:14] Is X a pixel count? Is a relative pixel count? Is it an absolute pixel count? So the point is, the number of ways to describe where a box lives in a freaking image is endless, uh, seemingly and. Everyone decided to kind of create their own different ways of describing the coordinates and positions of where in this context of bounding Box is present.
+
+[00:33:39] Uh, so there's some formats, for example, that like use re, so for the x and y, like Y is, uh, like the left, most part of the image is zero. And the right most part of the image is one. So the, the coordinate is like anywhere from zero to one. So 0.6 is, you know, 60% of your way right up the image to describe the coordinate.
+
+[00:33:53] I guess that was, that was X instead of Y. But the point is there, of the zero to one is the way that we determined where that was in the position, or we're gonna do an absolute pixel position anyway. We got sick, we got sick of all these different annotation formats. So why do you even have to convert between formats?
+
+[00:34:07] Is is another part of this, this story. So different training frameworks, like if you're using TensorFlow, you need like TF Records. If you're using PyTorch, it's probably gonna be, well it depends on like what model you're using, but someone might use Coco JSON with PyTorch. Someone else might use like a, just a YAML file and a text file.
+
+[00:34:21] And to describe the cor it's point is everyone that creates a model. Or creates a dataset rather, has created different ways of describing where and how a bounding box is present in the image. And we got sick of all these different formats and doing these in writing all these different converter scripts.
+
+[00:34:39] And so we made a tool that just converts from one script, one type of format to another. And the, the key thing is that like if you get that converter script wrong, your model doesn't not work. It just fails silently. Yeah. Because the bounding boxes are now all in the wrong places. And so you need a way to visualize and be sure that your converter script, blah, blah blah.
+
+[00:34:54] So that was the very first tool we released of robo. It was just a converter script, you know, like these, like these PDF to word converters that you find. It was basically that for computer vision, like dead simple, really annoying thing. And we put it out there and people found some, some value in, in that.
+
+[00:35:08] And you know, to this day that's still like a surprisingly painful
+
+[00:35:11] problem. Um, yeah, so you and I met at the Dall-E Hackathon at OpenAI, and we were, I was trying to implement this like face masking thing, and I immediately ran into that problem because, um, you know, the, the parameters that Dall-E expected were different from the one that I got from my face, uh, facial detection thing.
+
+[00:35:28] One day it'll go away, but that day is not today. Uh, the worst format that we work with is, is. The mart form, it just makes no sense. And it's like, I think, I think it's a one off annotation format that this university in China started to use to describe where annotations exist in a book mart. I, I don't know, I dunno why that So best
+
+[00:35:45] would be TF record or some something similar.
+
+[00:35:48] Yeah, I think like, here's your chance to like tell everybody to use one one standard and like, let's, let's, can
+
+[00:35:53] I just tell them to use, we have a package that does this for you. I'm just gonna tell you to use the row full package that converts them all, uh, for you. So you don't have to think about this. I mean, Coco JSON is pretty good.
+
+[00:36:04] It's like one of the larger industry norms and you know, it's in JS O compared to like V xml, which is an XML format and Coco json is pretty descriptive, but you know, it has, has its own sort of drawbacks and flaws and has random like, attribute, I dunno. Um, yeah, I think the best way to handle this problem is to not have to think about it, which is what we did.
+
+[00:36:21] We just created a, uh, library that, that converts and uses things. Uh, for us. We've double checked the heck out of it. There's been hundreds of thousands of people that have used the library and battle tested all these different formats to find those silent errors. So I feel pretty good about no longer having to have a favorite format and instead just rely on.
+
+[00:36:38] Dot load in the format that I need. Great
+
+[00:36:41] Intro to Computer Vision Segmentation
+
+[00:36:41] service to the community. Yeah. Let's go into segmentation because is at the top of everyone's minds, but before we get into segment, anything, I feel like we need a little bit of context on the state-of-the-art prior to Sam, which seems to be YOLO and uh, you are the leading expert as far as I know.
+
+[00:36:56] Yeah.
+
+[00:36:57] Computer vision, there's various task types. There's classification problems where we just like assign tags to images, like, you know, maybe safe work, not safe work, sort of tagging sort of stuff. Or we have object detection, which are the boing boxes that you see and all the formats I was mentioning in ranting about there's instant segmentation, which is the polygon shapes and produces really, really good looking demos.
+
+[00:37:19] So a lot of people like instant segmentation.
+
+[00:37:21] This would be like counting pills when you point 'em out on the, on the table. Yeah. So, or
+
+[00:37:25] soccer players on the field. So interestingly, um, counting you could do with bounding boxes. Okay. Cause you could just say, you know, a box around a person. Well, I could count, you know, 12 players on the field.
+
+[00:37:35] Masks are most useful. Polygons are most useful if you need very precise area measurements. So you have an aerial photo of a home and you want to know, and the home's not a perfect box, and you want to know the rough square footage of that home. Well, if you know the distance between like the drone and, and the ground.
+
+[00:37:53] And you have the precise polygon shape of the home, then you can calculate how big that home is from aerial photos. And then insurers can, you know, provide say accurate estimates and that's maybe why this is useful. So polygons and, and instant segmentation are, are those types of tasks? There's a key point detection task and key point is, you know, if you've seen those demos of like all the joints on like a hand kind of, kind of outlined, there's visual question answering tasks, visual q and a.
+
+[00:38:21] And that's like, you know, some of the stuff that multi-modality is absolutely crushing for, you know, here's an image, tell me what food is in this image. And then you can pass that and you can make a recipe out of it. But like, um, yeah, the visual question in answering task type is where multi-modality is gonna have and is already having an enormous impact.
+
+[00:38:40] So that's not a comprehensive survey, very problem type, but it's enough to, to go into why SAM is significant. So these various task types, you know, which model to use for which given circumstance. Most things is highly dependent on what you're ultimately aiming to do. Like if you need to run a model on the edge, you're gonna need a smaller model, cuz it is gonna run on edge, compute and process in, in, in real time.
+
+[00:39:01] If you're gonna run a model on the cloud, then of course you, uh, generally have more compute at your disposal Considerations like this now, uh,
+
+[00:39:08] YOLO
+
+[00:39:08] just to pause. Yeah. Do you have to explain YOLO first before you go to Sam, or
+
+[00:39:11] Yeah, yeah, sure. So, yeah. Yeah, we should. So object detection world. So for a while I talked about various different task types and you can kinda think about a slide scale of like classification, then obvious detection.
+
+[00:39:20] And on the right, at most point you have like segmentation tasks. Object detection. The bounding boxes is especially useful for a wide, like it's, it's surprisingly versatile. Whereas like classification is kind of brittle. Like you only have a tag for the whole image. Well, that doesn't, you can't count things with tags.
+
+[00:39:35] And on the other hand, like the mask side of things, like drawing masks is painstaking. And so like labeling is just a bit more difficult. Plus like the processing to produce masks requires more compute. And so usually a lot of folks kind of landed for a long time on obvious detection being a really happy medium of affording you with rich capabilities because you can do things like count, track, measure.
+
+[00:39:56] In some CAGR context with bounding boxes, you can see how many things are present. You can actually get a sense of how fast something's moving by tracking the object or bounding box across multiple frames and comparing the timestamp of where it was across those frames. So obviously detection is a very common task type that solves lots of things that you want do with a given model.
+
+[00:40:15] In obviously detection. There's been various model frameworks over time. So kind of really early on there's like R-CNN uh, then there's faster rc n n and these sorts of family models, which are based on like resnet kind of architectures. And then a big thing happens, and that is single shot detectors. So faster, rc n n despite its name is, is very slow cuz it takes two passes on the image.
+
+[00:40:37] Uh, the first pass is, it finds par pixels in the image that are most interesting to, uh, create a bounding box candidate out of. And then it passes that to a, a classifier that then does classification of the bounding box of interest. Right. Yeah. You can see, you can see why that would be slow. Yeah. Cause you have to do two passes.
+
+[00:40:53] You know, kind of actually led by, uh, like mobile net was I think the first large, uh, single shot detector. And as its name implies, it was meant to be run on edge devices and mobile devices and Google released mobile net. So it's a popular implementation that you find in TensorFlow. And what single shot detectors did is they said, Hey, instead of looking at the image twice, what if we just kind of have a, a backbone that finds candidate bounding boxes?
+
+[00:41:19] And then we, we set loss functions for objectness. We set loss function. That's a real thing. We set loss functions for objectness, like how much obj, how object do this part of the images. We send a loss function for classification, and then we run the image through the model on a single pass. And that saves lots of compute time and you know, it's not necessarily as accurate, but if you have lesser compute, it can be extremely useful.
+
+[00:41:42] And then the advances in both modeling techniques in compute and data quality, single shot detectors, SSDs has become, uh, really, really popular. One of the biggest SSDs that has become really popular is the YOLO family models, as you described. And so YOLO stands for you only look once. Yeah, right, of course.
+
+[00:42:02] Uh, Drake's, uh, other album, um, so Joseph Redman introduces YOLO at the University of Washington. And Joseph Redman is, uh, kind of a, a fun guy. So for listeners, for an Easter egg, I'm gonna tell you to Google Joseph Redman resume, and you'll find, you'll find My Little Pony. That's all I'll say. And so he introduces the very first YOLO architecture, which is a single shot detector, and he also does it in a framework called Darknet, which is like this, this own framework that compiles the Cs, frankly, kind of tough to work with, but allows you to benefit from the speedups that advance when you operate in a low level language like.
+
+[00:42:36] And then he releases, well, what colloquially is known as YOLO V two, but a paper's called YOLO 9,000 cuz Joseph Redmond thought it'd be funny to have something over 9,000. So get a sense for, yeah, some fun. And then he releases, uh, YOLO V three and YOLO V three is kind of like where things really start to click because it goes from being an SSD that's very limited to competitive and, and, and superior to actually mobile That and some of these other single shot detectors, which is awesome because you have this sort of solo, I mean, him and and his advisor, Ali, at University of Washington have these, uh, models that are becoming really, really powerful and capable and competitive with these large research organizations.
+
+[00:43:09] Joseph Edmond leaves Computer Vision Research, but there had been Alexia ab, one of the maintainers of Darknet released Yola VI four. And another, uh, researcher, Glenn Yer, uh, jocker had been working on YOLO V three, but in a PyTorch implementation, cuz remember YOLO is in a dark implementation. And so then, you know, YOLO V three and then Glenn continues to make additional improvements to YOLO V three and pretty soon his improvements on Yolov theory, he's like, oh, this is kind of its own things.
+
+[00:43:36] Then he releases YOLO V five
+
+[00:43:38] with some naming
+
+[00:43:39] controversy that we don't have Big naming controversy. The, the too long didn't read on the naming controversy is because Glen was not originally involved with Darknet. How is he allowed to use the YOLO moniker? Roe got in a lot of trouble cuz we wrote a bunch of content about YOLO V five and people were like, ah, why are you naming it that we're not?
+
+[00:43:55] Um, but you know,
+
+[00:43:56] cool. But anyway, so state-of-the-art goes to v8. Is what I gather.
+
+[00:44:00] Yeah, yeah. So yeah. Yeah. You're, you're just like, okay, I got V five. I'll skip to the end. Uh, unless, unless there's something, I mean, I don't want, well, so I mean, there's some interesting things. Um, in the yolo, there's like, there's like a bunch of YOLO variants.
+
+[00:44:10] So YOLOs become this, like this, this catchall for various single shot, yeah. For various single shot, basically like runs on the edge, it's quick detection framework. And so there's, um, like YOLO R, there's YOLO S, which is a transformer based, uh, yolo, yet look like you only look at one sequence is what s stands were.
+
+[00:44:27] Um, the pp yo, which, uh, is PAT Paddle implementation, which is by, which Chinese Google is, is their implementation of, of TensorFlow, if you will. So basically YOLO has like all these variants. And now, um, yo vii, which is Glen has been working on, is now I think kind of like, uh, one of the choice models to use for single shot detection.
+
+[00:44:44] World Knowledge of Foundation Models
+
+[00:44:44] Well, I think a lot of those models, you know, Asking the first principal's question, like let's say you wanna find like a bus detector. Do you need to like go find a bunch of photos of buses or maybe like a chair detector? Do you need to go find a bunch of photos of chairs? It's like, oh no. You know, actually those images are present not only in the cocoa data set, but those are objects that exist like kind of broadly on the internet.
+
+[00:45:02] And so computer visions kind of been like us included, have been like really pushing for and encouraging models that already possess a lot of context about the world. And so, you know, if GB T's idea and i's idea OpenAI was okay, models can only understand things that are in their corpus. What if we just make their corpus the size of everything on the internet?
+
+[00:45:20] The same thing that happened in imagery, what's happening now? And that's kinda what Sam represents, which is kind of a new evolution of, earlier on we were talking about the cost of annotation and I said, well, good news. Annotations then become decreasingly necessary to start to get to value. Now you gotta think about it more, kind of like, you'll probably need to do some annotation because you might want to find a custom object, or Sam might not be perfect, but what's about to happen is a big opportunity where you want the benefits of a yolo, right?
+
+[00:45:47] Where it can run really fast, it can run on the edge, it's very cheap. But you want the knowledge of a large foundation model that already knows everything about buses and knows everything about shoes, knows everything about real, if the name is true, anything segment, anything model. And so there's gonna be this novel opportunity to take what these large models know, and I guess it's kind of like a form of distilling, like distill them down into smaller architectures that you can use in versatile ways to run in real time to run on the edge.
+
+[00:46:13] And that's now happening. And what we're seeing in actually kind of like pulling that, that future forward with, with, with Robo Flow.
+
+[00:46:21] Segment Anything Model
+
+[00:46:21] So we could talk a bit about, um, about SAM and what it represents maybe into, in relation to like these, these YOLO models. So Sam is Facebook segment Everything Model. It came out last week, um, the first week of April.
+
+[00:46:34] It has 24,000 GitHub stars at the time of, of this recording within its first week. And why, what does it do? Segment? Everything is a zero shot segmentation model. And as we're describing, creating masks is a very arduous task. Creating masks of objects that are not already represented means you have to go label a bunch of masks and then train a model and then hope that it finds those masks in new images.
+
+[00:47:00] And the promise of Segment anything is that in fact you just pass at any image and it finds all of the masks of relevant things that you might be curious about finding in a given image. And it works remarkably. Segment anything in credit to Facebook and the fair Facebook research team, they not only released the model permissive license to move things forward, they released the full data set, all 11 million images and 1.1 billion segmentation masks and three model sizes.
+
+[00:47:29] The largest ones like 2.5 gigabytes, which is not enormous. Medium ones like 1.2 and the smallest one is like 400, 3 75 megabytes. And for context,
+
+[00:47:38] for, for people listening, that's six times more than the previous alternative, which, which is apparently open images, uh, in terms of number images, and then 400 times more masks than open
+
+[00:47:47] images as well.
+
+[00:47:48] Exactly, yeah. So huge, huge order magnitude gain in terms of dataset accessibility plus like the model and how it works. And so the question becomes, okay, so like segment. What, what do I do with this? Like, what does it allow me to do? And it didn't Rob float well. Yeah, you should. Yeah. Um, it's already there.
+
+[00:48:04] You um, that part's done. Uh, but the thing that you can do with segment anything is you can almost, like, I almost think about like this, kinda like this model arbitrage where you can basically like distill down a giant model. So let's say like, like let's return to the package example. Okay. The package problem of, I wanna get a text when a package appears on my front porch before segment anything.
+
+[00:48:25] The way that I would go solve this problem is I would go collect some images of packages on my porch and I would label them, uh, with bounding boxes or maybe masks in that part. As you mentioned, it can be a long process and I would train a model. And that model it actually probably worked pretty well cause it's purpose-built.
+
+[00:48:44] The camera position, my porch, the packages I'm receiving. But that's gonna take some time, like everything that I just mentioned there is gonna take some time. Now with Segment, anything, what you can do is go take some photos of your porch. So we're, we're still, we're still getting that. And then we're asking segment anything, basically.
+
+[00:49:00] Do you see, like segment, everything you see here? And, you know, a limitation of segment anything right now is it gives you masks without labels, like text labels for those masks. So we can talk about the way to address that in a, in a moment. But the point is, it will find the package in, in your photo. And again, there might be some positions where it doesn't find the package, or sometimes thing things look a little bit differently and you're gonna have to like, fine tune or whatever.
+
+[00:49:22] But, okay, now you've got a, you've got the intelligence of a package finder. Now you wanna deploy that package. Well, you could either call the Segment Everything model api, which hosted on platforms like RoboFlow, and I'm sure other places as well. Or you could probably distill it down to a smaller model.
+
+[00:49:38] You can run on the edge, like you wanna run it maybe on like a raspberry pie that just is looking and finding, well, you can't run segment everything on a raspberry pie, but you can run a single shot detector. So you just take all the data that's been basically automatically labeled for you and then you distill it down and train in much, much more efficient, smaller model.
+
+[00:49:57] And then you deploy that model to the edge and this is sort of what's gonna be increasingly possible. By the way, this has already happened in in LLMs, right? Like for example, like GPT4 knows. A lot about a lot and people will distill it down in some ways by seeing all the, uh, like code completion will say, let's say you're building a code completion model.
+
+[00:50:16] GPT4 can do any type of completion in addition to code completion. If you want to build your own code completion model, cause that's the only task that you're worried about for the future you're building. You could R H L F on all of GPT4 s code completion examples, and then almost kind of use that as distilling down into your own version of a code completion model and almost, uh, have a cheaper, more readily available, simpler model that yes, it only does one task, but that's the only task you need.
+
+[00:50:43] And it's a model that you own and it's a model that you can. Deploy more lightly and get more value from. That's sort of what has been represented as possible with, with Segment anything. But that's just on the dataset prep side, right? Like segment anything means you can make your own background removal, you can make your own sort of video editing software.
+
+[00:50:59] You can make like any, this promise of trying to make the world be understood and, uh, viewable and programmable just got so much more accessible. Yeah,
+
+[00:51:10] that's an incredible overview. I think we should just get your takes on a couple of like, so this is a massive, massive release. There are a lot of sort of small little features that, uh, they, they spent and elaborated in the blog post and the paper.
+
+[00:51:24] So I'm gonna pull out a few things to discuss and obviously feel free to suggest anything that you really want to get off your chest.
+
+[00:51:29] SAM: Zero Shot Transfer
+
+[00:51:29] So, zero shot transfer is.
+
+[00:51:31] No. Okay. But, uh, this level of quality, yes, much better. Yeah. So you could rely on large models previously for doing zero shot, uh, detection. But as you mentioned, the scale and size of the data set and resulting model that was trained is, is so much superior.
+
+[00:51:48] And that's, uh,
+
+[00:51:49] I guess the benefit of having world, world knowledge, um, yes. And being able to rely on that. Okay.
+
+[00:51:53] SAM: Promptability
+
+[00:51:53] And then prompt model, this is new. I still don't really understand how they did
+
+[00:51:58] it. Okay. So, so Sam basically said, why don't we take these 11 million images, 1.1 billion masks, and we'll train a transformer and an image encoder on all of those images.
+
+[00:52:14] And that's basically the pre-training that we'll use for passing any candidate image through. We'll pass that through this image encoder. So that's the, um, backbone, if you will, of the model. Then the much lighter parts become, okay, so if I've got that image encoding. I need to interact and understand what's inside the image en coating.
+
+[00:52:31] And that's where the prompting comes into play. And that's where the, the mask decoder comes into play in, in the model architecture. So image comes in, it goes through the imaging coder. The image en coder is what took lots of time and resources to train and get the weights for of, of what is Sam. But at inference time, of course, you don't have to re refine those weights.
+
+[00:52:49] So image comes in, goes to the image en coder, then you have the image and bedding. And now to interact with that image and embed, that's where you're gonna be doing prompting and the decoding specifically, what comes out of, out of Sam at the image encoding step is a bunch of candidate masks. And those candidate masks are the ones that you say you want to interact with.
+
+[00:53:06] What's really cool is there's both prompts for saying like the thing that you're interested in, but then there's also, you can also say the way that you wanna pass a candidate for which mask you're interested in from Sam, is you can just like point and click and say, this is the part of the image I'm interested in.
+
+[00:53:24] SAM: Model Assisted Labeling
+
+[00:53:24] Which is exactly what, like a, a labeling interface would be, uh, useful for, as an example,
+
+[00:53:30] which they actually use to bootstrap their own annotation, it seems.
+
+[00:53:33] Exactly. Isn't that pretty cool? Yes, exactly. So this is, this is why I was mentioning earlier that like the way to solve a computer vision problem, you know, like waterfall development versus agile development.
+
+[00:53:41] Sure. The same thing, like in machine learning, uh, it took a, it took a little bit, but folks like, oh, we can do this in, in machine learning too. And the way you do it, machine learning is instead of saying, okay, waterfall, I'm gonna take all my images and label them all. Okay, I'm done with the labeling part, now I'm gonna go to the training part.
+
+[00:53:55] Okay, I'm done with that part. Now I'm gonna go to the deployment part. A much more agile look would be like, okay, if I have like 10,000 images, let's label the first like hundred and just see what we get and we'll train a model and now we're gonna use that model that we trained to help us label the next thousand images.
+
+[00:54:10] And then we're gonna do this on repeat. That's exactly what the SAM team did. Yeah. They first did assisted man, they call it assisted manual. Manual, yeah.
+
+[00:54:15] Yep. Yeah. Where, which is uh, 4.3 million mass from 120,000 images.
+
+[00:54:19] Exactly. And then semi-automatic, which
+
+[00:54:22] is 5.9 million mass and 180,000
+
+[00:54:24] images. And in that step, they were basically having the human annotators point out where Sam may have missed a mask and then they did fully auto, which
+
+[00:54:32] is the whole thing.
+
+[00:54:33] Yes. 11 million images and 1.1
+
+[00:54:35] billion mask. And that's where they said, Sam, do your thing and predict all the mask. We won't
+
+[00:54:39] even, we won't even judge. Yeah. We just
+
+[00:54:41] close our eyes, which is what people are suspecting is happening for training G P T five. Right. Is that we're creating a bunch of candidate task text from G P T four to use in training the, the next g PT five.
+
+[00:54:52] So, but by the way, that process, like, you don't have to be a Facebook to take advantage of that. Like That's exactly what, like people building with Rob Flow. That's what you do.
+
+[00:54:59] Exactly. That's, this is your tool. That's the onboarding
+
+[00:55:01] that I did. That's exactly it. Is that like, okay, like you've got a bunch of images, but just label a few of them first.
+
+[00:55:07] Now you've got a, I almost think about it like a, you know, co-pilot is the term now, but I almost, I used to describe it as like a, an army of interns, otherwise known as AI that works alongside you. To have a first guess at labeling images for you, and then you're just kinda like supervising and improving and doing better.
+
+[00:55:23] And that relationship is a lot more efficient, a lot more effective. And by the way, by doing it this way, you don't waste a bunch of time labeling images. Like, again, we label images and pursuit of making sure our model learns something. We don't label images to label images, which means if we can label the right images defined by which images most help our model learn things next we should.
+
+[00:55:45] So we should look and see where's our model most likely to fail, and then spend our time labeling those images. And that's, that's sort of the tooling that, that we work on, making that exact loop faster and easier. Yeah. Yeah.
+
+[00:55:54] I highly recommend everyone try it. It's takes a few minutes. It's, it's great.
+
+[00:55:58] It's great. Is there anything else in, in Sam that, Sam specifically that you wanna go over? Or do you wanna go to Robot
+
+[00:56:03] SAM doesn't have labels
+
+[00:56:03] Full plus Sam? I mentioned one key thing about Sam that it doesn't do, and that is it doesn't outta the box give you labels for your masks. Now the paper. Alludes to the researchers attempting to get that part figured out.
+
+[00:56:18] And I think that they will, I think that they were like, we're just gonna publish this first part of just doing all the masks. Cuz that alone is like incredibly transformative for what's possible in, in computer vision. But in the interim, what is happening is people stitching together different models to name those masks, right?
+
+[00:56:35] So imagine that you go to Sam and you say, here's an image, and then Sam makes perfect masks of everything in the image. Now you need to know what are these masks, what objects are in these masks? Isn't it
+
+[00:56:45] funny that Sam doesn't know because you, you just said it knows
+
+[00:56:48] everything. Yeah, it knows it's weird.
+
+[00:56:50] It knows all the candidate masks. And that's, that's because that was the function that it was Yeah. Dream for. Yeah. Right, right. Okay. But again, like this is, this is what's going, like this is exactly what multi-modality is going to have happen anyway. You solved it. Yeah. So, yeah, so, so there's a couple different solutions.
+
+[00:57:04] I mean, this is where it's. You're begging the question of like, what are you trying to do with Sam? Like if you wanna do Sam, and then you wanna distill it down to deploy a more purpose-built task-specific, faster, cheaper model that you own. Yeah. That's commonly, I think what's gonna happen. So in that context, you're using SAM to accelerate your labeling.
+
+[00:57:21] Another way you might wanna use Sam is just in prod outta the box. Like, Sam is gonna produce good candidate labels and I don't need to fine tune anything and I just wanna like, use that as is. Well, in both of these contexts, we need to know the names of the masks that Sam is finding, right? Because like, if we're using Sam to label our stuff, well, telling us the mask isn't so helpful.
+
+[00:57:39] Like, in my image of packages, it's like, did you label the door? Did you label the package? I, I need to know what this mask is. There's an
+
+[00:57:45] objects nest there. Yeah. That, uh, that we can tell.
+
+[00:57:49] Yeah. And so you can use Sam in combination with other models. And pretty soon this is gonna be a single model. Like this podcast is gonna gonna like, I'll make a bold prediction in 30 days.
+
+[00:57:59] Like someone will do it, someone will do it in a single model, but with two models. So there's a model, for example, called Grounding DINO. Mm-hmm. Which is zero. Bounding box prediction. Mm-hmm. And with labels, and you interact with Grounding DINO through text prompts. So you could say like, here's an image.
+
+[00:58:14] You know, you and I are seated here in the studio. There's cans in front of us. You could say, give me the left can, and it would label bounding box only around the can on the left, like it understands text in that way. So you could use the masks from Sam and then ask Grounding DINO, what are these things?
+
+[00:58:29] Or where is X in between the combination of those two things? Boom, you have an automatic working text description of the things that you have in mind. Now again, this isn't perfect, like there will be places that still require human in loop review, and especially like on the novelty of a data set. These things will be be dependent.
+
+[00:58:49] But the point is, yes, there's places to improve and yes, you're gonna need to use tooling to do those improvements. The point is like we're starting so far ahead in our process. We're no longer starting at just like, I've got some images, what do I do? We're starting at, I've got some images and candidate descriptions of what's in those images.
+
+[00:59:04] How do I now. Mesh these two things together to understand precisely what I want to know from these images. And then deploy this thing because that's where you ultimately capture the value, is deploying this thing and, and envision a lot of that means on the edge because you have things running out in fields where people aren't.
+
+[00:59:21] Um, and that usually means constrained compute,
+
+[00:59:23] Labeling on the Browser
+
+[00:59:23] part of the demo of segment. Anything runs in the browser as well, which is interesting to some people. I I'm not sure how what percent of it was done.
+
+[00:59:30] That's what's fascinating. Um, because, and the reason it can do that, right, is because again, the giant image encoder, so remember the steps?
+
+[00:59:36] Yeah. It takes an image, the image encoder, and then you prompt from that image encoder. The image en coder is a large model and you need a spun up GPU to run the ongoing encoding that requires meaningful compute. Yeah. But the prompting can run in the browser. It's that lightweight, which means you can provide really fast feedback.
+
+[00:59:54] And that's exactly what we did at Robo Flow is we. Sam, and we made it be the world's best labeling tool. Like you can click on anything and Sam immediately says, this is what you wanted. The thing that you wanted to label is in these, this pixel coordinates area. And to be clear, we already had like this like kind of, we call it smart poly, like this thing that, like you could click and it would make regions of, of guesses of interest.
+
+[01:00:18] Sam is just such a stepwise improvement that will show, I mean, things that used to take maybe five or six clicks, you can, Sam immediately understands in one click. In one click.
+
+[01:00:28] Roboflow +SAM Video Demo
+
+[01:00:28] Cool. I, I think we might search over to the, uh, demo, but yeah, I think this is the, the time that we switch to a multimodal podcast and, uh, have a first screen share.
+
+[01:00:38] Amazing. So I'll semi nari what's, uh, what's going on, but, uh, we are checking out Joseph's screen and this is the interface of Robo flow. We have, we have Robo Flow before Sam and we have Robo Post Sam, and we're gonna see what, uh, the quality
+
+[01:00:53] difference is. Okay, so here is, uh, an image where we have a given weld that we're interested in segmenting this portion of the weld where these two pipes come together.
+
+[01:01:06] Yeah. And the weld is highly
+
+[01:01:06] irregular. It's kind of like curved in, in both in three dimensions. So it's just not a typical easily segmentable
+
+[01:01:13] thing. Yeah. To the human eye. Like pic eye could figure out, you know, probably where this weld starts and stops. But that's gonna take a lot of clicks. Certainly.
+
+[01:01:21] Like we could go through and like, we could, you know, this would be like the really old fashioned way of like creating, apparently
+
+[01:01:27] this is how they did, uh, lightsabers, that you had to like, mask out lightsabers and then use of the sub in on the, the lights. And you did it for every. So just really super expensive cuz they didn't have any other options.
+
+[01:01:39] Wow. And now it's one click in runway.
+
+[01:01:41] Wow. Wow. Okay. So open call for someone to make a light saber simulator using Robo Flow. That's awesome. You haven't had one? Not a, I'm aware. Okay. Oh my God, that's a great idea. Yeah. Yeah. Alright. Okay. So we, so that's, that's the very old fashion way now inside Robo Flow, like, uh, before Sam, we did have this thing called Smart Poly.
+
+[01:01:58] Uh, and this will still be, still be available for, for users to use. And so if like, I'm, I'm labeling the weld area, I'd go like this. And you know, the first click I'll, I'll narrate a little bit for, for swyx, I clicked on the welded joint. And it got the welded joint, but also includes lots of irrelevant
+
+[01:02:12] area, the rest of the, the bottom pipe and then, and the parts on the right.
+
+[01:02:15] What is that picking up? Is it picking up on like just the color or is
+
+[01:02:17] it like Yeah, this specific model probably wasn't pre-trained on images of welds and pipes and so it just doesn't have a great concept. Yeah. Of what region starts and stop. Now to be clear, I'm not sol here, like part of, part of the thing with robo, I can go say, I can add positive and negative points, so I can say, no, I didn't, I didn't want this part.
+
+[01:02:33] Yeah. And so I said I don't want that bottom part of the pipe little better, and I still don't want the bottom part of the pipe. Okay. That's almost, almost there.
+
+[01:02:41] There's a lot of space on either side of the weld. Okay. All right.
+
+[01:02:43] That's better. So, so four clicks we got, we got our way to, to, you know, the, the weld here.
+
+[01:02:48] Yeah. Um, now with Sam. And so we're gonna do the same thing. I'm going to label the weld portion with a single click. It understands the context of, of that, that, that weld. Uh, I was labeling fish, so I thought I was working on fish. So that's like one Okay, that's, that's great. Of like a, a before and after.
+
+[01:03:06] But let's talk about maybe some of the other, Examples of things that I might wanna work on. I came with some fun examples. Let's do, um, so I've got this image of two kids playing when I was holding a balloon in the background. There's like a brick wall. The lighting's not great. Yeah, lighting's not fantastic, but um, you know, we can clearly make out what's going on.
+
+[01:03:25] So I'm going to click the, uh, the brick wall in the background. Sam immediately labels both sides of the brick wall, even though there is a pole separating view between the left portion of the brick wall and the right portion of the brick wall. So I can just say like, I dunno, I'll just say thing for ease.
+
+[01:03:44] Or let's say I wanna do this guy's shoe, and I'm like, actually, you know what, no, I don't want the shoe, I want the whole, uh, person so I can That's two clicks. Two clicks, and Sam immediately got it. Maybe I wanna be even more really precise and get that portion there and miss face a little bit. So we click the face and that's another thing.
+
+[01:04:02] Or let's jump to maybe this one's very
+
+[01:04:05] fun. Okay, so there's a blue, a chihuahua with a bunch of
+
+[01:04:08] balloons. Yeah. So here, let's say like I wanted to do, uh, maybe I just wanted do like the eyes, right? Uhhuh. So I'll click like the left
+
+[01:04:15] eye that makes the whole chihuahua light
+
+[01:04:17] up so it gets the whole chihuahua.
+
+[01:04:19] Now here's where interactivity with models and kind of like a new UX paradigm for interaction with models make some sense. I'm gonna say, okay, I wanted that left eye. I don't want the, like the rest of the dog. Rest of the dog. So I'm gonna say no on this part of the dog. Then I'm gonna go say I go straight to the eye.
+
+[01:04:32] Yeah. Yep. I'm gonna say yes on the other eye. Uhhuh boom. Right now you got both eyes. I got both eyes and nothing else. And I could do the same thing with the ear. So I could say like, I want the ear and I click the right ear and it gets the whole again, the whole dog head. But I could say, no, I don't want the dog head.
+
+[01:04:46] And it boom recognizes that I want only the right ear. So can
+
+[01:04:49] I
+
+[01:04:49] ask about, so obviously this is super impressive. Can I ask like, is there a way to generalize this work? Like, I did this work for one image. Can I take a another image of a, the same chihuahua and just say, do that. The, um,
+
+[01:05:02] reapply what I did to some degree.
+
+[01:05:04] There's a few ways we could do that. The, probably the simplest way is actually going back to what we were talking about where you label a few examples and then you create your own kind of mini model that understands exactly what you're after. Yeah. And then you have that mini model finish the work for you.
+
+[01:05:18] And you just do that within robot flow. You just do that within Rob flow? Of course. Yeah. So like, I've got like, so I label, I label a bunch of my images after I've got, you know, we'll say like 10 of them labeled, then I'll kick off, you know, my own custom model. And the nice thing is that like right, I'm building my own ip.
+
+[01:05:34] And that's one of the big things that like I'm pretty excited about with, uh, Motomod modality and especially with GBT and some of these things, is that like I can take what these massive models understand. This is a generalist way of saying distill, but I can distill them down into a different architecture that captures that portion of the world.
+
+[01:05:54] And use that model for, let's say in this context, I've got an image up of, uh, men kind of in front of a pier and they've got aprons on. I can build my own apron detector. Again, this is sort of like in some context, like if I wanna build a task specific model and, and Sam knows everything that it knows, I can either go the route of trying to use Sam zero shot plus another model to label the, the, the mask images that might be limiting cuz of just the compute intensity that Sam requires to run and, you know, maybe wanna build some of my own IP and make use of some of my own data.
+
+[01:06:24] But these are kinda the two routes that I think we'll see continue to evolve. And I can use text prompting with Grounding DINO plus Sam to get a sense of which portions of the image I care about. And then I'm probably gonna need to do a little bit of QA of, of that. But, Like the dataset prep process and the biggest inhibitor to creating your own value in IP just got so much simpler.
+
+[01:06:49] And I think that, um, I think we're the first ones to go live with this, so that's, yeah, I'm, I'm very thrilled about that. We're recording
+
+[01:06:54] this earlier, but it's, uh, when, when this podcast drops, it'll be live. Uh, hopefully, you know, if everything goes well, I'll coordinate with you. So, so, so it will be live?
+
+[01:07:02] No, it will, it will, it will be live, yes. Yes, yes. Uh, and people can go try it out. Exactly. I guess it'll be just be part of the Rofo platform and I, I, I assume I'll, I'll add a, a blog post to it. Anything else on just, uh, so we're, we're about to zoom out from Sam and computer vision to Easter general AI takes, but, uh, anything else in terms of like future projections of, of the, of what happens next in, in computer vision segmentation or anything in that, in that,
+
+[01:07:27] Future Predictions
+
+[01:07:27] As you were describing earlier, Sam right now only produces masks.
+
+[01:07:30] It can't be text steer to give the context of those masks that's gonna happen in a single architecture without chaining together a couple different architectures. That's, that's for sure. The second thing is, um, multimodality generally will allow us to add more context to the things that we're seeing and doing.
+
+[01:07:45] And I'm sure we'll probably talk about this in a moment, but like, that's maybe a good segue into like GPT4 Yeah. And GPT4's capabilities, what we expect, how we're excited about it, the ways that we're already using some of GPT4, and really gonna lean into the capabilities that unlocks from, from imagery and, and a visual prep perspective.
+
+[01:08:04] GPT4 Multimodality
+
+[01:08:04] Let's go into that. Great. I was watching that keynote on GPT4. I was blown away. What were your reactions as a computer vision company?
+
+[01:08:13] Similar. Similar, yeah. Apparently. Um, so Greg Brockman did that demo where he said, make a joke generator website. Apparently that was totally ad hoc, like that. Didn't practiced that at all.
+
+[01:08:22] Which, what? Yeah, he just gave it a go. Yeah. I, I think that like the. Generation of code from imagery. I think that like screenshot of a website to rack components within six months. I think stuff like that will be imminently possible, doable and just unlock all kinds of potential.
+
+[01:08:38] And then did you see the second one with the Discord screenshot that they posted in?
+
+[01:08:42] It was a very quick part of the demo, so a lot of people missed it. But essentially what Logan from opening I did was screenshotted, uh, the Discord screen he was on and then pasted it into the discord that had GPT4 read it and it was able to read every word on it. Yes.
+
+[01:08:57] I think OCR is a solved problem
+
+[01:08:59] in a large language model as opposed to like a dedicated OCR R model.
+
+[01:09:03] Yes. Isn't that that that's, we've
+
+[01:09:05] never seen that. That's right. Yeah. And I think OCR like is actually a perfect candidate for like multimodality, right, because it's literally photos of text. Yeah. Yeah. And there's already gonna be like ample training data from all the work that's been done on creating prior OCR models.
+
+[01:09:20] Right. But yeah, I think that they probably are about to release the world's best. OCR model. Full stop. Yeah. Well,
+
+[01:09:27] Remaining Hard Problems
+
+[01:09:27] so I think those were like, kind of what they wanted to show on the demo. I, you know, it's, it's news to me that the, the drawing was impromptu. What's a really hard challenge that you wanna try on GT four once you get access to it, what are you going run
+
+[01:09:38] it on?
+
+[01:09:39] So, the way I think about like, advances in computer vision and what, uh, capabilities get unlocked, where there's still gonna be problems in ensuring that we're building tooling that really unblocks people. I think that, like if you think about the types of use cases that a model already knows without any training, I think about like a bell curve distribution.
+
+[01:09:58] Where in the fat center of the curve you have, uh, what historically has been like the cocoa dataset, common objects and context, a 2014 release from Microsoft, 80 classes, things like chair, silverware, food, car. They say sports ball for all. Sports ball. Did they really? Yeah. In the dataset. Yeah.
+
+[01:10:16] That's a, that's hilarious.
+
+[01:10:18] Oh
+
+[01:10:18] my God. So, yeah. And so you've got like all these, I mean, I, I get why they do that. It's like a capture for all sports. Um, but the point is, like in the fat center, you have these things, these, these objects that are as common as possible. And I think that, and then go to the exact, like long tails of this distribution and the very, very like edge of the tails you have.
+
+[01:10:38] Data and problems that are not common or regularly seen, the prevalence of that image may be existing on the web is maybe one way to think about this. And that's where you have like maybe a manufacturer that makes their own good that no one else makes, or a logistics company that knows what their stuff were supposed to look like or maybe your specific house looks like a very notable way or a pattern or, or something like this.
+
+[01:10:59] And of course, all these problems depend on like what exactly you want to do, but there will be places where there's just proprietary information that doesn't exist on the web basically. And, um, I think of that like what's happening in vision is that fat middle is steadily expanding outward. The models that are trained on cocoa, you know, do better and better and better on like, making that middle sliver really, really confident.
+
+[01:11:23] And then models like clip, which, you know, two years ago, the first kind of multimodality approach, which robos already power like we already have clip powered search and robo and have for over a year. Which, you know, links text and images in a way we haven't seen before it. And that basically increases the generalizability of what models can see.
+
+[01:11:45] I think G p D four expands that even further, where like, you get like, even further into like, those, those long, long tails. I don't think that like completely, like, I don't think that like, we'll, like never train again, so to speak. That's kinda like my, my mental model of what's happening, what's gonna continue to happen.
+
+[01:11:59] Now that still creates emergent problems for developers. That still creates problems like, like we were talking about earlier. Even if, you know, I have a model that knows everything in the world, that model might be a not mine or it might be a model that I can't run where I need to run it. Uh, maybe a place without internet, maybe a place on the edge, maybe a place that's compute constrained.
+
+[01:12:16] So I might need to do like some distilling down. I might have data that's truly proprietary that's like not present on the web. So like I can't rely on this model. I might have a task type that these G B D four and multimodal models are extremely good at visual question answering. And I think they'll be able to describe images in kinda like a freeform text way.
+
+[01:12:34] But you're still gonna come, maybe need to massage that text into something useful and, and insightful and, and to be, to be understood. And maybe that's a place where you're like, you know, use like lang chain and things to like, uh, figure out what's going on from, from the candidates descriptions of, of text.
+
+[01:12:48] And so there's still gonna be a healthy set of problems to making this stuff be, be usable, but ways that we're thinking about at Roble that I'm very excited about. So we already used GPT4 to do like dataset description with, to be clear, just the text only. Just the text only? Yeah, just the text only.
+
+[01:13:02] We're, we're fortunate like Greg and, and Sam back us. Um, uh, but personally, personally,
+
+[01:13:06] Sam as in Altman, Sam, not the, yeah, not the model Sam, because the mo the model could be smart enough to
+
+[01:13:11] back you. I don't know. That's been a funny confusion this last week. You know? Which, which Sam, which Sam are you talking about?
+
+[01:13:15] You were talking a lot about Sam does. So, but, but we don't have, um, visual access to be clear. Text only GPT4 to do dataset description, basically passing it what we already know, like we have, Hey, I have a computer vision model with like these sorts of classes or things like this, and gimme a dataset description that enriches, enriches my dataset.
+
+[01:13:31] And then we also of course have like GPT4 powered support, like a lot of folks do of like, uh, we ingested, uh, the 480 blogs and the Ripple blog, the 120 YouTube videos, 280, the you guys, the uh, dozens of open source projects and every page in our. Uh, and our help center. And then we ingested that and now we have a GPT4 powered bot that can generate not only like code snippets, just like GPT4 can do really well, but regurgitate and site and point you to the resources across Robo Flow.
+
+[01:13:57] Ask Roboflow (2019)
+
+[01:13:57] Shout out to the og uh, robo fans. You are the first to have your own bot, which is Ask Robo Flow. I saw this at Hack News. I was like, wait, this is a harbinger of things to come. And uh,
+
+[01:14:06] in 2019, this is where the name road flow comes from. Really? We, we, yes. I was
+
+[01:14:10] thinking there's nothing imaging in your, in your, uh, description or your
+
+[01:14:13] name.
+
+[01:14:14] Yeah. Yeah. Cuz I mean, I think that, um, to build, to build a hundred years end durable company, you can't just be one thing. You gotta, you gotta do everything. You gotta, you gotta be Microsoft anyway, so, yeah, yeah, yeah. One of the first things we were doing with, um, AI in 2019 was we realized Stack Overflow is extremely valuable resource, but it's only in English and programmers come from all around the world.
+
+[01:14:33] So logically programmers are gonna be speaking various languages to wanna understand and debug their programs. So we said, with these advances in N L P, don't you think that we could translate Stack Overflow? To every single other language and provide a really useful localized stack overflow. And so we started working on that.
+
+[01:14:47] We called it Stack Robo Flow. And then, um, Josh, the founder of, uh, delicious, if you remember that, that site. Mm-hmm. Mm-hmm. He Shawn Pardo, he's like, drop, drop the stack. It's cleaner. Just, just make it be robo Flow. It's a great story.
+
+[01:14:59] Oh, love the story behind names. And
+
+[01:15:00] from from then on, it's just been, uh, Rob Flow.
+
+[01:15:02] Yeah, yeah. Um, which is, you know, been a useful name and it's, and it's stuck. But yeah, like we, I mean actually Stack Rob. Dot com is still up and you can like ask it questions. It's not nearly as good, of course. It's like it's before LLMs. Like it's, uh, but uh, yeah, ask Rob Flow was the very first, you know, programmer completion sort of, sort of guide.
+
+[01:15:21] So we've been really excited that, um, others have picked up and done a much better job with that than what we were doing.
+
+[01:15:26] How to keep up in AI
+
+[01:15:26] Yeah. You have a really sort of hacker mentality, which I love. Uh, obviously you at, at the various hack hackathons in San Francisco. Uh, and maybe we can close out with that. I know we've been running long, so, uh, I'm just gonna zoom out a little bit into the broader sort of personal or meta question about how do you keep up with ai, right?
+
+[01:15:41] Like you, you're econ grad, you went into data science, very common path. I I had a similar path as well, and I'm going down this AI journey, um, about six, seven years after you. How do you recommend people keep
+
+[01:15:51] up? The way that I do is ingest sources from probably similar places that others do of whether it's the research community is quite active on, on Twitter.
+
+[01:15:59] Regularly seen papers linked on, on archived people will be in communities, various discords or even inside the robo flow Slack. People will share papers and things that are, um, meaningful and interesting. But that's just like one part is like ingestion. Yes. Getting ingestion from friends, having like engaged in conversations and just kind of being eyes wide open to various things.
+
+[01:16:18] The second part is production. Yeah. And we can kinda like read some tweets and see some demos, but for me when Robo Flow, when Brad and I, uh, were just working on stuff very early, one of the pioneer goals that we had was published three blogs and two YouTube videos per week. And we did that for seven months.
+
+[01:16:33] So I was just nonstop producing content and that wasn't just like writing a blog. It'd usually be like, Um, you know, you, you do a blog sometimes, or you do like a, a co-lab notebook, training tutorial, or the point is you're basically like naturally re-implementing the papers and things that you're reading and as you mention you out of
+
+[01:16:49] ideas.
+
+[01:16:50] Anyway. Yeah. Gotta do something.
+
+[01:16:53] I mean, and as you mentioned, I spent some time teaching data science work Yeah. Journal assembly and actually taught a bit about gw and I really became a subscriber to the belief that if you can't describe something simply, then you probably don't understand, don't know it yourself.
+
+[01:17:05] Yeah. And so being forced to, to produce things and then Yeah. You mentioned like hackathons, like I still, still have a good hackathon, whether that's internal to our team or inside the outside in the community. And I really look up to folks like, I mean, I'm sure you've probably come across like, uh, you, you recently mentioned that you, you'd spent some time with like the notion founders and you know, they're insanely Yeah.
+
+[01:17:22] Curious and you would've. Idea of the stature of, of the business. And I think that that's like an incredibly strong ethos to, to
+
+[01:17:30] have, they're billionaires and they're having lunch with me to ask what I think
+
+[01:17:34] about I, well, yeah, I mean, I think you have an incredibly good view of what's next and what's coming up and uh, a different purview.
+
+[01:17:41] But that's exactly what I mean. Right. Like engage in other folks and legitimately asking them and wanting to glean and, and be curious. Like, I dunno, like I think about someone like Jeff Dean who made map produce and also introduced one of the first versions of TensorFlow. Yeah. Like, he just has to be so innately curious to, I don't even know if it's, if it's called reinventing yourselves at that.
+
+[01:18:00] By that time, if you've just like been. Uh, so on the, the cutting edge, but it's not like I think about like someone considering themselves, quote unquote an expert in like TensorFlow or a framework or whatever, and it's like everyone is learning. Some people are just like further ahead on their journey and you can actually catch up pretty quickly with some strong, some strong effort.
+
+[01:18:18] So I think that that's a lot of it is like being, is there's just as much the mentality as there is, like the, the resources and then like the, the production. And I mean, you kinda mentioned before we started recording like, oh, you're like the expert on these, these sorts of things. And I don't even think that that's, uh, I spend more time thinking about them than a lot of people, but there's still a ton to ingest and work on and change and improve.
+
+[01:18:41] And I think that that's actually a pretty big opportunity for, uh, young companies especially that have a, a habit of being able to move quickly and really focus on like unlocking user value rather than most other things.
+
+[01:18:53] Well, that's a perfect way to end things. Uh, thank you for being my and many other people's first introduction to computer vision in the state of the art.
+
+[01:19:01] Uh, I'm sure we'll have you back for, you know, whatever else comes, uh, along. But you are literally the perfect guest to talk segment anything, and it was by far the hottest this topic of discussion this past week. So thanks for, uh, taking the
+
+[01:19:12] time. I had a ton of fun. Thanks for having me. All right. Thank you.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

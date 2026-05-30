@@ -1,0 +1,921 @@
+# The "Normsky" architecture for AI coding agents — with Beyang Liu + Steve Yegge of SourceGraph
+# URL: https://www.latent.space/p/sourcegraph
+# Date: 2023-12-14
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+The "Normsky" architecture for AI coding agents — with Beyang Liu + Steve Yegge of SourceGraph
+
+17
+
+1
+
+3
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:19:36
+
+-1:19:36
+
+Audio playback is not supported on your browser. Please upgrade.
+
+The "Normsky" architecture for AI coding agents — with Beyang Liu + Steve Yegge of SourceGraph
+
+Combining Norvig and Chomsky for a new paradigm, beating Copilot with StarCoder, and solving the "bin packing problem" for code RAG
+
+Steve Yegge and Beyang Liu
+
+Dec 14, 2023
+
+17
+
+1
+
+3
+
+Share
+
+Transcript
+
+We are running an end of year survey for our listeners. Let us know any feedback you have for us, what episodes resonated with you the most, and guest requests for 2024! 
+
+RAG has emerged as one of the key pieces of the AI Engineer stack. Jerry from LlamaIndex called it a “hack”, Bryan from Hex compared it to “a recommendation system from LLMs”, and even LangChain started with it. 
+
+RAG is crucial in any AI coding workflow. We talked about context quality for code in our Phind episode. Today’s guests, Beyang Liu and Steve Yegge from SourceGraph, have been focused on code indexing and retrieval for over 15 years. We locked them in our new studio to record a 1.5 hours masterclass on the history of code search, retrieval interfaces for code, and how they get SOTA 30% completion acceptance rate in their Cody product by being better at the “bin packing problem” of LLM context generation. 
+
+New studio at Newton is still a WIP as you can see 😅 
+
+Google Grok → SourceGraph → Cody
+
+While at Google in 2008, Steve built Grok, which lives on today as Google Kythe. It allowed engineers to do code parsing and searching across different codebases and programming languages. (You might remember the infamous Google Platforms Rant from Steve’s time at Google, and his 2021 followup on GCP). 
+
+Beyang was an intern at Google at the same time, and Grok became the inspiration to start SourceGraph in 2013. The two didn’t know eachother personally until Beyang brought Steve out of retirement 9 years later to join him as VP Engineering. Fast forward 10 years, SourceGraph has become to best code search tool out there and raised $223M along the way. 
+
+Nine months ago, they open sourced SourceGraph Cody, their AI coding assistant. All their code indexing and search infrastructure allows them to get SOTA results by having better RAG than competitors:
+
+Code completions as you type that achieve an industry-best Completion Acceptance Rate (CAR) as high as 30% using a context-enhanced open-source LLM (StarCoder)
+
+Context-aware chat that provides the option of using GPT-4 Turbo, Claude 2, GPT-3.5 Turbo, Mistral 7x8B, or Claude Instant, with more model integrations planned
+
+Doc and unit test generation, along with AI quick fixes for common coding errors
+
+AI-enhanced natural language code search, powered by a hybrid dense/sparse vector search engine 
+
+There are a few pieces of infrastructure that helped Cody achieve these results:
+
+Dense-sparse vector retrieval system 
+
+For many people, RAG = vector similarity search, but there’s a lot more that you can do to get the best possible results. From their release:
+
+"Sparse vector search" is a fancy name for keyword search that potentially incorporates LLMs for things like ranking and term expansion (e.g., "k8s" expands to "Kubernetes container orchestration", possibly weighted as in SPLADE): 
+
+Dense vector retrieval makes use of embeddings, the internal representation that LLMs use to represent text. Dense vector retrieval provides recall over a broader set of results that may have no exact keyword matches but are still semantically similar. 
+
+Sparse vector retrieval is very fast, human-understandable, and yields high recall of results that closely match the user query. 
+
+We've found the approaches to be complementary.
+
+There’s a very good blog post by Pinecone on SPLADE for sparse vector search if you’re interested in diving in. If you’re building RAG applications in areas that have a lot of industry-specific nomenclature, acronyms, etc, this is a good approach to getting better results.
+
+SCIP
+
+In 2016, Microsoft announced the Language Server Protocol (LSP) and the Language Server Index Format (LSIF). This protocol makes it easy for IDEs to get all the context they need from a codebase to get things like file search, references, “go to definition”, etc. 
+
+SourceGraph developed SCIP, “a better code indexing format than LSIF”:
+
+Simpler and More Efficient Format: SCIP utilizes Protobuf instead of JSON, which is used by LSIF. Protobuf is more space-efficient, simpler, and more suitable for systems programming. 
+
+Better Performance and Smaller Index Sizes: SCIP indexers, such as scip-clang, show enhanced performance and reduced index file sizes compared to LSIF indexers (10%-20% smaller)
+
+Easier to Develop and Debug: SCIP's design, centered around human-readable string IDs for symbols, makes it faster and more straightforward to develop new language indexers. 
+
+Having more efficient indexing is key to more performant RAG on code. 
+
+Show Notes
+
+Sourcegraph
+
+Cody
+
+Copilot vs Cody
+
+Steve’s Stanford seminar on Grok
+
+Steve’s blog
+
+Grab
+
+Fireworks
+
+Peter Norvig
+
+Noam Chomsky
+
+Code search
+
+Kelly Norton
+
+Zoekt
+
+v0.dev
+
+See also our past episodes on Cursor, Phind, Codeium and Codium as well as the GitHub Copilot keynote at AI Engineer Summit.
+
+Timestamps
+
+[00:00:00] Intros & Backgrounds
+
+[00:05:20] How Steve's work on Grok inspired SourceGraph for Beyang
+
+[00:08:10] What's Cody?
+
+[00:11:22] Comparison of coding assistants and the capabilities of Cody
+
+[00:16:00] The importance of context (RAG) in AI coding tools
+
+[00:21:33] The debate between Chomsky and Norvig approaches in AI
+
+[00:30:06] Normsky: the Norvig + Chomsky models collision
+
+[00:36:00] The death of the DSL?
+
+[00:40:00] LSP, Skip, Kythe, BFG, and all that fun stuff
+
+[00:53:00] The SourceGraph internal stack
+
+[00:58:46] Building on open source models
+
+[01:02:00] SourceGraph for engineering managers?
+
+[01:12:00] Lightning Round
+
+Transcript
+
+Alessio: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO-in-Residence at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol AI. [00:00:16]
+
+Swyx: Hey, and today we're christening our new podcast studio in the Newton, and we have Beyang and Steve from Sourcegraph. Welcome. [00:00:25]
+
+Beyang: Hey, thanks for having us. [00:00:26]
+
+Swyx: So this has been a long time coming. I'm very excited to have you. We also are just celebrating the one year anniversary of ChatGPT yesterday, but also we'll be talking about the GA of Cody later on today. We'll just do a quick intros of both of you. Obviously, people can research you and check the show notes for more. Beyang, you worked in computer vision at Stanford and then you worked at Palantir. I did, yeah. You also interned at Google. [00:00:48]
+
+Beyang: I did back in the day where I get to use Steve's system, DevTool. [00:00:53]
+
+Swyx: Right. What was it called? [00:00:55]
+
+Beyang: It was called Grok. Well, the end user thing was Google Code Search. That's what everyone called it, or just like CS. But the brains of it were really the kind of like Trigram index and then Grok, which provided the reference graph. [00:01:07]
+
+Steve: Today it's called Kythe, the open source Google one. It's sort of like Grok v3. [00:01:11]
+
+Swyx: On your podcast, which you've had me on, you've interviewed a bunch of other code search developers, including the current developer of Kythe, right? [00:01:19]
+
+Beyang: No, we didn't have any Kythe people on, although we would love to if they're up for it. We had Kelly Norton, who built a similar system at Etsy, it's an open source project called Hound. We also had Han-Wen Nienhuys, who created Zoekt, which is, I think, heavily inspired by the Trigram index that powered Google's original code search and that we also now use at Sourcegraph. Yeah. [00:01:45]
+
+Swyx: So you teamed up with Quinn over 10 years ago to start Sourcegraph and you were indexing all code on the internet. And now you're in a perfect spot to create a code intelligence startup. Yeah, yeah. [00:01:56]
+
+Beyang: I guess the backstory was, I used Google Code Search while I was an intern. And then after I left that internship and worked elsewhere, it was the single dev tool that I missed the most. I felt like my job was just a lot more tedious and much more of a hassle without it. And so when Quinn and I started working together at Palantir, he had also used various code search engines in open source over the years. And it was just a pain point that we both felt, both working on code at Palantir and also working within Palantir's clients, which were a lot of Fortune 500 companies, large financial institutions, folks like that. And if anything, the pains they felt in dealing with large complex code bases made our pain points feel small by comparison. So that was really the impetus for starting Sourcegraph. [00:02:42]
+
+Swyx: Yeah, excellent. Steve, you famously worked at Amazon. And you've told many, many stories. I want every single listener of Latent Space to check out Steve's YouTube because he effectively had a podcast that you didn't tell anyone about or something. You just hit record and just went on a few rants. I'm always here for your Stevie rants. And then you moved to Google, where you also had some interesting thoughts on just the overall Google culture versus Amazon. You joined Grab as head of eng for a couple of years. I'm from Singapore, so I have actually personally used a lot of Grab's features. And it was very interesting to see you talk so highly of Grab's engineering and sort of overall prospects. [00:03:21]
+
+Steve: Because as a customer, it sucked? [00:03:22]
+
+Swyx: Yeah, no, it's just like, being from a smaller country, you never see anyone from our home country being on a global stage or talked about as a startup that people admire or look up to, like on the league that you, with all your legendary experience, would consider equivalent. Yeah. [00:03:41]
+
+Steve: Yeah, no, absolutely. They actually, they didn't even know that they were as good as they were, in a sense. They started hiring a bunch of people from Silicon Valley to come in and sort of like fix it. And we came in and we were like, Oh, we could have been a little better operational excellence and stuff. But by and large, they're really sharp. The only thing about Grab is that they get criticized a lot for being too westernized. Oh, by who? By Singaporeans who don't want to work there. [00:04:06]
+
+Swyx: Okay. I guess I'm biased because I'm here, but I don't see that as a problem. If anything, they've had their success because they were more westernized than the Sanders Singaporean tech company. [00:04:15]
+
+Steve: I mean, they had their success because they are laser focused. They copy to Amazon. I mean, they're executing really, really, really well for a giant. I was on a slack with 2,500 engineers. It was like this giant waterfall that you could dip your toe into. You'd never catch up. Actually, the AI summarizers would have been really helpful there. But yeah, no, I think Grab is successful because they're just out there with their sleeves rolled up, just making it happen. [00:04:43]
+
+Swyx: And for those who don't know, it's not just like Uber of Southeast Asia, it's also a super app. PayPal Plus. [00:04:48]
+
+Steve: Yeah. [00:04:49]
+
+Swyx: In the way that super apps don't exist in the West. It's one of the enduring mysteries of B2C that super apps work in the East and don't work in the West. We just don't understand it. [00:04:57]
+
+Beyang: Yeah. [00:04:58]
+
+Steve: It's just kind of curious. They didn't work in India either. And it was primarily because of bandwidth reasons and smaller phones. [00:05:03]
+
+Swyx: That should change now. It should. [00:05:05]
+
+Steve: And maybe we'll see a super app here. [00:05:08]
+
+Swyx: You retired-ish? I did. You retired-ish on your own video game? Mm-hmm. Any fun stories about that? And that's also where you discovered some need for code search, right? Mm-hmm. [00:05:16]
+
+Steve: Sure. A need for a lot of stuff. Better programming languages, better databases. Better everything. I mean, I started in like 95, right? Where there was kind of nothing. Yeah. Yeah. [00:05:24]
+
+Beyang: I just want to say, I remember when you first went to Grab because you wrote that blog post talking about why you were excited about it, about like the expanding Asian market. And our reaction was like, oh, man, how did we miss stealing it with you? [00:05:36]
+
+Swyx: Hiring you. [00:05:37]
+
+Beyang: Yeah. [00:05:38]
+
+Steve: I was like, miss that. [00:05:39]
+
+Swyx: Tell that story. So how did this happen? Right? So you were inspired by Grok. [00:05:44]
+
+Beyang: I guess the backstory from my point of view is I had used code search and Grok while at Google, but I didn't actually know that it was connected to you, Steve. I knew you from your blog posts, which were always excellent, kind of like inside, very thoughtful takes from an engineer's perspective on some of the challenges facing tech companies and tech culture and that sort of thing. But my first introduction to you within the context of code intelligence, code understanding was I watched a talk that you gave, I think at Stanford, about Grok when you're first building it. And that was very eye opening. I was like, oh, like that guy, like the guy who, you know, writes the extremely thoughtful ranty like blog posts also built that system. And so that's how I knew, you know, you were involved in that. And then, you know, we always wanted to hire you, but never knew quite how to approach you or, you know, get that conversation started. [00:06:34]
+
+Steve: Well, we got introduced by Max, right? Yeah. It was temporal. Yeah. Yeah. I mean, it was a no brainer. They called me up and I had noticed when Sourcegraph had come out. Of course, when they first came out, I had this dagger of jealousy stabbed through me piercingly, which I remember because I am not a jealous person by any means, ever. But boy, I was like, but I was kind of busy, right? And just one thing led to another. I got sucked back into the ads vortex and whatever. So thank God Sourcegraph actually kind of rescued me. [00:07:05]
+
+Swyx: Here's a chance to build DevTools. Yeah. [00:07:08]
+
+Steve: That's the best. DevTools are the best. [00:07:10]
+
+Swyx: Cool. Well, so that's the overall intro. I guess we can get into Cody. Is there anything else that like people should know about you before we get started? [00:07:18]
+
+Steve: I mean, everybody knows I'm a musician. I can juggle five balls. [00:07:24]
+
+Swyx: Five is good. Five is good. I've only ever managed three. [00:07:27]
+
+Steve: Five is hard. Yeah. And six, a little bit. [00:07:30]
+
+Swyx: Wow. [00:07:31]
+
+Beyang: That's impressive. [00:07:32]
+
+Alessio: So yeah, to jump into Sourcegraph, this has been a company 10 years in the making. And as Sean said, now you're at the right place. Phase two. Now, exactly. You spent 10 years collecting all this code, indexing, making it easy to surface it. Yeah. [00:07:47]
+
+Swyx: And also learning how to work with enterprises and having them trust you with their code bases. Yeah. [00:07:52]
+
+Alessio: Because initially you were only doing on-prem, right? Like a lot of like VPC deployments. [00:07:55]
+
+Beyang: So in the very early days, we're cloud only. But the first major customers we landed were all on-prem, self-hosted. And that was, I think, related to the nature of the problem that we're solving, which becomes just like a critical, unignorable pain point once you're above like 100 devs or so. [00:08:11]
+
+Alessio: Yeah. And now Cody is going to be GA by the time this releases. So congrats to your future self for launching this in two weeks. Can you give a quick overview of just what Cody is? I think everybody understands that it's a AI coding agent, but a lot of companies say they have a AI coding agent. So yeah, what does Cody do? How do people interface with it? [00:08:32]
+
+Beyang: Yeah. So how is it different from the like several dozen other AI coding agents that exist in the market now? When we thought about building a coding assistant that would do things like code generation and question answering about your code base, I think we came at it from the perspective of, you know, we've spent the past decade building the world's best code understanding engine for human developers, right? So like it's kind of your guide as a human dev if you want to go and dive into a large complex code base. And so our intuition was that a lot of the context that we're providing to human developers would also be useful context for AI developers to consume. And so in terms of the feature set, Cody is very similar to a lot of other assistants. It does inline autocompletion. It does code base aware chat. It does specific commands that automate, you know, tasks that you might rather not want to do like generating unit tests or adding detailed documentation. But we think the core differentiator is really the quality of the context, which is hard to kind of describe succinctly. It's a bit like saying, you know, what's the difference between Google and Alta Vista? There's not like a quick checkbox list of features that you can rattle off, but it really just comes down to all the attention and detail that we've paid to making that context work well and be high quality and fast for human devs. We're now kind of plugging into the AI coding assistant as well. Yeah. [00:09:53]
+
+Steve: I mean, just to add my own perspective on to what Beyang just described, RAG is kind of like a consultant that the LLM has available, right, that knows about your code. RAG provides basically a bridge to a lookup system for the LLM, right? Whereas fine tuning would be more like on the job training for somebody. If the LLM is a person, you know, and you send them to a new job and you do on the job training, that's what fine tuning is like, right? So tuned to our specific task. You're always going to need that expert, even if you get the on the job training, because the expert knows your particular code base, your task, right? That expert has to know your code. And there's a chicken and egg problem because, right, you know, we're like, well, I'm going to ask the LLM about my code, but first I have to explain it, right? It's this chicken and egg problem. That's where RAG comes in. And we have the best consultants, right? The best assistant who knows your code. And so when you sit down with Cody, right, what Beyang said earlier about going to Google and using code search and then starting to feel like without it, his job was super tedious. Once you start using these, do you guys use coding assistants? [00:10:53]
+
+Swyx: Yeah, right. [00:10:54]
+
+Steve: I mean, like we're getting to the point very quickly, right? Where you feel like almost like you're programming without the internet, right? Or something, you know, it's like you're programming back in the nineties without the coding assistant. Yeah. Hopefully that helps for people who have like no idea about coding systems, what they are. [00:11:09]
+
+Swyx: Yeah. [00:11:10]
+
+Alessio: I mean, going back to using them, we had a lot of them on the podcast already. We had Cursor, we have Codium and Codium, very similar names. [00:11:18]
+
+Swyx: Yeah. Find, and then of course there's Copilot. [00:11:22]
+
+Alessio: You had a Copilot versus Cody blog post, and I think it really shows the context improvement. So you had two examples that stuck with me. One was, what does this application do? And the Copilot answer was like, oh, it uses JavaScript and NPM and this. And it's like, but that's not what it does. You know, that's what it's built with. Versus Cody was like, oh, these are like the major functions. And like, these are the functionalities and things like that. And then the other one was, how do I start this up? And Copilot just said NPM start, even though there was like no start command in the package JSON, but you know, most collapse, right? Most projects use NPM start. So maybe this does too. How do you think about open source models? Because Copilot has their own private thing. And I think you guys use Starcoder, if I remember right. Yeah, that's correct. [00:12:09]
+
+Beyang: I think Copilot uses some variant of Codex. They're kind of cagey about it. I don't think they've like officially announced what model they use. [00:12:16]
+
+Swyx: And I think they use a range of models based on what you're doing. Yeah. [00:12:19]
+
+Beyang: So everyone uses a range of model. Like no one uses the same model for like inline completion versus like chat because the latency requirements for. Oh, okay. Well, there's fill in the middle. There's also like what the model's trained on. So like we actually had completions powered by Claude Instant for a while. And but you had to kind of like prompt hack your way to get it to output just the code and not like, hey, you know, here's the code you asked for, like that sort of text. So like everyone uses a range of models. We've kind of designed Cody to be like especially model, not agnostic, but like pluggable. So one of our kind of design considerations was like as the ecosystem evolves, we want to be able to integrate the best in class models, whether they're proprietary or open source into Cody because the pace of innovation in the space is just so quick. And I think that's been to our advantage. Like today, Cody uses Starcoder for inline completions. And with the benefit of the context that we provide, we actually show comparable completion acceptance rate metrics. It's kind of like the standard metric that folks use to evaluate inline completion quality. It's like if I show you a completion, what's the chance that you actually accept the completion versus you reject it? And so we're at par with Copilot, which is at the head of that industry right now. And we've been able to do that with the Starcoder model, which is open source and the benefit of the context fetching stuff that we provide. And of course, a lot of like prompt engineering and other stuff along the way. [00:13:40]
+
+Alessio: And Steve, you wrote a post called cheating is all you need about what you're building. And one of the points you made is that everybody's fighting on the same axis, which is better UI and the IDE, maybe like a better chat response. But data modes are kind of the most important thing. And you guys have like a 10 year old mode with all the data you've been collecting. How do you kind of think about what other companies are doing wrong, right? Like, why is nobody doing this in terms of like really focusing on RAG? I feel like you see so many people. Oh, we just got a new model. It's like a bit human eval. And it's like, well, but maybe like that's not what we should really be doing, you know? Like, do you think most people underestimate the importance of like the actual RAG in code? [00:14:21]
+
+Steve: I think that people weren't doing it much. It wasn't. It's kind of at the edges of AI. It's not in the center. I know that when ChatGPT launched, so within the last year, I've heard a lot of rumblings from inside of Google, right? Because they're undergoing a huge transformation to try to, you know, of course, get into the new world. And I heard that they told, you know, a bunch of teams to go and train their own models or fine tune their own models, right? [00:14:43]
+
+Swyx: Both. [00:14:43]
+
+Steve: And, you know, it was a shit show. Nobody knew how to do it. They launched two coding assistants. One was called Code D with an EY. And then there was, I don't know what happened in that one. And then there's Duet, right? Google loves to compete with themselves, right? They do this all the time. And they had a paper on Duet like from a year ago. And they were doing exactly what Copilot was doing, which was just pulling in the local context, right? But fundamentally, I thought of this because we were talking about the splitting of the [00:15:10]
+
+Swyx: models. [00:15:10]
+
+Steve: In the early days, it was the LLM did everything. And then we realized that for certain use cases, like completions, that a different, smaller, faster model would be better. And that fragmentation of models, actually, we expected to continue and proliferate, right? Because we are fundamentally, we're a recommender engine right now. Yeah, we're recommending code to the LLM. We're saying, may I interest you in this code right here so that you can answer my question? [00:15:34]
+
+Swyx: Yeah? [00:15:34]
+
+Steve: And being good at recommender engine, I mean, who are the best recommenders, right? There's YouTube and Spotify and, you know, Amazon or whatever, right? Yeah. [00:15:41]
+
+Swyx: Yeah. [00:15:41]
+
+Steve: And they all have many, many, many, many, many models, right? For all fine-tuned for very specific, you know. And that's where we're heading in code, too. Absolutely. [00:15:50]
+
+Swyx: Yeah. [00:15:50]
+
+Alessio: We just did an episode we released on Wednesday, which we said RAG is like Rexis or like LLMs. You're basically just suggesting good content. [00:15:58]
+
+Swyx: It's like what? Recommendations. [00:15:59]
+
+Beyang: Recommendations. [00:16:00]
+
+Alessio: Oh, got it. [00:16:01]
+
+Steve: Yeah, yeah, yeah. [00:16:02]
+
+Swyx: So like the naive implementation of RAG is you embed everything, throw it in a vector database, you embed your query, and then you find the nearest neighbors, and that's your RAG. But actually, you need to rank it. And actually, you need to make sure there's sample diversity and that kind of stuff. And then you're like slowly gradient dissenting yourself towards rediscovering proper Rexis, which has been traditional ML for a long time. But like approaching it from an LLM perspective. Yeah. [00:16:24]
+
+Beyang: I almost think of it as like a generalized search problem because it's a lot of the same things. Like you want your layer one to have high recall and get all the potential things that could be relevant. And then there's typically like a layer two re-ranking mechanism that bumps up the precision and tries to get the relevant stuff to the top of the results list. [00:16:43]
+
+Swyx: Have you discovered that ranking matters a lot? Oh, yeah. So the context is that I think a lot of research shows that like one, context utilization matters based on model. Like GPT uses the top of the context window, and then apparently Claude uses the bottom better. And it's lossy in the middle. Yeah. So ranking matters. No, it really does. [00:17:01]
+
+Beyang: The skill with which models are able to take advantage of context is always going to be dependent on how that factors into the impact on the training loss. [00:17:10]
+
+Swyx: Right? [00:17:10]
+
+Beyang: So like if you want long context window models to work well, then you have to have a ton of data where it's like, here's like a billion lines of text. And I'm going to ask a question about like something that's like, you know, embedded deeply into it and like, give me the right answer. And unless you have that training set, then of course, you're going to have variability in terms of like where it attends to. And in most kind of like naturally occurring data, the thing that you're talking about right now, the thing I'm asking you about is going to be something that we talked about recently. [00:17:36]
+
+Swyx: Yeah. [00:17:36]
+
+Steve: Did you really just say gradient dissenting yourself? Actually, I love that it's entered the casual lexicon. Yeah, yeah, yeah. [00:17:44]
+
+Swyx: My favorite version of that is, you know, how we have to p-hack papers. So, you know, when you throw humans at the problem, that's called graduate student dissent. That's great. It's really awesome. [00:17:54]
+
+Alessio: I think the other interesting thing that you have is this inline assist UX that I wouldn't say async, but like it works while you can also do work. So you can ask Cody to make changes on a code block and you can still edit the same file at the same time. [00:18:07]
+
+Swyx: Yeah. [00:18:07]
+
+Alessio: How do you see that in the future? Like, do you see a lot of Cody's running together at the same time? Like, how do you validate also that they're not messing each other up as they make changes in the code? And maybe what are the limitations today? And what do you think about where the attack is going? [00:18:21]
+
+Steve: I want to start with a little history and then I'm going to turn it over to Bian, all right? So we actually had this feature in the very first launch back in June. Dominic wrote it. It was called nonstop Cody. And you could have multiple, basically, LLM requests in parallel modifying your source [00:18:37]
+
+Swyx: file. [00:18:37]
+
+Steve: And he wrote a bunch of code to handle all of the diffing logic. And you could see the regions of code that the LLM was going to change, right? And he was showing me demos of it. And it just felt like it was just a little before its time, you know? But a bunch of that stuff, that scaffolding was able to be reused for where we're inline [00:18:56]
+
+Swyx: sitting today. [00:18:56]
+
+Steve: How would you characterize it today? [00:18:58]
+
+Beyang: Yeah, so that interface has really evolved from a, like, hey, general purpose, like, request anything inline in the code and have the code update to really, like, targeted features, like, you know, fix the bug that exists at this line or request a very specific [00:19:13]
+
+Swyx: change. [00:19:13]
+
+Beyang: And the reason for that is, I think, the challenge that we ran into with inline fixes, and we do want to get to the point where you could just fire and forget and have, you know, half a dozen of these running in parallel. But I think we ran into the challenge early on that a lot of people are running into now when they're trying to construct agents, which is the reliability of, you know, working code generation is just not quite there yet in today's language models. And so that kind of constrains you to an interaction where the human is always, like, in the inner loop, like, checking the output of each response. And if you want that to work in a way where you can be asynchronous, you kind of have to constrain it to a domain where today's language models can generate reliable code well enough. So, you know, generating unit tests, that's, like, a well-constrained problem. Or fixing a bug that shows up as, like, a compiler error or a test error, that's a well-constrained problem. But the more general, like, hey, write me this class that does X, Y, and Z using the libraries that I have, that is not quite there yet, even with the benefit of really good context. Like, it definitely moves the needle a lot, but we're not quite there yet to the point where you can just fire and forget. And I actually think that this is something that people don't broadly appreciate yet, because I think that, like, everyone's chasing this dream of agentic execution. And if we're to really define that down, I think it implies a couple things. You have, like, a multi-step process where each step is fully automated. We don't have to have a human in the loop every time. And there's also kind of like an LM call at each stage or nearly every stage in that [00:20:45]
+
+Swyx: chain. [00:20:45]
+
+Beyang: Based on all the work that we've done, you know, with the inline interactions, with kind of like general Codyfeatures for implementing longer chains of thought, we're actually a little bit more bearish than the average, you know, AI hypefluencer out there on the feasibility of agents with purely kind of like transformer-based models. To your original question, like, the inline interactions with CODI, we actually constrained it to be more targeted, like, you know, fix the current error or make this quick fix. I think that that does differentiate us from a lot of the other tools on the market, because a lot of people are going after this, like, shnazzy, like, inline edit interaction, whereas I think where we've moved, and this is based on the user feedback that we've gotten, it's like that sort of thing, it demos well, but when you're actually coding day to day, you don't want to have, like, a long chat conversation inline with the code base. That's a waste of time. You'd rather just have it write the right thing and then move on with your life or not have to think about it. And that's what we're trying to work towards. [00:21:37]
+
+Steve: I mean, yeah, we're not going in the agent direction, right? I mean, I'll believe in agents when somebody shows me one that works. Yeah. Instead, we're working on, you know, sort of solidifying our strength, which is bringing the right context in. So new context sources, ways for you to plug in your own context, ways for you to control or influence the context, you know, the mixing that happens before the request goes out, etc. And there's just so much low-hanging fruit left in that space that, you know, agents seems like a little bit of a boondoggle. [00:22:03]
+
+Beyang: Just to dive into that a little bit further, like, I think, you know, at a very high level, what do people mean when they say agents? They really mean, like, greater automation, fully automated, like, the dream is, like, here's an issue, go implement that. And I don't have to think about it as a human. And I think we are working towards that. Like, that is the eventual goal. I think it's specifically the approach of, like, hey, can we have a transformer-based LM alone be the kind of, like, backbone or the orchestrator of these agentic flows? Where we're a little bit more bearish today. [00:22:31]
+
+Swyx: You want the human in the loop. [00:22:32]
+
+Beyang: I mean, you kind of have to. It's just a reality of the behavior of language models that are purely, like, transformer-based. And I think that's just like a reflection of reality. And I don't think people realize that yet. Because if you look at the way that a lot of other AI tools have implemented context fetching, for instance, like, you see this in the Copilot approach, where if you use, like, the at-workspace thing that supposedly provides, like, code-based level context, it has, like, an agentic approach where you kind of look at how it's behaving. And it feels like they're making multiple requests to the LM being like, what would you do in this case? Would you search for stuff? What sort of files would you gather? Go and read those files. And it's like a multi-hop step, so it takes a long while. It's also non-deterministic. Because any sort of, like, LM invocation, it's like a dice roll. And then at the end of the day, the context it fetches is not that good. Whereas our approach is just like, OK, let's do some code searches that make sense. And then maybe, like, crawl through the reference graph a little bit. That is fast. That doesn't require any sort of LM invocation at all. And we can pull in much better context, you know, very quickly. So it's faster. [00:23:37]
+
+Swyx: It's more reliable. [00:23:37]
+
+Beyang: It's deterministic. And it yields better context quality. And so that's what we think. We just don't think you should cargo cult or naively go like, you know, agents are the [00:23:46]
+
+Swyx: future. [00:23:46]
+
+Beyang: Let's just try to, like, implement agents on top of the LM that exists today. I think there are a couple of other technologies or approaches that need to be refined first before we can get into these kind of, like, multi-stage, fully automated workflows. [00:24:00]
+
+Swyx: It makes sense. You know, we're very much focused on developer inner loop right now. But you do see things eventually moving towards developer outer loop. Yeah. So would you basically say that they're tackling the agent's problem that you don't want to tackle? [00:24:11]
+
+Beyang: No, I would say at a high level, we are after maybe, like, the same high level problem, which is like, hey, I want some code written. I want to develop some software and can automate a system. Go build that software for me. I think the approaches might be different. So I think the analogy in my mind is, I think about, like, the AI chess players. Coding, in some senses, I mean, it's similar and dissimilar to chess. I think one question I ask is, like, do you think producing code is more difficult than playing chess or less difficult than playing chess? More. [00:24:41]
+
+Swyx: I think more. [00:24:41]
+
+Beyang: Right. And if you look at the best AI chess players, like, yes, you can use an LLM to play chess. Like, people have showed demos where it's like, oh, like, yeah, GPT-4 is actually a pretty decent, like, chess move suggester. Right. But you would never build, like, a best in class chess player off of GPT-4 alone. [00:24:57]
+
+Swyx: Right. [00:24:57]
+
+Beyang: Like, the way that people design chess players is that you have kind of like a search space and then you have a way to explore that search space efficiently. There's a bunch of search algorithms, essentially. We were doing tree search in various ways. And you can have heuristic functions, which might be powered by an LLM. [00:25:12]
+
+Swyx: Right. [00:25:12]
+
+Beyang: Like, you might use an LLM to generate proposals in that space that you can efficiently explore. But the backbone is still this kind of more formalized tree search based approach rather than the LLM itself. And so I think my high level intuition is that, like, the way that we get to more reliable multi-step workflows that do things beyond, you know, generate unit test, it's really going to be like a search based approach where you use an LLM as kind of like an advisor or a proposal function, sort of your heuristic function, like the ASTAR search algorithm. But it's probably not going to be the thing that is the backbone, because I guess it's not the right tool for that. Yeah. [00:25:50]
+
+Swyx: I can see yourself kind of thinking through this, but not saying the words, the sort of philosophical Peter Norvig type discussion. Maybe you want to sort of introduce that in software. Yeah, definitely. [00:25:59]
+
+Beyang: So your listeners are savvy. They're probably familiar with the classic like Chomsky versus Norvig debate. [00:26:04]
+
+Swyx: No, actually, I wanted, I was prompting you to introduce that. Oh, got it. [00:26:08]
+
+Beyang: So, I mean, if you look at the history of artificial intelligence, right, you know, it goes way back to, I don't know, it's probably as old as modern computers, like 50s, 60s, 70s. People are debating on like, what is the path to producing a sort of like general human level of intelligence? And kind of two schools of thought that emerged. One is the Norvig school of thought, which roughly speaking includes large language models, you know, regression, SVN, basically any model that you kind of like learn from data. And it's like data driven. Most of machine learning would fall under this umbrella. And that school of thought says like, you know, just learn from the data. That's the approach to reaching intelligence. And then the Chomsky approach is more things like compilers and parsers and formal systems. So basically like, let's think very carefully about how to construct a formal, precise system. And that will be the approach to how we build a truly intelligent system. I think Lisp was invented so that you could create like rules-based systems that you would call AI. As a language. Yeah. And for a long time, there was like this debate, like there's certain like AI research labs that were more like, you know, in the Chomsky camp and others that were more in the Norvig camp. It's a debate that rages on today. And I feel like the consensus right now is that, you know, Norvig definitely has the upper hand right now with the advent of LMs and diffusion models and all the other recent progress in machine learning. But the Chomsky-based stuff is still really useful in my view. I mean, it's like parsers, compilers, basically a lot of the stuff that provides really good context. It provides kind of like the knowledge graph backbone that you want to explore with your AI dev tool. Like that will come from kind of like Chomsky-based tools like compilers and parsers. It's a lot of what we've invested in in the past decade at Sourcegraph and what you build with Grok. Basically like these formal systems that construct these very precise knowledge graphs that are great context providers and great kind of guard rails enforcers and kind of like safety checkers for the output of a more kind of like data-driven, fuzzier system that uses like the Norvig-based models. [00:28:03]
+
+Steve: Jang was talking about this stuff like it happened in the middle ages. Like, okay, so when I was in college, I was in college learning Lisp and prologue and planning and all the deterministic Chomsky approaches to AI. And I was there when Norvig basically declared it dead. I was there 3,000 years ago when Norvig and Chomsky fought on the volcano. When did he declare it dead? [00:28:26]
+
+Swyx: What do you mean he declared it dead? [00:28:27]
+
+Steve: It was like late 90s. [00:28:29]
+
+Swyx: Yeah. [00:28:29]
+
+Steve: When I went to Google, Peter Norvig was already there. He had basically like, I forget exactly where. It was some, he's got so many famous short posts, you know, amazing. [00:28:38]
+
+Swyx: He had a famous talk, the unreasonable effectiveness of data. Yeah. [00:28:41]
+
+Steve: Maybe that was it. But at some point, basically, he basically convinced everybody that deterministic approaches had failed and that heuristic-based, you know, data-driven statistical approaches, stochastic were better. [00:28:52]
+
+Swyx: Yeah. [00:28:52]
+
+Steve: The primary reason I can tell you this, because I was there, was that, was that, well, the steam-powered engine, no. The reason was that the deterministic stuff didn't scale. [00:29:06]
+
+Swyx: Yeah. Right. [00:29:06]
+
+Steve: They're using prologue, man, constraint systems and stuff like that. Well, that was a long time ago, right? Today, actually, these Chomsky-style systems do scale. And that's, in fact, exactly what Sourcegraph has built. Yeah. And so we have a very unique, I love the framing that Bjong's made, that the marriage of the Chomsky and the Norvig, you know, sort of models, you know, conceptual models, because we, you know, we have both of them and they're both really important. And in fact, there, there's this really interesting, like, kind of overlap between them, right? Where like the AI or our graph or our search engine could potentially provide the right context for any given query, which is, of course, why ranking is important. But what we've really signed ourselves up for is an extraordinary amount of testing. [00:29:45]
+
+Swyx: Yeah. [00:29:45]
+
+Steve: Because in SWIGs, you were saying that, you know, GPT-4 tends to the front of the context window and maybe other LLMs to the back and maybe, maybe the LLM in the middle. [00:29:53]
+
+Swyx: Yeah. [00:29:53]
+
+Steve: And so that means that, you know, if we're actually like, you know, verifying whether we, you know, some change we've made has improved things, we're going to have to test putting it at the beginning of the window and at the end of the window, you know, and maybe make the right decision based on the LLM that you've chosen. Which some of our competitors, that's a problem that they don't have, but we meet you, you know, where you are. Yeah. And we're, just to finish, we're writing tens of thousands. We're generating tests, you know, fill in the middle type tests and things. And then using our graph to basically sort of fine tune Cody's behavior there. [00:30:20]
+
+Swyx: Yeah. [00:30:21]
+
+Beyang: I also want to add, like, I have like an internal pet name for this, like kind of hybrid architecture that I'm trying to make catch on. Maybe I'll just say it here. Just saying it publicly kind of makes it more real. But like, I call the architecture that we've developed the Normsky architecture. [00:30:36]
+
+Swyx: Yeah. [00:30:36]
+
+Beyang: I mean, it's obviously a portmanteau of Norvig and Chomsky, but the acronym, it stands for non-agentic, rapid, multi-source code intelligence. So non-agentic because... Rolls right off the tongue. And Normsky. But it's non-agentic in the sense that like, we're not trying to like pitch you on kind of like agent hype, right? Like it's the things it does are really just developer tools developers have been using for decades now, like parsers and really good search indexes and things like that. Rapid because we place an emphasis on speed. We don't want to sit there waiting for kind of like multiple LLM requests to return to complete a simple user request. Multi-source because we're thinking broadly about what pieces of information and knowledge are useful context. So obviously starting with things that you can search in your code base, and then you add in the reference graph, which kind of like allows you to crawl outward from those initial results. But then even beyond that, you know, sources of information, like there's a lot of knowledge that's embedded in docs, in PRDs or product specs, in your production logging system, in your chat, in your Slack channel, right? Like there's so much context is embedded there. And when you're a human developer, and you're trying to like be productive in your code base, you're going to go to all these different systems to collect the context that you need to figure out what code you need to write. And I don't think the AI developer will be any different. It will need to pull context from all these different sources. So we're thinking broadly about how to integrate these into Codi. We hope through kind of like an open protocol that like others can extend and implement. And this is something else that should be accessible by December 14th in kind of like a preview stage. But that's really about like broadening this notion of the code graph beyond your Git repository to all the other sources where technical knowledge and valuable context can live. [00:32:21]
+
+Steve: Yeah, it becomes an artifact graph, right? It can link into your logs and your wikis and any data source, right? [00:32:27]
+
+Alessio: How do you guys think about the importance of, it's almost like data pre-processing in a way, which is bring it all together, tie it together, make it ready. Any thoughts on how to actually make that good? Some of the innovation you guys have made. [00:32:40]
+
+Steve: We talk a lot about the context fetching, right? I mean, there's a lot of ways you could answer this question. But, you know, we've spent a lot of time just in this podcast here talking about context fetching. But stuffing the context into the window is, you know, the bin packing problem, right? Because the window is not big enough, and you've got more context than you can fit. You've got a ranker maybe. But what is that context? Is it a function that was returned by an embedding or a graph call or something? Do you need the whole function? Or do you just need, you know, the top part of the function, this expression here, right? You know, so that art, the golf game of trying to, you know, get each piece of context down into its smallest state, possibly even summarized by another model, right, before it even goes to the LLM, becomes this is the game that we're in, yeah? And so, you know, recursive summarization and all the other techniques that you got to use to like stuff stuff into that context window become, you know, critically important. And you have to test them across every configuration of models that you could possibly need. [00:33:32]
+
+Beyang: I think data preprocessing is probably the like unsexy, way underappreciated secret to a lot of the cool stuff that people are shipping today. Whether you're doing like RAG or fine tuning or pre-training, like the preprocessing step matters so much because it's basically garbage in, garbage out, right? Like if you're feeding in garbage to the model, then it's going to output garbage. Concretely, you know, for code RAG, if you're not doing some sort of like preprocessing that takes advantage of a parser and is able to like extract the key components of a particular file of code, you know, separate the function signature from the body, from the doc string, what are you even doing? Like that's like table stakes. It opens up so much more possibilities with which you can kind of like tune your system to take advantage of the signals that come from those different parts of the code. Like we've had a tool, you know, since computers were invented that understands the structure of source code to a hundred percent precision. The compiler knows everything there is to know about the code in terms of like structure. Like why would you not want to use that in a system that's trying to generate code, answer questions about code? You shouldn't throw that out the window just because now we have really good, you know, data-driven models that can do other things. [00:34:44]
+
+Steve: Yeah. When I called it a data moat, you know, in my cheating post, a lot of people were confused, you know, because data moat sort of sounds like data lake because there's data and water and stuff. I don't know. And so they thought that we were sitting on this giant mountain of data that we had collected, but that's not what our data moat is. It's really a data pre-processing engine that can very quickly and scalably, like basically dissect your entire code base in a very small, fine-grained, you know, semantic unit and then serve it up. Yeah. And so it's really, it's not a data moat. It's a data pre-processing moat, I guess. [00:35:15]
+
+Beyang: Yeah. If anything, we're like hypersensitive to customer data privacy requirements. So it's not like we've taken a bunch of private data and like, you know, trained a generally available model. In fact, exactly the opposite. A lot of our customers are choosing Cody over Copilot and other competitors because we have an explicit guarantee that we don't do any of that. And that we've done that from day one. Yeah. I think that's a very real concern in today's day and age, because like if your proprietary IP finds its way into the training set of any model, it's very easy both to like extract that knowledge from the model and also use it to, you know, build systems that kind of work on top of the institutional knowledge that you've built up. [00:35:52]
+
+Alessio: About a year ago, I wrote a post on LLMs for developers. And one of the points I had was maybe the depth of like the DSL. I spent most of my career writing Ruby and I love Ruby. It's so nice to use, but you know, it's not as performant, but it's really easy to read, right? And then you look at other languages, maybe they're faster, but like they're more verbose, you know? And when you think about efficiency of the context window, that actually matters. [00:36:15]
+
+Swyx: Yeah. [00:36:15]
+
+Alessio: But I haven't really seen a DSL for models, you know? I haven't seen like code being optimized to like be easier to put in a model context. And it seems like your pre-processing is kind of doing that. Do you see in the future, like the way we think about the DSL and APIs and kind of like service interfaces be more focused on being context friendly, where it's like maybe it's harder to read for the human, but like the human is never going to write it anyway. We were talking on the Hacks podcast. There are like some data science things like spin up the spandex, like humans are never going to write again because the models can just do very easily. Yeah, curious to hear your thoughts. [00:36:51]
+
+Steve: Well, so DSLs, they involve, you know, writing a grammar and a parser and they're like little languages, right? We do them that way because, you know, we need them to compile and humans need to be able to read them and so on. The LLMs don't need that level of structure. You can throw any pile of crap at them, you know, more or less unstructured and they'll deal with it. So I think that's why a DSL hasn't emerged for sort of like communicating with the LLM or packaging up the context or anything. Maybe it will at some point, right? We've got, you know, tagging of context and things like that that are sort of peeking into DSL territory, right? But your point on do users, you know, do people have to learn DSLs like regular expressions or, you know, pick your favorite, right? XPath. I think you're absolutely right that the LLMs are really, really good at that. And I think you're going to see a lot less of people having to slave away learning these things. They just have to know the broad capabilities and the LLM will take care of the rest. [00:37:42]
+
+Swyx: Yeah, I'd agree with that. [00:37:43]
+
+Beyang: I think basically like the value profit of DSL is that it makes it easier to work with a lower level language, but at the expense of introducing an abstraction layer. And in many cases today, you know, without the benefit of AI cogeneration, like that totally worth it, right? With the benefit of AI cogeneration, I mean, I don't think all DSLs will go away. I think there's still, you know, places where that trade-off is going to be worthwhile. But it's kind of like how much of source code do you think is going to be generated through natural language prompting in the future? Because in a way, like any programming language is just a DSL on top of assembly, right? And so if people can do that, then yeah, like maybe for a large portion of the code [00:38:21]
+
+Swyx: that's written, [00:38:21]
+
+Beyang: people don't actually have to understand the DSL that is Ruby or Python or basically any other programming language that exists. [00:38:28]
+
+Steve: I mean, seriously, do you guys ever write SQL queries now without using a model of some sort? At least a draft. [00:38:34]
+
+Swyx: Yeah, right. [00:38:36]
+
+Steve: And so we have kind of like, you know, past that bridge, right? [00:38:39]
+
+Alessio: Yeah, I think like to me, the long-term thing is like, is there ever going to be, you don't actually see the code, you know? It's like, hey, the basic thing is like, hey, I need a function to some two numbers and that's it. I don't need you to generate the code. [00:38:53]
+
+Steve: And the following question, do you need the engineer or the paycheck? [00:38:56]
+
+Swyx: I mean, right? [00:38:58]
+
+Alessio: That's kind of the agent's discussion in a way where like you cannot automate the agents, but like slowly you're getting more of the atomic units of the work kind of like done. I kind of think of it as like, you know, [00:39:09]
+
+Beyang: do you need a punch card operator to answer that for you? And so like, I think we're still going to have people in the role of a software engineer, but the portion of time they spend on these kinds of like low-level, tedious tasks versus the higher level, more creative tasks is going to shift. [00:39:23]
+
+Steve: No, I haven't used punch cards. [00:39:25]
+
+Swyx: Yeah, I've been talking about like, so we kind of made this podcast about the sort of rise of the AI engineer. And like the first step is the AI enhanced engineer. That is that software developer that is no longer doing these routine, boilerplate-y type tasks, because they're just enhanced by tools like yours. So you mentioned OpenCodeGraph. I mean, that is a kind of DSL maybe, and because we're releasing this as you go GA, you hope for other people to take advantage of that? [00:39:52]
+
+Beyang: Oh yeah, I would say so OpenCodeGraph is not a DSL. It's more of a protocol. It's basically like, hey, if you want to make your system, whether it's, you know, chat or logging or whatever accessible to an AI developer tool like Cody, here's kind of like the schema by which you can provide that context and offer hints. So I would, you know, comparisons like LSP obviously did this for kind of like standard code intelligence. It's kind of like a lingua franca for providing fine references and codefinition. There's kind of like analogs to that. There might be also analogs to kind of the original OpenAI, kind of like plugins, API. There's all this like context out there that might be useful for an LM-based system to consume. And so at a high level, what we're trying to do is define a common language for context providers to provide context to other tools in the software development lifecycle. Yeah. Do you have any critiques of LSP, by the way, [00:40:42]
+
+Swyx: since like this is very much, very close to home? [00:40:45]
+
+Steve: One of the authors wrote a really good critique recently. Yeah. I don't think I saw that. Yeah, yeah. LSP could have been better. It just came out a couple of weeks ago. It was a good article. [00:40:54]
+
+Beyang: Yeah. I think LSP is great. Like for what it did for the developer ecosystem, it was absolutely fantastic. Like nowadays, like it's much easier now to get code navigation up and running in a bunch of editors by speaking this protocol. I think maybe the interesting question is like looking at the different design decisions comparing LSP basically with Kythe. Because Kythe has more of a... How would you describe it? [00:41:18]
+
+Steve: A storage format. [00:41:20]
+
+Beyang: I think the critique of LSP from a Kythe point of view would be like with LSP, you don't actually have an actual symbolic model of the code. It's not like LSP models like, hey, this function calls this other function. LSP is all like range-based. Like, hey, your cursor's at line 32, column 1. [00:41:35]
+
+Swyx: Yeah. [00:41:35]
+
+Beyang: And that's the thing you feed into the language server. And then it's like, okay, here's the range that you should jump to if you click on that range. So it kind of is intentionally ignorant of the fact that there's a thing called a reference underneath your cursor, and that's linked to a symbol definition. [00:41:49]
+
+Steve: Well, actually, that's the worst example you could have used. You're right. But that's the one thing that it actually did bake in is following references. [00:41:56]
+
+Swyx: Sure. [00:41:56]
+
+Steve: But it's sort of hardwired. [00:41:58]
+
+Swyx: Yeah. [00:41:58]
+
+Steve: Whereas Kythe attempts to model [00:42:00]
+
+Beyang: like all these things explicitly. [00:42:02]
+
+Swyx: And so... [00:42:02]
+
+Steve: Well, so LSP is a protocol, right? And so Google's internal protocol is gRPC-based. And it's a different approach than LSP. It's basically you make a heavy query to the back end, and you get a lot of data back, and then you render the whole page, you know? So we've looked at LSP, and we think that it's a little long in the tooth, right? I mean, it's a great protocol, lots and lots of support for it. But we need to push into the domain of exposing the intelligence through the protocol. Yeah. [00:42:29]
+
+Beyang: And so I would say we've developed a protocol of our own called Skip, which is at a very high level trying to take some of the good ideas from LSP and from Kythe and merge that into a system that in the near term is useful for Sourcegraph, but I think in the long term, we hope will be useful for the ecosystem. Okay, so here's what LSP did well. LSP, by virtue of being like intentionally dumb, dumb in air quotes, because I'm not like ragging on it, allowed language servers developers to kind of like bypass the hard problem of like modeling language semantics precisely. So like if all you want to do is jump to definition, you don't have to come up with like a universally unique naming scheme for each symbol, which is actually quite challenging because you have to think about like, okay, what's the top scope of this name? Is it the source code repository? Is it the package? Does it depend on like what package server you're fetching this from? Like whether it's the public one or the one inside your... Anyways, like naming is hard, right? And by just going from kind of like a location to location based approach, you basically just like throw that out the window. All I care about is jumping definition, just make that work. And you can make that work without having to deal with like all the complex global naming things. The limitation of that approach is that it's harder to build on top of that to build like a true knowledge graph. Like if you actually want a system that says like, okay, here's the web of functions and here's how they reference each other. And I want to incorporate that like semantic model of how the code operates or how the code relates to each other at like a static level. You can't do that with LSP because you have to deal with line ranges. And like concretely the pain point that we found in using LSP for source graph is like in order to do like a find references [00:44:04]
+
+Swyx: and then jump definitions, [00:44:04]
+
+Beyang: it's like a multi-hop process because like you have to jump to the range and then you have to find the symbol at that range. And it just adds a lot of latency and complexity of these operations where as a human, you're like, well, this thing clearly references this other thing. Why can't you just jump me to that? And I think that's the thing that Kaith does well. But then I think the issue that Kaith has had with adoption is because it is more sophisticated schema, I think. And so there's basically more things that you have to implement to get like a Kaith implementation up and running. I hope I'm not like, correct me if I'm wrong about any of this. [00:44:35]
+
+Steve: 100%, 100%. Kaith also has a problem, all these systems have the problem, even skip, or at least the way that we implemented the indexers, that they have to integrate with your build system in order to build that knowledge graph, right? Because you have to basically compile the code in a special mode to generate artifacts instead of binaries. And I would say, by the way, earlier I was saying that XREFs were in LSP, but it's actually, I was thinking of LSP plus LSIF. [00:44:58]
+
+Swyx: Yeah. That's another. [00:45:01]
+
+Steve: Which is actually bad. We can say that it's bad, right? [00:45:04]
+
+Steve: It's like skip or Kaith, it's supposed to be sort of a model serialization, you know, for the code graph, but it basically just does what LSP needs, the bare minimum. LSIF is basically if you took LSP [00:45:16]
+
+Beyang: and turned that into a serialization format. So like you build an index for language servers to kind of like quickly bootstrap from cold start. But it's a graph model [00:45:23]
+
+Steve: with all of the inconvenience of the API without an actual graph. And so, yeah. [00:45:29]
+
+Beyang: So like one of the things that we try to do with skip is try to capture the best of both worlds. So like make it easy to write an indexer, make the schema simple, but also model some of the more symbolic characteristics of the code that would allow us to essentially construct this knowledge graph that we can then make useful for both the human developer through SourceGraph and through the AI developer through Cody. [00:45:49]
+
+Steve: So anyway, just to finish off the graph comment, we've got a new graph, yeah, that's skip based. We call it BFG internally, right? It's a beautiful something graph. A big friendly graph. [00:46:00]
+
+Swyx: A big friendly graph. [00:46:01]
+
+Beyang: It's a blazing fast. [00:46:02]
+
+Steve: Blazing fast. [00:46:03]
+
+Swyx: Blazing fast graph. [00:46:04]
+
+Steve: And it is blazing fast, actually. It's really, really interesting. I should probably have to do a blog post about it to walk you through exactly how they're doing it. Oh, please. But it's a very AI-like iterative, you know, experimentation sort of approach. We're building a code graph based on all of our 10 years of knowledge about building code graphs, yeah? But we're building it quickly with zero configuration, and it doesn't have to integrate with your build. And through some magic tricks that we have. And so what just happens when you install the plugin, that it'll be there and indexing your code and providing that knowledge graph in the background without all that build system integration. This is a bit of secret sauce that we haven't really like advertised it very much lately. But I am super excited about it because what they do is they say, all right, you know, let's tackle function parameters today. Cody's not doing a very good job of completing function call arguments or function parameters in the definition, right? Yeah, we generate those thousands of tests, and then we can actually reuse those tests for the AI context as well. So fortunately, things are kind of converging on, we have, you know, half a dozen really, really good context sources, and we mix them all together. So anyway, BFG, you're going to hear more about it probably in the holidays? [00:47:12]
+
+Beyang: I think it'll be online for December 14th. We'll probably mention it. BFG is probably not the public name we're going to go with. I think we might call it like Graph Context or something like that. [00:47:20]
+
+Steve: We're officially calling it BFG. [00:47:22]
+
+Swyx: You heard it here first. [00:47:24]
+
+Beyang: BFG is just kind of like the working name. And so the impetus for BFG was like, if you look at like current AI inline code completion tools and the errors that they make, a lot of the errors that they make, even in kind of like the easy, like single line case, are essentially like type errors, right? Like you're trying to complete a function call and it suggests a variable that you defined earlier, but that variable is the wrong type. [00:47:47]
+
+Swyx: And that's the sort of thing [00:47:47]
+
+Beyang: where it's like a first year, like freshman CS student would not make that error, right? So like, why does the AI make that error? And the reason is, I mean, the AI is just suggesting things that are plausible without the context of the types or any other like broader files in the code. And so the kind of intuition here is like, why don't we just do the basic thing that like any baseline intelligent human developer would do, which is like click jump to definition, click some fine references and pull in that like Graph Context into the context window and then have it generate the completion. So like that's sort of like the MVP of what BFG was. And turns out that works really well. Like you can eliminate a lot of type errors that AI coding tools make just by pulling in that context. Yeah, but the graph is definitely [00:48:32]
+
+Steve: our Chomsky side. [00:48:33]
+
+Swyx: Yeah, exactly. [00:48:34]
+
+Beyang: So like this like Chomsky-Norvig thing, I think pops up in a bunch of different layers. And I think it's just a very useful and also kind of like nicely nerdy way to describe the system that we're trying to build. [00:48:46]
+
+Steve: By the way, I remembered the point I was trying to make earlier to your question, Alessio, about is AI going to replace programmers? And I was talking about how compilers, they thought, oh, are compilers going to replace programming? And what it did was just change [00:48:57]
+
+Beyang: kind of what programmers [00:48:58]
+
+Steve: had to focus on. And I think AI is just going to level us at the game, right? Programmers are still in the middle of stuff and, you know, Intel agents come along, but I don't believe. And so, yeah. [00:49:09]
+
+Beyang: Yeah, I mean, to be clear, again, like with the agent stuff at a high level, I think we will get there. [00:49:14]
+
+Swyx: I think that's still [00:49:14]
+
+Beyang: the kind of long-term target. And I think also with Cody, it's like you can have Cody like draft up an execution plan. It's just not going to be the sort of thing where you can't attend to what it's doing. Like we think that like with Cody, it's like, yes, Cody, like, hey, I have this bug, [00:49:30]
+
+Swyx: help me solve it. [00:49:30]
+
+Beyang: It would do a reasonable job of fetching context and saying, like, here are the files you should modify. And if you prompt it further, you can actually suggest like code changes to make to those files. And that's a very nice way to like resolve issues because you're kind of like on the rails for most of the time. But then, you know, now and then you have to intervene as a human. I just think that like [00:49:48]
+
+Swyx: if we're trying to get [00:49:48]
+
+Beyang: to complete automation, where it's like the sort of thing where like a non-software engineer, like someone who has no technical expertise can just like speak a non-trivial feature into existence. [00:49:59]
+
+Swyx: You know, that is still, [00:50:00]
+
+Beyang: I think, several key innovations away from happening right now. And I don't think the pure like transformer based LLM orchestrator modeled agents that is kind of like dominant today is going to get us there. Yeah. [00:50:14]
+
+Swyx: What you're talking about triggered a thread I've been working on for a little bit, which is, you know, we're very much reacting to developments in models on a month-to-month basis. We had a post about we're going to need a bigger moat, which is great JAWS reference for those who didn't catch it. I forgot all about that. How quickly models are evolving. But I think if you like kind of look out, I actually caught Sam Altman on the podcast yesterday talking about GPT-10. I know. Wow. [00:50:40]
+
+Beyang: Things are accelerating. [00:50:42]
+
+Swyx: And actually there's a pretty good cadence from GPT-2, 3 and 4 that you can, if you project out, 4 is based on George Hotz's concept of like 20 petaflops being a human's worth of compute. GPT-4 took about 100 years in terms of human years to train in terms of the amount of compute. So that's one living person. And every generation of GPT increases two orders of magnitude. So 5 is, you know, 100 people. And if you just project it out, 9 is every human on earth and 10 is every human ever. And he thinks he'll reach there by the end of the decade. George Hotz does? No, Sam Altman. Oh, Sam Altman. Okay. [00:51:19]
+
+Beyang: Yeah. [00:51:20]
+
+Swyx: So I just like setting those high level, you have dots on the line. We're at the start of the curve with Moore's law. George Moore, I think, thought it would last like 10 years. Yeah. And he just kept drawing for another 50. Yeah. And I think we have all these data points and we're just trying to draw, extrapolate the curve to where this goes. All I'm saying is, the agent stuff that we dealt might come here by 2030. And I don't know how you plan when things are not possible today and you're like, it's not worth doing. But like, you know, I mean, we're going to be here in 2030. [00:51:50]
+
+Swyx: And what do we do then? [00:51:54]
+
+Beyang: So is the question like, you know... There's no question. [00:51:57]
+
+Swyx: It's like sharing of a comment just because like at the back of my head, anytime we hear things like things are not practical today. Yeah. I'm just like, all right, but how do we... [00:52:06]
+
+Beyang: So here's like a question maybe, like I get the whole like scaling argument. I do think that there will be something like a Moore's law for AI inference. I mean, definitely, I think at like the hardware level, like GPUs, I think it gets a little fuzzier the higher you move up in the stack. But for instance, like going back to the chess analogy, right? At what point do we think that, you know, GPDX or whatever, you know, a pure, a transformer based LM model will be like state of the art or outperform the best like chess playing algorithm today? Because I think that is one milestone on... Where you completely overlap search. [00:52:41]
+
+Swyx: Yeah, exactly. [00:52:42]
+
+Beyang: Because I think that would be, I mean, just to put my cards on the table, I think that would kind of disprove the thesis that I just stated, which is, you know, kind of like the pure transformer, just scale the transformer based approach. That would be a proof point where like, hey, like maybe that is the right approach versus, oh, we actually have to take a step back and think, you get what I'm saying, right? Like is the transformer going to be like, is that the end all be all of architectures and it's just a matter of scaling that? [00:53:04]
+
+Swyx: Yeah. [00:53:04]
+
+Beyang: Or are there other algorithms and like that is going to be one piece of a system of intelligence that will have to take advantage of like many other algorithms and approaches. Yeah, we shall see. [00:53:14]
+
+Swyx: Maybe John Carmack will find it. Yeah. All right. Sorry for that digression. I'm just very curious. So one thing I did actually want to check in on because we talked a little bit about code graphs and like reference graphs and all that. Do you actually use a graph database? No, right? No. [00:53:29]
+
+Beyang: How would you find graph database? [00:53:31]
+
+Steve: We use Postgres. And yeah, I saw a paper actually right after I joined Sourcegraph. There was some joint study between IBM and some other company that basically showed that Postgres was performing as well as most of the graph databases for most graph workloads. [00:53:43]
+
+Swyx: Wow. [00:53:45]
+
+Beyang: In V0 of Sourcegraph, we're like, we're building a code graph. Let's use a graph database. I won't name the database because I mean, it was like 10 years ago. So they're probably much better now. But like we basically tried to dump like a non-trivially sized like dataset, but also like not the whole universe of code, right? Like it was a relatively small dataset compared to what we're indexing now [00:54:05]
+
+Swyx: into the database. [00:54:05]
+
+Beyang: And it was just, we let it run for like a week. And I think it like seg faulted or something. And we're like, okay, let's try another approach. Let's just put everything in Postgres. And these days, like the graph data, I mean, it's partially in Postgres. It's partially just, I mean, you could store them as like flat files. [00:54:21]
+
+Swyx: Yep. [00:54:21]
+
+Beyang: I mean, at the end of the day, all the databases like just get me the data I want. Like answer the queries that I need, right? Like if all your queries are like, you know, single hops. [00:54:30]
+
+Steve: Which they will be if you denormalize from other use cases. [00:54:33]
+
+Beyang: Exactly. [00:54:34]
+
+Swyx: Interesting. [00:54:34]
+
+Beyang: So yeah. [00:54:35]
+
+Swyx: Set of normal form is just a bunch of files. Yeah, yeah. And I don't know, like, [00:54:40]
+
+Beyang: I feel like there's a bunch of stuff like that where it's like, if you look past the marketing and think about like the actual query load or like the traffic patterns or the end user use cases you need to serve, just go with like the tried and true, kind of like dumb classic tools over kind of like the new agent stuff. Yeah. I mean, there's a bunch of stuff like that in the search domain too. Especially right now with like, you know, embeddings and vector search and all that. But, you know, like classic search techniques still go very far. And I don't know, I think in the next year or two, maybe as we get past like the peak AI hype, we'll start to see the gap emerge or become more obvious to more people about like how many of like the newfangled techniques actually work in practice and yield a better product experience day to day. Yeah. [00:55:25]
+
+Swyx: So speaking of which, like, you know, obviously there's a bunch of other people trying to build AI tooling. What can you say about your AI stack? Obviously you build a lot proprietary in-house, but like what approaches, you know, like so prompt engineering, do you have a prompt engineering management tool? You know, what approaches there do you do? Pre-processing orchestration, like do you use Airflow? Do you use something else? Like, you know, that kind of stuff. Yeah. [00:55:46]
+
+Beyang: Ours is very like duct taped together at the moment. So in terms of stack, it's essentially go in TypeScript and now Rust. There's the code knowledge graph that we built, which is using indexers, many of which are open source, that speak the skip protocol. And we have the code search backend. You know, traditionally we supported regular expression search and a string literal search with like a trigram index. And we're also building more like fuzzy search on top of that now, kind of like natural language or keyword based search on top of that. We use a variety of open source and proprietary models. We try to be like pluggable with respect to different models so we can easily swap the latest model in and out as they come online. I'm just hunting for like, [00:56:26]
+
+Swyx: is there anything out there that you're like, these guys are really good. Everyone else should check them out. So for example, you talked about recursive summarization, which is something that LangChain and Llama indexed. I presume you wrote your own. Yeah, we wrote our own. [00:56:37]
+
+Beyang: I think like the stuff that Llama indexed and LangChain are doing are like super interesting. I think from our point of view, it's like we're still in the application, like end user use case discovery phase. And so adopting like an external infrastructure or middleware kind of tool just seems like overly constraining right now. Yeah, we need full control. Yeah, we need full control because we need to be able to iterate rapidly up and down the stack. But maybe at some point there'll be like a convergence and we can actually merge some of our stuff into theirs and turn that into a common resource. In terms of like other vendors that we use, I mean, obviously like nothing but good things to say about Anthropic and OpenAI, which we both kind of partner with and use. Also Plug for Fireworks as an inference platform. Their team was kind of like ex-meta people who basically know all like the bag of tricks for making inference fast. Yeah, I met Lynn. [00:57:25]
+
+Swyx: So she was like with Sumith. She was like the co-manager of PyTorch for five years. Yeah, yeah, yeah. [00:57:31]
+
+Beyang: But like is their main thing [00:57:32]
+
+Swyx: that we just do fastest inference on earth? Is that what it is or? I think that's the pitch. [00:57:37]
+
+Beyang: And it keeps getting faster somehow. Like we run Starcoder on top of Fireworks and that's made it so that we just don't have to think about building up an inference stack. And so that's great for us because it allows us to focus more on the kind of like data fetching, the knowledge graph and model fine tuning, which we've also invested a bit in. [00:57:55]
+
+Swyx: That's right. [00:57:55]
+
+Steve: We've got multiple AI work streams in progress now because we hired a head of AI finally. We spent close to a year actually. I think I talked to probably 75 candidates. And the guy we hired, Rashab, is absolutely world-class. And he immediately started multiple work streams, including he's fine-tuned Starcoder already. He's got prompt engineering work stream. He's got bettings work stream. He's got evaluation and experimentation. Benchmarking, wouldn't it be nice if Cody was on Hugging Face with a benchmark that we could just, anybody could say, well, we'll run against the benchmark or we'll make our own benchmark if we don't like yours. But we'll be forcing people into the sort of quantitative comparisons. And that's all happening under the AI program that he's building for us. [00:58:35]
+
+Swyx: I should mention, by the way, I've heard that there's a V2 of Starcoder coming on. So you guys should talk to Hugging Face. Cool. Awesome. Great. I actually visited their offices in Paris, which is where I heard it. That's awesome. [00:58:47]
+
+Steve: Can you guys believe how amazing it is that the open source models are competitive with GPT and Anthropic? I mean, it's nuts, right? I mean, that one Googler that was predicting that open source would catch up. At least he was right for completions. [00:59:03]
+
+Beyang: Yeah. I mean, for completions, open source is state-of-the-art. [00:59:06]
+
+Swyx: You were on OpenAI, then you went to Claude, and now you've ripped it up. Yeah. Yeah, for completions. [00:59:10]
+
+Beyang: I mean, we still use Claude and GPT-4 for chat and also commands. Like, the ecosystem is going to continue to devolve. We obviously love the open source ecosystem and, like, huge shout out to Hugging Face. And also, like, meta research. We love the work that they're doing and kind of driving the ecosystem forward. [00:59:26]
+
+Swyx: Yeah, you didn't mention Code Llama. [00:59:27]
+
+Beyang: We're not using Code Llama currently. It's always kind of like a constant evaluation process. So, like, I don't want to come out and say, like, hey, this model is the best because we chose it. Basically, like, we did a bunch of, like, tests for the sorts of, like, contexts that we're fetching now and given the way that our prompts constructed now. And at the end of the day, it was like a judgment call. Like, starcoder seemed to work the best, and that's why we adopted it. But it's sort of like a continual process of revisitation. Like, if someone comes up with, like, a neat new, like, context fetching mechanism, and we have a couple coming online soon, then it's always like, okay, let's try that against the array of models that are available and see how this moves the needle across that set. [01:00:01]
+
+Swyx: Yeah. What do you wish someone else built? This is a request for startups. [01:00:04]
+
+Beyang: I mean, if someone could just provide, like, a very nice, clean data set of both naturally occurring and synthetic code data. [01:00:15]
+
+Steve: Yeah. Could someone please give us their data mode? [01:00:17]
+
+Swyx: Well, not even the data mode. [01:00:19]
+
+Beyang: It's just like, I feel like most models today, they still use, like, combination of, like, the stack and the pile as, like, their training corpus. But you can only stretch that so far. At some point, you need more data. And I think there's still more alpha in, like, synthetic data. Like, we have a couple of efforts where, like, we think fine tuning some models on specific coding tasks will yield more kind of, like, reliable code generation of the sort where it's, like, reliable enough that we can fully automate it, at least, like, the one hop thing. And synthetic data is playing a part of that. But, I mean, if there were, like, a synthetic data provider, I don't think you could construct a provider that has access to, like, some proprietary code base. Like, no company in the world would be able to, like, sell that to you. But, like, anyone who's just, like, providing clean data sets off of the publicly available data. That would be nice. I don't know if there's a business around that, but, like, that's something that we definitely, like, [01:01:09]
+
+Swyx: love to use. [01:01:09]
+
+Beyang: Oh, for sure. [01:01:10]
+
+Steve: My God. I mean, but that's also, like, the secret weapon, right, for any AI, you know, is the data that you've curated. So I doubt people are going to be, oh, we'll see, you know. But we can maybe contribute, you know, if we want to have a benchmark of our own. [01:01:25]
+
+Swyx: Yeah. I would say, like, that would be the bull case for Repl.it, that, like, you want to be a coding platform where you also offer bounties. Like, then you eventually bootstrap your own proprietary set of coding data. I don't think they'll ever share it. The rumor is, this is from nobody at Repl.it that I'm hearing, but, like, they're just not leveraging that actively. Like, they're actually just betting on OpenAI to do a lot of that, which banking on OpenAI, you know, has been a winning strategy so far. [01:01:50]
+
+Beyang: Yeah, they're definitely great at executing. [01:01:55]
+
+Steve: Executing their CEO. [01:01:56]
+
+Swyx: And then bring him back in four days. Yeah. [01:02:01]
+
+Steve: That was a whole, like... [01:02:03]
+
+Swyx: It was a company, like, just obsessed by the drama. Like, we were unable to work. I just walked in after it happened, and this whole room in the new room was just like, everyone's just staring at their phones. [01:02:12]
+
+Beyang: Yeah, it's a bit difficult to ignore. I mean, it would have real implications for us, too, because, like, we're using them. And so there's a very real question of, like, do we have to, like, do it quick? [01:02:21]
+
+Swyx: Yeah, Microsoft. Like, you just move to Microsoft, right? [01:02:23]
+
+Beyang: Yeah, I mean, that would have been, like, the break glass plan. If the worst case played out, then I think we'd have a lot of customers, you know, the day after being like, you know, how can you guarantee the reliability of your services if the company itself isn't stable? But I'm really happy they got things sorted out and things are stable now because, like, they build really cool stuff and we love using their tech. [01:02:43]
+
+Swyx: Yeah, awesome. [01:02:44]
+
+Alessio: So we kind of went through everything, right? Sourcecraft, Cody, why agents don't work, why inline completion is better, all of these things. How does that bubble up to who manages the people, right? Because as engineering managers, I didn't write much code. I was mostly helping people write their own code, you know, so even if you have the best inline completion, it doesn't help me do my job. [01:03:08]
+
+Swyx: Yeah. [01:03:08]
+
+Alessio: What's kind of the future of Sourcecraft in the engineering org? [01:03:13]
+
+Beyang: That's a really interesting question. And I think it sort of gets at this, like, issue, which is basically, like, every AI DevTools creator or producer these days, I think us included, we're kind of, like, focusing on the wrong problem in a way. Because, like, the real problem of modern software development, I think, is not how quickly can you write more lines of code. It's really about managing the emergent complexity of codebases as they evolve and grow and how to make, like, efficient development tractable again. Because the bulk of your time becomes more about understanding how the system works and how the pieces fit together currently so that you can update it in a way that gets you your added functionality, doesn't break anything, and doesn't introduce a lot of additional complexity that will slow you down in the future. And if anything, like, the Interloop developer tools that are all about, like, generating lines of code, yes, they help you get your feature done faster. They generate a lot of boilerplate for you. But they might make this problem of, like, managing large, complex codebases more challenging, just because instead of having, like, a pistol, you'll have a machine gun in terms of, like, being able to write code. And there's going to be a bunch of, like, natural language prompted code that is generated in the future that was produced by someone who doesn't even have an understanding of source code. And so, like, how are you going to verify the quality of that and make sure it not only checks the kind of, like, low-level boxes, but also fits architecturally in a way that's sensible into your codebase. And so I think as we look forward to the future of the next year, we have a lot of ideas around how to make codebases, as they evolve, more understandable and manageable to the people who really care about the codebase as a whole. You know, tech leads, engineering leaders, folks like that. It is kind of like a return to our ultimate mission at Sourcegraph, which is to make code accessible to all. It's not really about, you know, enabling people to write code. And if anything, like, the original version of Sourcegraph was a rejection of, like, hey, let's stop trying to build, like, the next best editor, because, like, there's already enough people doing that. The real problem that we're facing, I mean, Quinn, myself, and you, Steve at Google, was like, how do we make sense of the code that exists so that we can understand enough to know what code needs to be written? Mm-hmm. [01:05:25]
+
+Steve: Yeah. Well, I'll tell you what customers want, right? And what they're going to get. What they want is for Cody to have a monitor for developer productivity. And any developer who falls below a threshold, a button lights up where the admin can fire them. Or Cody will even press that button for you as time passes. But I'm kind of only half tongue-in-cheek here. We've got some prospects who are kind of, like, sniffing down that avenue. And we're like, no. But what they're going to get is a much greater whole code-based understanding, which is actually something that Cody is, I would argue, the best at today in the coding assistance space, right? Because of our search engine and the techniques that we're using. And that whole code-based understanding is so important, you know, for any sort of a manager who just wants to get a feel for the architecture or potential security vulnerabilities or whether, you know, people are writing code that's well-tested and et cetera, et cetera, right? And solving that problem is tricky, right? This is not the developer inner loop or outer loop. It's like the manager inner loop? [01:06:21]
+
+Swyx: No, outer loop. [01:06:21]
+
+Steve: The manager inner loop is staring at your belly button, I guess. So in any case... [01:06:27]
+
+Beyang: Waiting for the next Slack message to arrive? [01:06:29]
+
+Steve: Yes. What they really want is a batch mode for these assistants where you can actually take the coding assistant and shove its face into your code base, you know, and six billion lines of code later, right? It's told you all the security vulnerabilities. That's what they really actually want. It's insanely expensive proposition, right? You know, just the GPU costs, especially if you're doing it on a regular basis. So it's better to do it at the point the code enters the system. And so now we're starting to get into developer outer loop stuff. And I think that's where a lot of the... To your question, right? A lot of the admins and managers and so, you know, the decision makers, anybody who just like kind of isn't coding [01:07:03]
+
+Swyx: but is involved, [01:07:03]
+
+Steve: they're going to have a set of tools, right? [01:07:06]
+
+Swyx: And a set of... [01:07:06]
+
+Steve: Just like with CodeSearch today. Our CodeSearch actually serves that audience as well. The CIO types, right? Because they're just like, oh, hey, I want to see how we do, you know, Samaloth. And they use our search engine and they go find it. And AI is just going to make that so much easier for them. [01:07:20]
+
+Swyx: Yeah, this is my perfect place to put my anecdote of how I used Cody yesterday. I was actually trying to build this sort of Twitter scraper thing. And Twitter is notoriously very challenging to work with because they don't want to work with you, with anyone. There's a repo that I wanted to inspect. It was really big that had the Twitter scraper thing in it. And I pulled it into Copilot, didn't work. But then I noticed that on your landing page, you had a web version. Like, I typically think of Cody as a VS Code extension, but you have a web version where you just plug in any repo in there and just talk to it. And that's what I used to figure it out. So yeah. [01:07:54]
+
+Steve: Wow, Cody web is wild. [01:07:57]
+
+Beyang: Yeah, I mean, we've done a very poor job of making the existence of that feature. It's not easy to find. [01:08:02]
+
+Swyx: It's not easy to find. You don't have to go through the search thing. It's like, oh, this is old source graph. You don't want to look at old source graph. I mean, you can use source graph, all the AI stuff. Old source graph has AI stuff and it's Cody web. Yeah, yeah. [01:08:13]
+
+Beyang: There's a little ask Cody button that's hidden in the upper right-hand corner. We should make that more visible. It's definitely one of those aha moments when you can ask a question of Cody. Of any repo, right? [01:08:22]
+
+Swyx: Because you already indexed it. Well, you didn't embed it, but you indexed it. Yeah. [01:08:26]
+
+Beyang: And there's actually some use cases that have emerged among power users where they kind of do... You're familiar with v0.dev. You can kind of replicate that, but for arbitrary frameworks and libraries with Cody web. Because there's also an equally hidden toggle, which you may not have discovered yet, where you can actually tag in multiple repositories as context. [01:08:44]
+
+Swyx: Yeah. [01:08:44]
+
+Beyang: And so you can do things like, we have a demo path where it's like, okay, let's say you want to build a stock ticker [01:08:50]
+
+Swyx: that's React-based, [01:08:50]
+
+Beyang: but uses this one tick data fetching API. It's like you tag both repositories in, you ask it, it's like two sentences, like build a stock tick app, track the tick data of Bank of America, Wells Fargo over the past week, and then generates a code. You can paste that in and it just works magically. We'll probably invest in that more just because the wow factor of that is just pretty incredible. It's like, what if you can speak apps into existence that use the frameworks and packages that you want to use? Yeah. [01:09:19]
+
+Swyx: It's not even fine-tuning. It's just taking advantage of your RAG pipeline. [01:09:22]
+
+Beyang: Yeah. It's just RAG. RAG is all you need for many things. [01:09:25]
+
+Steve: It's not just RAG. It's RAG, right? RAG's good. Not a fallback. [01:09:33]
+
+Swyx: Yeah. [01:09:33]
+
+Beyang: But I guess getting back to the original question, I think there's a couple of things I think would be interesting for engineering leaders. One is the use case that you called out is all the stuff that you currently don't do that you really ought to be doing with respect to ensuring code quality or updating dependencies or keeping things up to date. The things that humans find toilsome and tedious and just don't want to do but would really help up-level the quality, security, and robustness of your code base, now we potentially have a way to do that with machines. I think there's also this other thing, and this gets back to the point of how do you measure developer productivity? It's the perennial age-old question. Every CFO in the world would love to do it in the same way that you can measure marketing or sales or other parts of the organization. And I think what is the actual way you would do this that is good? And if you had all the time in the world, I think as an engineering manager or an engineering leader, what you would do is you would go read through the Git log, maybe line by line, be like, you, Sean, these are the features that you built over the past six months or a year. These are the things that delivered that you helped drive. Here's the stuff that you did to help your teammates. Here are the reviews that you did that helped ensure that we maintain a coherent and a high-quality code base. Now connect that to the things that matter to the business. What were we trying to drive this? Was it engagement? Was it revenue? Was it adoption of some new product line? And really weave that story together. The work that you did had this impact on the metrics that moved the needle for the business and ultimately show up in revenue or stock price or whatever it is that's at the very top of any for-profit organization. And you could, in theory, do all that today if you had all the time in the world. [01:11:22]
+
+Swyx: Yeah. [01:11:22]
+
+Beyang: But as an engineering leader- It's a busy building. Yeah, you're too busy building, you're too busy with a bunch of other stuff. Plus it's also tedious. Reading through a Git log and trying to understand what a change does and summarizing that, it's not the most exciting work in the world. But with the benefit of AI, I think you could conceive of a system that actually does a lot of the tedium and helps you actually tell that story. And I think that is maybe the ultimate answer to how we get at developer productivity in a way that a CFO would be like, okay, I can buy that. The work that you did impacted these core metrics because these features were tied to those and therefore we can afford to invest more in this part of the organization. And that's what we really want to drive towards. That's what we've been trying to build all along in a way with Sourcegraph. It's this kind of code-based level of understanding and the availability of LLMs and AI now just puts that much sooner in reach, I think. [01:12:14]
+
+Swyx: Yeah. [01:12:15]
+
+Steve: But I mean, we have to focus also, small company, our short-term focus is lovability, right? [01:12:21]
+
+Swyx: Yeah. [01:12:21]
+
+Steve: We absolutely have to make Cody, like everybody wants it, right? [01:12:25]
+
+Swyx: Absolutely. [01:12:26]
+
+Steve: Sourcegraph is all about enabling non-engineering roles, decision makers and so on. As Bianca says, I mean, I think there's just a lot of opportunity there once we've built a lovable Cody. [01:12:37]
+
+Swyx: Awesome. [01:12:37]
+
+Alessio: We want to jump into lightning round? [01:12:40]
+
+Swyx: Lightning round. [01:12:40]
+
+Alessio: Okay. [01:12:41]
+
+Swyx: So we usually have three, [01:12:42]
+
+Alessio: one around acceleration, exploration, and then a final takeaway. So the acceleration one is what's something that already happened in AI that is possible today that you thought would take much longer? [01:12:54]
+
+Beyang: I mean, just LLMs and how good the vision models are now. Like I got my start. Okay. [01:13:00]
+
+Swyx: Yeah. [01:13:00]
+
+Beyang: Back in the day, I got my start machine learning in computer vision, but circa like 2009, 2010. [01:13:07]
+
+Swyx: And in those days, [01:13:07]
+
+Beyang: everything was like statistical based. Neural nets had not yet made their comeback. And so nothing really worked. And so I was very bearish after that experience on the future of computer vision. But like, man, the progress that's been made just in the past, like three, four years has just been absolutely astounding. Came up faster than I expected it to. Yeah. [01:13:27]
+
+Steve: Multimodal in general, [01:13:28]
+
+Swyx: I think is, [01:13:28]
+
+Steve: I think there's a lot more capability there that we're not tapping into. Potentially even in the coding assistant space. You know, honestly, I think that the form factor that coding assistants have today is probably not the steady state that we're seeing, you know, long-term. You'll always have completions and you always have chat and commands and so on. But I think we're going to discover a lot more. And I think multimodal potentially opens up some kind of new ways to, you know, get your stuff done. So yeah, I think the capabilities are there today. And they're just, it's just shocking. I mean, like, I still am astonished when I sit down, you know, and I have a conversation with the LLM, with the context, and it's like, I'm talking to a, you know, a senior engineer or an architect or somebody, right? I think that people have very different working models with these assistants today. You know, some people are just completion, completion, completion, that's it. And if they want some code generated, they write a comment and then, you know what I mean? Telling them what to do. But I truly think that there are other modalities that we're going to stumble across. Just kind of latently, you know, inherently built into the LLMs today that we just haven't found them yet. They're more of a discovery than invention, you know? [01:14:31]
+
+Swyx: Like other usage patterns? [01:14:34]
+
+Steve: Absolutely. I mean, the one that we talked about earlier, nonstop coding is one, right? Where you could just kick off a whole bunch of, you know, requests to refactor and so on. But, you know, there could be any number of others. You know, we talk about agents, you know, that's kind of out there. But I think there are kind of more inner loop type ones to be found. And we haven't looked at all at multimodal yet. [01:14:52]
+
+Swyx: Yeah, for sure. Like there's two that come to mind, just off the top of my head. One, which is effectively architecture diagrams and entity relationship diagrams. There's probably more alpha in like synthesizing them for management to see. Ooh, yeah. Which is like, you don't need AI for that. You can just use your reference graph. Yeah. But then also doing it the other way around when like someone draws stuff on a whiteboard and actually generating code. [01:15:14]
+
+Steve: Well, you can generate the diagram and then, you know, explanations as well. [01:15:18]
+
+Swyx: Yeah. And then the other one is, there was a demo that went pretty viral like two, three weeks ago about how someone just had an always on script, just screenshotting and sending it to GPT Vision on some kind of time interval. And it would just autonomously suggest stuff. Yeah. So like no trigger, just watching your screen and just like being a real co-pilot rather than having you initiate with a chat. Yeah. [01:15:39]
+
+Beyang: It's like the return of Clippy, right? But actually good. [01:15:42]
+
+Swyx: The reason I know this is that we actually did a hackathon where we wrote that project, but it roasted you while you did it. So it's like, hey, you're on Twitter right now. You should be coding. Yeah. That can be a fun co-pilot thing as well. Yeah, yeah. Okay. So I'll jump on. Exploration. What do you think is the most interesting unsolved question in AI? I mean, I think- [01:16:01]
+
+Steve: It used to be scaling, right? With CNNs and RNNs and Transformer solved that. Yeah. So what's the next big hurdle? It's keeping GPT-10 from emerging. [01:16:09]
+
+Beyang: I mean, do you mean that like- Oh, is this like a safetyist argument? I feel like, do you mean like the pure model, like AI layer or- [01:16:17]
+
+Swyx: No, it doesn't have to be. [01:16:18]
+
+Beyang: For me personally, it's like, how do you get reliable, like first try working code generation? Even like the single hop, like write a function that does this. Because I think like if you want to get to the point where you can actually be truly agentic or like multi-step automated, a necessary part of that is like the single step has to be robust and reliable. And so I think that's the problem that we're focused on solving right now. Because once you have that, it's a building block that you can then compose into longer chains. [01:16:47]
+
+Alessio: And just to wrap things up, what's one message takeaway that you want people to remember and think about? I mean, I think for me, [01:16:55]
+
+Beyang: it's just like the best dev tools in the future are going to have to leverage many different forms of intelligence. You know, calling back to that like Normsky architecture, trying to make catch on. [01:17:06]
+
+Swyx: You should have called it something cool, like S star or R star. [01:17:09]
+
+Beyang: Yes, yes, yes. [01:17:10]
+
+Swyx: Just one letter and then just let people speculate. Yeah, yeah. What could he mean? [01:17:14]
+
+Beyang: I don't know, like in terms of like trying to describe what we're building, we try to be a little bit more like down to earth and like straightforward. And I think like Normsky kind of like encapsulates like the two big technology areas that we're investing in that we think will be very important for producing really good dev tools. And I think it's a big differentiator that we view that Cody has right now. [01:17:35]
+
+Steve: Yeah, and mine would be, I know for a fact that not all developers today are using coding systems. Yeah, and that's probably because they tried it and it didn't, you know, immediately write a bunch of beautiful code for them and they were like, oh, too much effort and they left, right? Well, my big takeaway from this talk would be if you're one of those engineers, you better start like planning another career, okay? Because this stuff is in the future and honestly, it takes some effort to actually make coding assistance work today, right? You have to, you know, just like talking to GPT, they'll give you the runaround, just like doing a Google search sometimes. But if you're not putting that effort in and learning the sort of footprint, and the characteristics of how LLMs behave under different query conditions and so on, if you're not getting a feel for the coding assistant, then you're letting this whole train just like pull out of the station and leave you behind. [01:18:26]
+
+Swyx: Yeah, absolutely. [01:18:28]
+
+Alessio: Yeah, thank you guys so much for coming on and being the first guest in the new studio. [01:18:32]
+
+Swyx: Our pleasure. [01:18:34]
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Beyang Liu
+
+Writes Tour de Source Subscribe
+
+Steve Yegge
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

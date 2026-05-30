@@ -14,13 +14,9 @@ Date: 2025-05 · [Source](https://podscripts.co/podcasts/no-priors-artificial-in
 
 A reasoning model with no tools will "lose its mind in loops" — test-time scaling has to be paired with tool use.
 
-**Memories.ai implication**: Memories.ai implication: we should wrap "portrait / memory query" as a tool definition (for external reasoning models to call).
-
 ### ★★★ [Engineering & Management]
 
 Task difficulty = "environment simulatability" — coding is easy (highly simulatable); robotics is hard.
-
-**Memories.ai implication**: Memories.ai implication: Video tasks have relatively high simulatability — better fit for RL training than robotics.
 
 ---
 

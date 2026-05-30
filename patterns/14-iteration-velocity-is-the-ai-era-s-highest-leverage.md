@@ -8,10 +8,6 @@ Li Xiang: "High-frequency iteration / don't die chasing perfection." He Xiaopeng
 
 Li Xiang on Luo Yonghao EP1 / He Xiaopeng on Luo Yonghao EP2 / Anthropic Founder Playbook / Snap on Cheeky Pint / Anthropic Cowork via Overseas Unicorn / Dylan Field at Figma
 
-## Action Implication for Memories.ai
-
-Memories.ai's public-API release cadence should be weekly (5-10 endpoints/week made public), not quarterly. Replace any "polish for 6 months then release" decision with "ship v0 alpha now and gather feedback."
-
 ---
 
 ← [Patterns index](./README.md) · [→ KB home](../README.md)

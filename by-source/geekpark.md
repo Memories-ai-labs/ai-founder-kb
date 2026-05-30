@@ -8,8 +8,6 @@
 
 **★★★** [Strategy]: "To build applications, you have to stay out of the big platforms' line of fire" — healthcare sits outside that line.
 
-**Memories.ai implication**: Memories.ai implication: Same point as Zhu Xiaohu's "stay three streets away" — both are talking about asymmetric competition.
-
 [Source](https://www.21jingji.com/article/20250410/herald/537691240570646c2f34a6695f89242e.html)
 
 ---

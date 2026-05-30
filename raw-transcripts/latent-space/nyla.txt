@@ -1,0 +1,702 @@
+# Efficiency is Coming: 3000x Faster, Cheaper, Better AI Inference from Hardware Improvements, Quantization, and Synthetic Data Distillation
+# URL: https://www.latent.space/p/nyla
+# Date: 2024-09-03
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Efficiency is Coming: 3000x Faster, Cheaper, Better AI Inference from Hardware Improvements, Quantization, and Synthetic Data Distillation
+
+16
+
+1
+
+2
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:05:18
+
+-1:05:18
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Efficiency is Coming: 3000x Faster, Cheaper, Better AI Inference from Hardware Improvements, Quantization, and Synthetic Data Distillation
+
+NVIDIA, Convai, and Google's Nyla Worker on the brutally efficient drivers of production AI inference - where we've been, and where LLMs are likely to go.
+
+Sep 03, 2024
+
+16
+
+1
+
+2
+
+Share
+
+Transcript
+
+AI Engineering is expanding! Join the first 🇬🇧 AI Engineer London meetup in Sept and get in touch for sponsoring the second 🗽 AI Engineer Summit in NYC this Dec!
+
+The commoditization of intelligence takes on a few dimensions:
+
+Time to Open Model Equivalent: 15 months between GPT-4 and Llama 3.1 405B 
+
+10-100x CHEAPER/year: from $30/mtok for Claude 3 Opus to $3/mtok for L3-405B, and a 400x reduction in the frontier OpenAI model from 2022-2024. Notably, for personal use cases, both Gemini Flash and now Cerebras Inference offer 1m tokens/day inference free, causing the Open Model Red Wedding.1
+
+Alternatively you can observe the frontiers of various small/medium/large sizes of intelligence per dollar shift in realtime. 2024 has been particularly aggressive with almost 2 order-of-magnitude improvements in $/Elo points in the last 8 months.
+
+4-8x FASTER/year: The new Cerebras Inference platform runs 70B models at 450 tok/s, almost twice as fast as the Groq Cloud example that went viral earlier this year (and at $0.60/mtok to boot). James Wang says they have room to 
+”~8x throughput in the next few months”, which needs to be seen in reality and at scale, but is very exciting for downstream latency/throughput-sensitive usecases.
+
+Today’s guest, Nyla Worker, a senior PM at Nvidia, Convai, and now Google, and recently host of the GPUs & Inference track at the World’s Fair, was the first to point out to us that the kind of efficiency improvements that have become a predominant theme in LLMs in 2024, have been seen before in her career in computer vision. 
+
+From her start at Ebay optimizing V100 inference for a ResNet-50 model for image search, she has watched many improvements like Multi-Inference GPU (allowing multiple instances with perfect hardware parallelism), Quantization Aware Training (most recently highlighted by Noam Shazeer pre Character AI departure) and Model Distillation (most recently highlighted by the Llama 3.1 paper) stacking with baseline hardware improvements (from V100s to A100s to H100s to GH200s) to produce theoretically 3000x faster inference now than 6 years ago.
+
+What Nyla saw in her career the last 6 years, is happening to LLMs today (not exactly repeating, but surely rhyming), specifically with LoRAs, native Int8 and even Ternary models, and teacher model distillation. We were excited to delve into all things efficiency in this episode and even come out the other side with bonus discussions on what generative AI can do for gaming, fanmade TV shows, character AI conversations, and even podcasting!
+
+Show Notes:
+
+Nyla Linkedin, Twitter
+
+Related Nvidia research
+
+Improving INT8 Accuracy Using Quantization Aware Training and the NVIDIA TAO Toolkit
+
+Nvidia Jetson Nano: Bringing the power of modern AI to millions of devices.
+
+Synthetic Data with Nvidia Omniverse Replicator: Accelerate AI Training Faster Than Ever with New NVIDIA Omniverse Replicator Capabilities
+
+Timestamps
+
+[00:00:00] Intro from Suno
+
+[00:03:17] Nyla's path from Astrophysics to LLMs
+
+[00:05:45] Efficiency Curves in Computer Vision at Nvidia
+
+[00:09:51] Optimizing for today's hardware vs tomorrow's inference
+
+[00:16:33] Quantization vs Precision tradeoff
+
+[00:20:42] Hitting the Data Wall: The need for Synthetic Data at Nvidia
+
+[00:26:20] Sora, text to 3D models, and Synthetic Data from Game Engines
+
+[00:30:55] ResNet 50 keeps coming back
+
+[00:35:40] Gaming Benchmarks
+
+[00:38:00] FineWeb
+
+[00:39:43] Traditional ML vs LLMs path to general intelligence
+
+[00:42:33] ConvAI - AI NPCs
+
+[00:45:32] Jensen and Lisa at Computex Taiwan
+
+[00:52:51] NPCs need to take Actions and have Context
+
+[00:54:29] Simulating different roles for training
+
+[00:58:37] AI Generated Fan Content - Podcasts, TV Show, Einstein
+
+Transcripts
+
+[00:00:29] AI Charlie: Happy September. This is your AI co host, Charlie.
+
+[00:00:34] AI Charlie: One topic we've developed on LatentSpace is the importance of efficiency in all forms, from sample efficiency for spending limited training compute on limited data, and increasingly towards inference efficiency for increasingly demanding use cases like local LLMs, real time AI NPCs, and edge AI. However, we've never really developed any intuition for the trends and efficiency over time.
+
+[00:00:59] AI Charlie: For example, from 2020 to 2023, the price of GPT 3 level intelligence dropped from 60 per million tokens to 27 cents with the mixtural price war of December 2023. See show notes for charts and data. As for GPT 4 level intelligence, it took just over a year for GPT 4 to be matched by LLAMA370B and GPT 4 Turbo to be beaten by LLAMA3405B in open source, causing blended cost per million tokens to freefall from over 30 for Claude III Opus and the original GPT 4 down to under 3 for LLAMA3405B.
+
+[00:01:43] AI Charlie: Of course, OpenAI themselves have not stood still, slashing the price of GPT 4. 0 by 30 times with GPT 4. 0 Mini. Yes, you heard that right. GPT 4. 0 Mini is 3. 5 percent the price of GPT 4. 0, yet ties with GPT 4 Turbo on LM SYS. When the price of intelligence is falling by over 90 percent every year. What are the driving forces?
+
+[00:02:10] AI Charlie: And how should AI engineers plan for this? It turns out that this has happened before in computer vision, which has seen an almost 3, 000 times latency improvement over the last 6 years. We invited Nila Worker of NVIDIA and Convay. Who first made this comparison to help talk us through the past, present, and future use cases of efficient AI inference.
+
+[00:02:35] AI Charlie: Note that this was recorded before Naila joined Google AI to work on efficiency, so you can expect more great efficiency work coming from her on the Gemini team. In latent space news, look out for our upcoming London and NYC meetups on the community page, and of course feel free to start your own and simply let us know.
+
+[00:02:54] AI Charlie: Watch out and take care.
+
+[00:02:57] Alessio: Hey everyone, welcome to the Latent Space Podcast. This is Alessio, partner and CTO in residence at Decibel Partners, and I'm joined by my co host Swyx, founder of Small. ai.
+
+[00:03:11] Hey, and today we are in the remote studio with Naila Worko. Welcome, Naila. Good to see you.
+
+[00:03:16] Nyla Worker: Good to see you all.
+
+[00:03:17] Nyla's path from Astrophysics to LLMs
+
+[00:03:17] swyx: So we try to introduce people based on sort of their professional profile and then let you fill in the blanks.
+
+[00:03:22] swyx: Um, so you did astrophysics research at Carleton College, uh, and then you made your way into machine learning. We're going to talk about your time at eBay, but most recently you spent four years at Nvidia, uh, working on everything from synthetic data to cloud container offerings. And now currently you're director of product management at Convai.
+
+[00:03:41] swyx: What should people know about you that maybe it's not super obvious on your LinkedIn that it's, you know. Encapsulates your life journey so far.
+
+[00:03:47] Nyla Worker: And yeah, I think the thing that is not very obvious is that transition from astrophysics research to AI and how that happens. So within astrophysics, what I was doing on my freshman year of college was categorizing whether this was a supernova Rembrandt or like an exoplanet.
+
+[00:04:06] Nyla Worker: And while that sounds all cool and incredible, it's literally looking at images of like Oxygen and sulfur and selecting manually each region. And it is extremely boring, shall I say. So I then found a paper from 1996, um, called Source Extractor, or like he called it Sextractor for some reason. And it was a multi layer perception network that had been trained on synthetic data.
+
+[00:04:38] Nyla Worker: To categorize whether this was a star or a galaxy, that led me to see that there was this massive optimization machine that when fed with right data, it could perform and automate tasks such as this kind of manual classification. That made me want to learn more. How do you train these things? How do you deploy them effectively?
+
+[00:05:00] Nyla Worker: And if it's useful for just classifying galaxies, what other applications are there out there where we show a bunch of data and just train these functions to just predict the next word in the case of LLMs or predict, uh, what is. Is this a cat or a dog and things like that. So then I went to computer vision research, particularly scaling the training of deep neural networks.
+
+[00:05:24] Nyla Worker: Back then I was using CPUs, doing it wrongly, of course. Uh, and then I went to eBay where I switched to GPUs, but I was working also on like the Jetsons and Edge devices. That is an interesting transition in how it all flows together.
+
+[00:05:41] swyx: We can talk about that and also how you transition from that into NVIDIA.
+
+[00:05:45] Efficiency Curves in Computer Vision at Nvidia
+
+[00:05:45] swyx: But like, yeah, a lot of the podcasts for today, we're actually talking about efficiency and efficiency curves over time. And The reason I invited you to this pod was I was basically looking for somebody to talk about this. And you came at this with your insight on how like this already happens with computer vision, right?
+
+[00:06:06] swyx: This sort of efficiency curve over time. So I wonder if you want to just comment about Just set the context for like what has happened in your career that you've seen already.
+
+[00:06:15] Nyla Worker: When I started was first scaling up training and making training more efficient. And that of course has evolved significantly over time.
+
+[00:06:22] Nyla Worker: There is a lot on training. But what I discovered is that if these things are truly useful, you should be obsessing about inference. And then I went to eBay, uh, where I was in their hardware team, but I was doing software optimizations for the hardware team, such that the research that had been done for the AI research team was actually running efficiently on the hardware.
+
+[00:06:45] Nyla Worker: And there, I started leveraging optimization, uh, frameworks such as TensorRT to optimize our models like ResNet 50. So the way that the, uh, AI research team at eBay had implemented image search was some kind of computer vision model, and then we would retrieve an embedding from a certain layer of this ResNet 50 model, and then do some kind of distance with the other images.
+
+[00:07:13] Nyla Worker: And it was very advanced for the time, and what I had to do was to make it more efficient. So the way that it went to production actually was A single image before the ResNet 50, meaning batch one, and it was running with a certain latency. But there were product requirements, right? And this is where inference becomes very interesting because it's not about making it the fastest, it's about meeting the human perceived latency.
+
+[00:07:40] Nyla Worker: Right? And in this case, what we realized is that for this particular case was seven milliseconds For the particular inference of the model. And then obviously wrapped up in the whole service probably was going to be under 50 or 100 milliseconds, which is unperceptible to humans. So in that, my objective was to get the more bang out of back of the hardware.
+
+[00:08:02] Nyla Worker: And we were evaluating different hardwares, but my particular focus was on a V100 and we optimized it with TensorRT. And TensorRT has, uh, does a lot in the backend. So for example, it fuses kernels, it quantizes the model, it reduces that precision. Of course, now everyone talks about quantization, but then it was like FP32 to FP16.
+
+[00:08:25] Nyla Worker: Intel was still like very, very early. And even then, we went from having a service in production with one image to four images in seven milliseconds. And we got that running quite effectively. So, since then, however, what we've seen with that same model, right? At that time, it was TensorRT. Resnet 50 2018.
+
+[00:08:50] Nyla Worker: Uh, four images for seven milliseconds. If you do the rough calculation, that is a throughput of about 571. And if you look at the efficiencies that have been gained over the past couple of years, and this is running on a V 100, which is not optimized, you can check the numbers from last year from ML PERF and see that now it's 88,000.
+
+[00:09:13] Nyla Worker: Images or samples per second. They use samples. And obviously this is not necessarily apples to apples comparison because you need to check at the fine print as to how they are running this. They are not optimizing for latency. Um, so they are optimizing for 2. 0 first, but even then, like that number is like, It's striking, right?
+
+[00:09:34] Nyla Worker: And there are other things that I learned through my time at Nvidia. So, and I can dive more into that, but if you have anything to add there.
+
+[00:09:42] Alessio: Yeah, no, that's great. And I think especially the hardware piece is really important. Like, uh, back when you were at eBay, you mentioned the V100 was kind of state of the art.
+
+[00:09:51] Optimizing for today's hardware vs tomorrow's inference
+
+[00:09:51] Alessio: The v100 is about 130 teraflops of kind of like compute the gb200 at fp4 is like 20, 000 teraflops so the hardware alone today got much more powerful and I would love to maybe hear from you how at the time you were thinking about optimizing for the hardware today versus how much of an insight you had into the hardware that was coming especially working at NVIDIA and maybe people have the same discussion today it's like you know Should we optimize for the hardware of today or like for the hardware of tomorrow, because we need the results today, you know, as a business, but sometimes maybe we waste some time.
+
+[00:10:28] Alessio: So curious to hear your thoughts.
+
+[00:10:29] Nyla Worker: It's interesting to see these two worlds colliding, because when I joined eBay, it was the hardware team where I was in, and then there was the platform team, and then there was the AI research team. And this world decided the whole hardware for the company, and this world lived on this.
+
+[00:10:49] Nyla Worker: And this was a small team that was deciding what hardware to use. So it was interesting to see the learning gap between the two worlds. And live through it. And so how do you decide what hardware to use? Where to do your optimizations? I building for the hardware of tomorrow. That is an interesting question.
+
+[00:11:09] Nyla Worker: So as you can see, when I was running this in 2018, I was using a V100 for ResNet 50, which is Feels like such an overkill, like you would never today run a ResNet 50, or maybe you would if it's a giant batch workload, but like you wouldn't run this in a GB100 or 200, you would run this on a Jetson device, which is like a hundred dollar device that you can buy.
+
+[00:11:35] Nyla Worker: Off the shelf, right? So there clearly were changes to the hardware. It was just more depending on the use case and where you were heading over time. So I am a firm believer that you can't really forecast very well, anything beyond two years, statistically speaking. So in that meantime, it's like, okay, the chips are coming in three years.
+
+[00:11:55] Nyla Worker: How does the world look like in three years? I'm not that certain. Going back to the point of that optimization layer.
+
+[00:12:02] Nyla Worker: One interesting thing that you can see if you see the slides of NVIDIA is that they compare the same chip over the years. With itself. And they show that the performance optimization improves every year within the same chip.
+
+[00:12:20] Nyla Worker: Why is that? And let's speak particularly about computer vision, but the things that made it so that it improved so much over time were obvious things like, for example, I increased the batch size to four, eBay. Because it is still met the latency constraint, right? But just increasing the batch side, there was dynamic batching, which for LLM is analogous to like continuous batching or in flight batching.
+
+[00:12:48] Nyla Worker: And then we had obviously quantization and quantization improve over the years, right? Like when in 2018, I was using. Fp16, and Int8 was new. There were talks about different types of quantization, but it took time to develop. And for example, when I was at NVIDIA, we were working on edge devices and we were doing the frameworks for edge devices in particular.
+
+[00:13:14] Nyla Worker: And there we, not only did we do Int8, But we did quantization aware training, right? Which basically made it so that the model would perform under those quantization constraints, which we're also seeing here, like where we we've seen in for training and things like that, better convergence with LLMs. But we, we saw that with computer vision.
+
+[00:13:35] Nyla Worker: Other optimizations, and yes, of course, IP 16, they're having so many iterations, vfloat 16, uh, from TPUs, like basically all of the hardwares have had different optimizations, uh, with the precision of that number that have increased the, have increased the performance. But basically, Yeah, you could just switch from one hardware to the other and it was incorporated by that framework.
+
+[00:14:01] Nyla Worker: Other optimizations that we saw for computer vision that were independent from the hardware itself were like pruning. So like you could prune a network after it was trained, basically removing all of those activations that were close to zero. And Then you would need to do a new round of training and deployment.
+
+[00:14:22] Nyla Worker: And that gained us a lot of efficiencies when I was working with customers at NVIDIA, um, this is not very translatable to large language models as that it's not efficient today, but who knows in the next three, two years, uh, someone might come up and I. Can put in the show notes a link of a paper that is trying to do pruning for LLMs more efficiently.
+
+[00:14:47] Nyla Worker: But yeah, so as you can see, there are certain things that grab the optimizations of the hardware, but there are many things that happen just on the network itself to like optimize it and gain efficiencies over time.
+
+[00:15:00] Alessio: And did you have different approaches based on, uh, whether or not you were focused on latency versus like fitting more throughput, you know, do some of these techniques lend better to specific uh, kind of metrics or everything is just better no matter what?
+
+[00:15:14] Nyla Worker: No, they definitely do. For example, increasing the batch size in computer vision immediately will gain you throughput to a certain limit of the memory. But the latency is a constraint that you care as a product manager, for example. Like I can't exceed seven milliseconds else it's a bad experience. And you see that with a bunch of this optimization.
+
+[00:15:37] Nyla Worker: So it's a very complex optimization function. So for example, even with quantization, our training that we would do for Uh, like deploying a ResNet 18 in the wild for detecting license plates, for example. And there, we needed to have a very strong trade offs of how much accuracy, or depending on other metrics that you were evaluating at the time, like recall or anything else, can we lose in order to gain this efficiency?
+
+[00:16:08] Nyla Worker: And in certain cases, for example, if you're in a manufacturing floor, where you have Many items going through the factory line, there you'll care more about that latency component versus in other places. So yeah, these optimizations were very variable depending on the final end case.
+
+[00:16:26] swyx: I really like this analogy that you're drawing of, you know, what you saw in computer vision and over, over to LLMs.
+
+[00:16:33] Quantization vs Precision tradeoff
+
+[00:16:33] swyx: I'm interested in digging deeper on the quantization versus accuracy and recall, uh, trade off or precision recall, whatever. Vision, I feel like the fall off in precision is smoother than language models. Is that accurate?
+
+[00:16:50] Nyla Worker: What do you mean by that?
+
+[00:16:53] swyx: So when you, when you quantize things, obviously you're going to lose precision because you just have less bits to store information in.
+
+[00:17:01] swyx: My sense is that when you quantize in vision, you can preserve the, maybe like the most, the principal components of features. More accurately, and that's actually what you really care about, whereas in language, you have a lot of complex interplay between meanings of words that, uh, you know, Anthropic calls it superposition, maybe.
+
+[00:17:24] swyx: And when you quantize things, you might lose the lower precision bits, which actually matter a lot in language compared to vision. I don't know if you have any perspective on the precision trade off.
+
+[00:17:37] Nyla Worker: I would need to talk to experts about this, but my intuition has been that The smaller the model, the more the weight matters.
+
+[00:17:48] Nyla Worker: So what do I mean by that? So if the model is very small, you have very few parameters. So those parameters, like the information that they transmit needs to be more precise. So my intuition has been that, for example, at ResNet 18, when we would do quantization and we didn't do quantization, our training after that, it would just completely fall off a precipice.
+
+[00:18:10] Nyla Worker: And that was something that we needed to be extremely careful on. And that's why there are so many techniques that were designed for that. But that is my personal intuition that I developed and with large language models, given that they are so large, small changes may impact them less than in the case of a very, very small computer vision model, obviously that falls apart with like the large, Computer vision models, like segment anything or things like that.
+
+[00:18:40] Nyla Worker: But if you have a very small single task, ResNet 18, if you lose a little bit your weights and don't quantize it the right way, your results all of a sudden are going to like go completely bollocks very fast.
+
+[00:18:57] swyx: I do agree with that intuition. I think one of the things that people are talking about now is like very extreme quantization.
+
+[00:19:02] swyx: There is this paper on ternary models, the 1. 58 bit models. I don't know how much legs that is, but people seem to be reproducing it in open source. And it's something that a lot of people are talking about. I don't know what to make about it because I don't think it's adopted seriously by the large labs.
+
+[00:19:20] Nyla Worker: Yeah, I'm not sure about that, but I do I think that in a way it's like with such a large model, you almost need just that directional number, like yes or no. And then it go, it's like almost like a gate of like this direction versus this direction. And because it has so many parameters, yes or no for those gates in a way matters more than the full exact precise number that we get there.
+
+[00:19:50] Nyla Worker: Yeah. I like to think about it like in physics. We have come up with very precise weights for our bar, like constants, right? But those constants have determined to work in a lot of circumstances. Those have been very specific. For that specific equation. And it was like a lot of graph while in the super large model, it's more of like a directionality that matters than the full number of the way that would be my personal intuition, but there are extreme experts that have been working on quantization for many, many years that could answer that question better.
+
+[00:20:28] Alessio: That's kind of the side of the model. Inference, but you've done a lot of other amazing work at, at NVIDIA, especially on things like, uh, synthetic data, uh, built in image, but also like the 3d thing.
+
+[00:20:42] Hitting the Data Wall: The need for Synthetic Data at Nvidia
+
+[00:20:42] Alessio: So can you maybe just give the TLDR of what you did for five years at NVIDIA? Because I kind of span across a lot of things and maybe it's a little reducing it to just inference optimization and some of this work.
+
+[00:20:52] Nyla Worker: So I actually got to meet NVIDIA while I was working at eBay and they just went me over to their solutions architect program, which is. A place where you get to see all of the customers that NVIDIA had, uh, for artificial intelligence and you support them. So within that time, I started as a, in a rotational program where I supported retail customers, edge AI customers, retail customers, all trying to leverage AI in some kind of way.
+
+[00:21:22] Nyla Worker: So for example, for retail, it was use cases like Amazon Go or retail theft protection Edge AI, it was robotics, manufacturing, deploying on the floors, uh, for autonomous vehicles, it was deploying in the vehicles, good computer vision networks, um, and things like that. So that was my first two years and it was hundreds of customers that were trying to leverage primarily computer vision.
+
+[00:21:50] Nyla Worker: Some, uh, large language models, but the technology wasn't there yet. Primarily they were using it for recommender systems or search, but on the computer vision side, we saw that. And then I decided to join like the Edge AI team where I worked with customers such as Siemens and other big corporations and got to see how they were deploying this in like the manufacturing lines.
+
+[00:22:18] Nyla Worker: Other items like that. However, one of my problems with every single customer was their data. They could use off the shelf models, right? There were ginormous image data sets and so on, but they didn't fit this particular niche use case. So for example, you have scratches in your cars in the manufacturing line.
+
+[00:22:42] Nyla Worker: That is inspected manually. And it's a very long and arduous task to find all of those scratches. Right. And that dataset does not exist. And it was every time in retail, we didn't have enough data for like the items on the shelf or in retail. There is also high churn of packaging. So the packaging that was there like six months ago is changing this month.
+
+[00:23:05] Nyla Worker: So because of that, there was always a deep need for data. So I started working on. Generating synthetic data that would immediately and automatically support that. So for example, I worked with Amazon in this project where we replaced tape synthetically in a 3d world. And that only was a big issue for Amazon because They needed to very quickly retrain those computer vision networks to detect packages that had a new Amazon tape.
+
+[00:23:38] Nyla Worker: Yeah, and that was just the starting point. It grew to like robotics. So I worked with Festa on a 3D manipulator that needed to detect the pose of the object. And how do you get pose data? The way that people were doing it was by putting tags, like literally QR codes, onto the item such that they had some ground truth and then they would label it.
+
+[00:24:05] Nyla Worker: But that's impossible, like this is the case where synthetic data really becomes important because there is no way you're going to get the pose of the item in every single position. And on top of that, you're disturbing the item, right? In the real world, it would never have like a QR tag on it. So that is where I saw all of these things that needed synthetic data.
+
+[00:24:25] Nyla Worker: And I worked with incredible researchers such as Jonatan Trembley that did a lot of research on like these 3D and synthetic data generation use cases. I like to think about it as we hit a data wall, like there was no way that we could progress with the existing data. And now what do you do? And I think we're going to see similar things with LLMs.
+
+[00:24:46] Nyla Worker: We're going to hit a data wall. And then what do you do? And obviously there is synthetic data generation for LLMs too, but we'll see how it all comes together. And one of my realizations in the process of productizing synthetic data is that Training with synthetic data is an art, it's a skill on its own.
+
+[00:25:05] Nyla Worker: How do you effectively generate, for example, do domain randomization on the items that you are generating in the 3D world. To effectively train networks is a complete art of its own. But yeah, so that, that goes, that glues it all together.
+
+[00:25:23] Alessio: Yeah, that's great. Um, and I think maybe as you think about LLMs, what we thought about optimizing before with Chinchilla and some of those scaling laws was finding the right middle ground that doesn't really optimize for anything.
+
+[00:25:36] Alessio: And now it's like, okay, we're just focusing on optimizing inference. And we're doing all this work at the, you know, algorithm layer, so to speak, or even at the GPU layer, you know, with some of the new math and like the metrics multiplication things with cutlass and the likes, but data, we haven't quite gotten to the point where we need to generate a ton of synthetic data versus it seems like in more robotics and kind of like 3d environments.
+
+[00:26:00] Alessio: There's really not that much. Synthetic data. So is most of the work there still getting more like, we haven't really seen, you know, Sora was maybe like the most impressive, kind of like somewhat 3d related thing, you know, it's not, I guess it's not really 3d because the output is flat, but it has its own kind of like 3d engine that it runs any thoughts on.
+
+[00:26:20] Sora, text to 3D models, and Synthetic Data from Game Engines
+
+[00:26:20] Alessio: Maybe what you've seen in synthetic data in 3d and how you think how far we are in the LLM side, like how soon we're going to need to really scale synthetic data to make some of these models like break the next barrier of performance. And also, yeah, thoughts on Sora. I don't know if you have any, I know the model is very private and, you know, not a lot of people have hands on experience on it.
+
+[00:26:40] Nyla Worker: No thoughts on Zora, I think it perplexed a lot of researchers that were working on it, that had him in a crisis as to whether they should continue doing their research in that time. Um, but no thoughts on Zora that I can say, because as you said, it's so private, like the rumors of whether they use Zora.
+
+[00:27:01] Nyla Worker: Synthetic data from a game engine are there, but I'm not sure. And I cannot comment on what I can say is that the things that the game engine, so my synthetic data product was a game engine used to generate temporally coherent data such that you can train. So for example, that's post estimation, but also like the post estimation is physics informed because the game engine provides physics.
+
+[00:27:26] Nyla Worker: It would have some logic, uh, to generate the items, like they were filing, they had some weight to them, and you can parameterize that. So that would generate really good synthetic data for those use cases in cases where we couldn't get that information. And it would provide like really great ground truth, as opposed to like, um, A video where a human labeler, even when it wasn't like post estimation, even for temporally coherence, uh, human laborers would mess up like where it was in the frame.
+
+[00:27:58] Nyla Worker: So how does this all fit with LLMs, uh, which large models? My last months within NVIDIA, I worked on Helping improve and accelerate that 3D content creation process. And here there were many models that are augmenting the flow of 3D content creation. So for example, we can start on the basics, right? Text to texture.
+
+[00:28:23] Nyla Worker: So like you texturize an asset on the 3D world better. Text to material, you get materials, uh, with a simple text prompt. Then you get image. Uh, to 3D, there were really good models, uh, created by Sanyas Fiedler's team for that. And I think Ming Yu's team, and, uh, there was also like Dreamfusion and so on that were focused on 3D content generation.
+
+[00:28:48] Nyla Worker: But even within that, you had to do a re topologization because those assets would come up all flawed, that geometries would be all messed up. So there was like, Research that was also ongoing on like converting that into like the proper, uh, topologies. So I see all of these things coming together. And as I mentioned to you on another time, it feels a little bit like we're in the GAN times of 3D generation.
+
+[00:29:18] Nyla Worker: Where you see the promise, but it might still create a very scary Slenderman object. I can literally pull out one of my projects where I was using a generative asset and it's, it's a Slenderman. It was actually a generated. Andrej Karpaty that I put through one of the 3D generation machines and it made a Slenderman figure.
+
+[00:29:45] Nyla Worker: Um, I'll share a picture of that later, but, but we're getting there. And I think like the technologies are going to converge in really interesting ways. We have video generation, but video generation doesn't give you the flexibility of the 3D space. Once we get to that 3D generation process, that's less flawed.
+
+[00:30:07] Nyla Worker: Even foresee a whole mixture of like characters in 3D worlds and endless experiences that create a whole new layer of entertainment. Hence why I joined Convay. And where you have these conversational 3D characters that are embodied, are doing task planning, the environment around them is, uh, completely generated.
+
+[00:30:28] Nyla Worker: And we have some procedural generation already, but like, imagine if you had the freedom to just say your thoughts and everything in the scene created, got created, or maybe it knows you a little bit based on your interests and it generates worlds that you like and create some kind of experience for you.
+
+[00:30:46] Nyla Worker: I believe that that's where we could head in the future. So that's why I've been working on all of this and the technologies are just converging and moving very fast.
+
+[00:30:55] ResNet 50 keeps coming back
+
+[00:30:55] Alessio: And also we can tie, I think we can always do like, we talked a little bit about inference, the other side of inference is like, how do you make, you know, scale the models to then a better performance, you know, which is synthetic data as a part of it, what do you think we missed?
+
+[00:31:08] Alessio: I guess on the. And for inside, what are like other things that, that you really want to cover, uh, just so we can, we can tie it back.
+
+[00:31:16] Nyla Worker: I think that the thing that we missed is the effective training of the large language models. So what do I mean by that? We've shoved all of the internet, basically all of the tokens we could into them.
+
+[00:31:31] Nyla Worker: Obviously, OpenAI has done quite a bit of work probably to get rid of all of the toxic tokens and things like that, but it's still, it has been pretty brute force in the sense of how much data we fit. We were like, the more data, the larger, the better, and it's true, but the moment where you try to put it into an application.
+
+[00:31:51] Nyla Worker: You're like, I don't need that thing that does math, physics, computer science, to like, tell me what color this car is. And we saw these very brutally on computer vision, like the model distillation. We started with ResNet 150s and then we, there were other models other than ResNets, but like the surprising fact over my time doing AI.
+
+[00:32:15] Nyla Worker: Andresen is that ResNet 50 kept coming back, they would jump to VisionNet, Vision Transformers, and then they were like, oh, Vision Transformers, they don't train very well, they need tons of data, so annoying. So they would go back to ResNet 50, or like, they would try to use this other model, and then they would be like, oh, well, ResNet 50 worked out.
+
+[00:32:36] Nyla Worker: Anyway, but that was for very constrained use cases, right? Maybe there is something interesting there for the end side of things, because maybe that means that we'll just keep going back to the model that worked. Yeah,
+
+[00:32:48] Alessio: keep going. I think that makes a lot of sense and we're still maybe in the, everybody wants something else that is not transformers, you know, uh, but maybe the, the lesson is to not, to not move away too much.
+
+[00:33:00] Nyla Worker: Yeah, I mean, I haven't been doing super hardcore coding like I did three years ago to be in the field, but my impression when I would read the papers, I would ask like researchers at Google DeepMind and ask them, like, why did we choose this function? This function feels so arbitrary. It is because at the end of the day, it was computationally efficient, like multi head attention, the paper was like, Ooh, it trains well parallelly, as opposed to LSTMs.
+
+[00:33:30] Nyla Worker: Right? And then that computational efficiency and ability that we had to shove more data was like the big. Big thing, uh, there, obviously there are major breakthroughs that happen. I don't want to invalidate that, but that was to me, like one of the things that got highlighted on that journey.
+
+[00:33:50] Alessio: Any other thoughts that you have on what people get wrong today on the training stage?
+
+[00:33:54] Alessio: We kind of talked about inference optimization, you know, kind of like the data side. Anything else on training that you just want to get off your chest, uh, yeah, yell at people about?
+
+[00:34:03] Nyla Worker: Uh, yeah. So. As mentioned, it is highly inefficient. However, I are just showing tons of tokens. As we discover what are the use cases that are truly valuable, we are going to figure out what is the data that was actually valuable through this training process, I think, and we are going to be able to.
+
+[00:34:23] Nyla Worker: One, maintain the same large model, but train it more efficiently and quantize it more efficiently and potentially reduce that net required compute. And the other thing is that since we know that this works this well, we can do model distillation. Model distillation is still questionable as whether we can actually get like a Mistral 8 bit to perform similarly as a.
+
+[00:34:51] Nyla Worker: Chat GPT or a GPT 4 model in a constraint case, but I think for certain use cases, we'll get there. And for example, if you've seen the Databricks assistant, they do a model college of different types of models for assisting you throughout the process for costs. And also because it just makes sense for certain things, you just need to classify for certain you need to do a full assistant, like level operation and.
+
+[00:35:17] Nyla Worker: If you're doing the assistant operation, you don't want to make your SaaS margins go bad because you are now running really intense compute for that element kind of thing. Those are the things that happen behind the scenes. And like Copilot is beloved by people. And people say like, Oh, I just use Copilot.
+
+[00:35:37] Nyla Worker: And that's a much smaller model than a GPT 4.
+
+[00:35:40] Gaming Benchmarks
+
+[00:35:40] Nyla Worker: I
+
+[00:35:42] swyx: think they've distilled several rounds of OpenAI's original codex model for Copilot, and that seems to make a ton of sense. I was trying to map out the philosophy of distillation, and I've been trying to split out what you distill for. So there's distillation of knowledge, which is what I think people generally think about.
+
+[00:36:03] swyx: But for LLMs, it starts to have also things like distillation of preferences. So like you can sort of use LLMs as judge to basically steal the RLHF capabilities from one model to another model, and then you have the same RLHF. Preference data without paying for it. And then you have distillation of reasoning.
+
+[00:36:19] swyx: I think there's a sort of or orca models where you can kind of put in the like chain of thought into, into the model. I think also like there's a lot of like benchmark gaming. You know, it's well understood that you can distill. Distill the knowledge of the benchmark into a model, and then obviously it's going to perform better on the benchmark.
+
+[00:36:36] swyx: But I think what's less understood now is, um, you know, the sort of un gamable leaderboards, like the LMSys leaderboard, like some, it's also possible to game those things, and you can distill smaller models to do well on those.
+
+[00:36:48] Nyla Worker: It's so, with computer vision, we had it gaming the benchmarks all the time. I don't trust benchmarks, especially when the numbers are close.
+
+[00:36:58] Nyla Worker: I'm like, okay, this is useless now because it is completely gamified, right? They basically, you just shove the most compute and then you choose the right checkpoint where it magically, mathematically works for the benchmark. Okay. And you choose that, and I had people that were training large models come up to me and tell me, I cannot reproduce this, this is completely unreproducible, but I have the checkpoint, it worked once, we're submitting the paper.
+
+[00:37:30] swyx: Ah, this is called graduate student dissent.
+
+[00:37:33] Nyla Worker: Yeah,
+
+[00:37:34] Nyla Worker: it almost feels like you, you definitely cannot trust that. And for computer vision, that's why I like spend a lot of time with the customers being like, is this a valid set of tests? Like, is this truly your test environment?
+
+[00:37:47] Nyla Worker: Is this exactly what you need to be validating against? And how do we get to that point where you have something that you can validate against was quite, quite challenging. But that was, uh, the bigger.
+
+[00:38:00] FineWeb
+
+[00:38:00] Nyla Worker: We had there,
+
+[00:38:00] swyx: I would say to bring people up to speed as well in like very recent developments. Have you come across fine web?
+
+[00:38:06] swyx: It's a data set from Hugging Face that is kind of like a cleaned C4 and they use LLMs to not to distill, but to actually filter. And to improve data quality using LLMs to filter that model seems to be unexplored. And the initial results from the LLM. c project is that you can train the same quality of model for like basically 10x less tokens.
+
+[00:38:31] swyx: So, trading with 10 billion tokens versus 100 billion tokens on the GPT 2 architecture seems to get you the same, or even slightly better, perplexity and eval scores, which is interesting that it's not quite synthetic data, but it's also just data quality improvement in other formats.
+
+[00:38:48] Nyla Worker: Exactly. With synthetic data, we saw that if we just got you the right distribution of data that fit what you needed in the real world, then that was it.
+
+[00:39:00] Nyla Worker: And you didn't have to train with as many samples as you needed otherwise. In a way, I see it like training. a, child in like Exeter, right? It doesn't matter how smart the child is because the information is being fed to it so well, in particular, like, you know, there are really incredible schools that fit the information to you really well and the right information.
+
+[00:39:27] Nyla Worker: And by doing that as a human that works, I don't see why that doesn't work. It doesn't work with this kind of models and we saw it working in computer vision. It was just very small data set, just the right data, fit it well, and it will work. Um, yeah. And that was the experience.
+
+[00:39:43] Traditional ML vs LLMs path to general intelligence
+
+[00:39:43] swyx: I think the problem here comes from like, I think we understand how to do this in a normal ML context, but when you're trying to build AGI, the real world is everything.
+
+[00:39:52] swyx: There's nothing to optimize for because it's, it's everything. So how do you optimize for everything?
+
+[00:39:57] Nyla Worker: I think the places where we're going to get AGI is where the AI can get complete feedback, but this is just my intuition behind it. So for example, in a coding environment that AI will have the ability to like rerun things and reevaluate if it's performing things well, and that will work, I still, I'm not sure how it would work with like something where you don't have.
+
+[00:40:22] Nyla Worker: Feedback. So like in robotics, we first need to get like that really good, like grasping sensors or like really good vision sensors such that it can get some kind of feedback loop eventually started. But yeah, that goes more on like that reinforcement learning side where we've already seen superhuman performance, but it's still with LLMs.
+
+[00:40:41] Nyla Worker: I think we're still approximating what we have available. It's a super interesting topic, but It really depends on like how you define it, and we will have to have a discussion on the definition and then how you measure it.
+
+[00:40:55] swyx: Beyond the definition, what I'm trying to get across is the normal ML mindset is, oh, understand the problem, and then design the data set, design the architecture to fit the problem.
+
+[00:41:06] swyx: Right? But with the foundation model paradigm, there is no problem to optimize for because you're really trying to just have a general purpose, everything model.
+
+[00:41:16] Nyla Worker: Yet what we're doing with LLMs is like choosing the next word. My thoughts here is that I see text as completely labeled data because it's what a human has put out.
+
+[00:41:30] Nyla Worker: Like we, we've seen papers like textbooks is all you need, right? And that is because the textbooks are starting informationally dense and it's years of a human carefully crafting like word after word after word of what they are saying. And then the LLMs are learning from that. And yes, it's multitask learning because it's learning to do a lot of things because of that careful selection, but it's all labeled.
+
+[00:41:56] Nyla Worker: I think it's a good approximation to human intelligence, but I'm not sure if it is going to be. And the best kind of human intelligence, right? Like whoever can write a quantum mechanics book and like the fact that AI can now predict what is the next word in a quantum mechanic textbook is like the best of human intelligence.
+
+[00:42:12] Nyla Worker: But I am not a hundred percent sure. Like my definition of AGI is along the lines of it's self improving and it's much better than anything that humans could ever produce. And I'm not, I'm not sure. I'm particularly convinced on like that this is feasible today with what we have, but maybe I'm wrong.
+
+[00:42:31] Nyla Worker: That's where I stand.
+
+[00:42:33] ConvAI - AI NPCs
+
+[00:42:33] swyx: We can leave that topic for coffee chats and go ahead to Convai or Convai. I always keep saying Convai. Um.
+
+[00:42:41] Nyla Worker: I joined Convai, which makes conversational 3d AI characters. So what do I mean by that? It, these are characters that have obviously the cognitive abilities that we discussed with LLMs, which is a retrieval augmented generation has large language model.
+
+[00:42:59] Nyla Worker: To converse, uh, we have a text to speech, automatic speech recognition. We're working on integrating multimodality. We have demos, for example, a multimodal network for having the NPC perceive the world. NPC, non player characters. But we are very strongly focused on the embodiment of this. So if you see in our page, you'll see that we have integration with all of the Avatar creation platforms, uh, that we can, so for example, with Relution or with, uh, MetaHuman, uh, to then give them a body and an expression and a personality.
+
+[00:43:37] Nyla Worker: And we utilize tools to animate the face, well, as we leverage an action model, a fine tuned version of a large language model with four actions such that the, uh, Characters in these games can go and perform actions. So if you tell it, move here, grab me an axe, it will go and grab you an axe. So those are the things that we do.
+
+[00:44:00] Nyla Worker: We have seen these being very useful, obviously for gaming. Uh, there are cool experiences in gaming where like, for instance, we have an indie developer that made a game where you have to convince the NPCs to evacuate the region, else you kill them. So that's one use case. Uh, and then there are social game mechanics that are being explored, such as convincing one to convince the others to evacuate, and how good are you socially to get that to happen?
+
+[00:44:25] Nyla Worker: Yeah, so that is on the gaming side, but we are seeing this also being used as brand agents. So sure, we've seen the chatbots, it says, where you talk with, Xcompany, and it tells you all of the information, it acts as customer support, but there is something more. It's like the next generation logo of a character that represents your brand, speaks like your brand, looks like your brand, like has the hairstyles, the face, everything for your brand.
+
+[00:44:54] Nyla Worker: That is another area that we are very heavily leveraged.
+
+[00:44:57] swyx: Is there any well known brand that People can link to, uh, you know, I know about like AI influencers, like on Instagram or AI wrappers, but I don't know about brand, uh, identities.
+
+[00:45:09] Nyla Worker: Yeah, we have something coming. I don't want to say much about it, but there is something coming.
+
+[00:45:15] Nyla Worker: No, like
+
+[00:45:15] swyx: even if something that you guys did not work on, but you know, it's well known in the industry that this is a gold standard or whatever.
+
+[00:45:21] Nyla Worker: Yeah, there have been a brand ambassador. Jensen made a very big announcement during G Computex about like digital humans and how digital humans come to play.
+
+[00:45:32] Jensen and Lisa at Computex Taiwan
+
+[00:45:32] Nyla Worker: For example, Hypocratic is making a nurse, like a digital nurse, I can tell you about it. And yeah, I think it's, it's like a new way of interfacing all together with computers. Because it's more human, it has all of the information about the brand. It has the style. It has the, um, kind of like what a website does, but now it's also the voice that you're still exiting.
+
+[00:45:56] Nyla Worker: And it's also the information that you're transmitting and it's hyper targeted to the person who is speaking to this character. So yeah, and you've seen that for instance, in Computex for like medical assistants that are doing such a thing, or. All their kind of brand agents.
+
+[00:46:13] swyx: Fun fact, I was actually at Computex.
+
+[00:46:15] swyx: I just came back from the plane in Taiwan and you know, I saw Jensen sign the woman's, uh, body parts, which is, uh, making a lot of rounds on social media today. Yeah, he was a rock star. Like there was this big giant. Basically a blob of people just surrounding him everywhere he was going. I'm sure it's very uncomfortable for him, but I think, I think he kind of embraces it.
+
+[00:46:34] swyx: But yeah, there were a lot of, uh, digital
+
+[00:46:36] Nyla Worker: Can you imagine what that change was in the past five years? Yeah. Because like when I joined, he, he was, okay, he was beloved at NVIDIA. NVIDIA has almost a cult following towards Jensen, like in Jensen we trust. But that was like internal, but outside of NVIDIA, that wasn't the case.
+
+[00:46:55] Nyla Worker: And now in the past year, he became like this massive rock star. Can't imagine what that feels like.
+
+[00:47:01] swyx: Yeah, it's crazy. And then Lisa Su was also there. And, uh, you know, it's just like a family gathering because they're cousins of each other. I don't think they were in like the same room, but. There are a lot of people just like kind of worshiping the GPU gods.
+
+[00:47:13] swyx: I'll just kind of come back to the agents. You know, like there were a lot of brands and chatbots. I feel like these are all the same thing. It's like agents, chatbots. I think what is misunderstood to me or not well understood is like, what is the full stack that needs to happen? Right? There is LLM. There is RAG.
+
+[00:47:29] swyx: There is voice synthesis. Is there anything that I'm missing?
+
+[00:47:32] Nyla Worker: Yeah. The facial animations, gesture animations.
+
+[00:47:36] swyx: Vision.
+
+[00:47:38] Nyla Worker: Vision is missing too. So yeah, one of the projects we worked on and we're working with customers. It's a, it's more like behind the scenes right now, but it is on like having an agent that can see you and talk to you and react to you.
+
+[00:47:52] Nyla Worker: So for example, we had a demo, which is not public, but. The character would look at you and be like, why are you looking at me with that face? And that changes the whole flow, because right now, if you just talk to talk, it's not the same as if it sees you, it sees your reaction, and then it begins a conversation and it changes and you make a state based on that and all of that.
+
+[00:48:16] Nyla Worker: I think all of those things come together for like an actual real experience. That feels different, like, I can't explain it, but when I've talked with these characters and they are seeing you and their facial gestures are changing because of your gestures, that feels like a big improvement. The change of how we lead these experiences?
+
+[00:48:39] swyx: Yeah. So, um, when, when I was there in Computex, they, they had this sort of, uh, suspended glass thing. So it is kind of like glass, but somehow they have a screen inside of the glass. You can, you can see through it, but it's also a screen, a
+
+[00:48:50] Nyla Worker: hologram. Uh, it's a hologram is
+
+[00:48:51] swyx: what it's called. Um,
+
+[00:48:53] Nyla Worker: like the hologram machines, I dunno, are hologram machine.
+
+[00:48:56] Nyla Worker: Yeah.
+
+[00:48:56] swyx: It looks very real realistic, uh, as though they're standing there. But if you, obviously if you walk up close you, you can see that it's fake. But yeah, they had, uh, the eyes will follow you around as you walk around. So they're, they're really, they're really, they're really sort of looking at you. And, um, yeah, it's, it was a little bit creepy, but the latency is an issue.
+
+[00:49:13] swyx: Obviously there's, there's, there's going to be latency issues.
+
+[00:49:16] Nyla Worker: That's what we, the whole industry should be shooting for. And I think we'll get there.
+
+[00:49:20] Nyla Worker: That's hence all of this discussion of inference. That's where my mind is perpetually going to, because latency is. The most important thing for us to optimize today for it to feel natural.
+
+[00:49:31] Nyla Worker: As mentioned at eBay, my job was to get the inference down such that it felt natural to us. And now with MPCs. We are heading there and we'll be there soon, uh, but yeah, the latency is a key thing that we need to optimize for to get it to feel natural. The other one is having the character look at you with the right emotions, so like detecting the tone that you are speaking.
+
+[00:49:55] Nyla Worker: Uh, to it with, and seeing that reaction on the face as well as the actions. So for example, we did a demo with NVIDIA where we had a ramen shop experience.
+
+[00:50:08] AI Charlie: Charlie here. We're splicing in some audio from the NVIDIA GTC demo of Convai so you can get a sense of it. This part is going to sound scripted, but you can check the show notes for the live demos that reporters took on a real playthrough at the conference.
+
+[00:50:23] Seth Schneider: The latest features from Convey enable real time character to character interaction, scene perception, and actions. Let's take a look. In this demo, we're back in the ramen shop with Jin. Except this time, we're joined by Nova, a cybersecurity expert in our cyberpunk flavored world. Let's listen in as these two AI game characters have a generated conversation.
+
+[00:50:45] NPC AI: Nova, you ever get that uncanny feeling where, like, those AI constructs from the old sci fi flicks? But not. We're too quirky for that. The cool
+
+[00:50:54] Seth Schneider: thing
+
+[00:50:54] NPC AI: is,
+
+[00:50:55] Seth Schneider: the conversation's different
+
+[00:50:56] Speaker 3: every time. Quirky is one word for it, Jin. I think we're just too real to be anything but flesh and blood. You're not wrong, Jin.
+
+[00:51:04] Speaker 3: Sometimes I wonder if we're all just part of some elaborate cybernetic dream. If we were AIs, I'd be the one cracking jokes about the singularity over a bowl of ramen. Kai, long time no see. You've been hiding in the shadows, or have you just been trying to avoid me?
+
+[00:51:23] Seth Schneider: Hey Nova, it's good to see you. I haven't been trying to avoid you, just been super busy.
+
+[00:51:27] Speaker 3: How are things? Things are fantastic. Just secured a juicy contract with Zenith and Sons.
+
+[00:51:35] Seth Schneider: Hey Jin, you hear that? Nova just landed a big contract. Let's break out the good stuff.
+
+[00:51:41] NPC AI: Ah, you got it Kai. Nova's success calls for the top shelf celebration. Just don't expect this to become a habit.
+
+[00:51:54] Seth Schneider: Ah, thanks, Jen. So, Nova, have you been playing any games recently?
+
+[00:51:59] Speaker 3: I've been testing this cool game tech on a secret new GPU that's launching very soon. I can't talk about it here, but I can show you at the lab.
+
+[00:52:08] Seth Schneider: Wow, that sounds super cool. Yeah, I'd love to see the game tech. Let's go back to your lab.
+
+[00:52:14] Speaker 3: Absolutely. Follow me and prepare to be blown away by what you're about to see.
+
+[00:52:20] Seth Schneider: With Convay's latest framework, game characters can now interact with the scene by fetching objects and navigating the world. All based on your conversation.
+
+[00:52:28] AI Charlie: That was the NVIDIA GTC demo of Convay. Now, back to the interview.
+
+[00:52:33] Nyla Worker: and it was really important for the character to go and pick up the ramen, right, for the character to do all of those things while you were conversing with it and for it to feel natural in the reaction time to the actual action that was happening.
+
+[00:52:47] Nyla Worker: So, yeah, those things were. Uh, really needed.
+
+[00:52:51] NPCs need to take Actions and have Context
+
+[00:52:51] Nyla Worker: And I personally think that conversation is just one step into this journey. The characters need to be able to do things such as actions in the world. For example, we are live with Second Life and our NPCs are the ones that teach you how to onboard into the environment and even introduce you to other people.
+
+[00:53:13] Nyla Worker: So they. are not just conversing, but they are like, Oh, this is how you pick up your surfboard. You can surf, you can fly, you can dance in Second Life, but you wouldn't know that unless you had someone like an AI assistant that like walking you through, but also has a personality and actually fits into the Second Life environment, right?
+
+[00:53:34] Nyla Worker: So those things are what we are seeing that are needed. It's not just that conversation.
+
+[00:53:41] Alessio: I played video games for a long time. I feel like it's always been so hard to feel fully immersed because of that. You know, it's like the, there's always like, Oh, literally before you start talking to an NPC, like you will kill like 10 people.
+
+[00:53:53] Alessio: And then you talk to the NPC and the NPC is like, what a beautiful day. And it's like, no, like you're not acknowledging anything that is happening around us. So this seems, this seems like a much, much bigger improvement. Same on the work.
+
+[00:54:06] Nyla Worker: We're seeing mods, uh, doing this. Like I had a friend call me the other day and he was like, hey, I need a mod.
+
+[00:54:13] Nyla Worker: For Howard's legacy, I just looted completely the store. And the NPC is like, hi, how can I assist you today? I looted you. Please react.
+
+[00:54:27] Alessio: Yeah, exactly.
+
+[00:54:29] Simulating different roles for training
+
+[00:54:29] Alessio: We had one episode about, uh, simulative AI, uh, Two, three weeks ago, something like that. How do you think about MPCs and like games as like, now you obviously have a lot of experience in like simulating mechanical environments, so to speak.
+
+[00:54:43] Alessio: How about more, yeah, like a language, like thinking environment, like do you see this MPCs also as a way to like simulate some of the behaviors that we want to get out of the LLMs?
+
+[00:54:53] Nyla Worker: Can you elaborate a little bit more on that? For
+
+[00:54:56] Alessio: example, like if you think about an agent that does, um, emails, you know, you kind of have like, you can test the LLM generating the text, but you cannot simulate what the outcome is going to be, but you can see like, you might have different MPC, like you have like a sales rep MPC and you have a customer MPC.
+
+[00:55:13] Alessio: And then you simulate conversations between them so that you can learn what are like objections that customers might make and things like that. You talked about the use case of the more upward facing brand, you know, what about internally? Like, do you see kind of like the digital twin of certain enterprise functions in the, in the company?
+
+[00:55:32] Nyla Worker: Yeah, what I've seen. So there are two things that I've seen there. One is we have an NPC to NPC functionality where you get to see the simulated conversation between the two NPCs. And depending on how you structure these characters minds, you could see, for example, in the case of Jean and Nova, which is the demo with NVIDIA, Gin was only versed on Raman, so he would reply purely Raman based sentences.
+
+[00:56:00] Nyla Worker: And then Nova had even the information of the latest GPUs that were shipped during CES, so she would keep speaking about GPUs and then Gin would keep speaking about Raman and mixing and matching GPU and Raman talk, which was very fun to watch, but I could imagine this being like an enterprise use case where you could put.
+
+[00:56:22] Nyla Worker: An MPC that disagrees completely with what the sales rep is doing. And then you could have a sales rep MPC and like, watch, Oh, these are the disagreements that they might have and how they may react. One of the use cases that we are used in by enterprises is for training of staff. So for example, You want to train your doctors to react to different patients and the patients might be some belligerent, some nice.
+
+[00:56:53] Nyla Worker: So you create the NPCs that have that kind of like reaction, uh, to you. But these are like the early days of like this kind of like corporate enablement training, uh, that is more realistic with like humanoids. We'll see where that heads.
+
+[00:57:07] Alessio: That sounds awesome. I think that's maybe the, not mistake, but like misunderstanding that people have when they think of NPCs.
+
+[00:57:13] Alessio: It's like video games. Uh, but it seems like most of the actual use cases are like commercial. It feels like maybe the video games market is like very consumery, but like, you know, at the end of the day, there's not that many large video game publishers, you know, that you can sell them to. So.
+
+[00:57:28] Nyla Worker: I think with gaming, I believe there is a new even way of interaction that's coming up with this AI experiences.
+
+[00:57:35] Nyla Worker: So yes, it's in gaming, But it is more like a new form of entertainment altogether of like conversation, generation, procedure, world creation, that is up and coming. So we're going to see that happening over the next couple of years. To me, that's pretty obvious, but to your point, yeah, it's true. There are very few studios and the studios have their ways of developing.
+
+[00:57:59] Nyla Worker: They are not very experimental sometimes in the sense that they don't like to try game mechanics that. Have not been tried and tested, which is why we have so much development from indies and like Convay is beloved by our developers. We're like the highest rated asset in both the Unity and Unreal asset stores by the indie developers that are exploring and coming up with incredible ideas and incredible games.
+
+[00:58:25] Nyla Worker: But yeah, we're early on the gaming journey, but I believe it's going to come. And on the other side of use cases, the commercial sets of use cases, these humanoid entities are also going to be invaluable.
+
+[00:58:37] AI Generated Fan Content - Podcasts, TV Show, Einstein
+
+[00:58:37] Alessio: What about content? I know you have made this like a AI generated podcast about AI love stories.
+
+[00:58:43] Alessio: What's like the state of the art there? Like any other interesting projects you've seen, like any learnings from, from doing that?
+
+[00:58:49] Nyla Worker: Okay. So, That podcast was primarily because I wanted to say that I was the first one to ever made an AI generated podcast. So that week chat GPT came out. I was like, Oh, this is so much better than GPT one.
+
+[00:59:03] Nyla Worker: And then I was like, wait a second. We can make the title. We can make the picture. We can generate the voice. We can do everything with AI. And then I like urgently knocked my roommate into doing this with me. And she was like, but why today? I know I was like, we have to ship it. I want that title regardless.
+
+[00:59:23] Nyla Worker: Cause I didn't want to have anything human, like not even the editing, like everything had to be generated and it worked. I mean, it's a pretty bad podcast, I'd say, but you could see how it could turn into that area of entertainment that was generated too.
+
+[00:59:39] Alessio: Yeah, I'm really curious how the models will allow the same IP to be reused in different formats.
+
+[00:59:45] Alessio: I've been watching the fallout TV show on Amazon. I've loved the fallout video games, but then like, you know, it's been like 10 years since like a new Vegas came out until they actually made a TV show about it. It'll be interesting if you had kind of like the IP owner of the model, you know, the NPCs and whatnot, and then you can like repurpose it.
+
+[01:00:03] Alessio: Oh, this is the video game. This is the TV show. This is the anime. This is the YouTube shorts version and all of that. I think there's a lot of, a lot of fan demand. You see it in the fan fiction world, you know, people just come out with new things about the same franchise, like Harry Potter, just to have more things to read.
+
+[01:00:21] Alessio: So, yeah, I'm curious what that does, especially to, uh, allowing new IP kind of to come up when you have like such as iteration of successful ones, but I don't know.
+
+[01:00:33] Nyla Worker: I think there is a lot to be done on expanding your IP. And this is a thing that really gets me excited. Like, for example, you have your game, you spend years making it.
+
+[01:00:44] Nyla Worker: Why don't you just mod it with AI to extend its lifetime forever? Right? And that is where like, I think modding could become huge with AI characters and just extending the The world, uh, the thing is obviously there is a whole IP debate that I don't want to discuss too much about because that, that infringes on like whatever is happening.
+
+[01:01:10] Nyla Worker: And there is going to be a lot of legal litigation over the next couple of years as to how that all comes together. But. I think there is going to be a very interesting future where you finally can talk with all of your favorite characters and have adventures with them and potentially if that virtual worlds become more commonplace, you could do it.
+
+[01:01:32] Nyla Worker: Interface with them. Like one of the reasons I joined Convay was because I wanted to talk with Einstein and go on a walk with him, like I did with my physics professors. Right. Of course, that is just one thing, but like, how does that world look like when you're able to create such a thing? Um, and maybe talk with my favorite science fiction character too.
+
+[01:01:54] Alessio: Especially for newer folks that have like a lot more training data out there, so to speak. I think of like, you know, Sean Carroll. Some of these folks in the, like, I would love to have on demand Shawn Carroll to just have me explain all these things. And I feel like he's read in a lot of books. He's been on a lot of podcasts, so there's like a lot of tokens out there to train it on.
+
+[01:02:14] Alessio: Um, so, but for now I just listened to, to his podcast.
+
+[01:02:19] Nyla Worker: The thing is going to be cool is that. You'll have a sanctioned entity of this person, right? Like this LLM is approved by X person. And that way, at least while you may not be talking with like Jensen, you know, you're talking with a sanctioned version of Jensen Huang.
+
+[01:02:37] Nyla Worker: So you feel more comfortable that there, that this knowledge. Is what you would be getting out of them. Cause yeah, the problem with Einstein is I have no idea if he would have sanctioned like my fake generation, right?
+
+[01:02:54] Nyla Worker: I tried, I uploaded M
+
+[01:02:56] Alessio: and
+
+[01:02:58] Nyla Worker: then we had a discussion about IAC, but it wasn't.
+
+[01:03:02] Alessio: I feel like, you know, all these kind of legendary physicists lived. In such a crazy time, you know, like the early 1900s to like the mid 1900s, it's just like, you had like two world wars, you had like all sorts of crazy things happening.
+
+[01:03:17] Alessio: You know, it's a, it will be fascinating to kind of figure out how to model that into the
+
+[01:03:24] Nyla Worker: work. I mean, honestly, those books were what got me into physics. I was like, I, I'm a good computer scientist. I did a lot of coding when I was 18, but. Just physics sounded so cool from their perspective, reading their books that I was like, okay, I'm going to try this, but sadly I will not be able to replicate some of them.
+
+[01:03:47] Alessio: Yeah, well, it's hard for anybody too. I know we kept you here a long time, but I think we covered a lot. Anything else that we missed, uh, that you want to go over or you have the audience available. So if you want to give any shout outs to anybody, any call to action, if you'd like hiring on your team, anything like that.
+
+[01:04:03] Nyla Worker: Yes, I would love if anyone is really interested in AI characters, please reach out to me. You can reach out to me on LinkedIn or my email. My personal email is [email protected]. So yeah, please reach out if you're interested in 3D characters or you are curious about synthetic data.
+
+[01:04:24] Nyla Worker: I spent a long time of my life looking at it so I can talk to you about it.
+
+[01:04:29] Alessio: Awesome Naila, this is great. Uh, thank you so much for, for coming on.
+
+[01:04:33] Nyla Worker: Okay. Take care. See you.
+
+1
+
+We previously discussed cost pressures in describing the Mixtral Price War of Dec 2023 (in the Four Wars essay). Even more recently, the price war has seen some abatement with the first price -HIKE- of the year of a full-precision model.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

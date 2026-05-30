@@ -1,0 +1,465 @@
+# The Inventors of Deep Research
+# URL: https://www.latent.space/p/gdr
+# Date: 2025-02-18
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+The Inventors of Deep Research
+
+26
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:01:57
+
+-1:01:57
+
+Audio playback is not supported on your browser. Please upgrade.
+
+The Inventors of Deep Research
+
+DeepMind's Aarush Selvan and Mukund Sridhar on creating the killer agent usecase, going from 10 blue links to fully cited reports, and building ontologies of AI use cases
+
+Feb 18, 2025
+
+26
+
+Share
+
+Transcript
+
+The free livestreams for AI Engineer Summit are now up! Please hit the bell to help us appease the algo gods. We’re also announcing a special Online Track later today.
+
+Today’s Deep Research episode is our last in our series of AIE Summit preview podcasts - thanks for following along with our OpenAI, Portkey, Pydantic, Bee, and Bret Taylor episodes, and we hope you enjoy the Summit! Catch you on livestream.
+
+April 2025 update: here’s their final talk:
+
+Everybody’s going deep now. Deep Work. Deep Learning. DeepMind. If 2025 is the Year of Agents, then the 2020s are the Decade of Deep.
+
+While “LLM-powered Search” is as old as Perplexity and SearchGPT1, and open source projects like GPTResearcher and clones like OpenDeepResearch exist, the difference with “Deep Research” products is they are both “agentic” (loosely meaning that an LLM decides the next step in a workflow, usually involving tools) and bundling custom-tuned frontier models (custom tuned o3 and Gemini 1.5 Flash).
+
+The reception to OpenAI’s Deep Research agent has been nothing short of breathless2:
+
+"Deep Research is the best public-facing AI product Google has ever released. It's like having a college-educated researcher in your pocket." - Jason Calacanis
+
+“I have had [Deep Research] write a number of ten-page papers for me, each of them outstanding. I think of the quality as comparable to having a good PhD-level research assistant, and sending that person away with a task for a week or two, or maybe more. Except Deep Research does the work in five or six minutes.” - Tyler Cowen
+
+“Deep Research is one of the best bargains in technology.” - Ben Thompson
+
+“my very approximate vibe is that it can do a single-digit percentage of all economically valuable tasks in the world, which is a wild milestone.” - sama
+
+“Using Deep Research over the past few weeks has been my own personal AGI moment. It takes 10 mins to generate accurate and thorough competitive and market research (with sources) that previously used to take me at least 3 hours.” - OAI employee
+
+“It's like a bazooka for the curious mind” - Dan Shipper
+
+“Deep research can be seen as a new interface for the internet, in addition to being an incredible agent… This paradigm will be so powerful that in the future, navigating the internet manually via a browser will be "old-school", like performing arithmetic calculations by hand.” - Jason Wei
+
+“One notable characteristic of Deep Research is its extreme patience. I think this is rapidly approaching “superhuman patience”. One realization working on this project was that intelligence and patience go really well together.” - HyungWon
+
+“I asked it to write a reference Interaction Calculus evaluator in Haskell. A few exchanges later, it gave me a complete file, including a parser, an evaluator, O(1) interactions and everything. The file compiled, and worked on my test inputs. There are some minor issues, but it is mostly correct. So, in about 30 minutes, o3 performed a job that would take me a day or so.” - Victor Taelin
+
+“Can confirm OpenAI Deep Research is quite strong. In a few minutes it did what used to take a dozen hours. The implications to knowledge work is going to be quite profound when you just ask an AI Agent to perform full tasks for you and come back with a finished result.” - Aaron Levie
+
+“Deep Research is genuinely useful” - Gary Marcus
+
+With the advent of “Deep Research” agents, we are now routinely asking models to go through 100+ websites and generate in-depth reports on any topic. The Deep Research revolution has hit the AI scene in the last 2 weeks: 
+
+Dec 11th: Gemini Deep Research (today’s guest!) rolls out with Gemini Advanced
+
+Feb 2nd: OpenAI releases Deep Research
+
+Feb 3rd: a dozen “Open Deep Research” clones launch
+
+Feb 5th: Gemini 2.0 Flash GA
+
+Feb 15th: Perplexity launches Deep Research 
+
+Feb 17th: xAI launches Deep Search
+
+In today’s episode, we welcome Aarush Selvan and Mukund Sridhar, the lead PM and tech lead for Gemini Deep Research, the originators of the entire category. We asked detailed questions from inspiration to implementation, why they had to finetune a special model for it instead of using the standard Gemini model, how to run evals for them, and how to think about the distribution of use cases. (We also have an upcoming Gemini 2 episode with our returning first guest Logan Kilpatrick so stay tuned 👀)
+
+Two Kinds of Inference Time Compute
+
+https://x.com/daniel_mac8/status/1887522961554387451?s=46
+
+In just ~2 months since NeurIPS, we’ve moved from “scaling has hit a wall, LLMs might be over” to “is this AGI already?” thanks to the releases of o1, o3, and DeepSeek R1 (see our o3 post and R1 distillation lightning pod). This new jump in capabilities is now accelerating many other applications; you might remember how “needle in a haystack” was one of the benchmarks people often referenced when looking at model’s capabilities over long context (see our 1M Llama context window ep for more). It seems that we have broken through the “wall” by scaling “inference time” in two meaningful ways — one with more time spent in the model, and the other with more tool calls.
+
+Both help build better agents which are clearly more intelligent. But as we discuss on the podcast, we are currently in a “honeymoon” period of agent products where taking more time (or tool calls, or search results) is considered good, because 1) quality is hard to evaluate and 2) we don’t know the realistic upper bound to quality. We know that they’re correlated, but we don’t know to what extent and if the correlation breaks down over extended research periods (they may not).
+
+It doesn’t take a PhD to spot the perverse incentives here.
+
+Agent UX: From Sync to Async to Hybrid
+
+We also discussed the technical challenges in moving from a synchronous “chat” paradigm to the “async” world where every agent builder needs to handroll their own orchestration framework in the background.
+
+For now, most simple, first-cut implementations including Gemini and OpenAI and Bolt tend to make “locking” async experiences — while the report is generating or the plan is being executed, you can’t continue chatting with the model or editing the plan. In this case we think the OG Agent here is Devin (now GA), which has gotten it right from the beginning.
+
+Full Episode on YouTube
+
+with demo!
+
+Show Notes
+
+Deep Research
+
+Aarush Selvan
+
+Mukund Sridhar
+
+NotebookLM episode (Raiza / Usama)
+
+Bolt
+
+Bret Taylor
+
+Chapters
+
+[00:00:00] Introductions
+
+[00:00:22] Overview + Demo of Deep Research
+
+[00:04:31] Editable chain of thought
+
+[00:08:18] Search ranking for sources
+
+[00:09:31] Can you DIY Deep Research?
+
+[00:15:52] UX and research plan editing
+
+[00:16:21] Follow-up queries and context retention
+
+[00:21:06] Evaluating Deep Research
+
+[00:28:06] Ontology of use cases and research patterns
+
+[00:32:56] User perceptions of latency in Deep Research
+
+[00:40:59] Lessons from other AI products
+
+[00:42:12] Multimodal capabilities
+
+[00:45:02] Technical challenges in Deep Research
+
+[00:51:56] Can Deep Research discover new insights?
+
+[00:54:11] Open challenges in agents
+
+[00:57:04] Wrap up
+
+Transcript
+
+Alessio [00:00:04]: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol AI.
+
+Swyx [00:00:13]: Hey, and today we're very honored to have in our studio Aarush and Mukund from the Deep Research team, the OG Deep Research team. Welcome.
+
+Aarush [00:00:20]: Thanks for having us.
+
+Swyx [00:00:22]: Yeah, thanks for making the trip up. I was fortunate enough to be one of the early beta testers of Deep Research when he came out. I would say I was very keen on, I think even at the end of last year, people were already saying it was one of the most exciting agents that was coming out of Google. You know that previously we had on Ryza and Usama from the Novoca LM team. And I think this is an increasing trend that Gemini and Google are shipping interesting user-facing products that use AI. So congrats on your success so far. Yeah, it's been great. Thanks so much for having us here. Yeah. Yeah, thanks for making the trip up. And I'm also excited for your talk that is happening next week. Obviously, we have to talk about what exactly it is, but I'll ask you towards the end. So basically, okay, you know, we have the screen up. Maybe we just start at a high level for people who don't yet know. Like, what is Deep Research? Sure. 
+
+Aarush [00:01:10]: So Deep Research is a feature where Gemini can act as your personal research assistant to help you learn about any topic that you want more deeply. It's really helpful for those queries. So you want to go from zero to 50 really fast on a new thing. And the way it works is it takes your query, browses the web for about five minutes, and then outputs a research report for you to review and ask follow-up questions. This is one of the first times, you know, something takes about five, six minutes trying to perform your research. So there's a few challenges that brings. Like, you want to make sure you're spending that time in the computer doing what the user wants. So there's some ways of the UX design that we can talk about. As we go through an example, and then there's also challenges in the browsers, the web is super fragmented and being able to plan iteratively and as, as you pass through this noisy information is a challenge by itself.
+
+Swyx [00:02:11]: Yeah. This is like the first time sort of Google automating yourself as searching, like you're, you know, you're supposed to be the experts at search, but now you're like meta-searching and like determining the search strategy.
+
+Aarush [00:02:22]: Yeah, I think, at least we see it as two different use cases. There are things that, you know, you know exactly what you're looking for and there's a search is still probably, you know, a very, you know, probably one of the best places to go. I think when deep research really shines is there like multiple facets to your question and you spend like a weekend, you know, just opening like 50, 60 tabs and many times I just give up and we wanted to solve that problem and, and give a great starting point for those kinds of journeys.
+
+Alessio [00:02:53]: Do we want to start a query so that it runs in the meantime and then we can chat over it?
+
+Swyx [00:02:58]: Okay, here's one query that, that we like, we love to test like super niche, random things, like things where there's like no Wikipedia page already about this topic or something like that, right? Because that's where you'll see the most lift from, from a feature like this. So for this one, I've come, I've come, come up with this query. This is actually Mokun's query that he's, he loves to test is help me understand how milk and meat regulations differ between the US and Europe. What's nice is the first step is actually where it puts together a research plan. That you can review. And so this is sort of its guide for how it's going to go about and carry out the research, right? And so this was like a pretty decently well-specified query, but like, let's say you came to Gemini and we're like, tell me about batteries, right? That query, you could mean so many different things. You might want to know about the like latest innovations in battery tech. You might want to know about like a specific type of battery chemistry. And if we're going to spend like five to even 10 minutes researching something, we want to one, understand. What exactly are you trying to accomplish here and to give you an opportunity, like to steer where the research goes, right? Because like, if you had an intern and you ask them this question, the first thing they do is ask you like a bunch of follow-up questions and be like, okay, so like, help me figure out exactly what you want me to do. And so the way we approached it is, we thought like, why don't we just have the model produce its first stab at the, at the research query at, at how it would break this down. And then invite the user to come and kind of engage with how they would want to steer this. Yeah.
+
+Editable chain of thought
+
+Aarush [00:04:31]: And many times when you try to use a product like this, you often don't know what questions to look for or the things to look for. So we kind of made this decision very deliberately that instead of asking the users just follow-up questions directly, we kind of lay out, hey, this is what I would do. Like, these are the different facets. For example, here it could be like what additives are allowed and how that differs or labeling. Uh, restrictions and so on in products. The aim of this is to kind of tell the user about the topic a little bit more and also get steer. At the same time, we elicit for like, uh, you know, a follow-up question and so on. So we kind of did that in a joint question.
+
+Swyx [00:05:09]: It's kind of like editable chain of thought. Right. Exactly. Exactly. Yeah. I think that, you know, we were talking to you about like your top tips for using deep research. Yeah. Your number one tip is to edit the page. Just edit it. Right. So like we actually, you can actually edit conversationally. We put in a button here just to like draw users' attention to the fact that you can edit. Oh, actually you don't need to click the button. You don't even need to click the button. Yeah. Actually, like in early rounds of testing, we saw no one was editing. And so we were just like, if we just put a button here, maybe people will like. I confess I just hit start a lot. I think like we see that too. Like most people hit start. Um, like it's like the, I'm feeling lucky. Yeah. Yeah. All right. So like I, I can just add a, add a step here and what you'll see is it should like refine the plan and show you a new thing to propose. Here we go. So it's added step seven, find information and milk and meat labeling requirements in the US and the EU, or you can just go ahead and hit start. I think it's still like a nice transparency mechanism. Even if users don't want to engage, like you still kind of know, okay, here's at least an understanding of why I'm getting the report I'm going to get, um, which is kind of nice. And then while it browses the web and Morgan, you should maybe explain kind of how it, how it browses. We show kind of the, the websites it's reading in real time. Yeah. I'll preface this with, I haven't, I forgot to explain the rules. You're a PM and you're a tech lead. Yes. Okay. Yeah.
+
+Aarush [00:06:29]: Just for people who, who don't know, we maybe should have started with that. I suppose. Yeah. Yeah. We do each other's work sometimes as well, but more or less that's the boundary. Yeah. Yeah. Um, yeah. So, so what's happening behind the scenes actually is we kind of give this research plan that is a contract and that, uh, you know, has been accepted, but then if you look at the plan, there are things that are obviously parallelizable, so the model figures out which of the sub steps that it can start exploring in parallel, and then it primarily uses like two tools. It has the ability to perform searches and it has abilities to go deeper within, you know, a particular webpage of interest, right? And oftentimes it'll start exploring things in parallel, but that's not sufficient. Many times it, it has to reason based on information found. So in this case, it, one of the searches could have led the EU commission has these additives, and it wants to go and check if the FDA does the same thing, right? So, uh, this notion of being able to read outputs from the previous turn, uh, ground on that to decide what to do next, I think was, was key. Otherwise you have like incomplete information and your report becomes a little bit of a, like a high level, uh, bullet points. So we wanted to go beyond that blueprint and actually figure out, you know, what are the key aspects here. So, yeah. So the, this happens iteratively until the model thinks it's finished. All its steps. And then we kind of entered this, uh, analysis mode and here there can be inconsistencies across sources. You kind of come up with an outline for the report, start generating a draft. The model tries to revise that by self critiquing itself, uh, you know, to find out to finalize the prompt, uh, finalize the report. And that's probably what's happening behind the scenes.
+
+Search ranking for sources
+
+Alessio [00:08:18]: What's the initial ranking of the websites? So when you first started it, there were 36. How do you decide where to start since it sounds like, you know, the initial websites kind of carry a lot of weight too, because then they inform the following. Yes.
+
+Aarush [00:08:32]: So what happens in the initial terms, again, this is not like a, it's not something we enforce. It's mostly the model making these choices. But typically we see the model exploring all the different aspects in the, in the research plan that was presented. So we kind of get like a breadth first idea of what are the different topics to explore. And in terms of which ones to double click. I think it really comes down to every time you search the model, get some idea of what the pages and then depending on what pieces of it, sometimes there's inconsistency. Sometimes there's just like partial information. Those are the ones that double clicks on and, uh, yeah, it can continually like iteratively search and browse until it feels like it's done. Yeah.
+
+Swyx [00:09:15]: I'm trying to think about how I would code this. Um, a simple question would be like, do you think that we could do this with the Gemini API? Or do you have some special access that we cannot replicate? You know, like is, if I model this with a so-called of like search, double click, whatever. Yeah.
+
+Aarush [00:09:31]: I don't think we have special access per se. It's pretty much the same model. We of course have our own, uh, post-training work that we do. And y'all can also like, you know, you can fine tune from the base model and so on. Uh, I don't know that we can do it.
+
+Swyx [00:09:45]: I don't know how to fine tuning.
+
+Aarush [00:09:47]: Well, if you use our Gemma open source models, uh, you could fine tune. Yeah. I don't think there's a special access per se, but a lot of the work for us is first defining these, oh, there needs to be a research plan and, and how do you go about presenting that? And then, uh, a bunch of post-training to make sure, you know, it's able to do this consistently well and, uh, with, with high reliability and power. Okay.
+
+Swyx [00:10:09]: So, so 1.5 pro with deep research is a special edition of 1.5 pro. Yes.
+
+Aarush [00:10:14]: Right.
+
+Swyx [00:10:14]: So it's not pure 1.5 pro. It's, it's, it's, it's a post-training version. This also explains why you haven't just, you can't just toggle on 2.0 flash and just, yeah. Right. Yeah. But I mean, I, I assume you have the data and you know, it's should be doable. Yup. There's still this like question of ranking. Yeah. Right. And like, oh, it looks like you're, you're already done. Yeah. Yeah. We're done. Okay. We can look at it. Yeah. So let's see. It's put together this report and what it's done is it's sort of broken, started with like milk regulation and then it looks like it goes into meat probably further down and then sort of covering how the U.S. approaches this problem of like how to regulate milk. Comparing and then, you know, covering the EU and then, yeah, like I said, like going into the meat production and then it'll also, what's nice is it kind of reasons over like why are there differences? And I think what's really cool here is like, it's, it's showing that there's like a difference in philosophy between how the U.S. and the EU regulate food. So the EU like adopts a precautionary approach. So even if there's inconclusive scientific evidence about something, it's still going to prefer to like ban it. Whereas the U.S. takes sort of the reactive approach where it's like allowing things until they can be proven to be harmful. Right. So like, this is kind of nice is that you, you also like get the second order insights from what it's being put, what it's putting together. So yeah, it's, it's kind of nice. It takes a few minutes to read and like understand everything, which makes for like a quiet period doing a podcast, I suppose. But yeah, this is, this is kind of how it, how it looks right now. Yeah.
+
+Alessio [00:11:47]: And then from here you can kind of keep the usual chat and iterate. So this is more, if you were to like, you know, compared to other platforms, it's kind of like a Anthropic Artifact or like a ChatGPT canvas where like you have the document on one side and like the chat on the other and you're working on it.
+
+Aarush: [00:12:04]: Yeah. This is something we thought a bit about. And one of the things we feel is like your learning journey shouldn't just stop after the first report. And so actually what you probably want to do is while reading, be able to ask follow-up questions without having to scroll back and forth. And there's like broadly. A few different kinds of follow-up questions. One type is like, maybe there's like a factoid that you want that isn't in here, but it's probably been already captured as part of the web browsing that it did. Right. So we actually keep everything in context, like all the sites that it's read remain in context. So if there's a piece of missing information, it can just fetch that. Then another kind is like, okay, this is nice, but you actually want to kick off more deep research. Or like, I also want to compare the EU and Asia. Let's say in how they regulate milk and meat for that. You'd actually want the model to be like, okay, this is sufficiently different that I want to go do more deep research to answer this question. I won't find this information in what I've already browsed. And the third is actually, maybe you just want to like change the report. Like maybe you want to like condense it, remove sections, add sections, and actually like iterate on the report that you got. So we broadly are basically trying to teach the model to be able to do all three and the kind of side-by-side format allows sort of for the user to do that more easily. Yeah.
+
+Alessio [00:13:24]: So as a PM, there's a open in docs button there, right? Yeah. How do you think about what you're supposed to build in here versus kind of sounds like the condensing and things should be a Google docs. Yeah.
+
+Aarush [00:13:35]: It's just like an amazing editor. Like sometimes you just want to direct edit things and now Google docs also has Gemini in the side panel. So the more we can kind of help this be part of your workflow throughout the rest of the Google ecosystem, the better, right? Like, and one thing that we've noticed is people really like that button and really like exporting it. It's also a nice way to just save it permanently. And when you do export all the citations, and in fact, I can just run it now, carry over, which is also really nice. Gemini extensions is a different feature. So that is really around Gemini being able to fetch content from other Google services in order to inform the answer. So that was actually the first feature that we both worked on on the team as well. It was actually building extensions in Gemini. And so I think right now we have a bunch of different Google apps as well as I think Spotify and a couple, I don't know if we have, and Samsung apps as well. Who wants Spotify? I have this whole thing about like who wants Spotify? Who wants that in their deep research? In deep research, I think less, but like the interesting thing is like we built extensions and we didn't, we weren't really sure how people were going to use it. And a ton of people are doing really creative things with them. And a ton of people are just doing things that they loved on the Google assistant. And Spotify is like a huge, like playing music on the go was like a huge, a huge value. Oh, it controls Spotify? Yeah. It's not deep research. For deep research. Yeah. Purely use. Yeah. But this is search. Otherwise, yeah. Like you can, you can have Gemini go. Yeah. You have YouTube maps and search for flash thinking experimental with apps. The newest. Yeah. Longest model name that has been launched. But like, yeah, I think Gmail is obvious one. Yeah. The calendar is obvious one. Exactly. Those I want. Yeah. Spotify. Yeah. Fair enough. Yeah. And obviously feel free to dive in on your other work. I know you're, you're not just doing deep research, right? But you know, we're just kind of focusing on, on deep research here. I actually have asked for modifications after this first run where I was like, oh, you, you stopped. Like, I actually want you to keep going. Like what about these other things? And then continue to modify it. So it really felt like a little bit of a co-pilot type experience, but more like an experience. Yeah, we're just that much more than an agent that would be research. I thought it was pretty cool.
+
+UX and research plan editing
+
+Aarush [00:15:52]: Yeah. One of the challenges is currently we kind of let the model decide based on your query amongst the three categories. So some, there is, there is a boundary there. Like some of these things, depending on how deep you want to go, you might just want to quite g thermometer versus like kick off another deeper search. And even from a UX perspective, I think the, the panel allows for this notion of, you know, not every fall up is going to take you. Like five minutes. Right.
+
+Swyx [00:16:17]: Right now, it doesn't do any follow-up. Does it do follow-up search? It always does?
+
+Aarush [00:16:21]: It depends on your question. Since we have the liberty of really long context models, we actually hold all the research material across dance. So if it's able to find the answer in things that it's found, you're going to get a faster reply. Yeah. Otherwise, it's just going to go back to planning.
+
+Swyx [00:16:38]: Yeah, yeah. A bit of a follow-up on the, since you brought up context, I had two questions. One, do you have a HTML to markdown transform step? Or do you just consume raw HTML? There's no way you consume raw HTML, right?
+
+Aarush [00:16:50]: We have both versions, right? So there is, the models are getting, like every generation of models are getting much better at native understanding of these representations. I think the markdown step definitely helps in terms of, you know, there's a lot of noise, like as you can imagine with the pure HTML. JavaScript, WinCSS. Exactly. So yeah, when it makes sense to do it, we don't artificially try to make it hard for the model. But sometimes it depends on the kind of access of what we get as well. Like, for example, if there's an embedded snippet that's HTML, we want the model to, you know, to be able to work on that as well.
+
+Swyx [00:17:27]: And no vision yet, but. Currently no vision, yes. The reason I ask all these things is because I've done the same. Got it. Like I haven't done vision.
+
+Aarush [00:17:36]: Yeah. So the tricky thing about vision is I think the models are getting significantly better, especially if you look at the last six months, natively being able to do like VQA stuff, and so on. But the challenge is the trade-off between having to, you know, actually render it and so on. The gap, the trade-off between the added latency versus the value add you get.
+
+Swyx [00:17:57]: You have a latency budget of minutes. Yeah, yeah, yeah.
+
+Aarush [00:18:01]: It's true. In my opinion, the places you'll see a real difference is like, I don't know, a small part of the tail, especially in like this kind of an open domain setting. If you just look at what people ask, there's definitely some use cases where it makes a lot of sense. But I still feel it's not in the head cases. And we'll do it when we get there.
+
+Swyx [00:18:23]: The classic is like, it's a JPEG that has some important information and you can't touch it. Okay. And then the other technical follow-up was just, you have 1 million to 2 million token context. Has it ever exceeded 2 million? And what do you do there? Yeah.
+
+Aarush [00:18:39]: So we had this challenge sometime last year where we said, when we started like wiring up this multi-turn, where we said, hey, we're going to do this. Hey, let's see how long somebody in the team can take DR, you know? Yeah.
+
+Swyx [00:18:51]: What's the most challenging question you can ask that takes the longest? Yeah. No, we also keep asking follow-ups.
+
+Aarush [00:18:55]: Like for example, here you could say, hey, I also want to compare it with like how it's Okay.
+
+Swyx [00:19:00]: So you're guaranteed to bust it. Yeah.
+
+Aarush [00:19:02]: Yeah. We also have, we have retrieval mechanisms if required. So we natively try to use the context as much as it's available beyond which, you know, we have like a rack set up to figure. Okay.
+
+Alessio [00:19:16]: This is all in-house, in-house tech. Yes. Okay.
+
+Aarush [00:19:19]: Yes.
+
+Alessio [00:19:19]: What are some of the differences between putting things in context versus rag? And when I was in Singapore, I went to the Google cloud team and they talk about Gemini plus grounding is Gemini plus search kind of like Gemini plus grounding or like, how should people think about the different shades of like, I'm doing retrieval and data versus I'm using deep research versus I'm using grounding. Sometimes the labels can be different. Sometimes it can be hard too.
+
+Aarush [00:19:46]: Yeah. I can, let me try to answer the first part of the question. Uh, the, the second part, I'm not fully sure of, of the grounding offering. So, uh, uh, when I can at least, at least talk about the first part of the question. So I think, uh, you're asking like the difference between like being able to, when you, when would you do a rag versus rely on the long contact?
+
+Alessio [00:20:06]: I think we all, we all get that. I was more curious, like from a product perspective, when you decide to do a rag versus shit like this, you didn't need to, you know? Yeah. Do you get better performance just putting everything in context or?
+
+Aarush [00:20:18]: So the tricky thing for rag, it really works well because a lot of these things are doing like cosine distance, like a dot product kind of a thing. And that kind of gets challenging when your query side has multiple different attributes. Uh, the dot product doesn't really work as well. I would say, at least for me, that's, that's my guiding principle on, uh, when to avoid rag. That's one. The second one is, I think every generation. Of these models are, uh, like the initial generations, even though they offered like long context, that performance as the context kept growing was, you would see some kind of a decline, but I think, uh, as the newer generation models came out, uh, they were really good. Even if you kept filling in the context in being able to piece out, uh, like these really fine-grained information.
+
+Evaluating Deep Research
+
+Swyx [00:21:06]: So I think these two, at least for me, are like guiding principles on when to. Just to add to that. I think like, just like a simple rule of thumb that we use. Is like, if it's the most recent set of research tasks where the user is likely to ask lots of follow-up questions that should be in context, but like as stuff gets 10 tasks ago, you know, it's fine. If that stuff is in rag, because it's less likely that the user needs to do, you need to do like very complex comparisons between what's currently being discussed and the stuff that you asked about, you know, 10 turns ago. Right. So that's just like a, a very, like the rule of thumb that we follow. Yeah.
+
+Alessio [00:21:44]: So from a user perspective, is it better to just start a new research instead of like extending the context? Yeah.
+
+Aarush [00:21:50]: I think that's a good question. I think if it's a related topic, I think there's benefit to continue with this thread, uh, because you could, the model, since it has this in memory could figure out, oh, I've found this niche thing, uh, about, uh, I don't know, milk regulation in this case in the U S let me check if you're in a follow-up country or place also has something like that. So these kinds of things you might have not caught up. But if you start a new thread. So I think it really depends on, on the use case, if there's a natural progression, uh, and you feel like this is like part of one cohesive kind of a project, you should just continue using it. My follow-up is going to be like, oh, I'm just going to look for summer camps or something then. Yeah. I don't think it should make a difference, but we haven't really, uh, you know, pushed that to, uh, and, and, and tested that, that aspect of it for us. Most of our tests are like more natural transitions. Yeah.
+
+Swyx [00:22:40]: How do you eval deep research? Oh boy.
+
+Aarush [00:22:43]: Uh, yeah. This is a hard one. I think the entropy of the output space is so high, like it's, uh, like people love auto raters, but it brings its own, own, own set of, uh, challenges. And so for us, we have some metrics that we can auto generate, right? So for example, as we move, uh, when we do post-training and have multiple, uh, models, we kind of want to make sure, uh, the distribution of like certain stats, like for example, how long is spent on planning? How many, how many iterative steps it does on like some dev set, if you see large changes in distribution, that's, that's kind of like a early, uh, signal of, of something has changed. It could be for better or worse. Uh, so we have some metrics like that, that we can auto compute. So every time you have a new version, you run it across a test suite of cases and you see how long it takes. Yeah. So we have like a dev set and we have like some kind of automatic metrics that we can detect in terms of like the behavior end to end. Like for example, how long is the research plan? Do we, do we have like a, do we have like a, do we have like a, do we have like a, do we have like a new model is like a new model, produce really longer, many more steps, number of characters, like number of steps in case of the plan in the plans, it could be like, like we spoke about how it iteratively plans based on like previous searches, how many steps does that go on an average or some dev set. So there are some things like this you can automate, but beyond that, there are all generators, but we definitely do a lot of human evals and that we have defined with product about certain things we care about. I've been super opinionated about, is it comprehensive, is it complete, like groundedness and these kind of things. So it's a mix of these two attributes. There's another challenge, but I'll...
+
+Swyx [00:24:26]: Is this where, the other challenge in that, sometimes you just have to have your PM review examples. Yeah, exactly.
+
+Aarush [00:24:34]: Yeah, and for latency... So you're the human reader. But broadly, what we tried to do is, for the eval question, is like, we tried to think about like, what are all the ways in which a person might use a feature like this? And we came up with what we call an ontology of use cases. Yes. And really what we tried to do is like, stay away from like verticals, like travel or shopping and things like that. But really try and go into like, what is the underlying research behavior type that a person is doing? So... Yeah. There's queries on one end that are just, you're going very broad, but shallow, right? Things like, shopping queries are an example of that, or like, I want to find the perfect summer camp, my kids love soccer and tennis. And really, you just want to find as many different options and explore all the different options that are available, and then synthesize, okay, what's the TLDR about each one? Kind of like those journeys where you open many, many Chrome tabs, but then like, need to take notes somewhere of the stuff that's appealing. On the other end of the spectrum... You know, you've got like, a specific topic, and you just want to go super deep on that and really, really understand that. And there's like, all sorts of points in the middle, right? Around like, okay, I have a few options, but I want to compare them, or like, yeah, I want to go not super deep on a topic, but I want to cover a slightly, slightly more topics. And so we sort of developed this ontology of different research patterns, and then for each one came up with queries that would fall within that, and then that's sort of the eval set, by way of saying, okay, what's the TLDR about each one? Which we then run human evals on, and make sure we're kind of doing well across the board on all of those. Yeah, you mentioned three things. Is it literally three, or is it three out of like, 20 things? How wide is the ontology? I basically just told the... The full set? Yeah, I told, no, no, no, I told you the like, extremes, right? Extremes, okay. Yeah, and then we had like, several midpoints. So basically, yeah, going from like, something super broad and shallow to something very specific and deep. We weren't actually sure which end of the spectrum users are going to really resonate with. And then on top of that, you have compounds of those, right? So you can have things where you want to make a plan, right? Like, a great one is like, I want to plan a wedding in, you know, Lisbon, and I, you know, I need you to help with like, these 10 things, right? And so... Oh, that becomes like a project with research enabled... Right. And so then it needs to research planners, and venues, and catering, right? And so there's sort of compounds of when you start combining these different underlying ontology types. And so that, we also thought about that when we... When we tried to put together our eval set. 
+
+Swyx: What's the maximum conversation length that you allow or design for? 
+
+Aarush: We don't have any hard limits on the... How many turns you can do. One thing I will say is most users don't go very deep right now. Yeah. It might just be that it takes a while to get comfortable. And then over time, you start pushing it further and further. But like, right now, we don't see a ton of users. I think the way that you visually present it suggests that you stop when the doc is created. Right. So you don't... You don't actually really encourage... The UI doesn't encourage ongoing chats as though it was like a project. Right. I think there's definitely some things we can do on the UX side to basically invite the user to be like, Hey, this is the starting point. Now let's keep going together. Like, where else would you like to explore? So I think there's definitely some explorations we could do there. I think the... In terms of sort of how deep... I don't know. We've seen people internally just really push this thing. Yeah. To quite...
+
+Ontology of use cases and research patterns
+
+Aarush [00:28:06]: I think the other thing I think will change with time is people kind of uncovering different ways to use deep research as well. Like for the wedding planning thing, for example. It's not one of the, you know, first thing that comes to mind when we tell people about this product. So that's another thing I think as people explore and find that this can do these various different kinds of things. Some of this can naturally lead to longer conversations. And even for us, right? When we dogfooded this, we saw people use it in, like, ways we hadn't really thought of before. So that was because this was, like, a little new. Like, we didn't know, like, will users wait for five minutes? What kind of tasks will... Are they, you know, going to try for something like that takes five minutes? So our primary goal was not to specialize in a particular vertical or target one type of user. We just wanted to put this in the hands of, like... Like, we had, like... This busy parent persona and, like, various different user profiles and see, like, what people try to use it for and learn more from that.
+
+Alessio [00:29:11]: And how does the ontology of the DR use case tie back to, like, the Google main product use cases? So you mentioned shopping as one ontology, right? There's also Google Shopping. Yeah. To me, this sounds like a much better way to do shopping than going on Google Shopping and looking at the wall of items. How do you collaborate internally to figure out where AI goes?
+
+Swyx [00:29:32]: Yeah, that's a great question. So when I meant, like, shopping, I sort of tried to boil down underneath what exactly is the behavior. And that's really around, like, I called it, like, options exploration. Like, you just want to be able to see. And whether you're shopping for summer camps or shopping for a product or shopping for, like, scholarship opportunities, it's sort of the same action of just, like, I need to curate from a large... Like, I need to sift through a lot of information to curate a bunch of options for me. So that's kind of what we tried to distill down rather than, like, thinking about it. It was a vertical. But yeah, Google Search is, like, awesome if you want to have really fast answers. You've got high intent for, like, I know exactly what I want. And you want, like, super up-to-date information, right? And I still do kind of like Google Shop because it's, like, multimodal. You see the best prices and stuff like that. I think creating a good shopping experience is hard, especially, like, when you need to look at the thing. If I'm shopping for shoes and, like, I don't want to use deep research because I want... I don't want to look at how the shoes look. But if I'm shopping for, like, HVAC systems, great. Like, I don't care how it looks or I don't even know what it's supposed to look like. And I'm fine using deep research because I really want to understand the specs and, like, how exactly does this work and the voltage rating and stuff like that, right? So, like, and I need to also look at contractors who know how to install each HVAC system. So I would say, like, where we really shine when it comes to shopping is those... That kind of end of the spectrum of, like, it's more complex and it matters less what it... Like, it's maybe less on the consumery side of shopping. One thing I've also observed just about the, I guess, the metrics or, like, the communication of what value you provide. And also this goes into the latency budget, is that I think there's a perverse incentive for research agents to take longer and be perceived to be better. People are like, oh, you're searching, like, 70 websites for me, you know, but, like, 30 of them are irrelevant, you know? Like, I feel like right now we're in kind of a honeymoon phase where you get a pass for all this. But being inefficient is actually good for you because, you know, people just care about quantity and not quality, right? So they're like, oh, this thing took an hour for me, like, it's doing so much work, like, or it's slow. That was super counterintuitive for us. So actually, the first time I realized that, what you're saying is when I was talking to Jason Calacanis and he was like, do you actually just make the answer in 10 seconds and just make me wait for the balance? Yeah. Which we hadn't expected. That people would actually value the, like, work that it's putting in because... You were actually worried about it. We were really worried about it. We were like, I remember, we actually built two versions of deep research. We had, like, a hardcore mode that takes, like, 15 minutes. And then what we actually shipped is a thing that takes five minutes. And I even went to Eng and I was like, there has to be a hard stop, by the way. It can never take more than 10 minutes. Yep. Because I think at that point, like, users will just drop off. Nope. But what's been surprising is, like, that's not the case at all. And it's been going the other way. Because when we worked on Assistant, at least, and other Google products, the metric has always been, if you improve latency, like, all the other metrics go up. Like, satisfaction goes up, retention goes up, all of that, right? And so when we pitch this, it's like, hold on. In contrast to, like, all Google orthodoxy, we're actually going to slow everything right down. And we're going to hope that, like, users still stay... Not on purpose.
+
+User perceptions of latency in Deep Research
+
+Aarush [00:32:56]: Not on purpose. Yeah, I think it comes down to the trade-off. Like, what are you getting in return? For the wait. And from an engineering-slash-modeling perspective, it's just trading off entrance, compute, and time to do two things, right? Either to explore more, to be, like, more complete, or to verify more on things that you probably know already. And since it's like a spectrum, and we don't claim to have found the perfect spot, we had to start somewhere. And we're trying to see where... Like, there's probably some cases where you actually care about verifying more. More than the others. In an ideal world, based on the query and conversation history, you know what that is. So I think, yeah, it basically boils down to these three things. From a user perspective, am I getting the right value add? From an engineering-slash-modeling perspective, are we using the compute to either explore effectively and also verify and go in-depth for things that are vague or uncertain in the initial steps? The other point about the more number of websites, I think, again, it comes down to the number of websites. Sometimes you want to explore more early on before you kind of narrow down on either the sources or the topics you want to go deep. So that's one of the... If you look at, like, the way, at least for most queries, the way deep research works here is initially it'll go broad. If you look at the kinds of websites, it's time to explore all the different topics that we measured in the research plan. And then you would see choices of websites getting a little bit narrower on a particular topic or a particular topic. So that's roughly how the number kind of fluctuates. So we don't do anything deliberate to either keep it low or, you know, try to...
+
+Swyx [00:34:44]: Would it be interesting to have an explicit toggle for amount of verification versus amount of search? I think so. I think, like, users would always just hit that toggle. I worry that, like... Max everything. Yeah, if you, like, give a max power button, users will always... You're just going to hit that button, right? So then the question comes, like, why don't you just decide from the product POV, where's the right balance? OpenAI has a preview of this, like... I think it's either Anthropic or OpenAI, and there's a preview of this model routing feature where you can choose intelligence, cheapness, and speed. But then they're all zero to one values. So then you just choose one for everything. Obviously, they're going to, like, do a normalization thing. But users are always going to want one, right?
+
+Aarush [00:35:30]: We've discussed this a bit. Like, if I wear my pure user hat, I don't want to say anything. Like, I come with a query, you figure it out. Like, sometimes I feel like there will be, based on the query... Like, for example, right? If I'm asking about, hey, how does rising rates from the Fed house old income for a middle class? And how has it traditionally happened? These kind of things, you want to be very accurate. And you want to be very precise on historical trends of this, and so on, and so on. Whereas there is... There's a little bit more leeway when you're saying, hey, I'm trying to find businesses near me to go celebrate my birthday or something like that. So in an ideal world, we kind of figure that trade-off based on the conversation history and the topic. I don't think we're there yet as a research community. And it's an interesting challenge by itself.
+
+Swyx [00:36:20]: So this reminds me a little bit of the notebook LM approach. Raiza, who also asked this thing to Raiza, and she was like, yeah, just people want to click a button and see magic. Yeah. Like you said, you just hit start every time, right? You don't, most people don't even want to add up the plan. So, okay. My feedback on this, if you want feedback, is that I am still kind of a champion for Devin. In a sense that Devin will show you the plan while it's working the plan. And you can say like, hey, the plan is wrong. And I can chat with it while it's still working. And you live update the plan and then pick off the next item on the plan. I think it's static, right? Like while you're working on a plan, I cannot chat. It's just normal. Bolt also has this, like, you know, that's the most default experience, but I think you should never lock the chat. You should always be able to chat with the plan and update the plan and the plan scheduler, whatever orchestration system you have under the hood should just pick off the next job on the list. That'll be my two cents. Especially if we spend more time researching, right? Cause like right now, if you watch that query we just did, it was done within a few minutes. So your chance, your opportunity to chime in was actually like, or it left the research phase after a few minutes. So your opportunity to chime in. To chime in and steer was less, but especially imagine you could imagine a world where these things take an hour, right? And you're doing something really complicated. Then yeah, like your intern would totally come check in with you. Be like, here's what I found. Here's like some hiccups I'm running into the plan. Give me some steer on how to change that or how to change direction. And you would, you would do that with them. So I totally would see, especially as these tasks get longer, we actually want the user to come engage way more to like create a good output. I guess Devin had to do this because some of these jobs like take hours. Right. So, yeah. And it's pervasive since it's where they charge by hour. Oh, so they make more money, the slower they are. Interesting. Have we thought about that before?
+
+Swyx [00:38:14]: I'm calling this out because everyone is like, oh my God, it takes hours for, it does hours of work autonomously for me. And then they are like, okay, it's good. But like, this is a honeymoon phase. Like at some point we're going to say like, okay, but you know, it's very slow.
+
+Swyx [00:38:29]: Yeah. Anything else? Anything else that like, I mean, obviously within Google, you have a lot of other initiatives, you, I'm sure you like sit close to the Nopal Galem team in any learnings that are coming from shipping AI products in general. They're really awesome people. Like they're really nice, friendly thought, just like as people, I'm sure you met them, you like realize this with Razer and stuff. So like, they've actually been really, really cool collaborators or just like people to bounce ideas off. I think one thing I found really inspiring is they just picked a problem and hindsight's 2020. But like in advance, just like, Hey, we just want to build like the perfect IDE for you to do work and like be able to upload documents and ask questions about it and just make that really, really good. And I think we were definitely really inspired by their ability, their vision of just like, let's pick up a simple problem, really go after it, do it really, really well and have be opinionated about how it should work and just hope that users also resonate with that. And that's definitely something that we tried to learn from separately. They've also been really good at, you know, and maybe more. If you want to chime in here, just extracting the most out of Gemini 1.5 Pro, and they were really friendly about just like sharing their ideas about how to do that.
+
+Aarush [00:39:38]: Yeah, I think, I think you, you, you learn a bit, like when you're trying to do the last, last mile off of these products and, and, and, and pitfalls of, of any, any given model and so on. So, yeah, we definitely have a healthy relationship and, and, and share notes and like you're doing the same for other, other products.
+
+Swyx [00:39:54]: You'll never merge, right? It's just different teams. They are different teams. So they're in like labs as an organization that. So the mission of that is to really explore kind of different bets and, and explore what's possible. Even though I think there's a paid plan for Nopal Galem now. Yeah. So I think, and it's the same plan as us actually. So it's like, it's more than just the labs is what I'm saying. It's more than just labs. Cause I mean, yeah, ideally you want things to graduate and into, and stick around, but hopefully one thing we've done is, uh, like not created different skews, but just being like, Hey, if you pay the AI premium school, yeah, whatever. You get, you get everything, everything.
+
+Alessio [00:40:30]: What about learning from others? Obviously, I mean, open AI is deep research literally as the same name. I'm sure. Yeah. I'm sure there's a lot of, you know, contention. Is there anything you've learned from other people trying to build similar tools? Like, do you have opinions on maybe what people are getting wrong that they should do differently? It seems like from the outside, a lot of these products look the same. Ask for a research, get back a research, but obviously when you're building them, you understand the nuances a lot more.
+
+Lessons from other AI products
+
+Aarush [00:40:59]: When we built deep research, I think there was a few things that we took a few different bets, uh, around how this, how it should work. And what's nice is some of that is actually where we feel like was the right way to go. So we felt like agents should be transparent around telling you upfront, especially if they're going to take some time, what they're going to do. So that's really where that research plan, we showed that in a card, we really wanted to be very publisher forward in this product. So while it's browsing, we wanted to show you like all the websites. It's reading in real time, make it super easy for you to like double-click into those while it's browsing. And the third thing is, you know, putting it into a side-by-side artifacts so that you could ideally easy for you to read and ask at the same time. And what's nice is you kind of, as other products come around, you see some of these ideas also appearing in, in other iterations of this product. So I definitely see this as a space where like everyone in the industry is learning from each other, good ideas get reproduced and built upon. And so, yeah, we'll, we'll definitely keep iterating. And, and kind of following our users and seeing, seeing how we can make, make our future better. But yeah, I think, I think like it's, it's like, this is the way the industry works is like, everyone's going to kind of see good ideas and want to replicate and build off of it.
+
+Alessio [00:42:12]: And on the model side, OpenAI is the O3 model, which is not available through the API, the full one. Have you tried already with the two model? Like, is it a big jump or is a lot of the work on the post-training?
+
+Aarush [00:42:25]: Yeah, I would say stay tuned. Definitely. It currently is running on, on 1.5, the, the new generation models, especially with these thinking models, they unlock a few things. So I think one is obviously the better capability in like analytical thinking, like in math, coding, and these type of things, but also this notion of, you know, as they produce thoughts and think before taking actions, they kind of inherently have this notion of being able to critique them, the partial steps that they take and so on. So yeah, we definitely expect that. And then there is a little bit of the, the interesting part, and the interesting thing with we're exploring multiple different options to make better value for the, for our users as we, as we treat.
+
+Swyx [00:43:03]: I feel like there's a little bit of a conflation of inference time compute here in a sense of like, one, you can infer算 compute with the model, the thinking model. And then two, you can infersin compute by searching and reasoning. I wonder if there that gets in the way, like when you presumably, you've tested thinking, plus deep research, if the thinking actually does a little bit of verification. And then there's a little bit of thinking, plus deep research. Maybe it saves you some time or it like tries to draw too much from its internal knowledge and then therefore searches less, you know, like does it step on each other?
+
+Aarush [00:43:36]: Yeah, no, I think that's a, that's a really nice call out. And this also goes back to the kind of use case. The reason I bring that up is there are certain things that I can tell you from model memory last year, the Fed did X number of updates and so on. But unless I sourced it, it's going to be hallucinated. Yeah, like one is the hallucination or even if I got it right, as a user, I'd be very wary of that number unless I'm able to like source the .gov website for it and so on. Right. So that's another challenge. Like, there are things that you might not optimally spend time verifying, even though the models like, like, this is a very common fact the model already knows and it's able to like reason over and balancing that out between trying to leverage the model memory versus being able to ground this in, is in, you know, some kind of a source is the challenging part. And I think as, as like you rightly called out with the thinking models, this is even more pronounced because the models know more, they're able to like draw second order insights more just by reasoning over.
+
+Swyx [00:44:44]: Technically, they don't know more, they just use their internal knowledge more. Right?
+
+Aarush [00:44:48]: Yes, but also like, for example, things like math.
+
+Swyx [00:44:52]: I see, they've been, they've been post trained to do better math.
+
+Aarush [00:44:55]: Yeah, I think they just, they probably do way better job and in, like in, in that, so in that sense, they.
+
+Technical challenges in Deep Research
+
+Swyx [00:45:02]: Yeah, I mean, obviously reasoning is a topic of huge interest and people want to know what a engineering best practice is. Like, we think we know, like, you know, how to prompt them better, but engineering with them, I think also very, very unknown. Again, you guys are going to be the first to figure it out.
+
+Aarush [00:45:19]: Yeah, definitely interesting times and yeah. No pressure, Mokka. If you have tips, let us know.
+
+Swyx [00:45:25]: While we're on the sort of technical, elements and technical bend, I'm interested in like other parts of the deep research tech stack that might be worth calling out. Any hard problems that you solved just more generally?
+
+Aarush [00:45:37]: Yeah, I think the iterative planning one to do it in a generalizable way. Yeah, that was the thing I was most wary about. Like, you don't want to go down the route of being able to teach how to plan iteratively per domain or like per type of problem. Like, like even in the outgoing back to the ontology, if, if you had to teach them all. For every single type of ontology, how to come up with these traces of planning, that would have been a nightmarish. So trying to do that in a super data efficient way by, you know, leveraging a lot of like things, model memory, as well as like, there's this very tricky balance when you work on like, on the product side of any of these models is knowing how to post in it just enough without losing things that it knows in pre training, basically not overfitting in the most trivial sense, I guess. But yeah, so the techniques, their data augmentations there and multiple experiments to tune this trade off. I think that's, that's one of the challenges. Yeah.
+
+Swyx [00:46:37]: On the orchestration side, this is basically you're spinning up a job. I'm an orchestration nerd. So how do you do that?
+
+Aarush [00:46:43]: Is like a sub internal tool? Yeah, so we built this asynchronous platform for deep research, which is basically to like most of our interactions before this were like sync in nature. Like, yeah. Yeah.
+
+Swyx [00:46:56]: All the chat things are sync, right? Exactly. And now, now you can leave the chat and come back. Exactly.
+
+Aarush [00:47:01]: And close your computer. And now it's on Android and rolling out on iOS.
+
+Mukund [00:47:06]: So I saw you say that.
+
+Swyx [00:47:10]: I told you we switch it on sometimes. Okay.
+
+Mukund [00:47:13]: Like you're reminding him, right?
+
+Swyx [00:47:14]: Yeah, we wrapped on all Android phones and then iOS is this week. But yeah, what's, what's neat though, is like, you can close your computer, get a notification on your phone. Right. And so on. So it's some kind of e-sync engine that you made.
+
+Aarush [00:47:29]: Yes, yes. So we, the other one is this notion of synchronicity and the user able to leave. But also if you're, if you build like five, six minute jobs, they're bound to be like failures and you don't want to like lose your progress and so on. So this notion of like keeping state, knowing what to retry and kind of keep the journey going. Is there a public name for this or just some internal thing?
+
+Swyx [00:47:52]: No, I don't think there's a public name for this.
+
+Aarush [00:47:54]: Yeah.
+
+Swyx [00:47:54]: All right. Data scientists would be like, this is a Spark job or, you know, it's like a Wraith, you know, thing or whatever in the old Google days might be like MapReduce or, you know, whatever, but like it's, it's a different scale and nature of work than those things. So we just, I'm trying to find a name for this. And right now, this is our opportunity to name it. We can name it now. The classic name is I used to work in this area. This is what I'm asking. So it's, it's workflows. Nice. Yeah. Sort of durable workflows.
+
+Aarush [00:48:24]: Like back when you were in AWS. Temporal.
+
+Swyx [00:48:26]: So Apache Airflow, Temporal. You guys were both at Amazon, by the way. Yeah. AWS Step Functions would be one of those where you define a graph of execution, but Step Functions are more static and would not be as able to accommodate deep research style backends. What's neat though, is we built this to be like quite flexible. So it's like, you can imagine once you start doing hour or multi-day jobs. Yeah. You have to model what the agent wants to do. Exactly. And, but also like ensure like it's stable, you know, for, for me. Like hundreds of LLM calls. Yeah. It's boring, but like, you know, this is the thing that makes it run autonomously, you know? Right. Yeah. So like it's, yeah. Anyway, I'm excited about it. Just to close up the opening eye thing. I would say opening eye easily beat you on marketing. And I think it's because you don't launch your benchmarks. And my question to you is, should you care about benchmarks? Should you care about humanities last exam or not MMLU, but whatever. The like, I think benchmarks are great. Yeah. The thing we wanted to avoid is like the day Kobe Bryant entered the league, who was the president's nephew and like weird, like He's a big Kobe fan. Okay. Just like these like weird things that like nobody talks that way. So like, why would we over-solve for like some sort of a benchmark that doesn't necessarily represent the product experience we want to build. Nevertheless, like benchmarks are great for the industry and like rally a community and help us like understand where we're at. I don't know. Do you have any?
+
+Aarush [00:49:51]: No, I think you kind of hit the points. I think the, for us, our primary goal is like solving the deep research user value for the user use case. The benchmarks, at least the ones that we are seeing, they don't directly translate to the product. There's definitely some technical challenges that you can benchmark against, but they don't really like if I do great on HLE, that doesn't really mean I'm a great deep researcher. So we want to avoid that. We want to avoid going into that rabbit hole a bit. But we also feel like, yeah, benchmarks are great, especially in the whole gen AI space with like models coming every other day and everybody claiming to be like soda. So it's tricky. The other big challenge with benchmarks, especially when it comes to like the models these days, is the output space entropy is like everything is like a text. And so there's a notion of verifying even if you got the right answer, different labs do it in like different ways. And, but we all come back to it. We all compare numbers. So there's a lot of, you know, art slash figuring out like how you verify this or how you run this in a level plane. But yeah, so I think the straight offs is definitely value to doing benchmarks.
+
+Swyx [00:51:05]: But at the same time, we also like a selfish PM perspective. Benchmarks are a really great way to motivate researchers. Like make number go up. Exactly. Or just like prove you're the best. Like it's like a really good way of like rallying the researchers within your company. Like I used to work on the MLPerf benchmarks and like that was like, yeah, you'd put like a bunch of engineers in a room and in a few days they do like amazing performance improvements on our TPU stack and things like that. Right. So just like having a competitive nature and a pressure like really motivates people. There's one benchmark that is impossible to benchmark, but I just want to leave you with it, which is that deep research. Most people are chasing this idea of discovering new ideas. And deep research right now will summarize the web in a way that. Yeah. Is much more readable, but it won't. You know, what will it take to discover new things from the things that you've searched?
+
+Can Deep Research discover new insights?
+
+Aarush [00:51:56]: First, I think the thinking style models definitely help here because they are significantly better on how they reason natively and being able to draw these second order insights, which is like very premise. Like if you can't do that, you can't think of doing what you mentioned. So that's that's one step in. The other thing is. I think it also depends on the domain. So sometimes you can drift with a model for like new hypothesis, but depending on the domain, you might not be able to verify that hypothesis. Right. So like coding math, there are reasonably good tools that the model already knows to interact with. And you can run a verifier, test the hypothesis and so on. Like even if you think about it from a purely agent perspective saying, hey, I have this hypothesis in this area. Go figure out and come back to me. Right. But let's say you're a chemist. Right. So what are you going to do that? We don't have like synthetic environments yet where the model is able to verify these hypotheses by playing in a playground and have this like a very accurate verifier or a reward signal. The computer uses another one where there are both in the open source research and so on. There's like nice playgrounds coming up. So I think for if you're talking about truly being able to come up with my personal opinion is the model doesn't have to do the second order thinking. And so on that we're seeing now with these new models, but also be able to play and test that out in an environment where you can verify and give it feedback so that it can continue trading. Yeah.
+
+Swyx [00:53:28]: So basically like code sandboxes for now.
+
+Aarush [00:53:32]: Yeah. Yeah. So in those kind of cases, I think, yeah, it's a little bit more easy to envision this like end to end, but not for all domains. Physics engines. Yeah.
+
+Alessio [00:53:42]: So if you think about agents more broadly, there's like a lot of things. Right. That go into it. What do you think are like the most valuable pieces that people should be spending time on? Like things that come to mind that I'm seeing a lot of early stage companies is like memory, you know, like we already touched on evals. We touched a little bit on a tool call. There's kind of like the odd piece, like should this agent be able to access this? If yes, how do you verify that? What are things that you want more people to work on that will be helpful to you?
+
+Open challenges in agents
+
+Mukund [00:54:11]: I can take a stab at this from the lens of like deep research. Right. Like I think some of the things that we're really interested in in how we can push this agent are one like similar to memories, like personalization. Right. Like if I'm giving you a research report, the way I would give it to you if you're a 15 year old in high school should be totally different to the way I give it to you if you're like a PhD or postdoc. Right. You can prompt it. You can prompt it. Right. But the second thing, though, is like it should like ideally know where you're at and like everything, you know, up to that point. Right. And kind of further customized. Right. Have this understanding of like where you are in your learning journeys. I think modality will be also really interesting. Like right now we're text in, text out. We should go multimodal in. Right. But also multimodal out. Right. Like I would love if my reports are not just text, but like charts, maps, images, like make it super interactive and multimodal. Right. And optimized for the type of consumption. Right. So the way in which I might put together an academic paper should be totally different to the way I'm trying to do like a learning program for a kid. Right. And just the way it's structured. Ideally, like you want to do things with generative UI and things like that to really customize reports. I think those are definitely things that I'm personally interested when it comes to like a research agent. I think the other part that's super important is just like we will reach the limits of the open web and you want to be able to like a lot of the things that people care about are things that are in their own documents. Their own corpuses, things that are within subscriptions that they personally really care about. Like especially as you go more niche into specific industries. And ideally, you want ways for people to be able to complement their deep research experience with that content in order to further customize their answers.
+
+Aarush [00:55:56]: There's two answers to this. So one is I feel in terms of like the approach for us, at least for me, rather trying to figure out the core mission for like an agent building that. I feel like it's still early days for us. Like to try to platformatize or like try to build these. Oh, there are these five horizontal pieces and you can plug and play and build your own agent. My personal opinion is we are not there yet. In order to build a super engaging agent, I would if I were to start thinking of a new idea, I would I would start from the idea and try to just just do that one thing really well. Yes, at some point there will be a time where like these common pieces can be pulled out. And then. Yeah. And, you know, platformatized. I know there's a lot of work across companies and in the open source community about providing these tools to really build agents very easily. I think those are super useful to start building agents. But at some point, once those tools enable you to build the basic layers, I think me as an individual would would, you know, try to focus on really curating one experience before going super broad. Yeah.
+
+Alessio [00:57:04]: We have Bret Taylor from Sierra and he said they mostly built everything.
+
+Swyx [00:57:08]: Which is very sad for VCs.
+
+Aarush [00:57:10]: I want to find the next great framework and tooling and all that. But the space is moving so fast. Like, like the problem I described might be obsolete six months from now. And I don't know. Like, we'll fix it with one more LLM ops platform.
+
+Mukund [00:57:25]: Yes. Yes.
+
+Swyx [00:57:26]: Okay. So just just a final final point on just plugging your talk. People will be hearing this before your talk. What are you going to talk about? What are you looking forward to in New York? I would love to, like, actually learn from you guys. Like, what would you like us to do? Talk about now that we've had this conversation with you? Yeah. Yeah. What would what do you think people would find most interesting? I think a little bit of implementation and a little bit of vision, like kind of 50 50. And I think both of you can can sort of fill those roles very well. Everyone, you know, looks at you. You're very polished Google products. And I think Google always does does polish very well. But everyone will have to want to want like deep research for their industry. He's invested in deep research for finance. Yeah. And they focus on their their thing. And there will be deep researches for everything. Right. Like you have created a category here that OpenAI has cloned. And so, like, OK, let's let's talk about, like, what are the hard problems in this brand of agent that is probably the first real product market fit agent? I would say more so than the computer use ones. This is the one where, like, yeah, people are like easily pays for $200 worth a month worth of stuff, probably 2000 once you get it really good. So I'm like, OK, let's talk about like how to do this right from the people who did it. And then where is this going? So, yeah. Yeah. Yeah. It's very simple.
+
+Aarush [00:58:37]: Happy to talk about that.
+
+Swyx [00:58:39]: Yeah. Thank Yeah. For me as well. You know, I'm also curious to see you interact with the other speakers because then, you know, there will be other sort of agent problems. And I'm very interested in personalization. Very interested in memory. I think those are related problems. Planning, orchestration, all those things. Often security, something that we haven't talked about. There's a lot of the web that's behind off walls. Can I how do I delegate to you my credentials so that you can go and search the things that I have access to? I don't think it's that hard. You know, it's just, you know, people have to get their protocols together. And that's what conferences like that is hopefully meant to achieve. Yeah. 
+
+Aarush: No, I'm super excited. I think for us, like it's we often like live and breathe within Google and which is like a really big place. But it's really nice to like take a step back. Meet people like approaching this problem at other companies or totally different industries. Right. Like inevitably, at least where we work, we're very consumer focused space. I see. Right. Yeah.
+
+Swyx: I'm more B2B. It's also really great to understand, like, OK, what's going on within the B2B space and like within different verticals. Yeah. The first thing they want to do is do research for my own docs. Right. My company docs. Yeah. So, yeah, obviously, you're going to get asked for that. Yeah. I mean, there'll be there'll be more to discuss. I'm really looking forward to your talk. And yeah. Thanks for joining us. 
+
+1
+
+Some might argue BERT, which was integrated into Google Search in 2019.
+
+2
+
+Some notable criticisms for the curious: here, here
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

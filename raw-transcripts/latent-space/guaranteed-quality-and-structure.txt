@@ -1,0 +1,841 @@
+# Guaranteed quality and structure in LLM outputs - with Shreya Rajpal of Guardrails AI 
+# URL: https://www.latent.space/p/guaranteed-quality-and-structure
+# Date: 2023-05-16
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Guaranteed quality and structure in LLM outputs - with Shreya Rajpal of Guardrails AI 
+
+9
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:02:28
+
+-1:02:28
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Guaranteed quality and structure in LLM outputs - with Shreya Rajpal of Guardrails AI 
+
+Ep. 12: How to validate and enforce rules in LLM outputs, re-asking loops to improve answers, and creating SLAs for models
+
+Alessio Fanelli and Latent.Space
+
+May 16, 2023
+
+9
+
+Share
+
+Tomorrow, 5/16, we’re hosting Latent Space Liftoff Day in San Francisco. We have some amazing demos from founders at 5:30pm, and we’ll have an open co-working starting at 2pm. Spaces are limited, so please RSVP here!
+
+One of the biggest criticisms of large language models is their inability to tightly follow requirements without extensive prompt engineering. You might have seen examples of ChatGPT playing a game of chess and making many invalid moves, or adding new pieces to the board. 
+
+Guardrails AI aims to solve these issues by adding a formalized structure around inference calls, which validates both the structure and quality of the output. In this episode, Shreya Rajpal, creator of Guardrails AI, walks us through the inspiration behind the project, why it’s so important for models’ outputs to be predictable, and why she went with an XML-like syntax. 
+
+Guardrails TLDR
+
+Guardrails AI rules are created as RAILs, which have three main “atomic objects”:
+
+Output: what should the output look like?
+
+Prompt: template for requests that can be interpolated
+
+Script: custom rules for validation and correction
+
+Each RAIL can then be used as a “guard” when calling an LLM. You can think of a guard as a wrapper for the API call. Before returning the output, it will validate it, and if it doesn’t pass it will ask the model again. 
+
+Here’s an example of a bad SQL query being returned, and what the ReAsk query looks like: 
+
+Each RAIL is also model-agnostic. This allows for output consistency across different models, even if they have slight differences in how they are prompted. Guardrails can easily be used with LangChain and other tools to structure your outputs!
+
+Show Notes
+
+Guardrails AI
+
+Text2SQL
+
+Use Guardrails and GPT to play valid chess
+
+Shreya’s AI Tinkerers demo
+
+Hazy Research Lab
+
+AutoPR
+
+Ian Goodfellow
+
+GANs (Generative Adversarial Networks)
+
+Timestamps
+
+[00:00:00] Shreya's Intro
+
+[00:02:30] What's Guardrails AI?
+
+[00:05:50] Why XML instead of YAML or JSON?
+
+[00:10:00] SQL as a validation language?
+
+[00:14:00] RAIL composability and package manager?
+
+[00:16:00] Using Guardrails for agents
+
+[00:23:50] Guardrails "contracts" and guarantees
+
+[00:31:30] SLAs for LLMs
+
+[00:40:00] How to prioritize as a solo founder in open source
+
+[00:43:00] Guardrails open source community involvement
+
+[00:46:00] Working with Ian Goodfellow
+
+[00:50:00] Research coming out of Stanford
+
+[00:52:00] Lightning Round
+
+Transcript
+
+Alessio: [00:00:00] Hey everyone. Welcome to the Latent Space Podcast. This is Alessio partner and CTO-in-Residence at Decibel Partners. I'm joined by my cohost Swyx, writer and editor of Latent Space.
+
+Swyx: And today we have Shreya Rajpal in the studio. Welcome Shreya.
+
+Shreya: Hi. Hi. Excited to be here.
+
+Swyx: Excited to have you too.
+
+This has been a long time coming, you and I have chatted a little bit and excited to learn more about guardrails. We do a little intro for you and then we have you fill in the blanks. So you, you got your bachelor's at IIT Delhi minor in computer science with focus on AI, which is super relevant now. I bet you didn't think about that in undergrad.
+
+Shreya: Yeah, I think it's, it's interesting because like, I started working in AI back in 2014 and back then I was like, oh, it's, it's here. This is like almost changing the world already. So it feels like that that like took nine years, that meme of like, almost like almost arriving the thing.
+
+So yeah, I, it's felt this way where [00:01:00] it's almost shared. It's almost changed the world for as long as I've been working in it.
+
+Swyx: Yeah. That's awesome. Maybe we can explore your, like the origins of your interests, because then you went on to U I U C to do your master's also in ai. And then it looks like you went to drive.ai to work on Perception and then to Apple S P G as, as the cool kids call it special projects group working with Ian Goodfellow.
+
+Yeah, that's right. And then you were at pretty base up until recently? Actually, I don't know if you've quit yet. I have, yeah. Okay, good, good, good. You haven't updated e LinkedIn, but we're getting the by breaking news that you're working on guardrails full-time. Yeah, well that's the professional history.
+
+We can double back to fill in the blanks on anything. But what's a personal side? You know, what's not on your LinkedIn that people should know about you?
+
+Shreya: I think the most obvious thing, this is like, this is still professional, but the most obvious thing that isn't on my LinkedIn yet is, is Guardrails.
+
+So, yeah. Like you mentioned, I haven't updated my LinkedIn yet, but I quit some time ago and I've been devoting like all of my energy. Yeah. Full-time working on Guardrails and growing the open source package and building out exciting features, et cetera. So that's probably the thing that's missing the most.
+
+I think another. More personal skill, which I [00:02:00] think I'm like kind of okay for an amateur and that isn't on my LinkedIn is, is pottery. So I really enjoy pottery and yeah, don't know how to slot that in amongst, like, all of the AI. So that's not in there. 
+
+Swyx: Well, you like shaping things into containers where, where like unstructured things and kind of flow in, so, yeah, yeah, yeah. See I can, I can spin it for you.
+
+Shreya: I should, I should use that. Yeah. Yeah.
+
+Alessio: Maybe for the audience, you wanna give a little bit of intro on Guardrails AI, what it is, why you wanted to start it
+
+Shreya: Yeah, yeah, for sure. So Guardrails or, or the need for Guardrails really came up as I was kind of like building some of my own projects in the space and like really solving some of my own problems.
+
+So this was back of like end of last year I was kind of building some applications, like everybody else was very excited about the space. And I built some stuff and I quickly realized that yeah, I could, you know it works like pretty well a bunch of times, but like a lot of other times it really does not work as I, the developer of this tool, like, want my tool to work.
+
+And then as a developer like I can tell that there's very few tools available for me to like, get this to, you know cooperate [00:03:00] with me, like get it to follow directions, etc. And the only tool I really have is this prompt. And there's only so, so far you can go with like, putting instructions in like caps, adding a bunch of exclamations and being like, follow my instructions. Like give me this output this way. 
+
+And so I think like part of it was, You know that it's not reliable, et cetera. But also as a user, it just if I'm building an application for a user, I just want the user to have a have a certain experience using it. And there's just not enough control to me, not enough, like knobs for me to tune, you know as a developer to do that.
+
+So guardrails kind of like came up as a way to just like, manage this better. The tool basically, I was like, okay. As I'm building this, I know from the ground up, like what is the experience I want the user to add, to have like, what is a great LLM output look like for me? And so I wanted a tool that allows me to kind of specify that and enforce those constraints.
+
+As I was thinking of this, I was like, this should be very extensible, very flexible so that there's a bunch of use cases that can be handled, et cetera. But the need really like, kind of came up from my own from my own, like I was basically solving for my own pain points.[00:04:00]
+
+So that's a little bit of the history, but what the tool does is that it allows you to kind of like specify. It's this two-part system where there's a specification framework and then there's like a code that enforces that specification on the LLM outputs. So the specification framework allows you to be like as coarse or as fine grained as you care about.
+
+So you can essentially think about what is the, on a very like first order business, like where is the structure and what are the types, etc, of the output that I want. If you want structured outputs from LLMs. But you can also go like very into semantic correctness with this, with a. I just released something this morning, which is that if you're summarizing a bunch of documents, make sure that it's a very faithful summary.
+
+Make sure that there's like coherence amongst like what the output is, et cetera. So you can have like all of these semantic guarantees as well. And guardrails created like rails, like a reliable AI markup language that allows you to specify that. And along with that, there's like code that backs up that specification and it makes sure that a, you're just generating prompts that are more likely to get you the output in the right manner to start out with.
+
+And then once you get that output all of the specification criteria you entered is like [00:05:00] systematically validated and like corrected. And there's a bunch of like tools in there that allow you a lot of control to like handle failures much more gracefully. So that's in a nutshell what guardrails does.
+
+Awesome.
+
+Alessio: And this is model agnostic. People can use it on any model.
+
+Shreya: Yeah, that's right. When I was doing my prototyping, I like was developing with like OpenAI, as I'm sure like a bunch of other developers were. But since then I've added support where you can basically like plug in any, essentially any function or any callable as long as you, it has a string input.
+
+String output you can plug it in there and I've had people test it out with a bunch of other models and get pretty good results. Yeah.
+
+Alessio: That's awesome. Why did you start from XML instead of YAML or JSON?
+
+Shreya: Yeah. Yeah. I think it's a good question. It's also the question I get asked the most. Yes. I remember we chat about this as well the first chat and I was like, wait, okay, let's get it out of the way. Cause I'm sure you answered this a lot.
+
+Shreya: So it is I didn't start out with it is the truth. Like, I think I started out from this code first framework service initially like Python classes, et cetera. And I was like, wait, this is too verbose. This is like I, as I'm thinking about what I want, I truly just [00:06:00] want this is like, this is what this dictionary should look like for me, right?
+
+And having to like create classes on top of that just seemed like a higher upfront cost. Like obviously there's a balance there. Like there's some flexibility that classes and code affords you that maybe isn't there in a declarative markup language. But that that was my initial kind of like balance there.
+
+And then within markup languages, I experimented with the bunch, but the idea, like a few aesthetic things about xml, like really appeal to me, as unusual as that may sound. But I think one is this idea of like properties off. Any field that you're getting back from an LLM, right. So I think one of the initial ones that I was experimenting with was like TypeScript, et cetera.
+
+And with TypeScript, like all of the control you have is like, you try to like stuff as much information as possible in the name of the key, right? But that's not really sufficient because like in, in XML or, or what gars allows you to do is like maybe add like descriptions for each field that you're getting, which like is, is really very helpful because that almost acts as a proxy prompt.
+
+You know, and, and it gets you like better outputs. You can add in like what the correctness criteria or what the validity criteria is for this field, et [00:07:00] cetera. That also gets like passed through to the prompt, et cetera. And these are all like, Properties for a single field, right? But fields themselves can be containers and can have like other nested like fields within them.
+
+And so the separation of like what's a property of a field versus what's like child of a field, et cetera, was like nice to me. And having like all of this metadata contained within this one, like tag was like kind of elegant. It also mapped very well to this idea of like error handling or like event handling because like each field may fail in weird ways.
+
+It's very inspired from H T M L in that way, in that you have these like event handlers for like, oh, if this validity criteria for this field fails maybe I wanna re-ask the large language model and here's my re-asking parameters, et cetera. Whereas like, if other criteria fail there's like maybe other ways to do to handle that.
+
+Like maybe I don't care about it as much. Right. So, so that seemed pretty elegant to me. That said, I've talked to a lot of people who are very opinionated about it. My, like, the thing that I was optimizing for was essentially that it seemed clean to me compared to like other things I tried out and seemed as close to English as [00:08:00] possible.
+
+I tested it out with, with a bunch of friends you know, who did not have tag backgrounds or worked in tag but weren't like engineers and it like and they resonated and they were able to pick it up. But I think you'll see updates in the works where I meet people where they are in terms of like, people who, especially like really hate xml.
+
+Like there's something in the works where there'll be like a code first version of this. And also like other markup languages, which I'm actively exploring. Like what is a, what is a joyful experience to have for like other market languages. Yeah. Do
+
+Swyx: you think that non-technical people would.
+
+Use rail was because I was, I was just surprised by your mention that you tested it on non-technical people. Is that a design goal? Yeah, yeah,
+
+Shreya: for sure. Wow. Okay. We're seeing this big influx of, of of people who are building tools with these applications who are kind of like, not machine learning people.
+
+And I think like, that's truly the kind of like big explosion that we're seeing. Right. And a lot of them are like getting so much like value out of like lms, but because it allows you like earlier if you were to like, I don't know. Build a web scraper, you would need to do this like via code.
+
+[00:09:00] But now like you can get not all the way, but like a decent amount of way there, like with just English. And that is very, very powerful. So it is a design goal to like have like essentially low floor, high ceiling is, was like absolutely a design goal. So if, if you're used to plain English and prompting using Chad PK with plain English, then you can it should be very easy for you to kind of like pick this up and there's not a lot of gap there, but like you can also build like pretty complex workflows with guardrails and it's like very adaptable in that way.
+
+Swyx: The thing about having custom language is essentially other people can build. Stuff that compiles to you. Mm-hmm. Which is also super nice and, and visual layers on top. Like essentially HTML is, is xml, like mm-hmm. And people then build the WordPress that is for non-technical people to interface with html.
+
+Shreya: I don't know. Yeah, yeah. No, absolutely. I think like in the very first week that Guardrails was out, like somebody reached out to me and they were pm and they essentially were like, I don't, you know there's a lot of people on my team who would love to use this, but just do not write code.
+
+[00:10:00] Like what is the, where is a visual interface for building something like this? But I feel like that's, that's another reason for why XML was appealing, because it's essentially like a document structuring, like it's a way to think about like documents as trees, right? And so again, if you're thinking about like what a visual interface would be, then maps going nicely to xml.
+
+But yeah. So those are some of the design considerations. Yeah.
+
+Swyx: Oh, I was actually gonna ask this at the end, but I'm gonna bring it up now. Did you explore sql, like. Syntax. And obviously there's a project now l m qr, which I'm sure you've looked at. Yeah. Just compare, contrast, anything.
+
+Shreya: Yeah. I think from my use case, like I was very, how I wanted to build this package was like essentially very, very focused on developer ergonomics.
+
+And so I didn't want to like add a lot of overhead or add a lot of like, kind of like high friction essentially like learning a whole new dialect of sequel or a sequel like language is seems like a much bigger overhead to me compared to like doing things in XML or doing things in a markup language, which is much more intuitive in some ways.
+
+So I think that was part of the inspiration for not exploring sql. I'd looked into it very briefly, but I mean, I think for my, for my own workflows, [00:11:00] I wanted to make it like as easy as possible to like wrap whatever LLM API calls you make. And, and to me that design was in markup or like in XML, where you just define your desired
+
+Swyx: structures.
+
+For what it's worth. I agree with you. I would be able to argue for LMQL because SQL is the proven language for business analysts. Right. Like less technical, like let's not have technical versus non-technical. There's also like less like medium technical people Yeah. Who learn sql. Yeah. Yeah. But I, I agree with you.
+
+Shreya: Yeah. I think it depends. So I have I've received like, I think the why XML question, like I mentioned is like one of the things I get most, but I also hear like this feedback from other people, which is like all of like essentially enterprises are also like very comfortable with xml, right? So I guess even within the medium technical people, it's like different cohorts of like Yeah.
+
+Technologies people are used to and you know, what they would find kind of most comfortable, et cetera. Yeah. And,
+
+Swyx: Well, you have a good shot at establishing the standard, which is pretty exciting. I'm someone who has come from a, a long background with React, the JavaScript framework. I don't know if you.
+
+And it's kind of has that approach of [00:12:00] taking a templating XML like language to describe something that was typically previously described in Code. I wonder if you took any inspiration from that? If you want to just exchange notes on anything from that like made React successful. Cuz I, I spent a few years studying that.
+
+Yeah.
+
+Shreya: I'm happy to talk about it, but I will say that I am very uneducated when it comes to front end, so Yeah, that's okay. So I might say some things that like aren't, aren't valid or like don't really, don't really map very well, but I'm gonna give it a shot anyway. So I don't know if it was React specifically.
+
+I think just this idea of marrying essentially like event handlers, like with the declarative framework. Yes. And with this idea of being able to like insert scripts, et cetera, and quote snippets into that. Like, that was super duper appealing to me. And that was like something like where you're programming with.
+
+Like Gabriels and, and Rail specifically is essentially a way to like program with large language models outside of using like just national language. Right? And so like just thinking of like what are the different like programming workflows that people typically need and like what would be the most elegant way to add that in there?
+
+I think that was an inspiration. So I basically looked at like, [00:13:00] If you're familiar with Guardrails and you know that you can insert like dynamic scripting into a rail specification, so you can register custom validators within rail. You can maybe have like essentially code snippets where things are like lists or things are like dynamically generated array, et cetera, within GAR Rail.
+
+So that kind of resonated a lot to like using JavaScript injected within like HTML files. And I think other inspiration was like I mentioned this before, but the event handlers was like something that was very appealing, how validators are configured in guardrails right now. How you tack on specific validators that's kind of inspired from like c s s and adding like style tags, et cetera, to specific Oh, inline styling.
+
+Okay. Yeah, yeah, yeah, exactly. Wow. So that was like some of the inspiration, I guess that and pedantic and like how pedantic kind of like does its validation. I think those two were probably like the two biggest inspirations while building building the current version of guardrails. 
+
+Swyx: One part of the design of React is composability.
+
+Can I import a guardrails thing from into another guardrails project? [00:14:00] I see. That paves the way for guardrails package managers or libraries or Right. Reusable components, essentially. I think that's
+
+Shreya: pretty interesting. Do you wanna expand on that a little bit more? 
+
+Swyx: Like, so for example, you have guardrails for a specific use case and you want to like, use that, use it in a bigger thing. And then just compose it up. Yeah.
+
+Shreya: Yeah. I wanna say that, I think that should be pretty straightforward. I'm trying to think about like, use cases where people have done that, but I think that kind of maps into like chaining or like building complex workflows generally. Right. So how I think about guardrails is that like, I.
+
+If you're doing something like chaining, you essentially are composing together these like multiple LLM API calls and you have these like different atomic units of each LLM API calls, right? So where guardrails kind of slots in is add like one of those nodes. It essentially adds guarantees, et cetera, and make sure that you know, that that one node is like water tied, et cetera, in terms of the, the output that is, that it has.
+
+So each node in your graph or tree or in your dag would essentially have like a guardrails config associated with it. And you can kind of like use your favorite chaining libraries, like nine chain, et cetera, to like then compose this further together. [00:15:00] I think I've seen like one of the first actually community projects that was like built using guardrails, like had chaining and then had like different rails for each node of that chain.
+
+Essentially,
+
+Alessio: I'm building an agent internally for us. And Guardrails are obviously very exciting because once you set the initial prompt, like the model creates its own prompts. Can the models create rails for themselves? Like, have you tried this out? Like, can they understand what the output is supposed to be and like where their own
+
+Shreya: specs?
+
+Yeah. Yeah. I think this is a very interesting question. So I haven't personally tried this out, but I've ha I've received this request you know, a few different times. So on the roadmap like seeing how this can be done, but I think in general, like in all of the prompt engineering experiments I've done, et cetera, I don't see like why with, especially with like few short examples that shouldn't be possible.
+
+But that's, that's a fun like experiment. I wanna try out,
+
+Alessio: I was just thinking about this because if you think about Baby a gi mm-hmm. And some of these projects mm-hmm. A lot of them are just loops of prompts. Yeah. You know so I can see a future [00:16:00] in which. A lot of these loops are kind off the shelf thing and then you bring your own rails mm-hmm.
+
+To make sure that they work the way you expect them to be instead of expecting the model to do everything for you. Yeah. What are your thoughts on agents and kind of like how this plays together? I feel like when you start it, people were mostly just using this for a single prompt. You know, now you have this like automated chain
+
+Shreya: happening.
+
+Yeah. I think agents are like absolutely fascinating in how. Powerful they are, but also how unruly they are sometimes. Right? And how hard to control they are. But I think in general, this kind of like ties into even with machine learning or like all of the machine learning applications that I worked on there's a reason like you don't have like fully end-to-end ML applications even in you know, so I, I worked in self-driving for example, like a driveway.
+
+I at driveway you don't have a fully end-to-end deep learning driving system, right? You essentially have like smaller components of it that are deep learning and then you have some kind of guarantees, et cetera, at those interfaces of those boundaries. And then you have like other maybe more deterministic competence, et cetera.
+
+So essentially like the [00:17:00] interesting thing about the agent framework for me is like how we will kind of like break this up into smaller tasks and then like assign those guarantees kind of at e each outputs. It's a problem that I've been like thinking about, but it's also like frankly a hard problem to solve because you're.
+
+Because the goals are auto generated. You know, there's also like the, the correctness criteria for those goals also needs to be auto generated, right? Which is like a little bit antithetical to you knowing ahead of time, like, what, what a correct output for me for a developer or for your application kind of looking like.
+
+So I think like that's the interesting crossroads. But I do think, like with that said, I think guardrails are like absolutely essential for Asian frameworks, right? Like partially because like, not just making sure they're like constrained and they're safe, et cetera, but also, frankly, to just make sure that they're doing what you want them to do, right?
+
+And you get the right output from them. So it is a problem. Like I'm, I'm thinking a bunch about, I think just, just this idea of like, how do you make sure that it's not it's not just models checking each other, but there's like some more determinism, some more notion of like guarantees that can be backed up in there.
+
+I think like that's [00:18:00] the, that would be like super compelling to me, and that is kind of like the solution that I would be interested in putting out. But yeah, it's, it's something that I'm thinking about for sure. I'm
+
+Swyx: curious in the scope of the problem. I feel like we need to. I think a lot of people, when they hear about AI progress, they always assume that, oh, that just if it's not good now, just wait a year later.
+
+And I think obviously, I think that's something that you have to think about as well, right? Like how much of what guardrails is gonna do is going to be Threatens or competed with by GC four having 32,000 context tokens. Just like what do you think are like the invariables in model capabilities that you're betting on versus like stuff that you would not bet on because you just expected to get better?
+
+Yeah.
+
+Shreya: Yeah. I think that's a great question, and I think just this way of thinking about invariables, et cetera is something that is very core to how I've been thinking about this problem and like why I also chose to work on this problem. So, I think again, and this is like guided by some of my past experience in machine learning and also kind of like looking at like how these problems are, how like other applications that I've had a lot [00:19:00] of interest, like how some of the ML challenges have been solved in there.
+
+So I think like context, like longer context, length is going to arrive for sure. We are gonna start saying we're already seeing like some, some academic papers and you know, we're gonna start seeing a lot more of them like translated into actual applications.
+
+Swyx: This is the new transformer thing that was being sent around with like a million
+
+Shreya: context.
+
+Yeah. I also, I think my my husband is a PhD student you know, at Stanford and then his lab also does research basically in like some of the more efficient architectures for Oh, that's
+
+Swyx: a secret weapon for guard rails. Oh my god. What? Tell us more.
+
+Shreya: Yeah, I think, I think their lab is pretty exciting.
+
+This is a shouted to the hazy research lab at Stanford. And yeah, I think like some of, there's basically some active research there about like, basically looking into like newer architectures, like not just transform. Yeah, it might not be the most I've been artifact more architecture.
+
+Yeah, more architectural research that allows for like longer context length. So longer context, length is arriving for sure. Yeah. Lower latency lower memory efficiency, et cetera. So that is actually some of my background. I worked in that in my previous jobs, something I'm familiar with.
+
+I think there's like known recipes for making [00:20:00] this work. And it's, it's like a problem like once, essentially it's a problem of just kind of like a lot of experimentation and like finding exactly what configurations kind of get you there. So that will also arrive, both of those things combined, you know will like drive down the cost of running inference on these models.
+
+So I, all of those trends are coming for sure. I think the trend that. Are the problem that is not solved by these trends is the problem of like determinism on machine learning models, like fundamentally machine learning models, deep learning models specifically, like are impossible to add guarantees on even with temperature zero.
+
+Oh, absolutely. Even with temperature zero, it's not the same as like seed equals zero or seed equals like a fixed amount. Mm-hmm. So even if with temperature zero with the same inputs, you run it multiple times, you'll essentially see that you don't get the same output multiple times. Right.
+
+Combined with this, System where you don't even actually own the model yourself, right? So the models are updated from under you all the time. Like for building guardrails, like I had to do a bunch of prompt engineering, right? So that users get like really great structured outputs, like share of the bat [00:21:00] without like having to do any work.
+
+And I had this where I developed something and it worked and then it ended up like for some internal model version, updated, ended up like not being functional anymore and I had to go back to the drawing board and you know, do that prompt engineering again. There's a bit of a digression, but I do see that as like a strength of guardrails in that like the contract that I'm providing is not between the user.
+
+So the user has a contract with me essentially. And then like I am making sure that we are able to do prompt engineering to get like the output from the LLM. And so it kind of like takes away a lot of that burden of having to figure that out for the user, right? So there's a little bit of a digression, but these models change all the time.
+
+And temperature zero does not equal like seed zero or fixed seed rather. And so even with all of the trends that we're gonna see arriving pretty soon over the next year, if not sooner, this idea of like determinism reproducibility is not gonna change, right? Ignoring reproducibility is a whole other problem of like the really, really, really long tail of like inputs and outputs that are not covered by, by tests and by training data, [00:22:00] et cetera.
+
+And it is like virtually impossible to cover that. You kind of like, this is not simply a problem where like, Throwing more data at the model is going to solve. Right? Yeah. Because like, people are building like genuinely really fascinating, really amazing complex applications and like, and these are just developers, like users are then using those applications in many diverse complex ways.
+
+And so it's hard to figure out like, what if you get like weird way word prompts that you know, like aren't, that you didn't kind of account for, et cetera. And so there's no amount of like scaling laws essentially that kind of account for those problems. They can be like internal guardrails, et cetera.
+
+Of course. And I would be very surprised if like open air, for example, like doesn't have their own internal guardrails. You can already see it in like some, some differences for example, like URLs like tend to be valid URLs now. Right. Whereas it really Yeah, I didn't notice that.
+
+It's my, it's my kind of my job to like keep track of, keep it, yeah. So I'm sure that's, If that's the case that like there's some internal guard rails, and I'm sure that that would be a trend that we would kind of see. But even with that there's like a ton of use cases and a [00:23:00] ton of kind of like application areas where like there's different requirements from different types of guard rails are valuable in different requirements.
+
+So this is a problem essentially that would be like, harder to solve or next to impossible to solve with just data, with just scaling up the models. So you would need kind of this ensemble basically of, of LLMs of like these really powerful models along with like deterministic guarantees, rule-based heuristics, et cetera, more traditional you know machine learning tools and like you ensemble all of these together and you end up getting something that you know, is greater than the sum of it.
+
+Its parts in terms of what it's able to do. So I think like that is the inva that I'm thinking of is like the way that people would be developing these applications. I will follow
+
+Swyx: up on, on that because I'm super excited. So when you sent mentioned you have people have a contract with guardrails.
+
+I'm actually looking at the validators page on your docs, something, you have something like 20 different contracts that people can have. I'll name some of them just just so that people can have an, have an idea, but also highly encourage people to check it out. Is profanity free, is a, is a good one.
+
+Bug-free Python. And that's, that's also pretty, [00:24:00] pretty cool. You have similar to document and extracted summary sentences match. Which I think is, is like don't hallucinate,
+
+Shreya: right? Yeah. It's, it's essentially making sure that if you're generating summaries the summary should be very faithful.
+
+Yeah. Should be like citable attributable, et cetera to the source text.
+
+Swyx: Right. Valid url, which we talked about. Mm-hmm. Maybe open AI is doing a little bit more of internally. Mm-hmm. Maybe open AI uses card rails. You don know be a great endorsement. Uhhuh what is surprisingly popular and what is, what do you think is like underrated?
+
+Out of all your contracts? Mm-hmm.
+
+Shreya: Mm-hmm. Okay. I think that the, well, not surprisingly, but the most obvious popular ones for me that I've seen are like structure, structure type, et cetera. Anything that kind of guarantees that. So this isn't specifically in the validators, this is essentially like part of the gut, the core proposition.
+
+Yeah, the core proposition. I think that is like very popular, but that's also kind of like the first order. Problem that people are kind of solving. I think the sequel thing, for example, it's very exciting because I had just released this like two days ago and then I already got some inbound with like people kinda swapping, like building these products and of swapping it out internally and you know, [00:25:00] getting a lot of value out of what the sequel bug-free SQL provides.
+
+So I think like the bug-free SQL is a great example because you can see like how complex these validators can really go because you end up seeing like bug-free sql. What it does is it kind of like takes a connection string or maybe a, a schema file, et cetera. It creates a sandbox SQL environment for you, like from that.
+
+And it does that at startups so that like every time you're getting like a text to SQL Query, you're not having to do pay that cost time and time again. It takes that query, it like executes that query on that sandbox in that sandbox environment and then sees if that query is executable or not.
+
+And then if there's any errors that you know, like. Packages of those errors very nicely. And if you've configured re-asking it sends it back to the model and you know, basically make sure that that like it tries to get corrected. Sequel. So I think I have an example up there in the docs to be in there, like in applications or something where you can kind of see like how it corrects like weird table names, like weird predicates, et cetera.
+
+I think there's other kind of like, You can build pretty complex systems with this. So other things in there are like it takes [00:26:00] information about your database and then injects it into the prompt with like, here's the schema of this table. It automatically, like given a national language query, it finds like what the most similar examples are from the history of like, serving this model and like injects those into the prompt, et cetera.
+
+So you end up getting like this very kind of well thought out validator and this very well thought out contract that is, is just way, way, way better than just asking in plain English, the large language model to give you something, right? So I think that is the kind of like experience that I wanna provide.
+
+And I basically, you'll see more often the package, my immediate
+
+Swyx: response is like, that's cool. It does more than I thought it was gonna do, which is just check the SQL syntax. But you're actually checking against schema, which is. Highly, highly variable. Yeah. It's
+
+Shreya: slow though. I love that question. Yeah. Okay.
+
+Yeah, so I think like, here's where this idea of like, it doesn't have to be like, you don't have to send every request to your L so you're sampling. Okay. So you can essentially figure out, so for example, like there's like how what guardrails essentially does is there's like corrective actions and re-asking is like one of those corrective actions, [00:27:00] right?
+
+But there's like a ton other ways to handle it. Like there's maybe deterministic fixes, like programmatic fixes, there's maybe default values. There's this doesn't work like quite work for sql, but if you're doing like a bunch of structured data and if you know there's an invalid value, you can just filter it or you can just refrain from asking, et cetera.
+
+So there's a ton of ways where you can like, just handle errors more gracefully. And the one I kind of wanna point out here is programmatically fixing something that is wrong, like on, on the client side instead of just sending over another request. To the large language model. So for sql, I think the example that I talked about earlier that essentially has like an incorrect table name and to correct the table name, you end up sending another request.
+
+But you can think about like other ways to handle disgracefully, right? Like essentially looking at essentially a fuzzy matching with like the existing table names in the repository and in, in the database. And you know, like matching any incorrect names to that. And so you can think of like merging this re-asking thing with like, other error handling things that like smaller, easier errors are able, you can handle them programmatically by just Doing this in like the more patching, patching or I, I guess the more like [00:28:00] classical ML way essentially, like not the super fancy deep learning is like, I think ML 2.0.
+
+But like, and this, I, I've been calling it like ML 3.0, but like, even in like ML 1.0 ways you can like, think of how to do this, right? So you're not having to make these like really expensive calls. And so that builds a very powerful system, right? Where you essentially have this, like, depending on what your error is, you don't like, always use G P D three or, or your favorite L M API when you don't need to, you essentially are able to like combine these like other ways, other error handling techniques, like very gracefully so that you get correct outbursts, validated outbursts, and you get them for cheap and like faster, et cetera.
+
+So that's, I think there's some other SQL validation things that are in there. So I think like exclude SQL Predicates. Yeah, exclude SQL Predicates. And then there's one about columns that if like some columns are like sensitive column
+
+Swyx: prisons. Yeah. Yeah. Oh, just check if it's there.
+
+Shreya: Check if it's there and you know, if there's like only certain columns that you wanna show it to the user and like, maybe like other columns have like private data or sensitive data you know, you can like exclude those and you can think of doing this on the table level.
+
+So this is very [00:29:00] easy to do just locally. Right. Like, so there's like different ways essentially to kind of like handle this, which makes for like a more compelling way to build these
+
+Swyx: systems. Yeah. Yeah. By the way, I think we're proving out why. XML was a better choice than SQL Cause now, now you're wrapping sql.
+
+Yeah. Yeah. It's pretty cool. Cause you're talking about the text to SQL application example that you put out. It actually puts something, a design choice that isn't talked about very much in center focus, which is your logs. Your logs are gorgeous. I'm sure that took work. I'm sure that's a strong opinion of yours.
+
+Yeah. Why do you spend so much time on logs? Just like, how do you, how do you think about designing these things? Should everyone do it this way? What are the drawbacks? Like? Is any like,
+
+Shreya: yeah, I'm so excited about this idea of logs because you know, you're like, all of this data is like in there for free, right?
+
+Like if you're, if you're do like any validation that is run, like essentially in memory, and then also I write it out to file, et cetera. You essentially get like this you get a history of this was the prompt that was run. This was the this was the L raw LLM output. This was the validation that was run.
+
+This was the output of those validations. This [00:30:00] was any corrective actions, et cetera, that were taken. And I think that's like very, like as a developer, like, I'm so happy to see that I use these logs like personally as well.
+
+Swyx: Yeah, they're colored. They're like nicely, like there's like form double borders on the, on the logs.
+
+I've never seen this in any ML tooling at all.
+
+Shreya: Oh, thanks. Yeah. I appreciate it. Yeah, I think this was mostly. For once again, like solving my own problems, which is like, I was building a lot of these things and you know, doing a lot of dog fooding and doing a lot of application building like in notebooks.
+
+Yeah. And so in a notebook I wanted to kind of see like what the easiest way to kind of interact with it was. And, and that was kind of what I ended up building. I really appreciate that. I think that's, that's very nice to, nice to hear. I think I'm also thinking about what are, what are interesting ways to be able to like whittle down very deeply into like what kind of went wrong or what is going right when you're like running, running an application and like what the nice kind of interface to design that would be.
+
+So yeah, thinking about that problem. Don't have anything on there yet, but, but I do really like this idea of really as a developer you're just like, you really want like all the visibility you can get into what's, [00:31:00] what's happening right. Under the hood. And I wanna be able to provide that. Yeah.
+
+Yeah.
+
+Swyx: I mean the, the, the downside I'll point out just quickly cuz we, we should, we should move on is that this is not machine readable. So like, how does it work with like a Datadog or, you know? Yeah,
+
+Shreya: yeah, yeah, yeah. Well, we can deal with that later. I think that's that's basically my answer as well, that I, I'll do, yeah.
+
+Problem for future sreya, basically.
+
+Alessio: Yeah. You call Gabriel's SLAs for l m outputs. You know, historically SLAs are pretty objective there's the five nines availability, things like that. How do you build them in a sarcastic system when, say, my queries, like draft me a marketing article. Mm-hmm. Like, Have you read an SLA for something like that?
+
+Yeah. But in terms of quality and like, in terms of we talked about what's slow and like latency, like Hmm. Sometimes I would read away more and I, and have a better copy of like, have you thought about what are like the, the access of measurement for some of these things and how should people think about it?
+
+Shreya: Yeah, the copy example is interesting because [00:32:00] I think for any of these things, the SLAs are purely on like content and output, not on time. I don't guardrails I don't think even can make any guarantees on the time that it'll take to make these external API calls. But like, even within quality, it's this idea of like, if you're able to communicate what you desire.
+
+Either programmatically or by using a model in the loop, then that is something that can be enforced, right? That is something that can be validated and checked. So for example, like for writing content copy, like what's interesting is like for example, if you can break down the copy that you wanna write into, like this is a title, this is maybe a TLDR description, this is a more detailed take on the, the changes or the product announcement, et cetera.
+
+And you wanna hit like maybe three, like some set of points in there. So you already kind of like start thinking of like, what was a monolith of like copy to you in, in terms of like smaller building blocks, et cetera. And then on those building blocks you can essentially like then add like certain guarantees.
+
+So you can say that let's say like length or readability is a [00:33:00] guarantee. So some of the updates that I pushed today on, on summarization and like specific guards for summarization, one of them essentially was that like the reading time for the summary should be within like some certain amount, right?
+
+And so that's like you can start enforcing like all of those guarantees, like on each individual block. So I think like, Some of those things are. Naturally harder to do and you know, like are harder to automate ways. So essentially like, does this copy, I don't know, is this witty or something, right. Or is this Yeah.
+
+Something that I guess like the model doesn't have a good idea for, but like other things, as long as you can kind of like enforce them and like check them either via model or programmatically, it's something that you can like start building some some notion of like guarantees around. Yeah.
+
+Yeah. So that's why I think about it.
+
+Alessio: Yeah. This is super interesting because right now a lot of products are kind of the same because all I do is they call it the model and some are prompted a little differently, but you can only guess so much delta between them in the future. It's be, it'll be really interesting to have products differentiate with the amount of guardrails that they give you.
+
+Like you already [00:34:00] see that, Ooh, with open AI today when some people complain that too many of the responses have too much like, Well actually in it where it's like, oh, you ask a question, it's like, but you should remember that's actually not good. And remember this other side of the story and, and all of that.
+
+And some people don't want to have that in their automated generation. So, yeah. I'm really curious, and I think to Sean's point before about importing guardrails into products, like if there's a default amount of guardrails that you have and like you've being the provider of it, like that's really powerful.
+
+And then maybe there's a faction that is against guardrails and it's like they wanna, they wanna break out, they wanna be free. Yeah. So it's a. Interesting times. Yeah.
+
+Shreya: I think to that, like what I, I was actually chatting with someone who was building some application for content creators where like authenticity you know, was a big requirement, like of what they cared about in the right output.
+
+And so within authenticity, like why conventional models were not good for them is that they already have a lot of like quote unquote guardrails right. To, to I guess like [00:35:00] appeal to like certain certain sections of the audience to essentially be very cleaned up and then that was like an undesirable trade because that, for them, like, almost took away from that authenticity, et cetera.
+
+Right. So I think just this idea of like, I guess like what a guardrail means is like so different for different applications. Like I, I guess like I, there's like about 20 or so things in there. I think there's like a few more that I've added this morning, which Yes. Which are not Yeah. Which are not updated and then in the end.
+
+But there's like a lot of the, a lot of the common workflows, like you do have an understanding of like what the right. I guess like what is an appropriate constraint for this? Right. Of course, things like summarization, four things like text sequel, but there's also like so many like just this wide variety of like applications, which are so fascinating to learn about where you, you would wanna build something in-house, which is like your, so which is your secret sauce.
+
+And so how Guardrail is kind of designed or, or my intention with designing is that here's this way of breaking down what this problem is, right? Of like getting some determinism, getting some guarantees from your LM outputs. [00:36:00] And you can use this framework and like go crazy with it. Like build whatever you want, right?
+
+Like if you want this output to be more authentic or, or, or less clean or whatever, you can like add that in there, like making sure that it does have maybe some profanity and that's a desirable output for you. So I think like the framework side of it is very exciting to me as this, as this way of solving the problem.
+
+And then you can build your custom validators or use the ones that I provide out of the box. Yeah. Yeah.
+
+Alessio: So chat plugins, it's another big piece of this and. A lot of the integrations are very thin specs and like a lot of prompting, for example, a lot of them are asking to not mention the competitors. I think the Expedia one said, please do not mention any other travel website on the internet.
+
+Do not give any other alternative to what we do. Yeah. How do you see all these things come together? Like, do you see guardrails as something that not only helps with the prompting, but also helps with bringing external data into these things, and especially with agents going on any website, do you see each provider having like their own [00:37:00] guardrail where it's like, Hey, this is what you can expect from us, or this is what we want to provide?
+
+Or do you think that's, that's not really what, what you're interested in guardrails
+
+Shreya: being? Yeah, I think agents are a very fascinating question for me. I don't think I like quite know what the right, who the right owner for this guardrail is. Right. And maybe, I don't know if you guys wanna keep this in there or like maybe cut this front of my answer out, up to, up to you guys.
+
+I'm, I'm fine either way, but I think like that problem is, A harder problem to solve just from like a framework design perspective as well. Right. I think this idea of like, okay, right now it's just in the prompt, like don't mention competitors, et cetera. Like that is exactly that use case.
+
+Or I feel like, okay, if I was that business owner, right, and if I wanted to build this application, like, is that sufficient? There's like so much prompt injection, right? And you can get, or, or just so much like, just like an absolute lack of guarantees. Like, and, and it's hard to even detect that this is happening.
+
+Like let's say I have this running in production and then turns out that there was like some sort of leakage, et cetera, and you know, like my bot has actually been talking about like all of my competitors forever, [00:38:00] right? Like, that's a, that's a substantial risk. And so just this idea of like needing this like post-hoc validation to ensure deterministically that like it does what you want it to do is like, just so is like.
+
+As a developer putting myself in the shoes of like people building business applications like that is what gives me like peace of mind, right? So this framework, I think, like applies very well within those settings.
+
+Swyx: I'll go right into, we're gonna broaden out a little bit into commentary on other parts of the ecosystem that might, that might be interesting.
+
+So I think you and I. Talks briefly about this, but I think the, the broader population should know about it, which is that you also have an LLM API wrapper. Mm-hmm. So, such that the way, part of the way that guardrails works is you in, inject part of the few shot example into the prompt.
+
+Mm-hmm. And then you also do re-asking in all the other stuff post, I dunno what the pipeline is in, in, in your terminology. So essentially you have an API wrapper for open ai.completion.com dot create. But so does LangChain, so does Hellicone so does everyone I can name like five other people who are all fighting essentially for [00:39:00] the base layer, LLM API wrapper.
+
+Mm-hmm. I think this is valuable real estate, but I don't know how you like, think about working with other people or do you wanna be the base layer, like
+
+Shreya: I feel pretty collaboratively about it. I also feel like there's, like lang chain is doing like, it's so flexible as a framework, right?
+
+Like you can solve so many of your problems in there. And I think like it's, I, I have like a lang chain integration. I have a GPT Index / Llama integration, et cetera. And I think my view on this is that I wanna integrate with everybody. I think it is valuable real estate. It's not personally real estate that I'm interested in.
+
+Like you can essentially bring the LLM callable or the LLM API that's in there. It's just like some stub of a function that you can just add your favorite thing in there, right? It just, the only requirement is that string in first string output, that is all the requirement. And then you can bring in your own favorite component from your own favorite library in order to do that.
+
+And so, yeah, it's, I think like I'm pretty focused on this problem of like what is the guardrail that you would wanna build for a certain applications? So it's valuable real estate. I'm sure that people don't own [00:40:00] it.
+
+Swyx: It's, as long as people give you a way to insert your stuff, you're good.
+
+Shreya: Yeah, yeah. Yeah. I do think that, like I've chat with a bunch of people and then different applications and I do think that the abstractions that I have haven't failed me yet. Like it is very flexible. It is very easy to slot in into any workflow. Yeah.
+
+Swyx: I would love to ask about the meta elements of working on guardrails.
+
+This is your first company, but you launched five things this morning. The pace of the good AI projects that I've seen out there, like LangChain launches 10 things a week or whatever, I don't know. Surely that's something that you prioritize. How do you, how do you think about like, shipping versus like going going back and like testing and working in community and all the other stuff that you're managing?
+
+How do you prioritize? 
+
+Shreya: That’s such a wonderful question. Yeah. A very hard question as well. I don't know if I would have a good answer for this. I think right now it's instinctive. Like I have a whole kind of stack ranked list of like things I wanna do and features I wanna build and like, support, et cetera.
+
+Combined with that is like a feature request I get or maybe some bugs, et cetera, that folks report. So I'm pretty focused on like any failures, any [00:41:00] feature requests from the community. So if those come up, I th those tend to Trump like anything else that I'm working on. But outside of that I have like this whole pool of ideas and like pool of features I wanna build and I kind of.
+
+Constantly kind of keep stack ranking them and like pushing something out. So I'm spending like I'm thinking about this problem constantly and as, as a function of that, I have like a ton of ideas for like what would be cool to build and, and what would be the right way to like, do certain things and yeah, wanna basically kind of like I keep jotting it down and keep thinking of like every time I cross something off the list.
+
+I think about like, what's the next exciting thing to work on. I think simultaneously with that we mentioned that at the beginning of this conversation, but like this idea of like what the right interface for rail is, right? Like, is it the xl, is it code, et cetera. So I think like those are like fundamental kind of design questions and I'm you know, collaborating with folks and trying to figure that out now.
+
+And yeah, I think that's like a parallel project that I'm hoping that yeah, you'll basically, that we'll be out soon. Like in terms
+
+Swyx: of the levers, how do you, like, let's just say in like a typical week, is it like 50% [00:42:00] calls with partners mm-hmm. And potential users and just understanding your use cases and the 50% building would you move that, that percentage anyway anywhere?
+
+Would you add in something that's significant?
+
+Shreya: I think it's frankly very variable week to week. So, yeah. I think early on when I released Guardrails I was like, here's how I'm thinking about this problem. Right? Yeah. Don't need anyone else. You just no, but actually to the contrary, it was like, this is like, I'm very opinionated about like what the right way to solve this is.
+
+And this is all of the problems I've thought about and like, and I know this framework maps well to these sets of problems, right? What are your problems? Like there's this whole other like big population of people that are building and you know, I basically wanna make sure that I have like user empathy and I have like I'm able to understand what people are doing and like make sure the framework like maps well.
+
+So I think I did a lot of that, like. Immediately after the release, like talking to a lot of teams and talking to a lot of users. I think since then, I basically feel like I have a fair idea of like, you know what's great about it, what's mediocre about it, and what's like, not good about it? And that helps kind of guide my prioritization list of like what I [00:43:00] wanna ship and what I wanna build.
+
+So now it's more kind of like, I would say, yeah, back to being more, more balanced. 
+
+Alessio: All the companies we work with that are in open source, I always try and have them think through open source as a distribution model. Mm-hmm. Or like a development model. I was looking in the contributors list, and you have by far the most code, the second largest contributor. It's your husband. And after that it kind of goes, goes or magnitude lower. What have you found kind of working in, in open source in like a very fast moving project for, for the first time? You know, it's a, like with my husband, it's the community. No, no. It's the, it's the community like, A superpower to you?
+
+Do you feel like, do you feel like having to explain why you're doing things a certain way, like getting people buy in is maybe slowing you down when things move so quickly? I'm, I'm always interested to hears people's thoughts.
+
+Shreya: Oh that's a good question. I think like, there's part of like, I think guardrails at that stage, right?
+
+You know, I have like feature requests and I have [00:44:00] contributors, but I think right now, like I'm doing the bulk of like supporting those feature requests, et cetera. So I think a goal for me, and I remember we chatted about this as well you know, when we, when we spoke last, we're just like, okay.
+
+You know, getting into that point where, yeah, you, you essentially like kind of start nurturing and like getting more contributions from like the open source. So I think like that's one of the things that yeah. Is kind of the next goal for me. Yeah, it's been pretty. Fun. I, I would say like up until now, because I haven't made any big breaking a API changes, et cetera, so I haven't like, needed that community input.
+
+I think like one of the big ones that is coming right now is like the code, right? Like the code first, a API for creating rails. So I think like that was kind of important for like nailing that user experience, et cetera. So the, so the collaborators that I'm working with, there's basically an an R F C and community input, et cetera, and you know, what the best way to do that would be.
+
+And so that's actually, frankly, been like pretty fun as well to see the community be like opinionated about like, here's how I'm doing it and like, this works for me, this doesn't work for me, et cetera. So that's been like new for me as well. Like, I [00:45:00] think I am my previous company we also had like open source project and it was built on open source, but like, this is the first time that I've created a project with an open source project with like that level of engagement.
+
+So that's been pretty fun.
+
+Swyx: I'm always curious about like potential future business model, modern sensation,
+
+Shreya: anything like that. Yeah. I think I'm interested in entrepreneurship generally, honestly, trying to figure out like what the, all of those questions, right?
+
+Like business model, I
+
+Swyx: think a lot of people are in your shoes, right? They're developers. Mm-hmm. They and see a lot of energy they would like to start working on with open source projects. Mm-hmm. What is a deciding factor? What do you think people should think about when deciding whether or not, Hey, this is just a project that I maintained versus, Nope, I'm going to do the whole thing that get funding and all
+
+Shreya: that.
+
+I think for me So I'm already kind of like I'm al I'm working on the open source full time. I think like the motivating thing for me was that, okay, this is. A problem that would need to get solved, like one way or another.
+
+This we talked about in variance earlier, and I do think that this is a, like being able to, like, I think if, if there's a contraction or a correction and [00:46:00] the, these LMS like don't have the kind of impact that we're, we're all hoping they would, I think it would be because of like, this problem because people kind of find that it's not as useful when it's running at very large scales when it's running in production, et cetera.
+
+So I think like that was very, that gave me a lot of conviction that it's something that I kind of wanted to work on and that was a switch for me. That it gave me the conviction to, for example, quit my job. Yeah. Also, yeah. Slightly confidential. Off the record. Off the record, yeah. Yeah.
+
+Alessio: We're not gonna talk about. Special project at Apple. That's a, that's very secret. Yeah. But you overlap Apple with Ian Goodfellow, which is obviously a, a very public figure in the AI space.
+
+Swyx: Actually, not that many people know what he did, so maybe we can, she can introduce Ian Goodfellow as well.
+
+Shreya: But, yeah, so Ian Goodfellow is the creator of Ganz or a generative adversarial network.
+
+So this was, I think I'm gonna mess up between 1215, I think 14, 15 ish if I remember correctly. So he basically created gans as a PhD student. As a PhD student. And he has a pretty interesting story of like how he thought of them and how [00:47:00] he kind of, Built the, and I I'm sure there's like interviews in like podcasts, et cetera with him where he talks about it, where like, how he got the idea for it and how he kind of like wrote the paper and did the experiments.
+
+So gans essentially were kind of like the first wave of generative images where you would see essentially kind of like fake auto-generated images, you know conditioned on like certain distributions. And so they were like very many variants of gans, like DC GAN, I'm gonna mess up the pronunciation, but dub, I'm just gonna call it w GaN.
+
+Mm-hmm. GAN Yeah. That like, you would essentially see these like really wonderful generative art. And I do think that like so I, I got the chance to work with him while at Apple. He had just moved to Apple from Google Brain and was building the cross-functional machine learning team within SPG.
+
+And I got the chance to work with him, which is very exciting. I learned so much and he is a fantastic manager and yeah, really, really enjoyed working with
+
+Alessio: him. And then he, he quit his job when they forced him to go back to the office. Right? That's the
+
+Swyx: Oh, really? Oh,
+
+Alessio: I didn't see that. Oh, okay. I think he basically, apple was like, you gotta go [00:48:00] back to the office.
+
+He said peace. That just
+
+Swyx: went toon. I'm curious, like what's some, some things that you learned from Ian that, or maybe some stories that,
+
+Shreya: Could be interesting. So there's like one, maybe machine learning specific and like one, maybe not machine learning specific and just general, like career stuff.
+
+Yeah. So the ML specific one was that well, Very high level. I think like working with him, you just truly see the creativity. And like after I worked with him, I was like, yeah, I, I totally get that. This is the the guy, like how his, how his brain works it's totally, it's so obvious that this is the guy who made like gans work basically.
+
+So I think he, when he does machine learning and when he thinks about like problems to solve, he thinks about it from a very creative out of the box way of thinking about it. And we kind of saw that with like, some of the problems where he was working on where anytime he had like feedback or suggestions on the, on the approaches that I was taking, I was like, wow, this is really exciting and like very creative and yeah, it was very, very cool to work on.
+
+So that was very high level machine learning.
+
+Swyx: I think the apple, apple standing by with like a blow dart if you, if like, say anymore.
+
+Shreya: I think the, the non-technical stuff, which [00:49:00] was I think truly made him such a fantastic manager. But when I went to Apple, I was, you know maybe a year outta school outta my job at that point.
+
+And I remember that I like most new grads was. Had like, okay, I, I need to kind of solve this problem on my own before I kind of get external help. Yeah. Yeah. And like, one of my first, I think probably my first or second week, like Ian and I, we were para programming and I remember that we were working together and like some setup issues were happening.
+
+And he would wait like exactly 45 seconds before he would like, fire up a message on Slack and like, how do I, how do I kind of fix this? How do they do this? And it just like totally transformed like, like, they're just like us, you know? I think not even that, it's that like. I kind of realized that I was optimizing for the wrong thing, right?
+
+By trying to like solve this myself. And instead of just if I'm running into a problem posting on Slack and like getting collaborative information, it wasn't that, yeah, it was, it was more the idea of my job is not like to solve this myself. My job is to solve this period.
+
+Mm-hmm. And the fastest way to solve this is the most, is the most correct way to do it. And like, [00:50:00] yeah, I truly, like, he's one of my favorite people. And I truly enjoyed working with him a lot, but that was one of my, Super early into my job there. Like I, I learned that that was You're very
+
+Swyx: lucky to do that.
+
+Yeah. Yeah. That's awesome. I love learning about the people side. Mm-hmm. You know, because that's what we deal with on a day-to-day basis, so. Mm-hmm. It's really nice to Yeah. To hear about that kind of stuff. Yeah. I was gonna go into one more academia question and then we'll go into lighting rounds.
+
+So you're close to Stanford. There's
+
+Shreya: obviously a lot of By, by my, yeah. My, my husband basically. Yeah. He doesn't have a
+
+Swyx: choice. There's a lot of interesting things coming on to Stanford, right. Vicuna, Alpaca and, and Stanford home. Are you keeping a close eye on like, the academic outputs? What are you seeing that is interesting to you?
+
+Shreya: I think obviously because of I'm, I'm focused on this problem, definitely looking at like how people are, you know thinking about the guard rails and like kind of adding more constraints.
+
+Swyx: It's such a great name by the way. I love it. Every time I see people say Guardrails, I'm like, yeah. 
+
+Shreya: Yeah, I appreciate that. So I think like that is definitely one of the things. I think other ones are kind of like more out of like curiosity because of like some ML problems that I worked on in the past. Like I, [00:51:00] I mentioned that I worked on a efficient ml, so looking into like how people are doing, like more efficient inference.
+
+I think that is very fascinating to me. Mm-hmm. So, yeah, looking into that. I think evaluation helm was pretty exciting, really looking forward to like longer context length and seeing what's possible with that. More better fine tuning with like maybe lower data, et cetera. I think those are all some of the themes that I'm interested in.
+
+Swyx: Yeah. Yeah. Okay. So just because you have more expertise with efficiency, are you talking about quantization? Are you talking about pruning? Are you talking about. Distillation. I do
+
+Shreya: think that the right way to solve these problems is always like to a mix. Yeah. A mix. Everything of them and like ensemble, all of these methods together.
+
+So I think, yeah, basically there's this like constant like tug of war and like push and pull between adding like some of these colonization for example, like improved memory, improved latency, et cetera. But then immediately you get like a performance hit, right? So like there's this like balance between like making it smaller and making it more efficient, but like not losing out on like what that performance is.
+
+And it's a big kind of experimentation framework. It's like understanding like where the bottlenecks are. So it's very, it's [00:52:00] very. You know, exploratory and experimental in nature. And so it's hard to kind of like be prescriptive about this is exactly what would work. It like, truly depends, like use case to use case architecture to architecture, hardware to hardware, et cetera.
+
+Yeah. Wanna
+
+Alessio: jump into lightning round? Yeah. You ready?
+
+Shreya: I, I
+
+Alessio: hope so. Yeah. So we have five questions. Mm-hmm. And yeah, just respond in a sentence or two. Sean sometimes has the follow up tendency to follow up questions. The light. Yeah. You wanna get more info, which is, which is be ready. So the first one we always ask is what's your favorite AI product?
+
+Shreya: Very boring answer, but co-pilot life changing. Yeah. Yeah. Absolutely. Love it. Yeah.
+
+Swyx: Surprisingly not that many people have called out copilot in Oh, really? In our interviews. Cuz everyone's going to arts, like, they're like mid journeys, they will diff stuff. I see. Gotcha. But yeah, co-pilot is is great.
+
+Underrated. Yeah. It's still for $10 a month.
+
+Shreya: I mean, why not? Yeah. It's, it's, it's so wonderful.
+
+Swyx: I'm looking forward to co-pilot X, which is sort of the next iteration. Yeah.
+
+Shreya: I was testing on my co-pilot, so I [00:53:00] just got upgrade my laptop and then setting up vs code. And then I got co-pilot labs, I think is it?
+
+Or experimental. Yeah. Even that like Yes. Brushes and stuff. Yeah. Yeah. Yeah.
+
+Swyx: That was pretty cool. Talk to Amelia, who works on GitHub next. They, they build copilot labs and there's the voice component, which I don't know if you've tried. Oh, I, I stick whisper with co-pilot.
+
+Shreya: I see. It's just like your instructions and, yeah.
+
+Yeah. Oh,
+
+well
+
+Swyx: also I have rsi. Mm-hmm. So actually sometimes it, it hurts when I type. I So, see it's actually super helpful to talk to your,
+
+Shreya: ah, interesting. Okay. Id, yeah, it's pretty, yeah. I, it was, Playing around with it yesterday, I was like, wow, this is so cool.
+
+Swyx: Yeah. Next question. What is something you thought would take much longer than, but it's already here.
+
+Like this is an acceleration question.
+
+Shreya: Let's see. Yeah, maybe this is getting like too developer focused too. Code focused. It's, but I, I do think like a lot of the auto generating code stuff is is really freaking cool. And I think especially if combine it with like maybe testing, right? Mm-hmm.
+
+Where you have like code and then you have like test to make sure the code work. And like you have this like, kind of like iterative loop until you refinement, until you're able to kind of [00:54:00] like self-heal code or like automatically generate code. I think like that is super
+
+Swyx: fascinating to you. Are you referring to some products
+
+Shreya: or demos that Actually I wouldn't give a, a plug for like basically this GitHub action called AutoPR, which like one of my community contributors kind of built using guardrails.
+
+And so the idea of what auto PR does is it takes a GitHub issue and if you have the right label for it, it automatically triggers this action where you create a PR given the issue text, et cetera. Huh? Yeah. Oh, it's so cool. It's, so your issue is the prompt. Yeah. Amongst like, other things other like Other context that you don't like?
+
+I'm gonna try this out right now. Yeah. Yeah. This is crazy. Yeah, it, it's, it's really cool. So I think like these types of workflows, it will take time before we can use them seamlessly, but Yeah. Truly very fascinating. 
+
+Alessio: There's another open source project called a Wolverine by Biobootloader
+
+Yeah. Yeah, it's cool. It's really cool. It's basically like self-healing code. Yeah. You just let it run and then it makes a mistake and runs in a REPL, takes the code and ask it to just give you the diff and [00:55:00] like drops out the code and runs it again. It just
+
+Swyx: automates what I do anyway. Exactly.
+
+Alessio: So we can focus on the podcast.
+
+Shreya: This is one of the things that won't be automated away. Yeah. I think like, yeah, I, I saw over bringing, I think it was pretty cool and I think I'm very excited about that problem also because if you can think about it as like framing it within the context of these validators, et cetera, right?
+
+Like I think so bug-free sequel. What that does is like exactly that workflow of like generates code, executes, it takes failures, re-ask, et cetera. So implements that whole workflow like within a validator. Yeah. 
+
+Swyx:The future is here.
+
+Alessio: Well, this kind of ties into the next question.A year from now, what will be will be the most surprised by in AI?
+
+Shreya: Hmm. Yeah. Not to be a downer, but I do think that like how hard it is to truly take these things to production and like get consistently amazing user experiences from it. But I think like this, yeah, we're at that stage where there's basically like a little bit of a gap between like what, what you kind of [00:56:00] see as being very exciting.
+
+And I think it's like, it's a demonstration of what's possible with this, right? But like, closing that gap between like what's possible versus like what's consistently deliverable. I think it's, it's a harder problem to solve. So I do think that it's gonna take some time before all of these experiences are like absolutely wonderful.
+
+So yeah, I think like a year from now we'll kind of like find some of these things taking a little bit longer than expected.
+
+Swyx: Request for startups or request for product. What's an AI thing you would pay for if somebody
+
+Shreya: built it? I think this is already exists and I just kind of maybe have to hook it up, et cetera, but I would a hundred percent pay for this, like emails.
+
+Emails in my tone. Oh, I see. Yeah, no, keep yeah,
+
+Swyx: emails, list your specs. Like what, what should it do? What should I
+
+Shreya: not do? Yeah. I think like, I basically have an idea always of like this is tldr what I want this email to say. Sure. I want it to be in my tone so that it's not super formal, it's not super like lax, et cetera.
+
+I want it to be like tours and short and I want it to like I wanted to have context of like a previous history and maybe some [00:57:00] other like links, et cetera that I'm adding. So I wanted to hook it up to like, some of my data sources and do that. I think that would, I would like pay Yeah.
+
+Good money for that every month. Yeah. Nice.
+
+Alessio: I, I bill one the only as the, the email trend as the context, but then as a bunch of things like For example, for me it's like if this company is not in the developer tool space, I'm gonna pass on it. So direct to pass email, if the person is asking to schedule, please ask them to send them to send me their calendarly so I can pick a time from there.
+
+All these different things I see. But sometimes it's a new thread with somebody you already spoken with a bunch of times, so it should pull all of that stuff too. But I open source all of it because I don't want to deal with storing peoples email. It's
+
+Shreya: like the, the hardest thing. Do you find that it does tone well?
+
+Like does it match your tone or does
+
+Alessio: it I have to use right now public figures as a I see thing. So it, I do things like write like Paul Graham or write or like, people that are like, have a lot of variety. Oh, that's actually pretty cool. Yeah. You know? Yeah. Yeah. It works pretty well. I see. Nice.
+
+There's some things Paul Graham would not [00:58:00] say that it writes in the, in the emails, but overall I would say probably like 20% of the drafts it creates are like, Usually good to go, like 70% it needs some work. And then there's like the 10% that is like, I have no idea why you just said that. It's completely like out of left field.
+
+I see. Yeah. But it will, it'll get better if I spend more time on it. But you know, it kind of adds up because I use G B D four, I get a lot of emails, so like having an autodraft responses for everything in my inbox, it, it adds up. So maybe the pattern of having, based on the label you put on the email to auto generate, it's
+
+Shreya: it's good.
+
+Oh, that's pretty cool. Yeah. And actually, yeah, as a separate follower, I would love to know like all of the ways it messes up and, you know if we get on guard, let's talk about it now. Let's,
+
+Swyx: yeah. Sometimes it doesn't, your project should use guardrails.
+
+Alessio: Yeah. No, no, no. Definitely. I think sometimes it doesn't understand the, the email is not a pitch, so somebody emails me something that's like unrelated and then it's like, oh, thank you.[00:59:00]
+
+But since you're not working in the space, I'm not gonna be investing in you. But good luck with the rest of your fundraise. But it's like, never mention a fundraise, but because in the prompt, it, as part of the prompt is like, if it's a pitch and it's not in the space, a pre-draft, an email, it thinks it has to do it a lot more than it should.
+
+Or like, same with scheduling somebody you know, any sales call that, any sales email that I get, it always wants to schedule a call with them. And I was like, I don't wanna meet with them, I don't wanna buy this thing. But the, the context of the email is like, they wanna schedule something so the responders you know, is helping you schedule, but it doesn't know that I don't want to, does
+
+Shreya: it like autodraft all, like is there any input that you give for each email or does it autodraft everything?
+
+Alessio: I just give it the tread and then a blank blank slate. I don't give it anything else because I wanted to run while I'm not in the inbox, but yours. It's a little better. What I'm doing is draft generation. What you wanna do is like draft expansion. So instead of looking at the [01:00:00] inbox in your case, you will look at the draft folder and look through each draft and expend the draft.
+
+Yeah, to be a full response, which makes a lot of sense.
+
+Shreya: Yeah, that's pretty interesting. I, I can think of like some guardrails that I can know quick, quick and dirty guardrails that I can hook up that would make some of those problems like go away. Yeah. Yeah,
+
+Swyx: like as in do they exist
+
+Shreya: now or they don't exist?
+
+They don't exist now, but I can like, think about like, I'm like always looking for problems so yeah. This is a
+
+Swyx: API design issue, right? Because if, if one conversation, you come away with like three guardrails and then another conversation, you come, none of three guardrails. How do you think about like, there's so many APIs that you could possibly do, right?
+
+You need to design for generally composable or
+
+Shreya: reusable APIs. Yeah, so I would probably like break this down into like, like a relevant action item guardrail or something, right? And it's basically like essentially only talk about, or only like the action items should only be things that are within the context of those emails.
+
+And if something hasn't been mentioned, don't add context about that. So that would probably be a generic gar that I could, I could add. And then you, you could probably configure it with like, what are the sets of like [01:01:00] follow up action items that you typically have and, and correct for it that way.
+
+Swyx: We, we just heard a new API being designed live, which doesn't happen very often.
+
+Shreya: It's very cool. Yeah. And
+
+Alessio: last but not least, if there's one thing you want people to take away about AI and kind of this moment that we're in, in technology, what would that be?
+
+Shreya: I do think this is the most exciting time in machine learning, as least as long as I've been working on it.
+
+And so I do think, like, frankly, we're all just so lucky to kind of be living through this and it's just very fascinating to be part of that. I think at the same time the technology is so exciting that you, you get like, Driven by wanting to use it. But I think like really thinking about like what's the best way to use it along with like other systems that have existed so that it's more kind of like task focused and like outcome focused rather than like technology focused.
+
+So this kind of like obviously I'm biased because I feel this way because I've designed guardrails this way that it kind of like merges LLMs with rules and heuristics and like traditional ML, et cetera. But I do think [01:02:00] that like this, this general framework of like thinking about how to build ML products is something that I'm bullish on and something I'd want people to like think about as well.
+
+Yeah.
+
+Alessio: Awesome. Well thank you so much for coming
+
+Shreya: Yeah, absolutely. Thanks for inviting me.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Alessio Fanelli
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

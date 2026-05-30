@@ -1,0 +1,279 @@
+# Powering your Copilot for Data – with Artem Keydunov of Cube.dev
+# URL: https://www.latent.space/p/cube
+# Date: 2023-10-26
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Powering your Copilot for Data – with Artem Keydunov of Cube.dev
+
+22
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -38:48
+
+-38:48
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Powering your Copilot for Data – with Artem Keydunov of Cube.dev
+
+Talking semantic layers, OLAP cubes, and how the Modern Data Stack is integrating with the Software 3.0 stack
+
+Artyom Keydunov
+
+Oct 26, 2023
+
+22
+
+Share
+
+Transcript
+
+The first workshops and talks from the AI Engineer Summit are now up! Join the >20k viewers on YouTube, find clips on Twitter (we’re also clipping @latentspacepod), and chat with us on Discord!
+
+Text-to-SQL was one of the first applications of NLP. Thoughtspot offered “Ask your data questions” as their core differentiation compared to traditional dashboarding tools. In a way, they provide a much friendlier interface with your own structured (aka “tabular”, as in “SQL tables”) data, the same way that RLHF and Instruction Tuning helped turn the GPT-3 of 2020 into the ChatGPT of 2022.
+
+Today, natural language queries on your databases are a commodity. There are 4 different ChatGPT plugins that offer this, as well as a bunch of startups like one of our previous guests, Seek.ai. Perplexity originally started with a similar product in 2022: 
+
+In March 2023 LangChain wrote a blog post on LLMs and SQL highlighting why they don’t consistently work:
+
+“LLMs can write SQL, but they are often prone to making up tables, making up field”
+
+“LLMs have some context window which limits the amount of text they can operate over”
+
+“The SQL it writes may be incorrect for whatever reason, or it could be correct but just return an unexpected result.”
+
+For example, if you ask a model to “return all active users in the last 7 days” it might hallucinate a `is_active` column, join to an `activity` table that doesn’t exist, or potentially get the wrong date (especially in leap years!).
+
+We previously talked to Shreya Rajpal at Guardrails AI, which also supports Text2SQL enforcement. Their approach was to run the actual SQL against your database and then use the error messages to improve the query: 
+
+Semantic Layers to the rescue
+
+Cube is an open source semantic layer which recently integrated with LangChain to solve these issues in a different way. You can use YAML, Javascript, or Python to create definitions of different metrics, measures and dimensions for your data: 
+
+Creating these metrics and passing them in the model context limits the possibility for errors as the model just needs to query the `active_users` view, and Cube will then expand that into the full SQL in a reliable way. The downside of this approach compared to the Guardrails one for example is that it requires more upfront work to define metrics, but on the other hand it leads to more reliable and predictable outputs. 
+
+The promise of adding a great semantic layer to your LLM app is irresistible - you greatly minimize hallucinations, make much more token efficient prompts, and your data stays up to date without any retraining or re-indexing. However, there are also difficulties with implementing semantic layers well, so we were glad to go deep on the topic with Artem as one of the leading players in this space!
+
+Timestamps
+
+[00:00:00] Introductions
+
+[00:01:28] Statsbot and limitations of natural language processing in 2017
+
+[00:04:27] Building Cube as the infrastructure for Statsbot
+
+[00:08:01] Open sourcing Cube in 2019
+
+[00:09:09] Explaining the concept of a semantic layer/Cube
+
+[00:11:01] Using semantic layers to provide context for AI models working with tabular data
+
+[00:14:47] Workflow of generating queries from natural language via semantic layer
+
+[00:21:07] Using Cube to power customer-facing analytics and natural language interfaces
+
+[00:22:38] Building data-driven AI applications and agents
+
+[00:25:59] The future of the modern data stack
+
+[00:29:43] Example use cases of Slack bots powered by Cube
+
+[00:30:59] Using GPT models and limitations around math
+
+[00:32:44] Tips for building data-driven AI apps
+
+[00:35:20] Challenges around monetizing embedded analytics
+
+[00:36:27] Lightning Round
+
+Transcript
+
+Swyx: Hey everyone, welcome to the Latent Space podcast. This is Swyx, writer, editor of Latent Space and founder of Smol.ai and Alessio, partner and CTO in residence at Decibel Partners. [00:00:15]
+
+Alessio: Hey everyone, and today we have Artem Keydunov on the podcast, co-founder of Cube. Hey Artem. [00:00:21]
+
+Artem: Hey Alessio, hi Swyx. Good to be here today, thank you for inviting me. [00:00:25]
+
+Alessio: Yeah, thanks for joining. For people that don't know, I've known Artem for a long time, ever since he started Cube. And Cube is actually a spin-out of his previous company, which is Statsbot. And this kind of feels like going both backward and forward in time. So the premise of Statsbot was having a Slack bot that you can ask, basically like text to SQL in Slack, and this was six, seven years ago, something like that. A lot ahead of its time, and you see startups trying to do that today. And then Cube came out of that as a part of the infrastructure that was powering Statsbot. And Cube then evolved from an embedded analytics product to the semantic layer and just an awesome open source evolution. I think you have over 16,000 stars on GitHub today, you have a very active open source community. But maybe for people at home, just give a quick like lay of the land of the original Statsbot product. You know, what got you interested in like text to SQL and what were some of the limitations that you saw then, the limitations that you're also seeing today in the new landscape? [00:01:28]
+
+Artem: I started Statsbot in 2016. The original idea was to just make sort of a side project based off my initial project that I did at a company that I was working for back then. And I was working for a company that was building software for schools, and we were using Slack a lot. And Slack was growing really fast, a lot of people were talking about Slack, you know, like Slack apps, chatbots in general. So I think it was, you know, like another wave of, you know, bots and all that. We have one more wave right now, but it always comes in waves. So we were like living through one of those waves. And I wanted to build a bot that would give me information from different places where like a data lives to Slack. So it was like developer data, like New Relic, maybe some marketing data, Google Analytics, and then some just regular data, like a production database, so it sells for sometimes. And I wanted to bring it all into Slack, because we were always chatting, you know, like in Slack, and I wanted to see some stats in Slack. So that was the idea of Statsbot, right, like bring stats to Slack. I built that as a, you know, like a first sort of a side project, and I published it on Reddit. And people started to use it even before Slack came up with that Slack application directory. So it was a little, you know, like a hackish way to install it, but people are still installing it. So it was a lot of fun. And then Slack kind of came up with that application directory, and they reached out to me and they wanted to feature Statsbot, because it was one of the already being kind of widely used bots on Slack. So they featured me on this application directory front page, and I just got a lot of, you know, like new users signing up for that. It was a lot of fun, I think, you know, like, but it was sort of a big limitation in terms of how you can process natural language, because the original idea was to let people ask questions directly in Slack, right, hey, show me my, you know, like opportunities closed last week or something like that. My co founder, who kind of started helping me with this Slack application, him and I were trying to build a system to recognize that natural language. But it was, you know, we didn't have LLMs right back then and all of that technology. So it was really hard to build the system, especially the systems that can kind of, you know, like keep talking to you, like maintain some sort of a dialogue. It was a lot of like one off requests, and like, it was a lot of hit and miss, right? If you know how to construct a query in natural language, you will get a result back. But you know, like, it was not a system that was capable of, you know, like asking follow up questions to try to understand what you actually want. And then kind of finally, you know, like, bring this all context and go to generate a SQL query, get the result back and all of that. So that was a really missing part. And I think right now, that's, you know, like, what is the difference? So right now, I kind of bullish that if I would start Statsbot again, probably would have a much better shot at it. But back then, that was a big limitation. We kind of build a queue, right, as we were working on Statsbot, because we needed it. [00:04:27]
+
+Alessio: What was the ML stack at the time? Were you building, trying to build your own natural language understanding models, like were there open source models that were good that you were trying to leverage? [00:04:38]
+
+Artem: I think it was mostly combination of a bunch of things. And we tried a lot of different approaches. The first version, which I built, like was Regex. They were working well. [00:04:47]
+
+Swyx: It's the same as I did, I did option pricing when I was in finance, and I had a natural language pricing tool thing. And it was Regex. It was just a lot of Regex. [00:04:59]
+
+Artem: Yeah. [00:05:00]
+
+Artem: And my co-founder, Pavel, he's much smarter than I am. He's like PhD in math, all of that. And he started to do some stuff. I was like, no, you just do that stuff. I don't know. I can do Regex. And he started to do some models and trying to either look at what we had on the market back then, or try to build a different sort of models. Again, we didn't have any foundation back in place, right? We wanted to try to use existing math, obviously, right? But it was not something that we can take the model and try and run it. I think in 2019, we started to see more of stuff, like ecosystem being built, and then it eventually kind of resulted in all this LLM, like what we have right now. But back then in 2016, it was not much available for just the people to build on top. It was some academic research, right, kind of been happening. But it was very, very early for something to actually be able to use. [00:05:58]
+
+Alessio: And then that became Cube, which started just as an open source project. And I think I remember going on a walk with you in San Mateo in 2020, something like that. And you had people reaching out to you who were like, hey, we use Cube in production. I just need to give you some money, even though you guys are not a company. What's the story of Cube then from Statsbot to where you are today? [00:06:21]
+
+Artem: We built a Cube at Statsbot because we needed it. It was like, the whole Statsbot stack was that we first tried to translate the initial sort of language query into some sort of multidimensional query. It's like we were trying to understand, okay, people wanted to get active opportunities, right? What does it mean? Is it a metric? Is it what a dimension here? Because usually in analytics, you always, you know, like, try to reduce everything down to the sort of, you know, like a multidimensional framework. So that was the first step. And that's where, you know, like it didn't really work well because all this limitation of us not having foundational technologies. But then from the multidimensional query, we wanted to go to SQL. And that's what was SemanticLayer and what was Cube essentially. So we built a framework where you would be able to map your data into this concept, into this metrics. Because when people were coming to Statsbot, they were bringing their own datasets, right? And the big question was, how do we tell the system what is active opportunities for that specific users? How we kind of, you know, like provide that context, how we do the training. So that's why we came up with the idea of building the SemanticLayer so people can actually define their metrics and then kind of use them as a Statsbot. So that's how we built a Cube. At some point, we saw people started to see more value in the Cube itself, you know, like kind of building the SemanticLayer and then using it to power different types of the application. So in 2019, we decided, okay, it feels like it might be a standalone product and a lot of people want to use it. Let's just try to open source it. So we took it out of Statsbot and open-sourced. [00:08:01]
+
+Swyx: Can I make sure that everyone has the same foundational knowledge? The concept of a cube is not something that you invented. I think, you know, not everyone has the same background in analytics and data that all three of us do. Maybe you want to explain like OLAP Cube, HyperCube, the brief history of cubes. Right. [00:08:17]
+
+Artem: I'll try, you know, like a lot of like Wikipedia pages and like a lot of like a blog post trying to go into academics of it. So I'm trying to like... [00:08:25]
+
+Swyx: Cube's according to you. Yeah. [00:08:27]
+
+Artem: So when we think about just a table in a database, the problem with the table, it's not a multidimensional, meaning that in many cases, if we want to slice the data, we kind of need to result with a different table, right? Like think about when you're writing a SQL query to answer one question, SQL query always ends up with a table, right? So you write one SQL, you got one. And then you write to answer a different question, you write a second query. So you're kind of getting a bunch of tables. So now let's imagine that we can kind of bring all these tables together into multidimensional table. And that's essentially Cube. So it's just like the way that we can have measures and dimension that can potentially be used at the same time from a different angles. [00:09:09]
+
+Alessio: So initially, a lot of your use cases were more BI related, but you recently released a LangChain integration. There's obviously more and more interest in, again, using these models to answer data questions. So you've seen the chat GPT code interpreter, which is renamed as like advanced data analysis. What's kind of like the future of like the semantic layer in AI? You know, what are like some of the use cases that you're seeing and why do you think it's a good strategy to make it easier to do now the text to SQL you wanted to do seven years ago? [00:09:39]
+
+Artem: Yeah. So, I mean, you know, when it started to happen, I was just like, oh my God, people are now building Statsbot with Cube. They just have a better technology for, you know, like natural language. So it kind of, it made sense to me, you know, like from the first moment I saw it. So I think it's something that, you know, like happening right now and chat bot is one of the use cases. I think, you know, like if you try to generalize it, the use case would be how do we use structured or tabular data with, you know, like AI models, right? Like how do we turn the data and give the context as a data and then bring it to the model and then model can, you know, like give you answers, make a questions, do whatever you want. But the question is like how we go from just the data in your data warehouse, database, whatever, which is usually just a tabular data, right? Like in a SQL based warehouses to some sort of, you know, like a context that system can do. And if you're building this application, you have to do it. It's like no way you can get away around not doing this. You either map it manually or you come up with some framework or something else. So our take is that and my take is that semantic layer is just really good place for this context to leave because you need to give this context to the humans. You need to give that context to the AI system anyway, right? So that's why you define metric once and then, you know, like you teach your AI system what this metric is about. [00:11:01]
+
+Alessio: What are some of the challenges of using tabular versus language data and some of the ways that having the semantic layer kind of makes that easier maybe? [00:11:09]
+
+Artem: Imagine you're a human, right? And you're going into like your new data analyst at a company and just people give you a warehouse with a bunch of tables and they tell you, okay, just try to make sense of this data. And you're going through all of these tables and you're really like trying to make sense without any, you know, like additional context or like some columns. In many cases, they might have a weird names. Sometimes, you know, if they follow some kind of like a star schema or, you know, like a Kimball style dimensions, maybe that would be easier because you would have facts and dimensions column, but it's still, it's hard to understand and kind of make sense because it doesn't have descriptions, right? And then there is like a whole like industry of like a data catalogs exist because the whole purpose of that to give context to the data so people can understand that. And I think the same applies to the AI, right? Like, and the same challenge is that if you give it pure tabular data, it doesn't have this sort of context that it can read. So you sort of needed to write a book or like essay about your data and give that book to the system so it can understand it. [00:12:12]
+
+Alessio: Can you run through the steps of how that works today? So the initial part is like the natural language query, like what are the steps that happen in between to do model, to semantic layer, semantic layer, to SQL and all that flow? [00:12:26]
+
+Artem: The first key step is to do some sort of indexing. That's what I was referring to, like write a book about your data, right? Describe in a text format what your data is about, right? Like what metrics it has, dimensions, what is the structures of that, what a relationship between those metrics, what are potential values of the dimensions. So sort of, you know, like build a really good index as a text representation and then turn it into embeddings into your, you know, like a vector storage. Once you have that, then you can provide that as a context to the model. I mean, there are like a lot of options, like either fine tune or, you know, like sort of in context learning, but somehow kind of give that as a context to the model, right? And then once this model has this context, it can create a query. Now the query I believe should be created against semantic layer because it reduces the room for the error. Because what usually happens is that your query to semantic layer would be very simple. It would be like, give me that metric group by that dimension and maybe that filter should be applied. And then your real query for the warehouse, it might have like a five joins, a lot of different techniques, like how to avoid fan out, fan traps, chasm traps, all of that stuff. And the bigger query, the more room that the model can make an error, right? Like even sometimes it could be a small error and then, you know, like your numbers is going to be off. But making a query against semantic layer, that sort of reduces the error. So the model generates a SQL query and then it executes us again, semantic layer. And semantic layer executes us against your warehouse and then sends result all the way back to the application. And then can be done multiple times because what we were missing was both this ability to have a conversation, right? With the model. You can ask question and then system can do a follow-up questions, you know, like then do a query to get some additional information based on this information, do a query again. And sort of, you know, like it can keep doing this stuff and then eventually maybe give you a big report that consists of a lot of like data points. But the whole flow is that it knows the system, it knows your data because you already kind of did the indexing and then it queries semantic layer instead of a data warehouse directly. [00:14:47]
+
+Alessio: Maybe just to make it a little clearer for people that haven't used a semantic layer before, you can add definitions like revenue, where revenue is like select from customers and like join orders and then sum of the amount of orders. But in the semantic layer, you're kind of hiding all of that away. So when you do natural language to queue, it just select revenue from last week and then it turns into a bigger query. [00:15:12]
+
+Swyx: One of the biggest difficulties around semantic layer for people who've never thought about this concept before, this all sounds super neat until you have multiple stakeholders within a single company who all have different concepts of what a revenue is. They all have different concepts of what active user is. And then they'll have like, you know, revenue revision one by the sales team, you know, and then revenue revision one, accounting team or tax team, I don't know. I feel like I always want semantic layer discussions to talk about the not so pretty parts of the semantic layer, because this is where effectively you ship your org chart in the semantic layer. [00:15:47]
+
+Artem: I think the way I think about it is that at the end of the day, semantic layer is a code base. And in Qubit, it's essentially a code base, right? It's not just a set of YAML files with pythons. I think code is never perfect, right? It's never going to be perfect. It will have a lot of, you know, like revisions of code. We have a version control, which helps it's easier with revisions. So I think we should treat our metrics and semantic layer as a code, right? And then collaboration is a big part of it. You know, like if there are like multiple teams that sort of have a different opinions, let them collaborate on the pull request, you know, they can discuss that, like why they think that should be calculated differently, have an open conversation about it, you know, like when everyone can just discuss it, like an open source community, right? Like you go on a GitHub and you talk about why that code is written the way it's written, right? It should be written differently. And then hopefully at some point you can come up, you know, like to some definition. Now if you still should have multiple versions, right? It's a code, right? You can still manage it. But I think the big part of that is that like, we really need to treat it as a code base. Then it makes a lot of things easier, not as spreadsheets, you know, like a hidden Excel files. [00:16:53]
+
+Alessio: The other thing is like then having the definition spread in the organization, like versus everybody trying to come up with their own thing. But yeah, I'm sure that when you talk to customers, there's people that have issues with the product and it's really like two people trying to define the same thing. One in sales that wants to look good, the other is like the finance team that wants to be conservative and they all have different definitions. How important is the natural language to people? Obviously you guys both work in modern data stack companies either now or before. There's going to be the whole wave of empowering data professionals. I think now a big part of the wave is removing the need for data professionals to always be in the loop and having non-technical folks do more of the work. Are you seeing that as a big push too with these models, like allowing everybody to interact with the data? [00:17:42]
+
+Artem: I think it's a multidimensional question. That's an example of, you know, like where you have a lot of inside the question. In terms of examples, I think a lot of people building different, you know, like agents or chatbots. You have a company that built an internal Slack bot that sort of answers questions, you know, like based on the data in a warehouse. And then like a lot of people kind of go in and like ask that chatbot this question. Is it like a real big use case? Maybe. Is it still like a toy pet project? Maybe too right now. I think it's really hard to tell them apart at this point because there is a lot of like a hype, you know, and just people building LLM stuff because it's cool and everyone wants to build something, you know, like even at least a pet project. So that's what happened in Krizawa community as well. We see a lot of like people building a lot of cool stuff and it probably will take some time for that stuff to mature and kind of to see like what are real, the best use cases. But I think what I saw so far, one use case was building this chatbot and we have even one company that are building it as a service. So they essentially connect into Q semantic layer and then offering their like chatbot So you can do it in a web, in a slack, so it can, you know, like answer questions based on data in your semantic layer, but also see a lot of things like they're just being built in house. And there are other use cases, sort of automation, you know, like that agent checks on the data and then kind of perform some actions based, you know, like on changes in data. But other dimension of your question is like, will it replace people or not? I think, you know, like what I see so far in data specifically, you know, like a few use cases of LLM, I don't see Q being part of that use case, but it's more like a copilot for data analyst, a copilot for data engineer, where you develop something, you develop a model and it can help you to write a SQL or something like that. So you know, it can create a boilerplate SQL, and then you can edit this SQL, which is fine because you know how to edit SQL, right? So you're not going to make a mistake, but it will help you to just generate, you know, like a bunch of SQL that you write again and again, right? Like boilerplate code. So sort of a copilot use case. I think that's great. And we'll see more of it. I think every platform that is building for data engineers will have some sort of a copilot capabilities and Cubectl, we're building this copilot capabilities to help people build semantic layers easier. I think that just a baseline for every engineering product right now to have some sort of, you know, like a copilot capabilities. Then the other use case is a little bit more where Cube is being involved is like, how do we enable access to data for non-technical people through the natural language as an interface to data, right? Like visual dashboards, charts, it's always has been an interface to data in every BI. Now I think we will see just a second interface as a just kind of a natural language. So I think at this point, many BI's will add it as a commodity feature is like Tableau will probably have a search bar at some point saying like, Hey, ask me a question. I know that some of the, you know, like AWS Squeak site, they're about to announce features like this in their like BI. And I think Power BI will do that, especially with their deal with open AI. So every company, every BI will have this some sort of a search capabilities built in inside their BI. So I think that's just going to be a baseline feature for them as well. But that's where Cube can help because we can provide that context, right? [00:21:07]
+
+Alessio: Do you know how, or do you have an idea for how these products will differentiate once you get the same interface? So right now there's like, you know, Tableau is like the super complicated and it's like super sad. It's like easier. Yeah. Do you just see everything will look the same and then how do people differentiate? [00:21:24]
+
+Artem: It's like they all have line chart, right? And they all have bar chart. I feel like it pretty much the same and it's going to be fragmented as well. And every major vendor and most of the vendors will try to have some sort of natural language capabilities and they might be a little bit different. Some of them will try to position the whole product around it. Some of them will just have them as a checkbox, right? So we'll see, but I don't think it's going to be something that will change the BI market, you know, like something that will can take the BI market and make it more consolidated rather than, you know, like what we have right now. I think it's still will remain fragmented. [00:22:04]
+
+Alessio: Let's talk a bit more about application use cases. So people also use Q for kind of like analytics in their product, like dashboards and things like that. How do you see that changing and more, especially like when it comes to like agents, you know, so there's like a lot of people trying to build agents for reporting, building agents for sales. If you're building a sales agent, you need to know everything about the purchasing history of the customer. All of these things. Yeah. Any thoughts there? What should all the AI engineers listening think about when implementing data into agents? [00:22:38]
+
+Artem: Yeah, I think kind of, you know, like trying to solve for two problems. One is how to make sure that agents or LLM model, right, has enough context about, you know, like a tabular data and also, you know, like how do we deliver updates to the context, which is also important because data is changing, right? So every time we change something upstream, we need to surely update that context in our vector database or something. And how do you make sure that the queries are correct? You know, I think it's obviously a big pain and that's all, you know, like AI kind of, you know, like a space right now, how do we make sure that we don't, you know, provide our own cancers, but I think, you know, like be able to reduce the room for error as much as possible that what I would look for, you know, like to try to like minimize potential damage. And then our use case for Qube, it's been using a lot to power sort of customer facing analytics. So I don't think much is going to change is that I feel like again, more and more products will adopt natural language interfaces as sort of a part of that product as well. So we would be able to power this business to not only, you know, like a chart, visuals, but also some sort of, you know, like a summaries, probably in the future, you're going to open the page with some surface stats and you will have a smart summary kind of generated by AI. And that summary can be powered by Qube, right, like, because the rest is already being powered by Qube. [00:24:04]
+
+Alessio: You know, we had Linus from Notion on the pod and one of the ideas he had that I really like is kind of like thumbnails of text, kind of like how do you like compress knowledge and then start to expand it. A lot of that comes into dashboards, you know, where like you have a lot of data, you have like a lot of charts and sometimes you just want to know, hey, this is like the three lines summary of it. [00:24:25]
+
+Artem: Exactly. [00:24:26]
+
+Alessio: Makes sense that you want to power that. How are you thinking about, yeah, the evolution of like the modern data stack in quotes, whatever that means today. What's like the future of what people are going to do? What's the future of like what models and agents are going to do for them? Do you have any, any thoughts? [00:24:42]
+
+Artem: I feel like modern data stack sometimes is not very, I mean, it's obviously big crossover between AI, you know, like ecosystem, AI infrastructure, ecosystem, and then sort of a data. But I don't think it's a full overlap. So I feel like when we know, like I'm looking at a lot of like what's happening in a modern data stack where like we use warehouses, we use BI's, you know, different like transformation tools, catalogs, like data quality tools, ETLs, all of that. I don't see a lot of being compacted by AI specifically. I think, you know, that space is being compacted as much as any other space in terms of, yes, we'll have all this copilot capabilities, some of AI capabilities here and there, but I don't see anything sort of dramatically, you know, being sort of, you know, a change or shifted because of, you know, like AI wave. In terms of just in general data space, I think in the last two, three years, we saw an explosion, right? Like we got like a lot of tools, every vendor for every problem. I feel like right now we should go through the cycle of consolidation. If Fivetran and DBT merge, they can be Alteryx of a new generation or something like that. And you know, probably some ETL tool there. I feel it might happen. I mean, it's just natural waves, you know, like in cycles. [00:25:59]
+
+Alessio: I wonder if everybody is going to have their own copilot. The other thing I think about these models is like Swyx was at Airbyte and yeah, there's Fivetran. [00:26:08]
+
+Swyx: Fivetran versus AirByte, I don't think it'll mix very well. [00:26:10]
+
+Alessio: A lot of times these companies are doing the syntax work for you of like building the integration between your data store and like the app or another data store. I feel like now these models are pretty good at coming up with the integration themselves and like using the docs to then connect the two. So I'm really curious, like in the future, what that will look like. And same with data transformation. I mean, you think about DBT and some of these tools and right now you have to create rules to normalize and transform data. In the future, I could see you explaining the model, how you want the data to be, and then the model figuring out how to do the transformation. I think it all needs a semantic layer as far as like figuring out what to do with it. You know, what's the data for and where it goes. [00:26:53]
+
+Artem: Yeah, I think many of this, you know, like workflows will be augmented by, you know, like some sort of a copilot. You know, you can describe what transformation you want to see and it can generate a boilerplate right, of transformation for you, or even, you know, like kind of generate a boilerplate of specific ETL driver or ETL integration. I think we're still not at the point where this code can be fully automated. So we still need a human and a loop, right, like who can be, who can use this copilot. But in general, I think, yeah, data work and software engineering work can be augmented quite significantly with all that stuff. [00:27:31]
+
+Alessio: You know, the big thing with machine learning before was like, well, all of your data is bad. You know, the data is not good for anything. And I think like now, at least with these models, they have some knowledge of their own and they can also tell you if your data is bad, which I think is like something that before you didn't have. Any cool apps that you've seen being built on Qube, like any kind of like AI native things that people should think about, new experiences, anything like that? [00:27:54]
+
+Artem: Well, I see a lot of Slack bots. They all remind me of Statsbot, but I know like I played with a few of them. They're much, much better than Statsbot. It feels like it's on the surface, right? It's just that use case that you really want, you know, think about you, a data engineer in your company, like everyone is like, and you're asking, hey, can you pull that data for me? And you would be like, can I build a bot to replace myself? You know, like, so they can both ping that bot instead. So it's like, that's why a lot of people doing that. So I think it's a first use case that actually people are playing with. But I think inside that use case, people get creative. So I see bots that can actually have a dialogue with you. So, you know, like you would come to that bot and say, hey, show me metrics. And the bot would be like, what kind of metrics? What do you want to look at? You will be like active users. And then it would be like, how do you define active users? You want to see active users sort of cohort, you want to see active users kind of changing behavior over time, like a lot of like a follow up questions. So it tries to sort of, you know, like understand what exactly you want. And that's how many data analysts work, right? When people started to ask you something, you always try to understand what exactly do you mean? Because many people don't know how to ask correct questions about your data. It's a sort of an interesting specter. On one side of the specter, you know, nothing is like, hey, show me metrics. And the other side of specter, you know how to write SQL, and you can write exact query to your data warehouse, right? So many people like a little bit in the middle. And the data analysts, they usually have the knowledge about your data. And that's why they can ask follow up questions and to understand what exactly you want. And I saw people building bots who can do that. That part is amazing. I mean, like generating SQL, all that stuff, it's okay, it's good. But when the bot can actually act like they know that your data and they can ask follow up questions. I think that's great. [00:29:43]
+
+Swyx: Yeah. [00:29:44]
+
+Alessio: Are there any issues with the models and the way they understand numbers? One of the big complaints people have is like GPT, at least 3.5, cannot do math. Have you seen any limitations and improvement? And also when it comes to what model to use, do you see most people use like GPT-4? Because it's like the best at this kind of analysis. [00:30:03]
+
+Artem: I think I saw people use all kinds of models. To be honest, it's usually GPT. So inside GPT, it could be 3.5 or 4, right? But it's not like I see a lot of something else, to be honest, like, I mean, maybe some open source alternatives, but it feels like the market is being dominated by just chat GPT. In terms of the problems, I think chatting about it with a few people. So if math is required to do math, you know, like outside of, you know, like chat GPT itself, so it would be like some additional Python scripts or something. When we're talking about production level use cases, it's quite a lot of Python code around, you know, like your model to make it work. To be honest, it's like, it's not that magic that you just throw the model in and like it can give you all these answers. For like a toy use cases, the one we have on a, you know, like our demo page or something, it works fine. But, you know, like if you want to do like a lot of post-processing, do a mass on URL, you probably need to code it in Python anyway. That's what I see people doing. [00:30:59]
+
+Alessio: We heard the same from Harrison and LangChain that most people just use OpenAI. We did a OpenAI has no moat emergency podcast, and it was funny to like just see the reaction that people had to that and how hard it actually is to break down some of the monopoly. What else should people keep in mind, Artem? You're kind of like at the cutting edge of this. You know, if I'm looking to build a data-driven AI application, I'm trying to build data into my AI workflows. Any mistakes people should avoid? Any tips on the best stack to use? What tools to use? [00:31:32]
+
+Artem: I would just recommend going through to warehouse as soon as possible. I think a lot of people feel that MySQL can be a warehouse, which can be maybe on like a lower scale, but definitely not from a performance perspective. So just kind of starting with a good warehouse, a query engine, Lakehouse, that's probably like something I would recommend starting from a day zero. And there are good ways to do it, very cheap, with open source technologies too, especially in the Lakehouse architecture. I think, you know, I'm biased, obviously, but using a semantic layer, preferably Cube, and for, you know, like a context. And other than that, I just feel it's a very interesting space in terms of AI ecosystem. I see a lot of people using link chain right now, which is great, you know, like, and we build an integration. But I'm sure the space will continue to evolve and, you know, like we'll see a lot of interesting tools and maybe, you know, like some tools would be a better fit for a job. I'm not aware of any right now, but it's always interesting to see how it evolves. Also it's a little unclear, you know, like how all the infrastructure around actually developing, testing, documenting, all that stuff will kind of evolve too. But yeah, again, it's just like really interesting to see and observe, you know, what's happening in this space. [00:32:44]
+
+Swyx: So before we go to the lightning round, I wanted to ask you on your thoughts on embedded analytics and in a sense, the kind of chatbots that people are inserting on their websites and building with LLMs is very much sort of end user programming or end user interaction with their own data. I love seeing embedded analytics, and for those who don't know, embedded analytics is basically user facing dashboards where you can see your own data, right? Instead of the company seeing data across all their customers, it's an individual user seeing their own data as a slice of the overall data that is owned by the platform that they're using. So I love embedded analytics. Well, actually, overwhelmingly, the observation that I've had is that people who try to build in this market fail to monetize. And I was wondering your insights on why. [00:33:31]
+
+Artem: I think overall, the statement is true. It's really hard to monetize, you know, like in embedded analytics. That's why at Qube we're excited more about our internal kind of BI use case, or like a company's a building, you know, like a chatbots for their internal data consumption or like internal workflows. Embedded analytics is hard to monetize because it's historically been dominated by the BI vendors. And we still see a lot of organizations are using BI tools as vendors. And what I was talking about, BI vendors adding natural language interfaces, they will probably add that to the embedded analytics capabilities as well, right? So they would be able to embed that too. So I think that's part of it. Also, you know, if you look at the embedded analytics market, the bigger organizations are big GADs, they're really more custom, you know, like it becomes and at some point I see many organizations, they just stop using any vendor, and they just kind of build most of the stuff from scratch, which probably, you know, like the right way to do. So it's sort of, you know, like you got a market that is very kept at the top. And then you also in that middle and small segment, you got a lot of vendors trying to, you know, like to compete for the buyers. And because again, the BI is very fragmented, embedded analytics, therefore is fragmented also. So you're really going after the mid market slice, and then with a lot of other vendors competing for that. So that's why it's historically been hard to monetize, right? I don't think AI really going to change that just because it's using model, you just pay to open AI. And that's it, like everyone can do that, right? So it's not much of a competitive advantage. So it's going to be more like a commodity features that a lot of vendors would be able to leverage. [00:35:20]
+
+Alessio: This is great, Artem. As usual, we got our lightning round. So it's three questions. One is about acceleration, one on exploration, and then take away. The acceleration thing is what's something that already happened in AI or maybe, you know, in data that you thought would take much longer, but it's already happening today. [00:35:38]
+
+Artem: To be honest, all this foundational models, I thought that we had a lot of models that been in production for like, you know, maybe decade or so. And it was like a very niche use cases, very vertical use cases, it's just like in very customized models. And even when we're building Statsbot back then in 2016, right, even back then, we had some natural language models being deployed, like a Google Translate or something that was still was a sort of a model, right, but it was very customized with a specific use case. So I thought that would continue for like, many years, we will use AI, we'll have all these customized niche models. But there is like foundational model, they like very generic now, they can serve many, many different use cases. So I think that is a big change. And I didn't expect that, to be honest. [00:36:27]
+
+Swyx: The next question is about exploration. What is one thing that you think is the most interesting unsolved question in AI? [00:36:33]
+
+Artem: I think AI is a subset of software engineering in general. And it's sort of connected to the data as well. Because software engineering as a discipline, it has quite a history. We build a lot of processes, you know, like toolkits and methodologies, how we prod that, [00:36:50]
+
+Swyx: right. [00:36:51]
+
+Artem: But AI, I don't think it's completely different. But it has some unique traits, you know, like, it's quite not idempotent, right, and kind of from many dimensions and like other traits. So which kind of may require a different methodologies may require different approaches and a different toolkit. I don't think how much is going to deviate from a standard software engineering, I think many tools and practices that we develop our software engineering can be applied to AI. And some of the data best practices can be applied as well. But it's like we got a DevOps, right, like it's just a bunch of tools, like ecosystem. So now like AI is kind of feels like it's shaping into that with a lot of its own, you know, like methodologies, practices and toolkits. So I'm really excited about it. And I think it's a lot of unsolved still question again, how do we develop that? How do we test you know, like, what is the best practices? How what is a methodologist? So I think that would be an interesting to see. [00:37:44]
+
+Alessio: Awesome. Yeah. Our final message, you know, you have a big audience of engineers and technical folks, what's something you want everybody to remember to think about to explore? [00:37:55]
+
+Artem: I mean, it says being hooked to try to build a chatbot, you know, like for analytics, back then and kind of, you know, like looking at what people do right now, I think, yeah, just do that. I mean, it's working right now, with foundational models, it's actually now it's possible to build all those cool applications. I'm so excited to see, you know, like, how much changed in the last six years or so that we actually now can build a smart agents. So I think that sort of, you know, like a takeaways and yeah, we are, as humans in general, we like we really move technology forward. And it's fun to see, you know, like, it's just a first hand. [00:38:30]
+
+Alessio: Well, thank you so much for coming on Artem. [00:38:32]
+
+Swyx: This was great. [00:38:32]
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Artyom Keydunov
+
+Writes Artyom Keydunov Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

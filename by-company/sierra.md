@@ -11,8 +11,6 @@
 
 "Fairly skeptical of horizontal AI platforms" for enterprise. Vertical agents (telecom / banking / insurance / legal) deliver value faster.
 
-**Memories.ai implication**: Memories.ai implication: the platform story is appealing, but enterprise adoption still needs a vertical wedge. The public API needs one or two vertical entry points (broadcast media? healthcare?).
-
 [Source](https://sequoiacap.com/podcast/training-data-bret-taylor/)
 
 ### ★★★ [Strategy] · Sequoia Training Data (2025-11)
@@ -36,8 +34,6 @@ AI amplifies the leverage of the hyper-generalist — people with customer empat
 ### ★★★ [Engineering & Management] · Cheeky Pint (John Collison) (2026)
 
 "The atomic unit of productivity in AI is a process, not a person." Most companies "ship their org charts" — using AI to optimize departments rather than reimagining the end-to-end workflow.
-
-**Memories.ai implication**: Memories.ai implication: don't ship Lucy features one user-feature at a time. Design the API around end-to-end processes (e.g. "remember every meeting → surface insight → action item → follow-up").
 
 [Source](https://cheekypint.substack.com/p/bret-taylor-of-sierra-on-ai-agents)
 

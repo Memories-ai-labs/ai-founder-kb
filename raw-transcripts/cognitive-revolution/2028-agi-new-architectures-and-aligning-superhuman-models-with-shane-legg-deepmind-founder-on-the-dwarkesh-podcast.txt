@@ -1,0 +1,239 @@
+# 2028 AGI, New Architectures, and Aligning Superhuman Models with Shane Legg, Deepmind Founder, on The Dwarkesh Podcast
+# URL: https://www.cognitiverevolution.ai/2028-agi-new-architectures-and-aligning-superhuman-models-with-shane-legg-deepmind-founder-on-the-dwarkesh-podcast/
+# Date: 2024-01-04
+# source: The Cognitive Revolution
+
+Transcript
+
+Nathan Labenz: (0:00) Hello, and welcome back to the Cognitive Revolution. Today, we're concluding our holiday bonus content series with an episode from the Dwarkesh Podcast. I assume most listeners of the Cognitive Revolution are at least familiar with Dwarkesh as he's had a number of major AI interviews mixed in with his generally excellent feed over the course of the last year, including AI safety philanthropist Holden Karnofsky, former GitHub CEO Nat Friedman, OpenAI chief scientist Ilya Sutskever, the legendary Eliezer Yudkowsky, my once upon a time New York City roommate Carl Shulman—true story—Anthropic CEO Dario Amodei, and AI safety pioneer Paul Cristiano. Across all those interviews, I have really appreciated how Dwarkesh has asked some of the most fundamental critical questions in the most plain spoken way to some of the most influential people in the field. And that skill will be on full display today as we present Dwarkesh's recent interview with DeepMind co-founder and chief AGI scientist Shane Legg. I chose to feature this conversation because I think it's one of the most candid, straightforward assessments of AI scenarios that you'll hear anywhere. And it just happens to be coming from someone who not only foresaw where we'd be today, but founded an organization in DeepMind that has delivered breakthrough after breakthrough along the way. Overall, the views that Shane presents in this conversation match up extremely well with both my understanding of current AI systems' weaknesses and my expectations for how and how soon they are likely to be overcome. So when I hear him say that he sees relatively clear paths forward to addressing most of the shortcomings we see in existing models, I don't hear that as guessing, particularly in light of the fact that DeepMind published one of the recent state space model papers that I covered in the Mamba episode. That was the block state transformers paper, and it came out just a few weeks after this episode originally aired. Of course, DeepMind has tons of other projects underway internally as well. Overall, it really does seem to me that we're headed for some form of AGI over the next few years. And while we're definitely not ready for it, I appreciate how much and for how long Shane Legg has been thinking about this. He is a signer of the Center for AI Safety's one sentence extinction risk statement, and he's one of the big reasons that I think the AI game board is in remarkably good shape overall. I just hope he's right that the challenge of AI alignment gets easier in important ways as the models become more sophisticated. All that and more make this short conversation a great jumping off point for 2024, year two of AI's second era. So to help you better calibrate your timelines, here is Dwarkesh Patel with DeepMind chief AGI scientist Shane Legg.
+
+Dwarkesh Patel: (2:45) Today, I have the pleasure of interviewing Shane Legg, who is a founder and the chief AGI scientist of Google DeepMind. Shane, welcome to the podcast.
+
+Shane Legg: (2:57) Thank you. It's a pleasure to be here.
+
+Dwarkesh Patel: (2:58) So first question, how do we measure progress towards AGI concretely? So we have these loss numbers, and we can see how the loss improves from one model to another, but it's just a number. How do we interpret this? How do we see how much progress we're actually making?
+
+Shane Legg: (3:13) That's a hard question. AGI, by its definition, is about generality. So it's not about doing a specific thing. It's much easier to measure performance when you have a very specific thing in mind, because you can construct a test around that. Well, maybe I should first explain, what do I mean by AGI? Because there are a few different notions around. When I say AGI, I mean a machine that can do the sorts of cognitive things that people can typically do, possibly more. But to be an AGI, that's kind of the bar you need to meet. So if we want to test whether we're meeting this threshold or we're getting close to this threshold, what we actually need then is a lot of different kinds of measurements and tests that span the breadth of all the sorts of cognitive tasks that people can do, and then to have a sense of what is human performance on these sorts of tasks. And that then allows us to judge whether or not we're there. It's difficult because you'll never have a complete set of everything that people do, because it's such a large set. But I think that if you ever get to the point where you have a pretty good range of tests of all sorts of different things that people do, cognitive things that people do, and you have an AI system which can meet human performance in all those things, and with some effort, you can't actually come up with new examples of cognitive tasks where the machine is below human performance, then at that point, it's conceptually possible that there is something that the machine can't do that people can do. But if you can't find it with some effort, I think for practical purposes, you now have an AGI.
+
+Dwarkesh Patel: (4:56) So let's get more concrete. We measure the performance of these large language models on MMLU or something, and maybe you can explain what all these different benchmarks are. But the ones we use right now that you might see in a paper, what's missing? What aspect of human cognition do they not measure adequately?
+
+Shane Legg: (5:15) Yeah, another hard question. These are quite big areas. So they don't measure things like understanding streaming video, for example, because these are language models and people can do things like understanding streaming video. Humans have what we call episodic memory, alright? So we have a working memory, which are things that have happened quite recently, and then we have sort of cortical memory. So these are things that are stored in our cortex. But there's also a system in between, episodic memory, which is the hippocampus. And so this is about learning specific things very, very rapidly. So some of the things I say to you today, if you remember them tomorrow, that'll be your episodic memory, hippocampus. Our models don't really have that kind of thing, and we don't really test for that kind of thing. We just try to make the context windows, which is, I think, more like a working memory, longer and longer to sort of compensate for this. But we don't really test for that kind of thing. So there are all sorts of bits and pieces, but it is a difficult question because you really need to—as I said, the generality of human intelligence is very, very broad. So you really have to start going into the weeds of trying to find if there's specific types of things that are missing from existing benchmarks or different categories of benchmarks that don't currently exist.
+
+Dwarkesh Patel: (6:38) The thing you're referring to with episodic memory, would it be fair to call that sample efficiency, or is that a different thing?
+
+Shane Legg: (6:45) It's very much related to sample efficiency. It's one of the things that enables humans to be very sample efficient. Large language models have a certain kind of sample efficiency, because when something's in their context window, they can then—that sort of biases the distribution to behave in a different way. And so that's a very rapid kind of learning. There are multiple kinds of learning, and the existing systems have some of them, but not others. So it's a little bit complicated.
+
+Dwarkesh Patel: (7:14) So this kind of memory, or we call it sample efficiency, whatever—is it a fatal flaw of these deep learning models that it just takes trillions of tokens, many orders of magnitude more than a human will see throughout their lifetime, or is this something that just gets solved over time?
+
+Shane Legg: (7:31) The models can learn things immediately when it's in the context window, and then they have this longer process of when you actually train the base model and so on. They're learning over trillions of tokens, but they sort of miss something in the middle. That's sort of what I'm getting at here. I don't think it's a fundamental limitation. I think what's happened with large language models is something fundamental has changed. We know how to build models now that have some degree of, I would say, understanding of what's going on. And that did not exist in the past. And because we've got a scalable way to do this now, that unlocks lots and lots of new things. Now we can then look at things which are missing, such as this sort of episodic memory type thing, and we can then start to imagine ways to address that. So my feeling is that there are kind of relatively clear paths forward now to address most of the shortcomings we see in existing models, whether it's about hallucinations, factuality, the type of memory and learning that they have, or understanding video, or all sorts of things like that. So I don't see there are big blockers here. I don't see big walls in front of us. I just see there's more research and work, and these things will improve and probably be adequately solved.
+
+Dwarkesh Patel: (8:54) But going back to the original question of how do you measure when human level AI has arrived or is beyond it? As you mentioned, there's these other sorts of benchmarks you can use and other sorts of traits. But concretely, what would it have to do for you to be like, okay, we've reached human level? Would it have to beat Minecraft from start to finish? Would it have to get 100% on MMLU? What would it have to do?
+
+Shane Legg: (9:16) There is no one thing that would do it, because I think that's the nature of it. It's about general intelligence, so I would have to make sure it could do lots and lots of different things, and it didn't have a gap. We already have systems that can do very impressive categories of things to human level or even beyond. So I would want a whole suite of tests that I felt was very comprehensive. And then furthermore, when people come in and say, okay, so it's passing a big suite of tests, let's try to find examples. Let's take an adversarial approach to this. Let's deliberately try to find examples where people can clearly typically do this, but the machine fails. And when those people cannot succeed, I'll go, okay, we're probably there.
+
+Dwarkesh Patel: (10:01) A lot of your early research, at least from what I can find, emphasized that AI should be able to manipulate and succeed in a variety of open ended environments. It kind of sounds like a video game almost. Is that where your head is still at now, or do you think about it differently?
+
+Shane Legg: (10:17) Yeah, it's evolved a bit. When I did my thesis work around universal intelligence and so on, I was trying to come up with a sort of extremely universal, general, mathematically clean framework for defining and measuring intelligence. And I think there were aspects of that that were successful. I think in my own mind, it clarified the nature of intelligence as being able to perform well in lots of different domains and different tasks and so on. It's about that sort of capability of performance and the breadth of performance. So I found that was quite helpful, enlightening. There was always the issue of the reference machine, because in the framework, you have a weighting of things according to their complexity. It's like an Occam's razor type of thing, where you weight tasks, environments, which are simpler, more highly in this sort of—because you've got an infinite, countable space of different computable environments, or semi-computable environments. And that Kolmogorov complexity measure has something built into it, which is called a reference machine. And that's a free parameter. So that means that the intelligence measure has a free parameter in it. And as you change that free parameter, it changes the weighting and the distribution over the space of all the different tasks and environments. So this is sort of an unresolved part of the whole problem. So what reference machine should we ideally use? There's no universal, like one specific reference machine. People will usually put a universal Turing machine in there, but there are many kinds of universal Turing machines. You have to put a universal Turing machine in it, but there are many different ones. So I think, given that it's a free parameter, I think the most natural thing to do is say, okay, let's think about what's meaningful to us in terms of intelligence. I think human intelligence is meaningful to us and the environment that we live in. We know what human intelligence is, we are human too, we interact with other people who have human intelligence. We know that human intelligence is possible, obviously, because it exists in the world. We know that human intelligence is very, very powerful because it's affected the world profoundly and in countless ways. And we know if human level intelligence was achieved, that would be economically transformative because the types of cognitive tasks people do in the economy could be done by machines then. And it would be philosophically important because this is sort of how we often think about intelligence. And I think historically, it would be a key point. So I think that human intelligence is actually quite—in a human-like environment—quite a natural sort of reference point. So you could imagine sort of seeding your reference machine to be such that it emphasizes the kinds of environments that we live in, as opposed to some abstract mathematical environment or something like that. And so that's how I've kind of gone on this journey of, let's try to define a completely universal, clean mathematical notion of intelligence to, well, it's got a free parameter. One way of thinking about it is say, okay, let's think more concretely now about human intelligence, and can we build machines that can match human intelligence? Because we understand what that is, and we know that that is a very powerful thing, and it has economic, philosophical, historical kind of importance. So that's kind of the evolution. And the other aspect, of course, is that in this pure formulation of Kolmogorov complexity, it's actually not computable. And I also knew that there was a limitation at the time, but it was an effort to say, okay, can we just even very theoretically come up with a clean definition? I think we can sort of get there. We have this issue of a reference machine being unspecified.
+
+Dwarkesh Patel: (14:26) So before we move on, I do want to ask on the original point you made about these machines or these LLMs needing episodic memory. You said that these are problems that we can solve. These are not fundamental impediments. But when you say that, do you think they'll just be solved by scale, or does each of these need a fine-grained specific solution that is architectural in nature?
+
+Shane Legg: (14:50) I think it'll be architectural in nature, because the current architectures, they don't really have what you need to do this. They basically have a context window, which is very, very fluid, of course, and they have the weights, which things get baked into very slowly. So to my mind, that feels like working memory, which is like the activations in your brain, and then the weights, the synapses and so on in your cortex. Now the brain separates these things out. It has a separate mechanism for rapidly learning specific information, because that's a different type of optimization problem compared to slowly learning deep generalities, right? There's a tension between the two, but you want to be able to do both. You want to be able to, I don't know, hear someone's name and remember it the next day, and you also want to be able to integrate information over a lifetime so you start to see deeper patterns in the world. These are quite different optimization targets, different processes. But a comprehensive system should be able to do both. And so I think it's conceivable you could build one system that does both, but you can see because they're quite different things that it makes sense for them to be different. I think that's why the brain does it separately.
+
+Dwarkesh Patel: (16:06) I'm curious about how concretely you think that would be achieved. And I'm specifically curious—I guess you can answer this as part of the answer—DeepMind has been working on these domain specific reinforcement learning type setups, AlphaFold, AlphaCode, and so on. How does that fit into what you see as a path to AGI? Have these just been orthogonal domain specific models, or do they feed into the eventual AGI?
+
+Shane Legg: (16:34) Things like AlphaFold are not really feeding into AGI. We may learn things in the process that may end up being relevant, but I don't see them as being likely being on the path to AGI. But we're a big group. We've got hundreds and hundreds and hundreds of PhDs working on lots of different projects. So when we find what we see like opportunities to do something significant like AlphaFold, we'll go and do it. It's not like we only do AGI type work. We work on fusion reactors and various things in sustainability, energy. We've got people looking at satellite images of deforestation. We have people looking at weather forecasting. We've got tons of people looking at lots of things.
+
+Dwarkesh Patel: (17:28) We'll continue our interview in a moment after a word from our sponsors. On the point you made earlier about what the reference class or the reference machine is—human intelligence—it's interesting because in your 2008 thesis, one of the things you mentioned almost as a side note is how would you measure intelligence? And you said, well, you could do a compression test, and you could see if it fills in words in a sample of text, and that could measure intelligence. And funnily enough, that's basically how LLMs are trained. At the time, did it stick out to you as especially fruitful thing to train for?
+
+Shane Legg: (18:00) Well, yeah, I mean, in a sense what's happened is actually very aligned with what I wrote about in my thesis, which were the ideas from Marcus Hutter with AIXI, where you take Solomonoff induction, which is this incomputable but theoretically very elegant and extremely sample efficient prediction system, and then once you have that, you can build a general agent on top of it by basically adding search and reinforcement signal. That's what you do with AIXI. But what that sort of tells you is that if you have a fantastically good sequence predictor, some approximation of Solomonoff induction, then going from that to a very powerful, very general AGI system is just sort of another step. You've actually solved a lot of the problem already. And I think that's what we're seeing today, actually, that these incredibly powerful foundation models are incredibly good sequence predictors. They're compressing the world based on all this data, and then you will be able to extend these in different ways and build very, very powerful agents out of them.
+
+Dwarkesh Patel: (19:14) Okay. Let me ask you more about that. So Richard Sutton's Bitter Lesson says that there's two things that can scale—search and learning. And I guess you could say that LMs are about the learning aspect. Search stuff, which you've worked on throughout your career, where you have an agent that is interacting with this environment, is that the direction that needs to be explored again? Or is that something that needs to be added to LMs where they can actually interact with their data or the world in some way?
+
+Shane Legg: (19:42) Yeah. I think that's on the right track. I think these foundational models are world models of a kind, and to do really creative problem solving, you need to start searching. So if I think about something like AlphaGo and the Move 37, the famous Move 37, where did that come from? Did that come from all its data that it's seen of human games or something like that? No, it didn't. It came from it identifying a move as being quite unlikely, but possible, and then via a process of search, coming to understand that that was actually a very, very good move. So to get real creativity, you need to search through spaces of possibilities and find these sort of hidden gems. That's what creativity is. I think current language models, they don't really do that kind of thing. They really are mimicking the data. They are mimicking all the human ingenuity and everything, which they have seen from all this data that's coming from the internet that's originally derived from humans. If you want a system that can go truly beyond that and not just generalize in novel ways—these models can blend things, they can do Harry Potter in the style of a Kanye West rap or something, even though it's never happened, they can blend things together. But to do something that's truly creative, that is not just a blending of existing things, that requires searching through a space of possibilities and finding these hidden gems that are sort of hidden away in there somewhere, and that requires search. So I don't think we'll see systems that truly step beyond their training data until we have powerful search in the process.
+
+Dwarkesh Patel: (21:32) So there are rumors that Google DeepMind is training newer models, and you don't have to comment on those specifically. But when you do that, if it's the case that search or something like that is required to go to the next level, are you training in a completely different way than, say, GPT-4 or other transformers are trained?
+
+Shane Legg: (21:50) I can't say much about how we're training. I think it's fair to say we're doing the sorts of scaling and training roughly that you see many people in the field doing, but we have our own take on it and our own different tricks and techniques.
+
+Dwarkesh Patel: (22:08) Okay, maybe we'll come back to it if we get another answer on that. But let's talk about alignment briefly. So what will it take to align human level and superhuman AIs? And it's interesting because the sorts of reinforcement learning and self-play kinds of setups that are popular now, like Constitutional AI or RLHF, DeepMind obviously has expertise in it for decades longer. So I'm curious what you think of the current landscape and how DeepMind pursues that problem of safety towards human level models.
+
+Shane Legg: (22:39) So do you want to know about what we're currently doing, or do you want me to have a stab at what I think needs to be done?
+
+Dwarkesh Patel: (22:44) Needs to be done.
+
+Shane Legg: (22:44) Needs to be done. In terms of what we're currently doing, we're doing lots of things. We're doing interpretability, we're doing process supervision, we're doing red teaming, we're doing evaluation for dangerous capabilities, we're doing work on institutions and governance and tons of stuff, there's lots of different things. Anyway, what do I think needs to be done? So I think that powerful machine learning, powerful AGI is coming sometime. And if the system is really capable, really intelligent, really powerful, trying to somehow contain it or limit it is probably not a winning strategy because these systems ultimately will be very, very capable. So what you have to do is you have to align it. You have to get it so it's fundamentally a highly ethical, value aligned system from the get-go, right? How do you do that? Well, maybe this is slightly naive, but this is my take on it. How do people do it, right? If you have a really difficult ethical decision in front of you, what do you do, right? Well, you don't just do the first thing that comes to mind, right? Because there could be a lot of emotions involved and other things. It's a difficult problem. So what you have to do is you have to calm yourself down, you've got to sit down, and you've got to think about it. You've got to think, well, okay, what could I do? I could do this, I could do this, I could do this. If I do each of these things, what will happen, right? Then you have to think about—so that requires a model of the world. And then you have to think about ethically, how do I view each of these different actions and the possibilities, what may happen from it, right? What is the right thing to do? And as you think about all the different possibilities and your actions and what can follow from them and how it aligns with your values and your ethics, you can then come to some conclusion of what is really the best choice that you should be making if you want to be really ethical about this. I think AI systems need to essentially do the same thing. So when you sample from a foundational model at the moment, it's blurting out the first thing. It's like system one, if you like, from psychology from Kahneman, right? That's not good enough. And if we do RLHF, or Constitutional AI tries to do this sort of trying to fix the underlying system one in a sense, right? And that can shift the distribution, and that can be very helpful, but it's a very high dimensional distribution, and you're sort of poking it in a whole lot of points. And so it's not likely to be a very robust solution, right? It's like trying to train yourself out of a bad habit. You can sort of do it eventually, but what you need to do is you need to have a system two. You need the system to not just sample from the model, you need the system to go, okay, I'm going to reason this through. I'm going to do step by step reasoning. What are the options in front of me? I'm going to use my world model now, and I'm going to use a good world model to understand what's likely to happen from each of these options, and then reason about each of these from an ethical perspective. So you need a system which has a deep understanding of the world, has a good world model, it has a good understanding of people, it has a good understanding of ethics, and it has robust and very reliable reasoning. And then you set it up in such a way that it applies this reasoning and this understanding of ethics to analyze the different options which are in front of it, and then execute on which is the ethical way forward.
+
+Dwarkesh Patel: (26:41) But I think when a lot of people think about the fundamental alignment problem, the worry is not that it's not going to have a world model necessary to understand its actions, or sorry, to understand the effects of its actions. I guess that's one worry, not the main worry. The main worry is that the effects it cares about are not the ones we care about. And so even if you improve its thinking and do better planning, the fundamental problem is we have these really nuanced values about what we want. How do we communicate those values and make sure they're reinforced in the AI?
+
+Shane Legg: (27:15) It needs not just a good model of the world, but it needs a really good understanding of ethics. And we need to communicate to the system what ethics and values it should be following.
+
+Dwarkesh Patel: (27:25) And how do we do that in a way that we can be confident that a human level or eventually a superhuman level model will preserve those values or have learned them in the first place?
+
+Shane Legg: (27:34) Well, it should preserve them, because if it's making all its decisions based on a good understanding of ethics and values, and it's consistent in doing this, it shouldn't take actions which undermine that. They would be inconsistent.
+
+Dwarkesh Patel: (27:47) Right. So then how do we get to the point where it's learned them in the first place?
+
+Shane Legg: (27:50) Yeah, that's the challenge. We need to have systems. The way I think about it is this: To have a profoundly ethical AI system, it also has to be very, very capable. It needs a really good world model, a really good understanding of ethics, and it needs really good reasoning. Because if you don't have any of those things, how can you possibly be consistently, profoundly ethical? You can't. So we actually need better reasoning, better understanding of the world and better understanding of ethics in our systems.
+
+Dwarkesh Patel: (28:22) Right. So it seems to me the former two would just come along for the ride as these models get more powerful.
+
+Shane Legg: (28:27) Yeah, so that's a nice property because it's actually a capabilities thing to some extent.
+
+Dwarkesh Patel: (28:30) Right.
+
+Shane Legg: (28:30) But then if the third one is a bottleneck, or if the third one is the thing that doesn't come along with the AI itself, what is the actual technique to make sure that that happens?
+
+Dwarkesh Patel: (28:40) The third one, sorry, the—
+
+Shane Legg: (28:41) The ethical model, what do humans value? Shane Legg: We've got a couple of problems. First of all, we need to decide we should train the system on ethics generally. I mean, there's a lot of lectures and papers and books and all sorts of things, so it understands human ethics well. We need to make sure it understands humans' ethics well, because that's important - at least as well as a very good ethicist. And we then need to decide of this general understanding of ethics, what do we want the system to actually value, and what sort of ethics do we want it to apply? Now, that's not a technical problem. That's a problem for society and ethicists and so on to come up with. I'm not sure there's such a thing as true or correct optimal ethics or something like that, but I'm pretty sure that it's possible to come up with a set of ethics which is much better than what the so-called doomers worry about in terms of the behavior of these AGI systems. And then what you do is you engineer the system to actually follow these things. So every time it makes a decision, it does an analysis using a deep understanding of the world and of ethics and very robust and precise reasoning to do an ethical analysis of what it's doing. And of course, we'd want lots of other things. We'd want people checking these processes of reasoning, we'd want people verifying that it's behaving itself in terms of how it reaches these conclusions.
+
+Dwarkesh Patel: But I still feel like I don't understand that fundamental problem of making sure it follows that ethic. Because presumably, it has Mao's Little Red Book, so it understands Maoist ethics and understands all these other ethics. How do we make sure the ethic that we say "this is the one we've decided, ethicist society, and so on today, that is the one it ends up following" and not the other ones it understands?
+
+Shane Legg: Right, so you have to specify to the system these are the ethical principles that you should follow.
+
+Dwarkesh Patel: And how do we make sure it does that?
+
+Shane Legg: We have to check it as it's doing it. We have to assure ourselves that it is consistently following these ethical principles. At least - I mean, I'm not sure there's such a thing as optimally - but at least as well as a group of human experts.
+
+Dwarkesh Patel: Are you worried that if you do the default way, which is just reinforcing it whenever it seems to be following them, you could be training deception as well?
+
+Shane Legg: Straightforward reinforcement has some dangerous aspects to it. I think it's actually more robust to check the process of reasoning and check its understanding of ethics. So to reassure ourselves that the system has a really good understanding of ethics, it should be grilled for some time to try to really pull apart its understanding, make sure it has a very robust one. And then also if it's deployed, we should have people constantly looking at the decisions it's making and the reasoning process that goes into those decisions, to try to understand how it's correctly reasoning about these types of things.
+
+Dwarkesh Patel: Speaking of which, do you at Google DeepMind have some sort of framework for-
+
+Shane Legg: This is not so much a Google DeepMind perspective on this. It's my take on how I think we need to do this kind of thing. There are many different views and there are different variants on these sorts of ideas as well.
+
+Dwarkesh Patel: So then do you personally think there needs to be some sort of framework for, as you arrive at certain capabilities, these are the concrete safety benchmarks that you must have in place at this point, or you should pause or slow down or something?
+
+Shane Legg: I think that's a sensible thing to do. It's actually quite hard to do. There are some people thinking about it. I know Anthropic has put out some things. We're thinking about similar things. Actually putting concrete things down is quite a hard thing to do. So I think it's an important problem, and I certainly encourage people to work on it.
+
+Dwarkesh Patel: Hey, we'll continue our interview in a moment after a word from our sponsors. It's interesting because you have these blog posts that you wrote when you started DeepMind back in 2008, where you talk about how the motivation was to accelerate safety. On net, what do you think the impact of DeepMind has been on safety versus capabilities?
+
+Shane Legg: Oh, interesting. I don't know, it's hard to judge, actually. I've been worried about AGI safety for a long time, well before DeepMind. But it was always really hard to hire people actually, particularly in the early days to work on AGI safety. Thinking back to 2013 or so, I think we had the first hire and he only agreed to do it part time because he didn't want to drop all the capabilities work because of the impact it would have on his career and stuff. And this was someone who'd already previously been publishing on AGI Safety. So yeah, I don't know. It's hard to know what the counterfactual is if we weren't there doing it. I think we've been a group that's talked about this openly. I've talked about this on many occasions, the importance of it. We've been hiring people to work on these topics. I know a lot of other people in the area and I've talked to them over many, many years. I've known Dario since 2005 or something, we've talked on and off about AGI safety and so on. So I don't know the impact that DeepMind has had. I guess we were the first, I'd say the first AGI company, and as the first AGI company, we always had an AGI safety group. We've been publishing papers in this for many years. I think that lends some credibility to the area when people see "Oh, here's an AGI" - I mean, AGI was a fringe term not that long ago - "and this person's doing AGI safety. They're at DeepMind? Oh, okay." I hope that sort of creates some space for people.
+
+Dwarkesh Patel: And where do you think AI progress itself would have been without DeepMind? And this is not just a point that people make about DeepMind. I think this is a general point people make about OpenAI and Anthropic as well, that these people went into the business to accelerate safety, and sort of the net effect might have been to accelerate capabilities, right?
+
+Shane Legg: Right. I think we have accelerated capabilities, but again, the counterfactuals are quite difficult. I mean, we didn't do ImageNet, for example, and ImageNet, I think, was very influential in attracting investment to the field. We did do AlphaGo, and that changed some people's minds. The community is a lot bigger than just DeepMind. I mean, we have - well, not so much now, because there are a number of other players with significant resources - but if you went back more than 5 years ago, we were able to do bigger projects with bigger teams and take on more ambitious things than a lot of the smaller academic groups. And so the nature of the type of work we could do was a bit different. And that, I think, affected the dynamics in some ways. But the community is much, much bigger than DeepMind. So maybe we've sped things up a bit, but I think a lot of these things would have happened before too long anyway. I think often good ideas are kind of in the air, and as a researcher, sometimes when you publish something or you're about to publish something, you see somebody else who's got a very similar idea coming out with some good results. I think often the time is right for things. So I find it very hard to reason about the counterfactuals there.
+
+Dwarkesh Patel: Speaking of the early years, it's really interesting that in 2009, you had a blog post where you say "My modal expectation of when we get human level AI is 2025. Expected value is 2028." And this is before ImageNet. This is when nobody's talking about AI. And it turns out, if the trends continue, this is not an unreasonable prediction. How did you, I mean, before all these trends came into effect, how did you have that accurate an estimate?
+
+Shane Legg: Well, first I'd say it's not before deep learning. Deep learning was getting started around 2008.
+
+Dwarkesh Patel: Oh, sorry. I meant to say before-
+
+Shane Legg: Before ImageNet, that was 2012, yeah. So, well, I first formed those beliefs in about 2001 after reading Ray Kurzweil's The Age of Spiritual Machines. And I came to the conclusion there were two really important points in his book that I came to believe were true. One is that computational power would grow exponentially for at least a few decades, and that the quantity of data in the world would grow exponentially for a few decades. And when you have exponentially increasing quantities of computation and data, then the value of highly scalable algorithms gets higher and higher. So then there's a lot of incentive to make more scalable algorithms to harness all this computing and data. And so I thought it would be very likely that we'll start to discover scalable algorithms to do this. And then there's a positive feedback between all these things, because if your algorithm gets better at harnessing computing and data, then the value of the data and the compute goes up because it can be more effectively used. And so that drives more investment into these areas. If your compute performance goes up, then the value of the data goes up because you can utilize more data. So there are positive feedback loops between all these things. So that was the first thing. And then the second thing was just looking at the trends. If these scalable algorithms were to be discovered, then during the 2020s, it should be possible to start training models on significantly more data than a human would experience in a lifetime. And I figured that that would be a time where big things would start to happen, and that would eventually unlock AGI. So that was my reasoning process. And I think we're now at that first part. I think we can start training models now where the scale of the data is beyond what a human can experience in a lifetime. So I think this is the first unlocking step. And so, yeah, I think there's a 50% chance of something like 2028. Now, it's just a 50% chance. I mean, I'm sure what's going to happen is it's going to get to 2029, and someone's going to say "Oh, Shane, you were wrong." It's like, come on, there's a 50% chance. So yeah, I think it's entirely plausible. There's a 50% chance it could happen by 2028. But I'm not going to be surprised if it doesn't happen by then. Often you hit unexpected problems in research and science, and sometimes things take longer than you expect.
+
+Dwarkesh Patel: If there was a problem that caused it - if we're in 2029 and it hasn't happened yet, looking back, what would be the most likely reason that would be the case?
+
+Shane Legg: I don't know. I don't know. At the moment, it looks to me like all the problems are likely solvable with a number of years of research. That's my current sense.
+
+Dwarkesh Patel: And what does the time from here to 2028 look like, if 2028 ends up being the year? Is it just we have trillions of dollars of economic impact in the meantime, and the world gets crazier? What happens?
+
+Shane Legg: I think what you'll see is the existing models maturing. They'll be less delusional, much more factual, they'll be more up to date on what's currently going on when they answer questions. They'll become multimodal, much more than they currently are. And this will just make them much more useful. So I think probably what we'll see more than anything is just loads of great applications for the coming years. I think that'll be - there can be some misuse cases as well, I'm sure somebody will come up with something to do with these models that is quite unhelpful. But my expectation for the coming years is mostly a positive one. We'll see all kinds of really impressive, really amazing applications for the coming years.
+
+Dwarkesh Patel: And on the safety point, you mentioned these different research directions that are out there and that you are doing internally at DeepMind as well - interpretability, RLHF, and so on. Which are you most optimistic about?
+
+Shane Legg: I don't know, I don't want to pick favorites. It's hard picking favorites. I know the people working on all these areas. I think things of the System 2 flavor - there's work we have going on that Geoffrey Irving leads called Deliberative Alignment, which kind of has the System 2 flavor, where you have a debate that takes place about the actions that an agent could take, or what's the correct answer to something like this. And people then can sort of review these debates and so on. And they use these AI algorithms to help them judge the correct outcomes and so on. And so this is meant to be a way in which to try to scale the alignment to increasingly powerful systems. So I think things of that kind of flavor, I think, have quite a lot of promise, in my opinion. But that's kind of quite a broad category of research, and there are many different topics within that.
+
+Dwarkesh Patel: That's interesting. So you've mentioned two areas in which LLMs do need to improve. One is the episodic memory and the other is the System 2 thinking. Are those two related or are they two separate drawbacks?
+
+Shane Legg: I think they're fairly separate, but they can be somewhat related. So you can learn different ways of thinking through problems and actually learn about this rapidly using your episodic memory. So all these different systems and subsystems interact, so they're never completely separate. But I think conceptually, you can probably think of them as quite separate things. I think delusions and factuality is another area that's going to be quite important, and particularly important in lots of applications. If you want a model that writes creative poetry, then that's fine, because you want it to be very free to suggest all kinds of possibilities and so on. You're not really constrained by a specific reality. Whereas if you want something that's in a particular application, normally you have to be quite concrete about what's currently going on, and what is true and what is not true, and so on. And models are a little bit sort of freewheeling when it comes to truth and creativity at the moment. That I think limits their applications in many ways.
+
+Dwarkesh Patel: So final question is this. You've been in this field for over a decade, much longer than many others, and you've seen these different landmarks - ImageNet, Transformers. What do you think the next landmark will look like?
+
+Shane Legg: I think the next landmark that people will think back to and remember is going much more fully multimodal, I think. Because I think that'll open out the understanding that you see in language models into a much larger space of possibilities. And when people think back, they'll think about "Oh, those old-fashioned models. They just did chat, they just did text. It just felt like a very narrow thing." Whereas now they understand when you talk to them and they understand images and pictures and video, and you can show them things or things like that. They will have much more understanding of what's going on. And it'll feel like the system's kind of opened up into the world in a much more powerful way.
+
+Dwarkesh Patel: Do you mind if I ask you a follow-up on that? So ChatGPT just released their multimodal feature, and then you, at DeepMind, you had the Gato paper where you have this one model - images, even actions, video games, whatever you can throw in. And so far, it doesn't seem to have been - it hasn't percolated as much as even ChatGPT initially from GPT-3 or something. What explains that? Is it just that people haven't learned to use multimodality? They're not powerful enough yet?
+
+Shane Legg: I think it's early days. I think you can see promise there, understanding images and things more and more. But I think it's early days in this transition. When you start really digesting a lot of video and other things like that, the systems will start having a much more grounded understanding of the world and all kinds of other aspects. And then when that works well, that will open up naturally lots and lots of new applications and all sorts of new possibilities, because you're not confined to text chat anymore.
+
+Dwarkesh Patel: New avenues of training data as well, right?
+
+Shane Legg: Yeah, new training data, and all kinds of different applications that aren't just purely textual anymore. And what are those applications? Well, probably a lot of them we can't even imagine at the moment because there are just so many possibilities once you can start dealing with all sorts of different modalities in a consistent way.
+
+Dwarkesh Patel: Awesome. Shane, I think that's an excellent place to leave it off. Thank you so much for coming on the podcast.
+
+Shane Legg: Thank you.
+
+Dwarkesh Patel: It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

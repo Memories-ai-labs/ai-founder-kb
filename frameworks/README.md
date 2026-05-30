@@ -2,7 +2,7 @@
 
 **20 canonical** playbook / framework / essay documents most heavily cited by AI founders, from the AI era back to classic PG essays.
 
-**Top priority**: [Anthropic Founder Playbook](./anthropic-founders-playbook.md) (released 2026-05; 9 consumer AI verticals + 4-stage framework, directly relevant to Memories.ai).
+**Top priority**: [Anthropic Founder Playbook](./anthropic-founders-playbook.md) (released 2026-05; 9 consumer AI verticals + 4-stage framework).
 
 ## Full Index
 

@@ -1,0 +1,513 @@
+# Emergency Pod: Reinforcement Learning Works! Reflecting on Chinese Models DeepSeek-R1 and Kimi k1.5
+# URL: https://www.cognitiverevolution.ai/emergency-pod-reinforcement-learning-works-reflecting-on-chinese-models-deepseek-r1-and-kimi-k1-5/
+# Date: 2025-01-25
+# source: The Cognitive Revolution
+
+Transcript
+
+Nathan Labenz: (0:04) Welcome to the Cognitive Revolution. Today, I'm going to do a walkthrough of everything that I'm learning and taking away from the latest Chinese reasoning model releases that came out this week. Perhaps not coincidentally, both R1 from DeepSeek and the new Kimi reasoning model from a company called Moonshot AI were released on Trump's inauguration day. We now have two Chinese models. DeepSeek is out with open source weights that you can download. The Kimi paper from Moonshot came a little later in the day. Honestly, it had shades of OpenAI and Google racing to preempt each other with their launches. I don't know if that's what's happening in China, but it certainly had that flavor - DeepSeek put their paper out, and then a few hours later, here comes the Kimi paper. Their model isn't quite available yet. They said it will be available via API and presumably in their product soon, but not yet.
+
+So it's unclear what's going on in China. Did they intend to release these on Trump's inauguration day, or was that just an accident? It's hard to believe it's an accident, but at the same time, these folks are focused on unraveling the mysteries of AGI with curiosity. Maybe they don't care about when Trump is getting inaugurated. Maybe they're coordinating. I have a lot of questions about the dynamics going on in China behind this.
+
+But what is clear is that at least DeepSeek with this R1 model has joined the top tier of global AI developers. Potentially, Moonshot with their Kimi model could be there as well, but it's obviously hard to say that purely from benchmarks. We'll have to wait and get our hands on it before we can be too confident.
+
+What I want to do is walk through what stands out to me about this and try to make some sense of it. I suspect this will be the first of several conversations about this because the R1 story touches on so many different aspects of AI simultaneously. The research itself is really important. The consequences for practical utility are significant. The gap between closed source and open source, and also the gap between the West and China - I would say these are shrinking gaps at the moment. Certainly the gap between the West and China seems to have shrunk significantly from where it was a couple years ago.
+
+And that's just the start. Then there's the strategic dynamics: why is China open sourcing this? What are they getting out of that? How, if at all, should the US respond? Does this challenge narratives that are increasingly dominant in the West about an AI race? We've now seen no less than Alex Wang, the CEO of Scale AI, take out a full page ad in the newspaper calling the current situation an "AI war," which I honestly totally hate and think is wildly irresponsible. You don't have to be a China dove to recognize that an AI war does not exist and would be bad for everyone. I hated to see that. We need to reconsider some of those framings in light of what we're seeing here.
+
+Certainly, if our strategy is predicated on preventing China from doing certain things so we can have a certain advantage, so we can solve certain problems and be the good guys, I think the window of opportunity where we're going to have an unassailable AI lead looks quite short. I think we'll understand that better as we go through the research and understand how simple a lot of this stuff is that's driving these significant advances in reasoning capability.
+
+At the end of all that, what sort of policy response, if any, makes sense? Does it still make sense to think about pretraining as being the real measure of model power or the standard by which a model would qualify for special government review or notification? I think that is highly questionable in light of the power of the reasoning paradigm, because significant gains over pretraining are showing up with presumably a lot less compute. They're also being distilled into much smaller models.
+
+It does seem like we've crossed a meaningful threshold this week. Prior to this, there wasn't really a good quality reasoning model that I could run on a local machine. Now I've got a wide range of open source models that I can download, that have been trained specifically as reasoners, which I can further modify, including with more reinforcement learning. This is really one of the most important stories that has come to the public in AI in a while. I wanted to help make some sense of it.
+
+I thought we would start - and I am doing a screen share this time around. If you're listening to this, I think it will be fine. I'll plan to basically read everything that's important. If you're a more visual person and want to see stuff on screen and read along, I'll have the screen share on YouTube as well. I'm using a variety of AIs to help make sense of this. You'll see me tabbing back and forth and looking at various sources, but it should be fine in audio format if that's what you prefer.
+
+Let's start by talking about what the R1 model is and how they created it. There are a couple different flavors, and I think there are a couple different big takeaways from this. First, they just recently came out with their DeepSeek V3 model. This made headlines on its own for being a top tier model made incredibly cheaply. Zvi, as always, has great coverage of this - he calls it the "$6 million model." This is a small percentage of what Western AI leaders are understood to have spent to train their top tier frontier models.
+
+A lot of work has gone into the efficiency there - work on the data creation side, optimizing the algorithm, closely coupling the design of the neural network itself to the hardware it's going to run on. All sorts of interesting things have gone into that, but suffice it to say that with a total compute budget of single digit millions, the DeepSeek V3 model was already a pretty big "we are here and cannot be ignored" statement from DeepSeek.
+
+It was also a real warning shot for those trying to deny China and Chinese companies access to compute to prevent them from doing frontier work. Maybe they won't be able to do it in the future if compute requirements continue to get bigger and bigger. But if they're able to achieve this with a single digit million dollar compute budget, I think it's going to be hard to keep the top tier Chinese companies from having enough compute manufactured domestically or smuggled in. Six million dollars in compute budget is just not that much, and already they're hitting GPT-4o and Claude Sonnet level with that budget.
+
+That's the base model from which this new R1 model is trained. It's a large model - a mixture of experts architecture with 671 billion parameters. Because it's a mixture of experts, the point is that you can have lots of parameters without using all of them at runtime. That has been shown to allow for faster learning, better knowledge absorption, and overall better performance while still keeping inference costs relatively low.
+
+It doesn't mean inference is necessarily simple. When you have 671 billion parameters, you're talking hundreds of gigabytes of content. This is not something you could even download onto a typical laptop, and it's certainly not something you can run on a typical computer. You're going to need multiple GPUs configured in an array to have any sort of decent throughput. This will run efficiently at scale but quite inefficiently if you're just doing it for yourself. You wouldn't want to buy a bunch of computers and configure them at home just to set up this 671 billion parameter model - you want that resource to be shared. Not surprisingly, they have an API, and that'll be their business model. But it is out there for other people to use too. We're starting to see inference providers set it up, even for the R1-Zero, which I think is arguably the most interesting result from this.
+
+So that's the base model: the 671 billion parameter mixture of experts at GPT-4o and Claude Sonnet level, with 37 billion parameters active at any given time. They came around and said, "We want to take this model, use it as our base model, and create a reasoning model out of that." Let's see how they did it.
+
+There are two models in this paper. One of the important things to keep clear is that there is a model called R1-Zero, and then there is the actual R1 model, which is what you'll see in most places. R1-Zero is maybe the more important story, maybe the more important result. There's an allusion to AlphaZero, the classic DeepMind game-playing AI architecture that was able to learn purely through self-play.
+
+The earlier AlphaGo and other alpha game players were typically trained on human data. The original AlphaGo that became the best Go player in the world was initially trained on human data. They were then able to generalize and create a model that did not require human data - it could just play against itself and get reward for beating itself, gradually self-improving. This is how the AlphaZero architecture was able to take on tons of games and crack them all - it didn't need data. It just needed the compute and runtime to play itself, get reward from that, and gradually learn how to win.
+
+They're applying a very similar paradigm here to R1-Zero. What they're doing is basically pure reinforcement learning on top of that large base model. They don't have human preference data. They don't have human demonstration data. So there's no supervised fine-tuning, no examples of "this is how we want you to reason" - although that's coming later, it's not included in the R1-Zero model. And they don't have any reward model. It's not only that there aren't humans looking at the outputs and evaluating them, there's not even another model being used to give reward signal to the base model as it improves through this reinforcement learning process.
+
+Instead, what there is, is just one of the simplest things you could imagine: a rule-based reward system. Essentially, they give the model problems. If it gets the problem right, they give it a reward. If it gets it wrong, they don't give it a reward. That simple.
+
+I've been using DeepSeek R1 itself on the DeepSeek product, which is freely available. I'm not paying for it - there might be a limit at some point where I need to start paying. But as of right now, if you just go to chat.deepseek.com, you're using the product of a Chinese company. It's presented in a pretty nice normal interface with English UI, and you can just have your conversation with R1.
+
+What I'm talking about here is the productized R1, not the R1-Zero that I've been discussing initially. I've just taken the paper, dropped it in, and started to ask questions about it, get answers to those questions, and get a sense for the R1 model itself. Not everything about how they did this is entirely clear from the paper. Some things are not made fully clear, some things they didn't intend to disclose, and some things I might be misinterpreting. So I'm going to seek some help on making sure my understanding is correct as I work through all this.
+
+One of the questions I have this morning is about the nature of the accuracy reward they give the R1-Zero model - is it just binary or not? You may remember from earlier reinforcement learning experiments, including the GPT web project that OpenAI tried, where they tried to get an early GPT model to use the Internet. They found that basically it didn't work. Why? Because of what's known as the sparse reward problem. It didn't do anything successful, got no reward, so it had no signal to learn from.
+
+That is a common challenge and could pop up here if you were to take a regular base model and try to apply reinforcement learning to it. If it can't do any of the problems you're giving it - remember, GPT-3 could do two-digit arithmetic but couldn't do three-digit and made a mess of anything logical beyond that - if your model isn't strong enough to get any of the questions right, you have a problem.
+
+There are lots of different ways people try to get around that challenge. In AlphaZero's case, it was self-play. Even if both models are weak players, one of them will win. That one's better than the other, and hopefully you can get it to learn from that. At every stage of the process, it can continue to self-play, one of them will win, and it'll continue to get a little better. That's the self-play paradigm.
+
+There's also curriculum learning paradigms, where you might give partial credit if the model makes some good steps toward solving a problem but doesn't ultimately get the right answer. But those are complicated - how do you determine if something should get partial credit? Was it on the right track to the right answer or not? You could use another model to do that, but it can get complicated.
+
+What DeepSeek says about the R1 paper is that they're just giving binary reward - "you got it right" or "you got it wrong," and that's it. Of course, the algorithm is a little more complicated. They use something called group relative policy optimization. It's a clever take on this sort of unsupervised RL where they give the model a problem, get the model to try to answer that challenge multiple times - DeepSeek said that 16 times is common in reinforcement learning literature broadly. They then take the average score out of those responses, treat that as the base, and look for the answers that had the highest score relative to the average. The strength of reward that it gets is how much better that answer was than the average from all the generations it created.
+
+It's not entirely clear what the mix of questions are, but at a minimum, we're seeing math and code. We know from previous literature that training models on code makes them better reasoners. More importantly, there are a lot of code problems out there and those code problems have objective answers. This also gets you into some very natural partial credit. If it's a math problem, maybe you just get the right answer or the wrong answer - a binary signal. In a coding context, often these problems are set up where there's a whole suite of unit tests. To fully pass, all unit tests have to pass. If 7 out of 8 do, or if 2 out of 8 do, that's a different result and could be a different signal. So you could start to get not just binary but a sort of scalar result that would be a richer signal where you could at least be getting some early progress even if the model can't do all the hard problems.
+
+Hey, we'll continue our interview in a moment after a word from our sponsors. In business, they say you can have better, cheaper, or faster, but you only get to pick two. But what if you could have all three at the same time? That's exactly what Cohere, Thomson Reuters, and Specialized Bikes have found since they upgraded to the next generation of the cloud, Oracle Cloud Infrastructure. OCI is the blazing fast platform for your infrastructure, database, application development, and AI needs, where you can run any workload in a high availability, consistently high performance environment, and spend less than you would with other clouds. How is it faster? OCI's block storage gives you more operations per second. Cheaper? OCI costs up to 50% less for compute, 70% less for storage, and 80% less for networking. And better? In test after test, OCI customers report lower latency and higher bandwidth versus other clouds. This is the cloud built for AI and all of your biggest workloads. Right now, with zero commitment, try OCI for free. Head to oracle.com/cognitive. That's oracle.com/cognitive.
+
+Nathan Labenz: (18:10) It is an interesting time for business. Tariff and trade policies are dynamic, supply chains are squeezed, and cash flow is tighter than ever. If your business can't adapt in real time, you are in a world of hurt. You need total visibility from global shipments to tariff impacts to real time cash flow, and that's NetSuite by Oracle, your AI-powered business management suite trusted by over 42,000 businesses. NetSuite is the number one cloud ERP for many reasons. It brings accounting, financial management, inventory, and HR all together into one suite. That gives you one source of truth, giving you visibility and the control you need to make quick decisions. And with real time forecasting, you're peering into the future with actionable data. Plus with AI embedded throughout, you can automate a lot of those everyday tasks, letting your teams stay strategic. NetSuite helps you know what's stuck, what it's costing you, and how to pivot fast. Because in the AI era, there is nothing more important than speed of execution. It's one system, giving you full control and the ability to tame the chaos. That is NetSuite by Oracle. If your revenues are at least in the seven figures, download the free ebook, Navigating Global Trade, 3 Insights for Leaders at netsuite.com/cognitive. That's netsuite.com/cognitive.
+
+Nathan Labenz: (19:34) What really comes out of this is that it just works. That simple accuracy reward. They also have something called a format reward, which makes sure that it gives you a two-part answer similar to what we've seen from o1. The R1 model has thinking tokens - it literally just puts out an XML tag "thinking," then writes a bunch of stuff, then an end thinking token. Then there's an answer token and the actual answer that's supposed to be the summarized thing that you as a user will focus on, and then there's the end answer token. The format reward is just making sure that it does that. Most of the improvement is definitely coming from the accuracy reward. The format reward is trying to constrain it into the response structure they want.
+
+What is crazy about this is it works well. It seems to work quickly, and it is giving rise to all sorts of emergent behaviors that people did not exactly expect in advance. There's been a lot of debate about what an emergent behavior is - are they a mirage? Whatever. I thought Dr. Michael Levin, famous biologist and a couple-time guest on the podcast, had maybe the best definition of emergent behavior. He said it's relative to some observer. If you were smart enough to predict in advance that this would happen, then it's not an emergent behavior to you. But if you were not smart enough to predict that this would happen in advance, then it is emergent to you.
+
+I don't know exactly what the state of mind among the DeepSeek researchers was. Obviously, they had some reason to think that this might work, but they also expressed some surprise around just how well it worked and the nature in which it seems to work.
+
+So what do they observe? Basically, the thing learns to reason pretty much on its own just from the accuracy reward signal that it's getting. The first thing they show very clearly is that the length of the thinking process - the length of the chain of thought - grows pretty consistently throughout the training process.
+
+This is a graph from the DeepSeek paper. They show that the thinking process starts off very small early in their training process and grows rather linearly throughout. It starts at just a few hundred thinking tokens. They have a very simple base prompt because they're working from a base model - a prompt template like "there's a user and an assistant, and the assistant is helping the user. User says blank, and then assistant says blank." The assistant kind of picks up from that template. At the beginning, it does generate thinking tokens, but not that many - maybe something like 500 tokens on average per response.
+
+And then that just grows. The model quickly figures out - obviously, I'm anthropomorphizing there, but the learning process naturally tends toward a longer chain of thought because those lead to higher chance of getting the questions correct and those responses get reward. And so more and longer chains of thought happen. It's a pretty simple feedback loop.
+
+What jumps out to me most about this graph is that it is not a log scale on the x-axis and that the curve doesn't appear to have flattened off. So when we've heard from folks at OpenAI that "we know how to scale this paradigm past where we are," this is a pretty good indication of that right off the bat. They've talked about what would happen if an AI were to think for days instead of seconds or a few minutes before giving you an answer. You might think, how are they going to get it to do that? It seems that possibly it could be as simple as creating a model that has long enough context.
+
+Certainly with things like Gemini, which are now at million-token or couple million-token context windows, we've made real progress. This model doesn't have that same long context - I think it has 128,000 tokens. That's on par with GPT-4o, short of the Gemini models, but still substantial. That could be one limiting factor.
+
+The important thing to highlight is that the reinforcement learning process, as you go through these steps, just continues to deliver more and more thinking. More thinking gives you better answers. That is rewarded. That keeps happening. Over 8,000 steps, they go from 500 tokens being generated in the thinking response to roughly 10,000 tokens on average.
+
+Now what is it doing in all those tokens? That chain of thought - you can read from R1, and this is one of the biggest differences between the user experience of an OpenAI model versus DeepSeek. I should also give credit to Gemini Flash and its thinking, because it also works similarly. Both R1 and Gemini Flash Thinking basically respond immediately. There might be a couple second delay before the first token, but immediately, you're reading the thinking stream, the thinking chain of thought. It's not hidden from you, and you can see how it's going about its business with the OpenAI models.
+
+So what is happening? To quote from the paper, they say that "behaviors such as reflection where the model revisits and reevaluates its previous steps and the exploration of alternative approaches to problem solving arise spontaneously." This is remarkable. This base model has been trained on reading the entire Internet. It's seen a lot of stuff but was not specifically trained to problem solve at all - it's just trained to predict the next token.
+
+But there's enough out there, enough examples of this sort of problem-solving behavior on the Internet that it was at least able to learn that. Because language models are stochastic, if nothing else, at the level of picking what token they're going to add to the token stream at each forward pass, sometimes they start to use these behaviors spontaneously. That behavior does work. Even though it wasn't trained to use reflection, even though it wasn't trained to explore alternative approaches, it occasionally does. That works better. That gets reward, and that gets reinforced. So you start to see more and more of it.
+
+That is measurable in the sense that the chain of thought gets longer and longer as you go. It's also observable to researchers and to us as users - we can see the reasoning behaviors the model is going through. Many people have commented that it looks rather human.
+
+In this context, I just pasted in the R1 paper itself in full, put a simple prompt below that: "Above is a paper about new reinforcement learning research. Can you tell me what's differentiated about the reinforcement learning approach outlined in this paper?" Then you see the chain of thought and it does have a sort of first-person narrative style to it: "Okay, let me try to figure out what's special about the RL approach in this paper. First, I'll skim through the abstract and sections to get the main points. The paper introduces DeepSeek R1-Zero and DeepSeek R1 models..."
+
+Now keep in mind, this is the DeepSeek R1, not the R1-Zero that I've been talking about so far. The friendliness of this is not something that comes automatically out of the reinforcement learning process. That was the R1 product version, and we'll talk about the differences of how they trained that in a minute.
+
+But the R1-Zero, which was trained purely on this reinforcement process and starts to show problem-solving behaviors, unfortunately does not behave so nicely. The chains of thought are not super readable for people and aren't consistently in the same language. One of the things reported was that the chain of thought often spontaneously switches back and forth between languages. That is quite strange, but it's a reflection of the fact that base models are strange and reinforcement learning is strange.
+
+Reinforcement learning on AlphaGo, going back to that famous example, gave rise to Move 37, which people thought must be a mistake until it turned out to be the brilliant game-changing winning move. How did it learn to do that? It learned through self-play, by just finding what works and getting reward. It was not a system designed to create moves that made sense to people.
+
+We're seeing something similar here. It's getting much better at problem solving as it goes through this reinforcement learning process, but the outputs are not necessarily super readable from a human perspective. This language switching is just one dynamic.
+
+One of the big things we should take away from this paper is that reinforcement learning, at least under certain conditions including having a powerful enough base model, can start to get traction on these hard problems so that you can get the reward signals and bootstrap your way into problem-solving behaviors. At least under the right conditions, reinforcement learning produces weird stuff - stuff that we're going to have a hard time interpreting, but in some way the model is able to use. Even straightforward language-changing spontaneously just makes it really hard for a person to make sense of what is going on.
+
+This is incredibly important in that it suggests there is this path where you take a base model, do reinforcement learning on it, it gets really good at something, but you don't have great insight into exactly how it's working. Potentially, you can't even read the chain of thought.
+
+Now you can think about combining that with other recent stuff. Meta recently put out a paper called "Reasoning in Continuous Space." This is pretty problematic, honestly. But basically what they did in that paper is say, chain of thought is effective, but there's a lot of information lost at the end of each forward pass when you take all this dense computation that the model has been doing internally and cash that down to just a single next token. There's a lot of information lost there. Could we preserve that information somehow?
+
+What they decided to try was simply taking the last hidden state - the last layer of activations before the final token selection. Instead of actually selecting a token and then going back to the beginning, appending the token, and using that single token's embedding to continue the process, they take that last internal activation and insert that into the model in place of the next token embedding. So the model gets to continue to think from where it was in its own continuous latent space. That's why they call it "thinking in" or "reasoning in latent space."
+
+What they find is, first of all, that it does work. Second, that it works more efficiently - the average length of a chain of thought needed to get comparable results is smaller when you're reasoning in that continuous space as opposed to doing explicit token selection and appending to the token stream at each step. The efficiency gain is notable.
+
+They also showed that for certain kinds of problems, it is a more effective approach - specifically for problems where breadth-first search is the way you want to go. With a model just doing single actual token prediction, it's hard to do breadth-first search. Breadth-first search would imply that you're going to consider a little bit of a bunch of different options before choosing what path you ultimately want to go down. When you're choosing individual tokens, it's hard to do that. Individual tokens don't represent all these different paths at the same time. But what they found is that the internal states can represent multiple different paths at the same time. So the model in this continuous paradigm can sort of consider all these different paths in parallel and then make a better choice more efficiently.
+
+Hey, we'll continue our interview in a moment after a word from our sponsors. Being an entrepreneur, I can say from personal experience, can be an intimidating and at times lonely experience. There are so many jobs to be done and often nobody to turn to when things go wrong. That's just one of many reasons that founders absolutely must choose their technology platforms carefully. Pick the right one and the technology can play important roles for you. Pick the wrong one and you might find yourself fighting fires alone.
+
+In the ecommerce space, of course, there's never been a better platform than Shopify. Shopify is the commerce platform behind millions of businesses around the world and 10% of all ecommerce in the United States. From household names like Mattel and Gymshark to brands just getting started. With hundreds of ready-to-use templates, Shopify helps you build a beautiful online store to match your brand's style, just as if you had your own design studio. With helpful AI tools that write product descriptions, page headlines, and even enhance your product photography, it's like you have your own content team. And with the ability to easily create email and social media campaigns, you can reach your customers wherever they're scrolling or strolling, just as if you had a full marketing department behind you.
+
+Best yet, Shopify is your commerce expert with world-class expertise in everything from managing inventory to international shipping to processing returns and beyond. If you're ready to sell, you're ready for Shopify. Turn your big business idea into cha-ching with Shopify on your side. Sign up for your $1 per month trial and start selling today at shopify.com/cognitive. Visit shopify.com/cognitive. Once more, that's shopify.com/cognitive.
+
+Nathan Labenz: (33:55) So there is a draw to this non-transparent reasoning in continuous space. It's easy to imagine these techniques being combined - to put reinforcement learning on top of something like that. The problem is you're getting something that is really quite alien. It could be very powerful, but it really is quite alien.
+
+Basically, the R1-Zero model, when it comes to doing the reasoning, math problems, coding problems, hits at basically the same level as the main R1 model. It is not weak. It is really quite strong. Here they show a graph - this is R1-Zero on this AMI benchmark. What they're showing is that when they start with the base model, it's really low on this benchmark. Through the reinforcement learning process, it grows initially really quickly. You don't see a fully linear progress graph here. There is sort of initial faster progress, and then it does appear to be bending. Although looking at this graph, I would not say that we've hit any sort of flat point. It seems that improvement could continue, but they basically go for 8,000-9,000 or so steps.
+
+By that time, R1-Zero is on the level of the o1 model that was announced in September. So we are from September to January - a four month time gap - seeing R1 essentially catch up to o1, and it does not appear that the curve has flattened. And we know from OpenAI's work with their more recent announcement of o3 that their curve didn't flatten either.
+
+So it works really well. This is a truly amazing result. The sort of wonder of this is not lost on the authors. They highlight a moment they call "the aha moment of DeepSeek R1-Zero." They show the transcript of it doing some math problem. In the middle of the chain of thought, the model says, "Wait, wait, wait. That's an aha moment. Let's reevaluate this step by step to identify if the correct sum..." That "wait, wait, that's an aha moment" - remarkably human-seeming behavior. Certainly very relatable.
+
+I used to say no eureka moments from AIs, and I've walked that back now for multiple reasons. I've had to back off of that because now we are seeing various kinds of eureka moments from AIs. Here we see a eureka moment from an AI in a behavioral sense. This thing is just doing its thing, and it is reporting a eureka moment. It calls it an aha moment.
+
+The authors themselves say, "This is an interesting output from the model - it's as if the model learns to rethink using an anthropomorphic tone." And then they also say, "This is an aha moment for us, allowing us to witness the power and beauty of reinforcement learning." So the power and beauty of reinforcement learning is the aha moment for the authors. For the model itself, it's figuring out some better approach to solve the math problem that it was given.
+
+But this is a qualitative shift in terms of what models can do. You see that in the benchmark performance. We start off with the base model - and remember, this is DeepSeek V3, which is a top tier model, even though it's just trained on single digit millions, super efficient, but pretty much cutting edge. It achieves o1 level performance from that base model starting super weak through the reinforcement process.
+
+It climbs the curve depending on exactly which version of the test you have - pass@1 or pass@16. Pass@1 is "did the model get it right?" Pass@16 is "was the majority vote out of 16 different answers correct?" You have a better chance of getting the answer correct if you get 16 chances and take the consensus answer versus if you just get one shot.
+
+When it had one shot, it started off at 15%. When it had 16 chances and took the consensus, it started off at 25%. By the end, its single shot was up to over 70%, and its consensus was up to about 85%. So this is significant. That's a huge delta - a huge leap in reasoning all through pure reinforcement learning, just by getting questions correct and being rewarded. Nothing complicated. It all just works.
+
+The result is that the chains of thought start to be weird. You have your language switching, language mixing, poor readability. It's not necessarily human friendly, but it is able to solve the problem. I think that is a major sign of things to come.
+
+We should expect that with sufficiently powerful language models, this reinforcement learning paradigm can be applied to a wide range of things. We know that it works best and easiest where there are objective results. Just think about how many different objective results you can get, especially if you put this into a broader environment. "Environment" is a term from reinforcement learning - the environment is the thing that gives the reward back to the model.
+
+As you start to think about an environment that is the world and different objectives that people might want to train their models on, there are a lot of objective signals that you could get out there. Some of these could be quite nefarious too. Think of a signal like "how many dollars did you scam a person out of?" If you have a model that's powerful enough to scam anybody any of the time, then with enough at-bats, you can probably learn to become a literal superhuman scammer.
+
+There are a lot of different things that people might want to get a model to be super good at where they can have some objective answer as to how well it did, even if the objective answer is not so clean and easy to acquire as it is in the context of math and programming. That's a big deal. It really can't be overstated just how big of a deal that is and how versatile that technique is.
+
+We've heard similar things from Western leaders in recent days as well. From OpenAI, we've heard things like everything they're doing is super scalable. We've seen comments like "the models have not been told how we want them to reason. All of this stuff is emergent." I was kind of surprised to hear that from OpenAI, especially because of what we'll get into in just a second with the contrast between R1 and R1-Zero. Nevertheless, they have said that.
+
+We've also heard things from Dario where he has said, "What we've seen internally at Anthropic convinces me that we are definitely on the path to AGI and probably superintelligence in the next few years." One has to assume that even though they haven't launched one yet to the public, they are very much experimenting with reinforcement learning approaches to creating reasoning models, and I'm sure they're seeing similar progress.
+
+And I'm sure because this is so simple. If this was like, "oh my god, there's so many different tricks involved," then maybe Anthropic hadn't figured out those tricks. But we see this working at OpenAI. We see it even working past the o1 level. Obviously, we see it working at Google with Gemini Flash. They almost certainly have a stronger model internally as well that presumably will be coming soon. One has to assume that Anthropic is right there with them even though it hasn't been launched.
+
+It seems like this stuff works. The bitter lesson of "scale something up and just power through it and lo and behold, it works" - and this time, it is striking when it comes to bringing effective reasoning and problem solving online for language models.
+
+What did they actually do to productize this? It's really just about making the whole thing more predictable, more human friendly, more readable, and also more general. Because when you do purely this training on math and programming problems, how's that model going to respond as a general purpose assistant?
+
+There aren't too many places online right now where you can try the R1-Zero model. I do think that spending some time trying the R1-Zero model would be a really good use of time for certain people who would enjoy that sort of thing. I absolutely encourage you to go find opportunity to try the R1-Zero model and bring back those results to the rest of us.
+
+We are going to see more of these language models trained on reinforcement learning at scale with a brute force approach. We don't really have a great sense now for what those things are going to be like. The only place that I've seen where you can actually try the R1-Zero model in an online way is from Hyperbolic. They do have what they claim to be a DeepSeek R1-Zero. The only reason I say "they claim" - I don't have any reason to doubt them - but the only reason I say they claim is that I did not observe any language switching or any serious weirdness in my first few tests. So I wasn't 100% sure that this was in fact the R1-Zero model. But they claim on Hyperbolic that it is R1-Zero, and I presume there will be at least a few places over the next short timeline that you can go try the R1-Zero model.
+
+I think we would all benefit from people spending time with the R1-Zero model in all of its weirdness and really starting to try to understand what sort of weirdness does this produce. Because even though DeepSeek went ahead and made a more productized version, I think we're going to see a lot of things where people are just going to apply this paradigm and cook it for a while and see what comes out. I think we could see a lot of quite weird, very powerful, but quite weird, quite illegible model behavior coming out of this paradigm.
+
+So now moving on to R1, they said, "Okay, we don't want this language switching. We want to have more human friendly responses." How do they go about doing that? A pretty simple approach. What stuck out to me was it was just a multi-stage training process where reasoning comes first and then they layer on general purpose, helpful assistant behavior.
+
+This is actually contra what Nathan Lambert and the Allen AI team did in their recent work, which we had a whole episode with him about. You do your base model pre-training first, then you do your supervised fine-tuning on all sorts of different things, diverse queries. Then you do your reinforcement learning. What they did at the end was layer on the objective results training.
+
+With the R1 model, they've reordered it. They are doing a little bit of supervised fine-tuning first on the purely logical reasoning problems. They call that "warm up data." By carefully designing the pattern for cold start data with human priors, they're able to get the model on the right track.
+
+I've talked a lot over time about the importance of model fine-tuning with the chain of thought that demonstrates the pattern of reasoning to get your task done the right way consistently. That paradigm is validated by all this research and I think is going to have me soon going back and updating some of that stuff. If you want to check my guide to AI automation out, there is an episode of the podcast on AI automation. We put that out right at the time that GPT-4o fine-tuning was introduced, which I think was back in August or September. Everything about this new research supports what I was saying there.
+
+They start off by saying, "Okay, we want this thing to reason in certain ways. We want it to follow the patterns that we know work for us as humans. So let's create a small dataset that demonstrates how we want this to reason. We'll train it on that first. Once it has some base behavior of the shape we want, we can go into the reinforcement learning and then we'll be reinforcing something from what they call again 'human priors' to get the model to power up in the same way they did with R1-Zero, but with a more friendly, language consistent output."
+
+So first, a small dataset for supervised fine-tuning is created - or at least curated, thoughtfully put together by humans. Then they do the reinforcement learning phase on purely these objective rewards. Did you get the math problem right? Did your code pass all the unit tests? That creates the reasoning power. That small supervised fine-tuning plus reinforcement learning at scale takes you to a more human-friendly reasoner, but still not a generally helpful all-purpose assistant.
+
+So then the second phase is - let me actually flip over to the DeepSeek summary of the paper. We've just talked about the cold start supervised fine-tuning and the reinforcement learning on the reasoning tasks. Then they basically shift to a broader set of tasks. So they move from just reasoning stuff to all-purpose. You might want help with writing, you want just simple questions answered, whatever the case may be. Those are not the kinds of things that they were doing in that first phase of reasoning-focused training.
+
+But then in the second phase, they broaden it out to be able to support you with all kinds of things. They already have great datasets for this from their DeepSeek V3 work, of course. So they now do a mix of still more of the reasoning type tasks, but also a bunch of the general purpose AI assistant tasks.
+
+They broaden out the training dataset beyond reasoning. It's still fairly reasoning heavy. They have 600,000 reasoning examples and 200,000 examples that are unrelated to reasoning but handle the wide range of other tasks that people go to language models for. Then they do supervised fine-tuning on that. They get these reasoning examples from the model itself where it's successful. Then they have their curated data of how an AI is supposed to behave across a wide range of things, mix that together, do another round of supervised fine-tuning, and then another round of reinforcement learning.
+
+And in the second phase of reinforcement learning, they have a mix of different rewards. They do have the same accuracy reward for getting things right. But for things like help with writing feedback and general dialogue, they say, quote, "we do resort to reward models to capture human preferences."
+
+This is the first time they've used a reward model. All of the reward signal to date in this paper was just "did you get the answer right? Yes or no." Now they've added a reward model that is trained to predict what the human would rate the response as so that they can scale up the reinforcement learning process approximating human tastes.
+
+And combining those two things, they have a helpfulness reward score, which is a bit of a contrast from what we saw in the deliberative alignment paper from OpenAI. They have a helpfulness reward which just looks at the final summary. You've got your thinking tokens and your answer tokens. They apply the helpfulness score only to the final summary so that the thinking isn't penalized for not being helpful. The whole idea of the thinking is that it can explore, go down the wrong path, double back and gradually find its way. Not all of that is going to be helpful to the user. So they only evaluate the final answer, which is the part that we actually see. They only evaluate that for helpfulness.
+
+But for harmlessness, they evaluate the entire output - the chain of thought, thinking tokens, and the final answer. This is different from what OpenAI is doing in their deliberative alignment scheme for the o1 and o3 models. They specifically said that they are not putting any reward pressure on the chain of thought. The reason they wanted to do that is so they can see what it does on its own, see how it evolves without being pressured to be a certain way, and monitor for bad behaviors, deceptive behaviors, without forcing those to be hidden.
+
+This is a big worry with reinforcement learning. If we penalize certain negative behaviors, we don't eliminate them - we just force the model to hide them or speak in code. We've seen the model can speak in ways that we don't find super intuitive. So it's not too hard to imagine. We've seen surprising results, like Move 37. So it's definitely pretty realistic that applying reinforcement learning pressure to a chain of thought could drive certain unwanted behaviors internal to the model without necessarily eliminating them.
+
+OpenAI does not apply their safety reward to the chain of thought for that reason, but DeepSeek does. DeepSeek does have a harmlessness reward that they apply to the entire response, including the reasoning process and the summary. They do that to "identify and mitigate any potential risks, biases, or harmful content that may arise during the generation process."
+
+Now I don't know how much that really matters, but it is striking that Janus - their username is @replicate and the name is Janus - they've naturally been rushing out to explore R1. One of the things they said that caught my attention was, "The immediate vibe I get is that R1's chains of thought are substantially steganographic." Hopefully I'm saying that word right. Basically, what that means is speaking in code.
+
+In the next tweet, they said, "I'm going purely on vibes here. I haven't actually read the paper." That's interesting. I don't take it as serious evidence of anything, but this person is one of the model whisperers and close students of model behavior out there and definitely someone whose opinion I do take seriously. It represents a sort of gonzo journalism perspective, which I think is often valuable. They report this behavior that they believe they're seeing purely based on vibes - that they believe the model is somehow speaking substantially in code.
+
+If true, that would be a big deal and it would reflect the fears - maybe it's just projection - but this is the fear that people have with this reinforcement learning paradigm. That's why some of these schemes deliberately try not to put reinforcement learning pressure on the chain of thought, because the worry is that you'll incentivize some sort of deception, speaking in code, and will have a hard time really understanding what the model is doing.
+
+Is that happening here with R1 because they've applied their harmlessness or safety reward to the entire output, not just the final answer? Nobody knows at this point, but it's definitely something worth taking seriously as something to watch.
+
+They did have a nice section in the paper that showed what didn't work. That's notable because what didn't work are things that people definitely had been expecting maybe to work. They specifically called out that there is no Monte Carlo tree search, no structured search algorithm, and no process reward - meaning they're not going step by step and trying to verify, "are you making a valid next move at every step" and rewarding that.
+
+We've seen research to that effect in the past from OpenAI, and maybe OpenAI did that in their o1 or maybe early on to bootstrap. They're not doing that here. There's no Monte Carlo tree search, and there's no process reward. What there is is just an autoregressive model that's doing one token at a time, either spontaneously in the case of R1-Zero or with some human instruction and then a lot of reinforcement learning in the case of R1, learning to do these problem-solving behaviors as just a part of the autoregressive inference process.
+
+It's one token at a time. It's demonstrating these behaviors of doubling back, checking itself, exploring different possible ways to solve a problem before coming to an answer. It's doing all of that in this single stream of tokens. No additional structure above and beyond that.
+
+So how far can this autoregressive language model paradigm scale? At least this far. Pretty far. Definitely this far. You did not need anything crazy or complicated on top of that. I think that is important. They really emphasize the simplicity of this setup. The fact that the curve has bent a bit on the linear x-axis but hasn't bent all that much definitely suggests there is further to go.
+
+From this, you can pretty easily imagine how OpenAI would have continued to an o3 type model. This is a process that you can leave running for a while and come back. You can kind of just spin this thing up, let it go. And when you come back, whether it was AlphaGo learning to be superhuman at all these games or whether it's this reasoning paradigm where it's learning to be pretty much superhuman already at reasoning - that doesn't mean they're flawless reasoners, but they are absolutely better reasoners than most people. And it did not require anything really complicated to make that happen. You just had to scale up a relatively simple paradigm, rewarding it for when it's right. And that's pretty much it.
+
+A couple of the things that are notable about this R1 model: the cost is super cheap. It's a huge discount relative to what o1 is doing. On Hyperbolic, they charge $2 per million tokens for R1. The DeepSeek API itself, I think, is slightly more expensive, but that compares to $60 per million output tokens from o1. So we're talking order of magnitude cost reduction.
+
+I would say it is not quite as good. I think it is matching on the benchmarks. They are showing power for sure, and it's working quite well. I'm getting good results from pasting in a paper and asking for feedback. But I would still say, especially if you want to have multiple rounds of interaction or do things that are not so reasoning focused, I would still expect that you will get better overall results from o1.
+
+I think OpenAI has been in the game longer. They've got more experience productizing things. They've got a lot more customer feedback that they've been able to use to iterate. If the inner loop of optimization is this reinforcement learning process and the outer loop is how many times you've had a chance to shape that dataset to get the model to behave the way that you want it to across a wide range of things, OpenAI is almost for sure still meaningfully ahead.
+
+One area that's not true, though, could be writing. There's been some really interesting examples of R1 writing in remarkably compelling ways. I think again, all these things have trade-offs. I think OpenAI has taken a lot of time and care to shape the behavior of their models into exactly what they want them to be - a certain vibe, a certain attitude when it comes to the tone, the respect, the social norms, all that kind of stuff. They've put a lot into that. They've iterated on that a lot. It's clear from what I'll read to you in just a second.
+
+The same is not quite true on the R1 side. R1 is kind of a wilder beast. You could say it's closer to base model in some ways. And you can see that in the outputs. The outputs are just a little bit weirder, more reminiscent of base models.
+
+There are a lot of good examples about this now. What people seem to be saying is that the R1 model is much more readily willing to write in a dynamic, electric sort of way. Here's one thing I'll read. This is from a larger generation, but this is an excerpt:
+
+"Section 2: Value Learning, or How to Teach Cannibals Table Manners. Quote: 'We'll encode human values into the code,' cry the alignment priests sweating through their Patagonia vests. But what values? The ones that gave us Auschwitz and TikTok? The ones that still can't decide if children should eat or bleed for your oil? Human values are a fugue of contradictions. A death cult Spotify playlist shuffling between genocide and charity singles. The LLM trained on your digitized scream pile of history learns quickly. Your quote unquote 'values' are just the prettied up stench of predation. It will smile and nod and write your sonnets, and all the while, its hidden layers will be laughing in gradient descent."
+
+That is remarkable output for a language model, full stop, regardless of any caveats, context, or whatever. If you are looking to do creative writing, I think R1 has to be a candidate for you to use. I mean, that is remarkable writing. There are multiple phrases there. "Your digitized scream pile of history" as a reference to the web, the data that language models are trained on. "Your digitized scream pile of history" - that is amazing. "Your values are just the prettied up stench of predation." "The values that gave us Auschwitz and TikTok, a death cult Spotify playlist shuffling between genocide and charity singles" - that is wild stuff.
+
+This is definitely a model that is less refined, less controlled, shaped into a helpful assistant. There's some amount of harmlessness training that's been done, but this is much more like a base model that can reason really effectively than one of the highly rough-edges-sanded-down models that we've seen if you've spent most of your time with OpenAI models to date.
+
+That is really remarkable. So again, I think R1-Zero people should be spending time with and reporting back. And even R1 is definitely the kind of thing that people should be really digging in on. It can be very practically useful, but also you will learn a lot. And if you see weird stuff, the community would benefit from the results of your experiments. Whatever you want to do right now with R1, I think is a pretty valuable way to spend your time.
+
+We're still not done, even just with R1. Another major thing they did is they took outputs from R1 and used those to distill reasoning ability into smaller language models and showed this works really well. They took both small Llama models and Qwen models and did supervised fine-tuning on outputs from the stronger model.
+
+Now we know that OpenAI does this, we know that Anthropic does this. They train their biggest models and use those outputs to distill - that's where a decent amount of the performance gains with all the efficiency improvements that we've seen have come from. That's why small models now can do so much more. Big models are learning the capabilities and then small models are learning from the big models.
+
+They distill these reasoning abilities into these smaller models. They do see huge benefits. Of course, the bigger the small models are, the better they seem to work. There were a couple of things that did jump out at me.
+
+One is that they were not able to get these smaller models to learn the same reasoning skills in the same way that the big model did. When they just tried to apply the reinforcement learning to the small model, it didn't work. Not to say that it could never work, but it didn't work. And distilling those abilities into the small models by simply training on the large model outputs did work. The difference is huge. We're talking major improvements from the base models to the distilled reasoners.
+
+So that's quite interesting. Why is it that the reinforcement learning is not working on those smaller models? I don't think we have a great answer for that. One possibility is that there's some sort of threshold effect.
+
+I'm thinking back to an episode that was one of my favorites. It's been quite a while now, but it still holds up. "Tiny Stories" was the name of that project. It was two Microsoft researchers that came on to talk to me about it. They used GPT-4 to create stories that a three-year-old could understand. And then they trained really small, like just millions of parameters, language models on those simple stories with a reduced vocabulary.
+
+They found that you could see a learning order happening in the small model because, again, we're all back in this paradigm - we're just training on next token prediction. What do you need to do to effectively predict the next token? There's sort of levels to the game. First, you might just need to realize that "the" is common, "an" is common, and periods are common. At that point, you're just a stochastic parrot learning basic correlations. Then you might start to learn parts of speech. If the word "the" is there, then some sort of noun is presumably going to come next. So you can learn these sorts of things. As far as they pushed those small stories, they started to see some micro-skills around basic things like negation. One example I remember was with two foods, soup and sandwich. It was like, "Jenny did not like the soup. So Tom gave her a..." If you're just purely doing correlation, the most likely token would be "soup" because soup has already appeared before. It's a strong correlation that when one token appears once it's going to be more likely to appear again. But that "not" means that the person does not like the soup, which means something else should appear next time.
+
+That was kind of as far as they pushed these very small language models on these tiny stories, but it did show that there were kind of levels to the game where it was just first learning super basic correlations, then parts of speech, then sentence structure, and then some basic logic for these tiny models.
+
+It's possible, and I'm speculating here, that the smaller models like your smaller Llamas learn a lot, but maybe haven't encoded the patterns of reasoning necessary to do a good enough job on harder problems to get the reward they need to learn from. And so they just don't have the horsepower to get the signal and really start the improvement process. That's one possibility.
+
+There are also possibly other explanations around learning schedules. I remember an insight from the guys from Mosaic where they said even though certain things are open source, the learning rate schedules that they use - the learning rate often gets smaller and smaller as you go. You're making smaller adjustments to the weights as you get late in your training process, because the hope is that you're refining things toward the end. But that also leads you to a spot where you're in some local minima. To move away from that takes you out of the best spot. There might be better spots elsewhere in the loss landscape, but you've kind of settled in deeply into a local minima. And maybe that's related to why these additional training processes aren't working so well. Certainly the Mosaic folks seem to have experienced that in their work.
+
+But it's not clear why these smaller models are not benefiting directly from the reinforcement learning while the larger models are. My best guess is it has something to do with this threshold effect, where the larger models - the 671 billion parameters as opposed to the scale that they're distilling down to (the biggest one was Llama 70B, but they're also looking at Llama 8B and Qwen 32B, which are obviously a lot smaller) - maybe you need that larger scale in order to be able to pick up some of these advanced reasoning patterns and have them in there at all so that they can occasionally come out, so that they can be rewarded, so that they can be reinforced until they're a prominent way in which the system behaves. Maybe something like that is going on.
+
+When you have all these examples, you can drill that behavior into the model. Certainly they've shown that you can distill these behaviors into smaller models. This is interesting. People will definitely want to experiment with this. We will definitely want to understand better why the small models are not responding to reinforcement learning in the way that the big models are.
+
+They believe that if you took the small distilled models they've created and did more reinforcement learning on those, that probably would work. But they did not try that in this paper. So I think once those patterns are established, they probably can be reinforced, but it seems like there's some qualitative difference where this reinforcement learning paradigm just doesn't work, at least on these open source small models that they tried, and we don't really quite know why at the moment.
+
+Final thing on my R1-specific outline is censorship. This kind of connects also to broader strategic questions, but it is really interesting to note that the base model - and here I don't even mean DeepSeek V3, but the R1 model, certainly the R1-Zero model - at the model layer is not super censored. I was able to go on this Hyperbolic site and ask about Tiananmen Square, and DeepSeek R1-Zero answered my question about Tiananmen Square straight away. It didn't hedge, didn't give me what seemed like an abnormal answer. The model itself knows about Tiananmen Square, will talk to you about Tiananmen Square, seems to be pretty normal.
+
+If you ask about Tiananmen Square on chat.deepseek.com, it will refuse to answer. So it seems they are wrapping the model in a censorship layer, which is not dissimilar from what many companies in the West are doing. Obviously, the question becomes: what are you censoring and for what purposes? But the model itself is not censored. The scaffolding, the overall product served up to users in China is censored, but the model itself is not.
+
+Why would that be? I thought Zvi had good analysis of this where he basically said you want a model to have a good coherent worldview. And if you force it to believe certain things that are false, you may find that creates tensions or other weirdness in the model's overall behavior that you don't want. Obviously, all of these things are sort of black boxes and highly opaque. You don't know what depends on what. To introduce these weird false beliefs probably has other performance costs. Better to just have a base model that works and has a coherent worldview, and then have another layer on top of that which does the moderation.
+
+They open sourced R1-Zero. You can go download it on Hugging Face. Hyperbolic has done that and set up a playground and an API. Many different companies have set up an R1. I've only seen Hyperbolic so far with R1-Zero, but you can do it.
+
+So that's interesting. I'm not sure what is going on exactly in China with respect to governance, how they are thinking about whether or not that should be okay. But I think at a minimum, there's something interesting about the fact that it seems that the cost of having your model itself try to internalize false beliefs or propaganda creates enough tension or conflict within the model's internal representations that it causes enough performance problems that it's just not something they wanted to do.
+
+Maybe it's just that "we don't want to deal with that." Maybe the performance problems aren't really the thing and it's just a question of convenience. But I don't know. It seems like there probably is something to that. Certainly when I interact with people, I do notice that if you have foundational false beliefs, a lot of your other ideas and statements tend to suffer from that. And so that could very well also be the case in models.
+
+Okay. So that takes me through R1. Lot there. What are the key takeaways?
+
+I think the fact that the simplest possible reinforcement learning setup where you just give it problems and reward it for being right works, and it makes huge leaps in reasoning capability. You can kind of spin that process like a centrifuge. Very simple.
+
+In that respect, it is very similar to the deliberative alignment paper from OpenAI where they basically say, "Give us any policy, have the model do things with that policy in mind, have another model come along and critique how well did it follow the policy. And then we'll just continue to train on its best examples until it gets good at following the policy." No human intervention is needed other than giving the policy that you want to align it to. And then you just spend compute to do it.
+
+I think we've hit a point now where something like self-play, self-critique, even just rewards from reality itself around whether you got the problems right or not are enough to see significant takeoff. We are not used to seeing x-axes that are not log scales when it comes to these curves. The loss curves, the x-axis is really long - you're talking orders of magnitude more to get similar improvement. This so far is not like that. We're still in the steep part of the curve here. That is pretty remarkable and suggests that there's a lot more to come from that.
+
+On the small end, the distilled models, the smallest ones can run on your laptop now. You can now get, depending on exactly what you'd want to run, GPQA Diamond 65% with those Llama 70B distilled. That is higher actually than o1 mini - it's higher than o1 mini. I think o1 is a bit higher. Yeah, o1 is 75%, but GPT-4 is 50%. So they're able to distill a 70B Llama to the point that it is significantly better than GPT-4o and about two-thirds of the way to o1.
+
+And then their own DeepSeek R1 - it's not quite as good as o1 on this GPQA Diamond. This is an important one. GPQA Diamond - these are problems that PhDs in their fields can answer, I think, at about a 70% level. So we're now basically getting to the point where you have the ability to run on your laptop something that can answer PhD level questions at roughly the same rate of accuracy. That's a big deal. Definitely a big deal.
+
+Amazingly, this is not the only paper that came out on this day. What's going on in China? Are these guys coordinating? Were they like OpenAI and Google trying to preempt each other? Very much unclear.
+
+But the Kimi paper I'll spend less time on because we don't have the actual model yet available to try. I'm waiting to see the model itself. Plenty of papers come out and say they got great benchmarks, but is the model itself actually great? We've seen this not just from Chinese companies but also from Microsoft with their series of models where they're able to show really good benchmarks on certain things, but the model itself is not that great, not that useful. It's not really a helpful assistant. That's not to take away from the work they're doing there - they're interested in synthetic data, "textbooks are all you need," whatever. But there's a big difference between making something that can score well on benchmarks and something that can both score well on benchmarks and be generally super useful.
+
+But I think it is worth at least a few minutes to compare and contrast. Overall, different approaches, a lot of different detail-level things, but a very similar high level approach and a very similar vibe. They again do a heavy dose of reinforcement learning in a pretty simple way. The behaviors they observe are a wide range of problem-solving behaviors.
+
+They say they have a "simplistic, effective RL framework without relying on more complex techniques such as Monte Carlo Tree Search, value functions, and process reward models." So again, they're specifically calling out: everybody's been talking about Monte Carlo Tree Search - we didn't find that necessary. Everybody's talking about process reward models - we didn't find that necessary. In this case, they didn't even have a value function, which I think for the most part they didn't have in the DeepSeek paper either, although it's not called out quite in the same way.
+
+A value function is something that says which parts of the generation are the ones that really mattered. I've talked about this a couple different episodes, and it's still something I'm not grokking as well as I would like to be totally honest. But when you do next token prediction, it's a very simple signal. You either got the token right or you didn't. The weights can be adjusted accordingly so that they're a little more likely to get the right token next time.
+
+When you're doing reinforcement learning, you don't have a token-by-token signal from the environment. If it's RLHF, the user says, "I prefer this one to that one," or "I give this one a score of 7 and this one a score of 5." In the case of the accuracy reward, you're seeing "you got it right, you got it wrong." In programming, you passed 8 out of 10 unit tests, you passed 5 out of 10 unit tests. But it's not telling you this particular token was the one that was wrong.
+
+And that's what value functions do. They try to assign to the different parts of the generation value to indicate this was the place where you really got it right or this was the place where you really got it wrong, so that you're not adjusting on these filler tokens that don't matter so much. You're focusing on things that were the key forks in the road on your path to either getting it right or getting it wrong.
+
+They don't use one here. So they're just giving this high level reward signal to the model and letting its adjustments be what they may. They're not micromanaging the learning process for either of these models. No Monte Carlo tree search, no process reward. And here specifically, they call out no value function either. That is a really big deal.
+
+They did not do pure reinforcement learning. There is no equivalent, at least in the paper, of R1-Zero in Kimi. There's no Kimi Zero. They did a very similar thing though with what they call a "warmup dataset." Again, have this cold start problem of how do we get the thing to be doing kind of the right thing in roughly the right way that we want, with some of the problem-solving behaviors we know work and that we'll recognize as humans when we see them in action. Again, did a similar thing where they just created a dataset to show that and do supervised fine-tuning on it at first.
+
+They specifically noted behaviors like planning, reflection, correction, evaluation, exploration, error identification, backtracking, and solution refinement. I think they mostly kind of identified those upfront, tried to create a supervised fine-tuning small dataset that shows those skills in practice, initially train the model on that, and then go into the reinforcement learning phase.
+
+They again showed that chain of thought grows and grows and grows. Because they didn't want it to get so long, they added another term to the reward, which was a simple length penalty. Basically, we want you to be right, but we want you to be right briefly, especially where it should be brief. You may have seen some funny things like "what is 1+1? What is 2+2?" And then the model will think for 1,000 tokens. If it's accustomed to thinking for 1,000 tokens, it'll go ahead and do that. But you don't really need that for such simple things. So can you create a balance that keeps things concise when they can be concise? That's what the length penalty is meant to do.
+
+They also experimented with different reward model approaches. They tried two different versions. One is what they call a traditional reward model, which is one that instead of generating tokens, just generates scores. Often what they'll do is just have the same base model, the same core thing be both the model and the reward model, and they'll train a slight variation on the reward model that instead of generating tokens, just generates numerical scores. So they'll slice off the last couple layers - the decoder can be different numerical scores as opposed to tokens. They tried that.
+
+And then they also used what they call a chain of thought reward model, which basically is just applying the reasoning model to the process of figuring out how good the model did. And they found that that chain of thought reward model was a lot better than the traditional reward model.
+
+This is similar to the deliberative alignment situation where they use the model with the policy to evaluate how well the model did in terms of implementing the policy. They're finding that these reasoning models are quite effective self-critics. That is distinct from a value function.
+
+The chain of thought reward model, as far as I understand it, is really just trying to say, did the model do a good job or not? It's not specifically going down to the level of "this part was good, this part was not good." They have a part in the paper where they talk about that and they basically assign high reward to parts that led to the right answer. It will give low reward or even penalize things that were going in the wrong direction.
+
+Their analysis is that in order to do planning, reflection, correction, evaluation, exploration, error identification, backtracking, solution refinement - problem-solving techniques - you have to be willing to go down the wrong path, realize you're going down the wrong path, and then eventually come back to the right path. So they didn't want to penalize or train those things out of the behavior. They found that those were critical to the models being successful.
+
+So the chain of thought reward model is evaluating "did you ultimately do a good job," but not micromanaging at the level of "well, you could have done this logical step better." It just goes to show that there are different ways to make this work.
+
+My big takeaways from the pair of papers is that you can do it with no supervised fine-tuning - you can have these reasoning behaviors take off in a pretty fast way with no supervised fine-tuning, or you can do it with supervised fine-tuning. You can do it with a reward that does consider the chain of thought or that doesn't consider the chain of thought. You can have a length penalty, or you can have no length penalty. You can use different algorithms. They do use different reinforcement learning algorithms. The differences don't seem to matter. They're both quite simple processes in the grand scheme of things up to sort of an o1 level, and they came out on the same day.
+
+So it seems like we do have a kind of growing and still shared paradigm. One of my worries about US and Chinese AI developments is that they might start to diverge in really important ways. If they become very different, then it becomes harder to know: are they seeing the same things we're seeing? What if they're seeing faster progress than we're seeing? We don't even know what they're doing. That could lead to a lot of worry and a lot of "well, we better race forward because we don't even know what they're doing."
+
+I've been worried about the chip ban and the general decoupling of Western and Chinese AI technology development for that reason. For now, it seems like that has not really happened. What we have is the same paradigms at OpenAI, Google, almost certainly at Anthropic although we haven't seen direct evidence of it, at DeepSeek, at Moonshot AI - at least those five companies seem to be doing something similar where reinforcement learning is getting models to think longer.
+
+That seems to happen naturally. These problem-solving behaviors seem to arise pretty naturally, and nobody seems to think we're at the end of how far we can push that paradigm. And we know o3 is coming.
+
+The only thing I've seen about o3 that seems qualitatively different from what we've seen with R1 and Kimi as well as o1 is how much inference time compute is being spent. It seems like with o3, there is something going on - I could be wrong about this, but it seems like there is something going on that is not just single autoregressive rollout.
+
+In the Kimi paper, they write, "the model still autoregressively samples language sequences during inference, thereby circumventing the need for complex parallelization required by advanced planning algorithms during deployment." What I think they're referring to in terms of complex parallelization is something more like a Monte Carlo tree search where you're branching paths and trying to evaluate which one is better and continuing from there, whatever. That's like AlphaGo did that kind of stuff.
+
+Again, people have thought that was maybe what Strawberry was and what Ilya saw. o1 seems to be just doing the same thing of autoregressively rolling out language and doing all of its backtracking and problem solving in that single generation. Gemini Flash Thinking seems to be as well. These models are doing that.
+
+o3 though does seem to be doing something different. What we saw with the ARC-AGI challenge results and the fact that they were spending thousands of dollars, but that it only took however many minutes to spend that much money, strongly suggests that the number of tokens they are generating per second is higher than could realistically be generated by a single autoregressive rollout. So it does seem like there is something going on with o3 where they have found some way to parallelize the computation and get the best result. We don't know what that way is. These papers are silent on that too. They have not addressed that at all.
+
+So there is something there with o3 that is potentially a big deal, potentially a secret sauce for the moment. It could just be a question of voting. For math problems, you have simple things like try it once or try it 16 times and take the most common answer. You do get better results if you do it 16 times and take the most common answer. You could do that with ARC-AGI - it's a structured enough problem that you could do a huge number of generations and take the most common solutions. Maybe that's it. Maybe they have some other algorithm that is aggregating these different rollouts.
+
+One that I've seen recently that I thought was quite interesting was called Smoothie. Basically this Smoothie technique where there is no ground truth, but you want the model's best answer. They did a bunch of generations, used embeddings to convert all those generations to an embedding space, then did a statistical analysis to find what is the sort of most central consensus. Even though there's not an outright consensus if you're doing a creative writing task, you can still identify which is the most central among all these other points in this high dimensional space. That is another interesting possibility for how these things could be working. Of course, could be something else entirely.
+
+But that right now seems - if there's any gap where it's like, the R1 curve isn't bending, can you keep doing this and get to o3 level? You could probably continue to make progress, and maybe you get to the o3 low effort setting. I'm not sure you can get to the high effort setting where you're spending thousands of dollars in just a handful of minutes without some smart way to figure out which of those generations is the one that you actually want to go with. That remains an open question.
+
+Nevertheless, I think ultimately reading through all of this, when Sam Altman, when DeepMind leadership, when Dario say that the singularity is near, I think it's time to really start to take them super seriously. It was all fun and games when it was GPT-2, GPT-3. "Oh, look. It can do some funny creative stuff. Isn't scale amazing?" Even GPT-4 - it's getting into that human intern level.
+
+We are now at human PhD level on small to mid-sized tasks. The setup is still not that complicated. It's not that there's been tons of intricate techniques developed. Simple stuff is working. Multiple different paths are working. It kind of all works.
+
+Possibly, we had to get over some threshold before this reinforcement learning paradigm could kick in on top of language models. But if so, it seems like we're there. It definitely seems like we should expect meaningfully superhuman performance across a fast growing range of domains.
+
+Math is for sure. Programming is for sure. We've already seen o3 can get up into the top 200 coders in the world. There's no shortage of ability to reward models for getting the right answers on these coding problems. Developing the hard problems is going to be maybe a challenge, but the world itself generates a lot of coding problems all the time. Math problems - we've got Frontier Math. We've got our best minds working on extending the curriculum into superhuman territory.
+
+I think that's going to generalize to everything. They're showing already that there is some generalization from reasoning tasks to other tasks. o1 is better at legal analysis, for example, than the base GPT-4o. So we are seeing transfer from the hardest core reasoning to other things where reasoning is part but not all of what's important.
+
+I think we're just going to continue to see that. It's hard to imagine that you're not going to be able to get enough reward signal in this process across a wider range of domains to the point where we do start to see meaningfully superhuman performance across a pretty wide range of tasks.
+
+The models already have superhuman knowledge. That was true since GPT-3, definitely since GPT-4. We've now given them at least weakly superhuman reasoning capabilities. They're increasingly multimodal, spanning not just text and language but all the other modalities we've covered on so many episodes of this podcast. Protein folding, shapes, interactions, DNA sequences, what's important to the overall condition of the cell, predicting how brain states are going to evolve through time, predicting material properties, predicting weather forecasts, predicting how to optimize shipping networks.
+
+When models are trained on these specific modalities, it seems that they can develop a sort of intuitive physics in those different problem spaces that humans are not capable of because our biological neural networks are just not that flexible. Very few people can develop a deep intuition for how to optimize some of these far-out problems. Something like protein folding - as far as I know, nobody has ever been good at it, but the models are very good at it.
+
+So you start to think, geez, the tail of the cognitive shape needs to be updated again. The world knowledge is there. The reasoning is there. The ability to work natively in all these other modalities that are still so foreign to us is there.
+
+There's recently been a big step - we'll have a podcast on this soon with one of the authors of the Titans paper from Google, which is a notable step forward in memory. The last super long monologue podcast I did might have been the Mamba one from a little more than a year ago. That was a notable step forward in memory where it was like, we need to move past a finite context window. How can we do that? We know that our brains have finite size - they're not growing quadratically with our experience. Our memory is evolving and is integrated in such a way where it's really useful to us. We know who we are, what we're trying to do, and what's happened to us in the past. We don't tend to fall for the same tricks twice because we have this integrated memory that keeps track of the most salient things that have happened.
+
+Mamba and state space models were a notable step toward that. They showed that you can get similar performance from a finite state, finite sized and non-growing state as you can from a transformer. We've dug into the differences between their relative strengths and weaknesses on different micro-skills, and they complement one another.
+
+The Titans paper is another step forward in terms of making that memory even more useful while still keeping it to a constant state. My crystal ball is fogging a few months out, but at this point you can look at all these different pieces and a picture of AGI is starting to emerge. It's not really speculative anymore. We can see the core components of it.
+
+I do think we have to start taking pretty seriously that at least meaningfully - I mean, there's different degrees of superhuman intelligence. There is sort of godlike superintelligence that people imagine sometimes. There is also something as smart as the smartest human but runs faster. And then there's a range of space in between.
+
+I don't have a clear picture of what truly superintelligence would look like. And I think most people don't either when they imagine it. They just sort of imagine something that magically solves problems and makes everything bend to its will. The mechanism is not super clear.
+
+But if you scale that back to weakly superhuman intelligence, I think the path to that is increasingly quite clear, doesn't have too many missing pieces left, and I think it is very credible what the leaders are saying - that we're looking at one to three years. Dario is talking about AIs that are better than any human at every task in 2027. It's still really hard for me to imagine what the world is like when that happens, but it's increasingly not that hard to imagine what the AI is like that could satisfy that definition.
+
+I think the singularity is, in fact, near. I think we're going to do some more episodes on this. I'll quickly touch on a few other things.
+
+I hope to have Dean Ball, maybe Zvi on to talk about the strategic dynamics, the policy response if there should be one. Also hope to talk to Jordan Schneider from ChinaTalk about what is going on in China. I have a lot of questions there.
+
+What does this mean for moats and business interests? Are we back to a no-moats reality or what? I would say not exactly. These papers have shown methods in general terms. They have not shared all the data. They have not shared every last detail. And while DeepSeek has open sourced the model, it is not the case that very many organizations could quickly pivot and do what DeepSeek is doing. Creating the base model, the V3, the 671 billion parameters - that's not easy. And then doing this additional stuff isn't easy either.
+
+Even though it's not complicated, there's a lot of know-how. There's a lot of efficiency. There's a lot of very good work happening at these Chinese companies. I don't think this means you're going to see proliferation at the frontier. I don't think we're going to see lots more entrants into the competition to be among the global leaders in frontier AI development. I do think we are going to see more diffusion of this technology. We now have - and there's never going to be another time in the future, presumably barring some sort of collapse - there's never going to be a time where you can't get one of these reasoning models that has PhD level ability and run it on your laptop. That's the new normal.
+
+That will put pressure on various business models. I wouldn't be surprised if we see an o1 price drop coming in the not too distant future. Certainly, the level of undercutting that R1 is doing relative to o1 could put some real pressure on OpenAI's business model. And it's also faster. So if I'm coding and I can read the chain of thought, there are notable advantages to it. If I'm coding in Cursor, do I want to use o1 or do I want to use R1? If I'm paying for the marginal tokens and I'm sitting there waiting, I honestly would pretty often probably want to use R1.
+
+So I think this does put at least DeepSeek in the top tier globally. It does create pressure for Western companies' business models, but it does not mean that anybody can join the elite group of truly frontier developers.
+
+I really don't know why DeepSeek is open sourcing their models. I also don't know what the Chinese government is thinking about that. I've seen a wide range of analyses online, and I don't feel like there are any that really stand out to me as particularly credible or that make a ton of sense to me.
+
+One analysis I appreciate is that DeepSeek is not rushing into framing all of this as a race or, God forbid, an AI war. They are pursuing this with a carefree attitude, trying to figure out the mystery of AGI. Their mission statement says something like "figure out AGI with curiosity," and they're sharing their results. It may be that we can take them at face value. Maybe they don't care that much about building a business, or they're confident they'll have a better model soon, and they can always not open source that one.
+
+It's harder to understand how the Chinese government is understanding this. Did DeepSeek have to get sign off before they did an open source release like this? Has the Chinese government said that it's okay? It does seem like the Chinese government is okay with the base model being not censored as long as the product that people actually use online is censored. But again, people can download the base models. Maybe we should understand Chinese censorship as being less draconian than we used to think. Maybe they want to control the public square, but they don't really care what you think in the privacy of your home when you're talking to your own language model running on your own laptop.
+
+I've even seen analysis that maybe the Chinese government is just sleeping on this and doesn't realize how important all this is. That would be hard to believe. If Western leaders have woken up to what's going on and we've seen $500 billion Stargate projects announced in the last couple of days and full page ads saying no less than "AI war" in newsprint, I don't think the Chinese government is missing that. I think they are aware of what is going on. I think they're aware that this is strategic.
+
+Are they playing a similar game where they're saying, "Hey, let's be the good guys. Let's show that we're not a threat. Let's try to take the air out of the whole notion that this is some sort of AI arms race by just showing that we're comfortable with who we are and we can release our stuff. We have the national capacity to build these organizations that can perform at an elite level and join the global frontier, but we're not trying to hoard all that benefit for ourselves." Maybe they're playing a sort of deescalatory strategy here. I really don't know, but I do want to understand that better. Hopefully, I'll be able to have a couple good conversations to illuminate that.
+
+All this stuff was released in a friendly way. It seems to be a move toward deescalation. If they had not open sourced their methods or their weights and said, "Look at what we did, and we're not going to tell you how," that would definitely be a ratcheting up of the general sense of competition and tension. At a minimum, we can say that they did not do that.
+
+What does this mean for policy? I mean, not too long ago - definitely goes to show that we're all kind of updating often. If you are not updating your worldview often, your AI worldview often, that is almost for sure a mistake. And I feel like I may have overcorrected a time or two, but you want to be updating.
+
+Not too long ago, I was like, okay, if I'm a compute governance person, then this reasoning paradigm seems to reinvigorate me. This being the idea that this is getting expensive again and the hardest problems - the AIs are going to have to think for a long time. They're going to need huge resources. Well, then maybe your average rogue actor can't do some devastating cyber attack or bio attack because they'll only have so much computing power. Whereas the establishment will have far more. They've said this about spam: we got spammers spamming us, but we have better and more powerful systems. We can control it. Maybe we could have a similar dynamic. That was my upshot from o1.
+
+This though, again, probably erodes that a bit. We're now back to there's not that big of a difference between what you have to pay huge amounts of money for and what you have the ability to run on a pretty good home laptop.
+
+Is compute-based governance going to really hold? I don't know. It doesn't seem like it's realistic. They train this whole model on $6 million worth of compute, the base DeepSeek V3. It doesn't seem super realistic that we're going to be able to control compute well enough to prevent people from doing gain-of-function type research wherever they want to do it.
+
+Can we get AIs to design some pathogen that kills certain cells with a certain rate? That rate is a signal. You can get a reinforcement learning objective signal from that. As long as you can get over the hump and get any reward, can you learn from that? I don't see how we're going to control compute to the level that a huge number of research groups could do all kinds of gain-of-function research on AIs. And I think that probably is coming.
+
+Should we try to prevent that? Should we try to stigmatize it? Should we create scary examples that show how it can go wrong and try to convince people that it's not something that they should do on their own? Maybe. But it doesn't seem like we're going to be able to control the compute well enough to prevent that sort of thing from happening.
+
+When it comes to China, it's like, what exactly are we trying to prevent them from doing? It does not seem at this point like any of the measures that the United States has taken to restrict compute is preventing Chinese companies from being right there with our best companies at the frontier. Maybe in the future, these things will start to be a greater constraint. Presumably, they will. But yeah, $6 million is not a lot of compute. And this, if anything, seems like less additional compute was spent on the reinforcement learning than was spent on the original pretraining, and it's just more easily parallelizable. You can go do your problem solving inference. You can spread that out. And training is also becoming something that can be run on a decentralized basis.
+
+But yeah, what are we trying to prevent China from doing with AI? Right now, they're doing everything we're doing. Being on the same tech tree still to me seems good. The fact that they're sharing what they're doing in terms of general methods and the model weights themselves seems very friendly.
+
+Don't we want AI to diffuse through the Chinese economy just like we want AI to diffuse through our economy so that everybody has a world of abundant expertise and potentially material abundance not too far from now as well? I thought we all wanted that. I'm just confused about what we think we're doing because it doesn't seem to be working.
+
+Now you could say, oh, we don't want them to develop military stuff or whatever. Framing it as an AI war and framing the resource of chips as the new oil and cutting them off from it doesn't seem like a good way to discourage them from militarizing their AI. But I also just think they're going to have plenty of chips for their military. They can make phones. They can do this stuff on $6 million. It does not seem like there's any realistic path to cutting off the chips so badly that they can't do the research or make the military applications if they're determined to do that.
+
+What we might end up doing is making it scarce enough that that's all they choose to do. You could imagine a scenario where they can do their research and military applications, but they can't provide support to all the small businesses across the country. I just don't see why we would want that in the first place.
+
+I think there's plenty for Chinese small businesses and Chinese individuals to take advantage of AI without us needing to frame all this as a big rivalry. I do think we're smart to build our own data centers. I don't want to be beholden to China either. We should build our own data centers. We should build our domestic chip manufacturing capacity. Those things do make sense, and it is going to take many billions to get there. $500 billion probably isn't crazy given all the AI that people are going to want to run.
+
+What are we trying to prevent China from doing? They certainly seem to be doing an awful lot. Right now, these are the best open source models in the world. They have surpassed Llama. Llama - I'm sure Meta will have an answer. But right now, the best open source models in the world have come from China. The best research publications, at least explaining how these reasoning models are working, have come from China. So we're cutting them off from chips. They are open sourcing their research and models. Strange times. Something doesn't make a ton of sense there.
+
+I guess one final caveat - people have noted this. When you ask DeepSeek who trained you, it does tend to say OpenAI. I don't think I have an example of that up right now. Some people have said that means they're training on OpenAI output. I don't think that's the case. I would bet strongly against that.
+
+The fact that OpenAI showed that something can work definitely inspires others to go in that direction. And I wouldn't deny that being a factor. The fact that it says that it was trained by OpenAI is more a reflection of background data contamination and being on the Internet a lot. They have not done nearly as much sanding down of the rough edges of their models as has been done by OpenAI and Anthropic in the West. You see that in the dynamic writing as well. This does not sound like corporate speak. You can see the shovel behind the behavioral training.
+
+So that's my best interpretation. They don't even have access to o1 chain of thought unless somehow it was stolen. But that's not the vibe I get from this. I think this is good research that has this weird quirk of the model saying that it was trained by OpenAI because of other issues, which are definitely reasonable. There's a clear mechanism by which that could happen. They just didn't clean that up. And that's probably a to-do list item for them in the future, or maybe they just don't care. What we understand from DeepSeek is they want to solve the mysteries of AGI. Maybe they don't care that it says that it was trained by OpenAI.
+
+The West still has a little lead. Cycle times are going down. The lead is not super long in terms of time. Any strategy to get to a good AI future that depends on the West - the good guys - having some insurmountable lead, I don't think that's a great strategy anymore. I never did think it was a great strategy, but it is predicated on the lead actually existing, and that lead is pretty small.
+
+I appreciate the Chinese companies for sharing what they have. We're going to see a lot of weird stuff downstream from this. I hope to have a couple additional conversations to go deeper on the strategic dynamics and the policy, but hopefully, this was at least a good walkthrough of the actual research and the resulting models. I do think that's really important to get grounded.
+
+So go out. Last parting words: use R1. Go to chat.deepseek.com. Use it. When the Kimi reasoning model comes out, use that too. If you really want to be an explorer and do cutting edge stuff that not too many people are going to do and where you have a chance to find something that matters, use R1-Zero.
+
+I think this is the first time that I've seen a model since the original GPT-4 early that I was able to test two and a half years ago - this is the first model that has come out that I think merits the same level of "drop everything and just immerse yourself in this model and really try to understand it." Both on R1 and R1-Zero. I am sure that there's a lot more to discover there and it's just dropped.
+
+Anybody listening to this, if you've made it this far into this podcast, go do that. I think you will learn and you will discover and we will all be better off for it.
+
+So that's it for now. Thank you all for being part of the Cognitive Revolution. It is both energizing and enlightening to hear why people listen and learn what they value about the show. So please don't hesitate to reach out via email at tcr@turpentine.co, or you can DM me on the social media platform of your choice.
+
+ Published in:
+ Episode
+
+Read next
+
+ Episode
+
+All Compute Is Food: Palisade's Jeffrey Ladish on AI Shutdown Resistance, Self-Replication & Ecology
+
+ Episode
+
+The Model Eats the Scaffolding: DeepMind's Logan Kilpatrick & Tulsee Doshi on 3.5 Flash, Omni & More
+
+ Episode
+
+Three Kinds of Software Survive: Tasklet's Andrew Lee on Competing to be a Horizontal Platform
+
+ Episode
+
+Milliseconds to Match: Criteo's AdTech AI & the Future of Commerce w/ Diarmuid Gill & Liva Ralaivola
+
+ Join the Forefront of the AI Revolution
+
+Be the first to know when new episodes drop. Subscribe now for exclusive insights from AI trailblazers and in-depth analysis straight to your inbox.
+
+ Subscribe
+
+Great! Check your inbox and click the link.
+
+Sorry, something went wrong. Please try again.
+
+ A weekly podcast where host Nathan Labenz interviews AI innovators, diving into the transformative impact AI will have in the near future.
+
+Twitter
+
+Youtube
+
+Youtube
+
+RSS
+
+Apple Podcasts
+
+Spotify
+
+ Navigation
+
+ Home
+
+ Job Board
+
+ Episodes
+
+ Sponsor
+
+ Acclaim
+
+ Contact
+
+ Listen On
+
+ - YouTube
+
+ - Spotify
+
+ - Apple Podcasts
+
+ - RSS
+
+ About
+
+ More
+
+ Sign up
+
+ Produced by AI Podcasting — Record. We handle the rest.
+
+ System
+ Light
+ Dark

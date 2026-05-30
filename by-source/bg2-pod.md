@@ -6,7 +6,7 @@
 
 ## Sam Altman + Satya Nadella (OpenAI/MS) — 2025-10
 
-**★★** [Strategy]: $3T AI buildout, OpenAI–MS unlocking Azure scale — no public transcript available; recommend Memories.ai pull the YouTube video.
+**★★** [Strategy]: $3T AI buildout, OpenAI–MS unlocking Azure scale.
 
 [Source](https://creators.spotify.com/pod/profile/bg2pod/episodes/Satya-Nadella--BG2-w-Bill-Gurley--Brad-Gerstner-e2s7pnc)
 

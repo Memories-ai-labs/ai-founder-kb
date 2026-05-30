@@ -26,13 +26,9 @@ Accept 20–30% attrition in the first few months; weekly 1:1 deliverable check;
 
 Pricing is a product signal: $0.25/request vs. competitors' $0.04 — signals "serious agent capability," not incremental code-complete; attracts professionals rather than hobbyists.
 
-**Memories.ai implication**: Memories.ai implication: the public API doesn't have to take the "cheapest" route. Price itself is positioning.
-
 ### ★★★ [Engineering & Management]
 
 Legacy products are optimized for the previous generation of model capability — they become a "local maximum." Cursor's integration with Claude 3.5 had issues = the IDE was never architected for an agentic reasoning loop. Replit is willing to scrap and rebuild.
-
-**Memories.ai implication**: Memories.ai implication: the public API also has to be willing to rebuild when model capability jumps — Lucy Desktop's BFF layer is a local maximum.
 
 ---
 

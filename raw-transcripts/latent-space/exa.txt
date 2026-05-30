@@ -1,0 +1,457 @@
+# Beating Google at Search with Neural PageRank and $5M of H200s — with Will Bryk of Exa.ai
+# URL: https://www.latent.space/p/exa
+# Date: 2025-01-10
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Beating Google at Search with Neural PageRank and $5M of H200s — with Will Bryk of Exa.ai
+
+36
+
+4
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -56:00
+
+-56:00
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Beating Google at Search with Neural PageRank and $5M of H200s — with Will Bryk of Exa.ai
+
+Building a new search engine on neural PageRank, why search should take 1 day, and why nap pods are important
+
+Jan 10, 2025
+
+36
+
+4
+
+Share
+
+Transcript
+
+Applications close Monday for the NYC AI Engineer Summit focusing on AI Leadership and Agent Engineering! If you applied, invites should be rolling out shortly.
+
+The search landscape is experiencing a fundamental shift. Google built a >$2T company with the “10 blue links” experience, driven by PageRank as the core innovation for ranking. This was a big improvement from the previous directory-based experiences of AltaVista and Yahoo. Almost 4 decades later, Google is now stuck in this links-based experience, especially from a business model perspective. 
+
+This legacy architecture creates fundamental constraints:
+
+Must return results in ~400 milliseconds
+
+Required to maintain comprehensive web coverage
+
+Tied to keyword-based matching algorithms
+
+Cost structures optimized for traditional indexing
+
+As we move from the era of links to the era of answers, the way search works is changing. You’re not showing a user links, but the goal is to provide context to an LLM. This means moving from keyword based search to more semantic understanding of the content:
+
+The link prediction objective can be seen as like a neural PageRank because what you're doing is you're predicting the links people share... but it's more powerful than PageRank. It's strictly more powerful because people might refer to that Paul Graham fundraising essay in like a thousand different ways. And so our model learns all the different ways.
+
+All of this is now powered by a $5M cluster with 144 H200s:
+
+https://x.com/williambryk/status/1877764900359139708?s=46
+
+This architectural choice enables entirely new search capabilities:
+
+Comprehensive result sets instead of approximations
+
+Deep semantic understanding of queries
+
+Ability to process complex, natural language requests
+
+As search becomes more complex, time to results becomes a variable:
+
+People think of searches as like, oh, it takes 500 milliseconds because we've been conditioned... But what if searches can take like a minute or 10 minutes or a whole day, what can you then do?
+
+Unlike traditional search engines' fixed-cost indexing, Exa employs a hybrid approach:
+
+Front-loaded compute for indexing and embeddings
+
+Variable inference costs based on query complexity
+
+Mix of owned infrastructure ($5M H200 cluster) and cloud resources
+
+Exa sees a lot of competition from products like Perplexity and ChatGPT Search which layer AI on top of traditional search backends, but Exa is betting that true innovation requires rethinking search from the ground up. For example, the recently launched Websets, a way to turn searches into structured output in grid format, allowing you to create lists and databases out of web pages. The company raised a $17M Series A to build towards this mission, so keep an eye out for them in 2025. 
+
+Chapters
+
+00:00:00 Introductions
+
+00:01:12 ExaAI's initial pitch and concept
+
+00:02:33 Will's background at SpaceX and Zoox
+
+00:03:45 Evolution of ExaAI (formerly Metaphor Systems)
+
+00:05:38 Exa's link prediction technology
+
+00:09:20 Meaning of the name "Exa"
+
+00:10:36 ExaAI's new product launch and capabilities
+
+00:13:33 Compute budgets and variable compute products
+
+00:14:43 Websets as a B2B offering
+
+00:19:28 How do you build a search engine?
+
+00:22:43 What is Neural PageRank?
+
+00:27:58 Exa use cases 
+
+00:35:00 Auto-prompting
+
+00:38:42 Building agentic search
+
+00:44:19 Is o1 on the path to AGI?
+
+00:49:59 Company culture and nap pods
+
+00:54:52 Economics of AI search and the future of search technology
+
+Full YouTube Transcript
+
+Please like and subscribe!
+
+Show Notes
+
+ExaAI
+
+Web Search Product
+
+Websets
+
+Series A Announcement
+
+Exa Nap Pods
+
+Perplexity AI
+
+Character.AI
+
+Transcript
+
+Alessio [00:00:00]: Hey, everyone. Welcome to the Latent Space podcast. This is Alessio, partner and CTO at Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol.ai.
+
+Swyx [00:00:10]: Hey, and today we're in the studio with my good friend and former landlord, Will Bryk. Roommate. How you doing? Will, you're now CEO co-founder of ExaAI, used to be Metaphor Systems. What's your background, your story?
+
+Will [00:00:30]: Yeah, sure. So, yeah, I'm CEO of Exa. I've been doing it for three years. I guess I've always been interested in search, whether I knew it or not. Like, since I was a kid, I've always been interested in, like, high-quality information. And, like, you know, even in high school, wanted to improve the way we get information from news. And then in college, built a mini search engine. And then with Exa, like, you know, it's kind of like fulfilling the dream of actually being able to solve all the information needs I wanted as a kid. Yeah, I guess. I would say my entire life has kind of been rotating around this problem, which is pretty cool. Yeah.
+
+Swyx [00:00:50]: What'd you enter YC with?
+
+Will [00:00:53]: We entered YC with, uh, we are better than Google. Like, Google 2.0.
+
+Swyx [00:01:12]: What makes you say that? Like, that's so audacious to come out of the box with.
+
+Will [00:01:16]: Yeah, okay, so you have to remember the time. This was summer 2021. And, uh, GPT-3 had come out. Like, here was this magical thing that you could talk to, you could enter a whole paragraph, and it understands what you mean, understands the subtlety of your language. And then there was Google. Uh, which felt like it hadn't changed in a decade, uh, because it really hadn't. And it, like, you would give it a simple query, like, I don't know, uh, shirts without stripes, and it would give you a bunch of results for the shirts with stripes. And so, like, Google could barely understand you, and GBD3 could. And the theory was, what if you could make a search engine that actually understood you? What if you could apply the insights from LLMs to a search engine? And it's really been the same idea ever since. And we're actually a lot closer now, uh, to doing that. Yeah.
+
+Alessio [00:01:55]: Did you have any trouble making people believe? Obviously, there's the same element. I mean, YC overlap, was YC pretty AI forward, even 2021, or?
+
+Will [00:02:03]: It's nothing like it is today. But, um, uh, there were a few AI companies, but, uh, we were definitely, like, bold. And I think people, VCs generally like boldness, and we definitely had some AI background, and we had a working demo. So there was evidence that we could build something that was going to work. But yeah, I think, like, the fundamentals were there. I think people at the time were talking about how, you know, Google was failing in a lot of ways. And so there was a bit of conversation about it, but AI was not a big, big thing at the time. Yeah. Yeah.
+
+Alessio [00:02:33]: Before we jump into Exa, any fun background stories? I know you interned at SpaceX, any Elon, uh, stories? I know you were at Zoox as well, you know, kind of like robotics at Harvard. Any stuff that you saw early that you thought was going to get solved that maybe it's not solved today?
+
+Will [00:02:48]: Oh yeah. I mean, lots of things like that. Like, uh, I never really learned how to drive because I believed Elon that self-driving cars would happen. It did happen. And I take them every night to get home. But it took like 10 more years than I thought. Do you still not know how to drive? I know how to drive now. I learned it like two years ago. That would have been great to like, just, you know, Yeah, yeah, yeah. You know? Um, I was obsessed with Elon. Yeah. I mean, I worked at SpaceX because I really just wanted to work at one of his companies. And I remember they had a rule, like interns cannot touch Elon. And, um, that rule actually influenced my actions.
+
+Swyx [00:03:18]: Is it, can Elon touch interns? Ooh, like physically?
+
+Will [00:03:22]: Or like talk? Physically, physically, yeah, yeah, yeah, yeah. Okay, interesting. He's changed a lot, but, um, I mean, his companies are amazing. Um,
+
+Swyx [00:03:28]: What if you beat him at Diablo 2, Diablo 4, you know, like, Ah, maybe.
+
+Alessio [00:03:34]: I want to jump into, I know there's a lot of backstory used to be called metaphor system. So, um, and it, you've always been kind of like a prominent company, maybe at least RAI circles in the NSF.
+
+Swyx [00:03:45]: I'm actually curious how Metaphor got its initial aura. You launched with like, very little. We launched very little. Like there was, there was this like big splash image of like, this is Aurora or something. Yeah. Right. And then I was like, okay, what this thing, like the vibes are good, but I don't know what it is. And I think, I think it was much more sort of maybe consumer facing than what you are today. Would you say that's true?
+
+Will [00:04:06]: No, it's always been about building a better search algorithm, like search, like, just like the vision has always been perfect search. And if you do that, uh, we will figure out the downstream use cases later. It started on this fundamental belief that you could have perfect search over the web and we could talk about what that means. And like the initial thing we released was really just like our first search engine, like trying to get it out there. Kind of like, you know, an open source. So when OpenAI released, uh, ChachBt, like they didn't, I don't know how, how much of a game plan they had. They kind of just wanted to get something out there.
+
+Swyx [00:04:33]: Spooky research preview.
+
+Will [00:04:34]: Yeah, exactly. And it kind of morphed from a research company to a product company at that point. And I think similarly for us, like we were research, we started as a research endeavor with a, you know, clear eyes that like, if we succeed, it will be a massive business to make out of it. And that's kind of basically what happened. I think there are actually a lot of parallels to, of w between Exa and OpenAI. I often say we're the OpenAI of search. Um, because. Because we're a research company, we're a research startup that does like fundamental research into, uh, making like AGI for search in a, in a way. Uh, and then we have all these like, uh, business products that come out of that.
+
+Swyx [00:05:08]: Interesting. I want to ask a little bit more about Metaforesight and then we can go full Exa. When I first met you, which was really funny, cause like literally I stayed in your house in a very historic, uh, Hayes, Hayes Valley place. You said you were building sort of like link prediction foundation model, and I think there's still a lot of foundation model work. I mean, within Exa today, but what does that even mean? I cannot be the only person confused by that because like there's a limited vocabulary or tokens you're telling me, like the tokens are the links or, you know, like it's not, it's not clear. Yeah.
+
+Will [00:05:38]: Uh, what we meant by link prediction is that you are literally predicting, like given some texts, you're predicting the links that follow. Yes. That refers to like, it's how we describe the training procedure, which is that we find links on the web. Uh, we take the text surrounding the link. And then we predict. Which link follows you, like, uh, you know, similar to transformers where, uh, you're trying to predict the next token here, you're trying to predict the next link. And so you kind of like hide the link from the transformer. So if someone writes, you know, imagine some article where someone says, Hey, check out this really cool aerospace startup. And they, they say spacex.com afterwards, uh, we hide the spacex.com and ask the model, like what link came next. And by doing that many, many times, you know, billions of times, you could actually build a search engine out of that because then, uh, at query time at search time. Uh, you type in, uh, a query that's like really cool aerospace startup and the model will then try to predict what are the most likely links. So there's a lot of analogs to transformers, but like to actually make this work, it does require like a different architecture than, but it's transformer inspired. Yeah.
+
+Alessio [00:06:41]: What's the design decision between doing that versus extracting the link and the description and then embedding the description and then using, um, yeah. What do you need to predict the URL versus like just describing, because you're kind of do a similar thing in a way. Right. It's kind of like based on this description, it was like the closest link for it. So one thing is like predicting the link. The other approach is like I extract the link and the description, and then based on the query, I searched the closest description to it more. Yeah.
+
+Will [00:07:09]: That, that, by the way, that is, that is the link refers here to a document. It's not, I think one confusing thing is it's not, you're not actually predicting the URL, the URL itself that would require like the, the system to have memorized URLs. You're actually like getting the actual document, a more accurate name could be document prediction. I see. This was the initial like base model that Exo was trained on, but we've moved beyond that similar to like how, you know, uh, to train a really good like language model, you might start with this like self-supervised objective of predicting the next token and then, uh, just from random stuff on the web. But then you, you want to, uh, add a bunch of like synthetic data and like supervised fine tuning, um, stuff like that to make it really like controllable and robust. Yeah.
+
+Alessio [00:07:48]: Yeah. We just have flow from Lindy and, uh, their Lindy started to like hallucinate recrolling YouTube links instead of like, uh, something. Yeah. Support guide. So. Oh, interesting. Yeah.
+
+Swyx [00:07:57]: So round about January, you announced your series A and renamed to Exo. I didn't like the name at the, at the initial, but it's grown on me. I liked metaphor, but apparently people can spell metaphor. What would you say are the major components of Exo today? Right? Like, I feel like it used to be very model heavy. Then at the AI engineer conference, Shreyas gave a really good talk on the vector database that you guys have. What are the other major moving parts of Exo? Okay.
+
+Will [00:08:23]: So Exo overall is a search engine. Yeah. We're trying to make it like a perfect search engine. And to do that, you have to build lots of, and we're doing it from scratch, right? So to do that, you have to build lots of different. The crawler. Yeah. You have to crawl a bunch of the web. First of all, you have to find the URLs to crawl. Uh, it's connected to the crawler, but yeah, you find URLs, you crawl those URLs. Then you have to process them with some, you know, it could be an embedding model. It could be something more complex, but you need to take, you know, or like, you know, in the past it was like a keyword inverted index. Like you would process all these documents you gather into some processed index, and then you have to serve that. Uh, you had high throughput at low latency. And so that, and that's like the vector database. And so it's like the crawling system, the AI processing system, and then the serving system. Those are all like, you know, teams of like hundreds, maybe thousands of people at Google. Um, but for us, it's like one or two people each typically, but yeah.
+
+Alessio [00:09:13]: Can you explain the meaning of, uh, Exo, just the story 10 to the 16th, uh, 18, 18.
+
+Will [00:09:20]: Yeah, yeah, yeah, sure. So. Exo means 10 to the 18th, which is in stark contrast to. To Google, which is 10 to the hundredth. Uh, we actually have these like awesome shirts that are like 10th to 18th is greater than 10th to the hundredth. Yeah, it's great. And it's great because it's provocative. It's like every engineer in Silicon Valley is like, what? No, it's not true. Um, like, yeah. And, uh, and then you, you ask them, okay, what does it actually mean? And like the creative ones will, will recognize it. But yeah, I mean, 10 to the 18th is better than 10 to the hundredth when it comes to search, because with search, you want like the actual list of, of things that match what you're asking for. You don't want like the whole web. You want to basically with search filter, the, like everything that humanity has ever created to exactly what you want. And so the idea is like smaller is better there. You want like the best 10th to the 18th and not the 10th to the hundredth. I'm like, one way to say this is like, you know how Google often says at the top, uh, like, you know, 30 million results found. And it's like crazy. Cause you're looking for like the first startups in San Francisco that work on hardware or something. And like, they're not 30 million results like that. What you want is like 325 results found. And those are all the results. That's what you really want with search. And that's, that's our vision. It's like, it just gives you. Perfectly what you asked for.
+
+Swyx [00:10:24]: We're recording this ahead of your launch. Uh, we haven't released, we haven't figured out the, the, the name of the launch yet, but what is the product that you're launching? I guess now that we're coinciding this podcast with. Yeah.
+
+Will [00:10:36]: So we've basically developed the next version of Exa, which is the ability to get a near perfect list of results of whatever you want. And what that means is you can make a complex query now to Exa, for example, startups working on hardware in SF, and then just get a huge list of all the things that match. And, you know, our goal is if there are 325 startups that match that we find you all of them. And this is just like, there's just like a new experience that's never existed before. It's really like, I don't know how you would go about that right now with current tools and you can apply this same type of like technology to anything. Like, let's say you want, uh, you want to find all the blog posts that talk about Alessio's podcast, um, that have come out in the past year. That is 30 million results. Yeah. Right.
+
+Will [00:11:24]: But that, I mean, that would, I'm sure that would be extremely useful to you guys. And like, I don't really know how you would get that full comprehensive list.
+
+Swyx [00:11:29]: I just like, how do you, well, there's so many questions with regards to how do you know it's complete, right? Cause you're saying there's only 30 million, 325, whatever. And then how do you do the semantic understanding that it might take, right? So working in hardware, like I might not use the words hardware. I might use the words robotics. I might use the words wearables. I might use like whatever. Yes. So yeah, just tell us more. Yeah. Yeah. Sure. Sure.
+
+Will [00:11:53]: So one aspect of this, it's a little subjective. So like certainly providing, you know, at some point we'll provide parameters to the user to like, you know, some sort of threshold to like, uh, gauge like, okay, like this is a cutoff. Like, this is actually not what I mean, because sometimes it's subjective and there needs to be a feedback loop. Like, oh, like it might give you like a few examples and you say, yeah, exactly. And so like, you're, you're kind of like creating a classifier on the fly, but like, that's ultimately how you solve the problem. So the subject, there's a subjectivity problem and then there's a comprehensiveness problem. Those are two different problems. So. Yeah. So you have the comprehensiveness problem. What you basically have to do is you have to put more compute into the query, into the search until you get the full comprehensiveness. Yeah. And I think there's an interesting point here, which is that not all queries are made equal. Some queries just like this blog post one might require scanning, like scavenging, like throughout the whole web in a way that just, just simply requires more compute. You know, at some point there's some amount of compute where you will just be comprehensive. You could imagine, for example, running GPT-4 over the internet. You could imagine running GPT-4 over the entire web and saying like, is this a blog post about Alessio's podcast, like, is this a blog post about Alessio's podcast? And then that would work, right? It would take, you know, a year, maybe cost like a million dollars, but, or many more, but, um, it would work. Uh, the point is that like, given sufficient compute, you can solve the query. And so it's really a question of like, how comprehensive do you want it given your compute budget? I think it's very similar to O1, by the way. And one way of thinking about what we built is like O1 for search, uh, because O1 is all about like, you know, some, some, some questions require more compute than others, and we'll put as much compute into the question as we need to solve it. So similarly with our search, we will put as much compute into the query in order to get comprehensiveness. Yeah.
+
+Swyx [00:13:33]: Does that mean you have like some kind of compute budget that I can specify? Yes. Yes. Okay. And like, what are the upper and lower bounds?
+
+Will [00:13:42]: Yeah, there's something we're still figuring out. I think like, like everyone is a new paradigm of like variable compute products. Yeah. How do you specify the amount of compute? Like what happens when you. Run out? Do you just like, ah, do you, can you like keep going with it? Like, do you just put in more credits to get more, um, for some, like this can get complex at like the really large compute queries. And like, one thing we do is we give you a preview of what you're going to get, and then you could then spin up like a much larger job, uh, to get like way more results. But yes, there is some compute limit, um, at, at least right now. Yeah. People think of searches as like, oh, it takes 500 milliseconds because we've been conditioned, uh, to have search that takes 500 milliseconds. But like search engines like Google, right. No matter how complex your query to Google, it will take like, you know, roughly 400 milliseconds. But what if searches can take like a minute or 10 minutes or a whole day, what can you then do? And you can do very powerful things. Um, you know, you can imagine, you know, writing a search, going and get a cup of coffee, coming back and you have a perfect list. Like that's okay for a lot of use cases. Yeah.
+
+Alessio [00:14:43]: Yeah. I mean, the use case closest to me is venture capital, right? So, uh, no, I mean, eight years ago, I built one of the first like data driven sourcing platforms. So we were. You look at GitHub, Twitter, Product Hunt, all these things, look at interesting things, evaluate them. If you think about some jobs that people have, it's like literally just make a list. If you're like an analyst at a venture firm, your job is to make a list of interesting companies. And then you reach out to them. How do you think about being infrastructure versus like a product you could say, Hey, this is like a product to find companies. This is a product to find things versus like offering more as a blank canvas that people can build on top of. Oh, right. Right.
+
+Will [00:15:20]: Uh, we are. We are a search infrastructure company. So we want people to build, uh, on top of us, uh, build amazing products on top of us. But with this one, we try to build something that makes it really easy for users to just log in, put a few, you know, put some credits in and just get like amazing results right away and not have to wait to build some API integration. So we're kind of doing both. Uh, we, we want, we want people to integrate this into all their applications at the same time. We want to just make it really easy to use very similar again to open AI. Like they'll have, they have an API, but they also have. Like a ChatGPT interface so that you could, it's really easy to use, but you could also build it in your applications. Yeah.
+
+Alessio [00:15:56]: I'm still trying to wrap my head around a lot of the implications. So, so many businesses run on like information arbitrage, you know, like I know this thing that you don't, especially in investment and financial services. So yeah, now all of a sudden you have these tools for like, oh, actually everybody can get the same information at the same time, the same quality level as an API call. You know, it just kind of changes a lot of things. Yeah.
+
+Will [00:16:19]: I think, I think what we're grappling with here. What, what you're just thinking about is like, what is the world like if knowledge is kind of solved, if like any knowledge request you want is just like right there on your computer, it's kind of different from when intelligence is solved. There's like a good, I've written before about like a different super intelligence, super knowledge. Yeah. Like I think that the, the distinction between intelligence and knowledge is actually a pretty good one. They're definitely connected and related in all sorts of ways, but there is a distinction. You could have a world and we are going to have this world where you have like GP five level systems and beyond that could like answer any complex request. Um, unless it requires some. Like, if you say like, uh, you know, give me a list of all the PhDs in New York city who, I don't know, have thought about search before. And even though this, this super intelligence is going to be like, I can't find it on Google, right. Which is kind of crazy. Like we're literally going to have like super intelligences that are using Google. And so if Google can't find them information, there's nothing they could do. They can't find it. So, but if you also have a super knowledge system where it's like, you know, I'm calling this term super knowledge where you just get whatever knowledge you want, then you can pair with a super intelligence system. And then the super intelligence can, we'll never. Be blocked by lack of knowledge.
+
+Alessio [00:17:23]: Yeah. You told me this, uh, when we had lunch, I forget how it came out, but we were talking about AGI and whatnot. And you were like, even AGI is going to need search. Yeah.
+
+Swyx [00:17:32]: Yeah. Right. Yeah. Um, so we're actually referencing a blog post that you wrote super intelligence and super knowledge. Uh, so I would refer people to that. And this is actually a discussion we've had on the podcast a couple of times. Um, there's so much of model weights that are just memorizing facts. Some of the, some of those might be outdated. Some of them are incomplete or not. Yeah. So like you just need search. So I do wonder, like, is there a maximum language model size that will be the intelligence layer and then the rest is just search, right? Like maybe we should just always use search. And then that sort of workhorse model is just like, and it like, like, like one B or three B parameter model that just drives everything. Yes.
+
+Will [00:18:13]: I believe this is a much more optimal system to have a smaller LM. That's really just like an intelligence module. And it makes a call to a search. Tool that's way more efficient because if, okay, I mean the, the opposite of that would be like the LM is so big that can memorize the whole web. That would be like way, but you know, it's not practical at all. I don't, it's not possible to train that at least right now. And Carpathy has actually written about this, how like he could, he could see models moving more and more towards like intelligence modules using various tools. Yeah.
+
+Swyx [00:18:39]: So for listeners, that's the, that was him on the no priors podcast. And for us, we talked about this and the, on the Shin Yu and Harrison chase podcasts. I'm doing search in my head. I told you 30 million results. I forgot about our neural link integration. Self-hosted exit.
+
+Will [00:18:54]: Yeah. Yeah. No, I do see that that is a much more, much more efficient world. Yeah. I mean, you could also have GB four level systems calling search, but it's just because of the cost of inference. It's just better to have a very efficient search tool and a very efficient LM and they're built for different things. Yeah.
+
+Swyx [00:19:09]: I'm just kind of curious. Like it is still something so audacious that I don't want to elide, which is you're, you're, you're building a search engine. Where do you start? How do you, like, are there any reference papers or implementation? That would really influence your thinking, anything like that? Because I don't even know where to start apart from just crawl a bunch of shit, but there's gotta be more insight than that.
+
+Will [00:19:28]: I mean, yeah, there's more insight, but I'm always surprised by like, if you have a group of people who are really focused on solving a problem, um, with the tools today, like there's some in, in software, like there are all sorts of creative solutions that just haven't been thought of before, particularly in the information retrieval field. Yeah. I think a lot of the techniques are just very old, frankly. Like I know how Google and Bing work and. They're just not using new methods. There are all sorts of reasons for that. Like one, like Google has to be comprehensive over the web. So they're, and they have to return in 400 milliseconds. And those two things combined means they are kind of limit and it can't cost too much. They're kind of limited in, uh, what kinds of algorithms they could even deploy at scale. So they end up using like a limited keyword based algorithm. Also like Google was built in a time where like in, you know, in 1998, where we didn't have LMS, we didn't have embeddings. And so they never thought to build those things. And so now they have this like gigantic system that is built on old technology. Yeah. And so a lot of the information retrieval field we found just like thinks in terms of that framework. Yeah. Whereas we came in as like newcomers just thinking like, okay, there here's GB three. It's magical. Obviously we're going to build search that is using that technology. And we never even thought about using keywords really ever. Uh, like we were neural all the way we're building an end to end neural search engine. And just that whole framing just makes us ask different questions, like pursue different lines of work. And there's just a lot of low hanging fruit because no one else is thinking about it. We're just on the frontier of neural search. We just are, um, for, for at web scale, um, because there's just not a lot of people thinking that way about it.
+
+Swyx [00:20:57]: Yeah. Maybe let's spell this out since, uh, we're already on this topic, elephants in the room are Perplexity and SearchGPT. That's the, I think that it's all, it's no longer called SearchGPT. I think they call it ChatGPT Search. How would you contrast your approaches to them based on what we know of how they work and yeah, just any, anything in that, in that area? Yeah.
+
+Will [00:21:15]: So these systems, there are a few of them now, uh, they basically rely on like traditional search engines like Google or Bing, and then they combine them with like LLMs at the end to, you know, output some power graphics, uh, answering your question. So they like search GPT perplexity. I think they have their own crawlers. No. So there's this important distinction between like having your own search system and like having your own cache of the web. Like for example, so you could create, you could crawl a bunch of the web. Imagine you crawl a hundred billion URLs, and then you create a key value store of like mapping from URL to the document that is technically called an index, but it's not a search algorithm. So then to actually like, when you make a query to search GPT, for example, what is it actually doing it? Let's say it's, it's, it could, it's using the Bing API, uh, getting a list of results and then it could go, it has this cache of like all the contents of those results and then could like bring in the cache, like the index cache, but it's not actually like, it's not like they've built a search engine from scratch over, you know, hundreds of billions of pages. It's like, does that distinction clear? It's like, yeah, you could have like a mapping from URL to documents, but then rely on traditional search engines to actually get the list of results because it's a very hard problem to take. It's not hard. It's not hard to use DynamoDB and, and, and map URLs to documents. It's a very hard problem to take a hundred billion or more documents and given a query, like instantly get the list of results that match. That's a much harder problem that very few entities on, in, on the planet have done. Like there's Google, there's Bing, uh, you know, there's Yandex, but you know, there are not that many companies that are, that are crazy enough to actually build their search engine from scratch when you could just use traditional search APIs.
+
+Alessio [00:22:43]: So Google had PageRank as like the big thing. Is there a LLM equivalent or like any. Stuff that you're working on that you want to highlight?
+
+Will [00:22:51]: The link prediction objective can be seen as like a neural PageRank because what you're doing is you're predicting the links people share. And so if everyone is sharing some Paul Graham essay about fundraising, then like our model is more likely to predict it. So like inherent in our training objective is this, uh, a sense of like high canonicity and like high quality, but it's more powerful than PageRank. It's strictly more powerful because people might refer to that Paul Graham fundraising essay in like a thousand different ways. And so our model learns all the different ways. That someone refers that Paul Graham, I say, while also learning how important that Paul Graham essay is. Um, so it's like, it's like PageRank on steroids kind of thing. Yeah.
+
+Alessio [00:23:26]: I think to me, that's the most interesting thing about search today, like with Google and whatnot, it's like, it's mostly like domain authority. So like if you get back playing, like if you search any AI term, you get this like SEO slop websites with like a bunch of things in them. So this is interesting, but then how do you think about more timeless maybe content? So if you think about, yeah. You know, maybe the founder mode essay, right. It gets shared by like a lot of people, but then you might have a lot of other essays that are also good, but they just don't really get a lot of traction. Even though maybe the people that share them are high quality. How do you kind of solve that thing when you don't have the people authority, so to speak of who's sharing, whether or not they're worth kind of like bumping up? Yeah.
+
+Will [00:24:10]: I mean, you do have a lot of control over the training data, so you could like make sure that the training data contains like high quality sources so that, okay. Like if you, if you're. Training data, I mean, it's very similar to like language, language model training. Like if you train on like a bunch of crap, your prediction will be crap. Our model will match the training distribution is trained on. And so we could like, there are lots of ways to tweak the training data to refer to high quality content that we want. Yeah. I would say also this, like this slop that is returned by, by traditional search engines, like Google and Bing, you have the slop is then, uh, transferred into the, these LLMs in like a search GBT or, you know, our other systems like that. Like if slop comes in, slop will go out. And so, yeah, that's another answer to how we're different is like, we're not like traditional search engines. We want to give like the highest quality results and like have full control over whatever you want. If you don't want slop, you get that. And then if you put an LM on top of that, which our customers do, then you just get higher quality results or high quality output.
+
+Alessio [00:25:06]: And I use Excel search very often and it's very good. Especially.
+
+Swyx [00:25:09]: Wave uses it too.
+
+Alessio [00:25:10]: Yeah. Yeah. Yeah. Yeah. Yeah. Like the slop is everywhere, especially when it comes to AI, when it comes to investment. When it comes to all of these things for like, it's valuable to be at the top. And this problem is only going to get worse because. Yeah, no, it's totally. What else is in the toolkit? So you have search API, you have ExaSearch, kind of like the web version. Now you have the list builder. I think you also have web scraping. Maybe just touch on that. Like, I guess maybe people, they want to search and then they want to scrape. Right. So is that kind of the use case that people have? Yeah.
+
+Will [00:25:41]: A lot of our customers, they don't just want, because they're building AI applications on top of Exa, they don't just want a list of URLs. They actually want. Like the full content, like cleans, parsed. Markdown. Markdown, maybe chunked, whatever they want, we'll give it to them. And so that's been like huge for customers. Just like getting the URLs and instantly getting the content for each URL is like, and you can do this for 10 or 100 or 1,000 URLs, wherever you want. That's very powerful.
+
+Swyx [00:26:05]: Yeah. I think this is the first thing I asked you for when I tried using Exa.
+
+Will [00:26:09]: Funny story is like when I built the first version of Exa, it's like, we just happened to store the content. Yes. Like the first 1,024 tokens. Because I just kind of like kept it because I thought of, you know, I don't know why. Really for debugging purposes. And so then when people started asking for content, it was actually pretty easy to serve it. But then, and then we did that, like Exa took off. So the computer's content was so useful. So that was kind of cool.
+
+Swyx [00:26:30]: It is. I would say there are other players like Gina, I think is in this space. Firecrawl is in this space. There's a bunch of scraper companies. And obviously scraper is just one part of your stack, but you might as well offer it since you already do it.
+
+Will [00:26:43]: Yeah, it makes sense. It's just easy to have an all-in-one solution. And like. We are, you know, building the best scraper in the world. So scraping is a hard problem and it's easy to get like, you know, a good scraper. It's very hard to get a great scraper and it's super hard to get a perfect scraper. So like, and, and scraping really matters to people. Do you have a perfect scraper? Not yet. Okay.
+
+Swyx [00:27:05]: The web is increasingly closing to the bots and the scrapers, Twitter, Reddit, Quora, Stack Overflow. I don't know what else. How are you dealing with that? How are you navigating those things? Like, you know. You know, opening your eyes, like just paying them money.
+
+Will [00:27:19]: Yeah, no, I mean, I think it definitely makes it harder for search engines. One response is just that there's so much value in the long tail of sites that are open. Okay. Um, and just like, even just searching over those well gets you most of the value. But I mean, there, there is definitely a lot of content that is increasingly not unavailable. And so you could get through that through data partnerships. The bigger we get as a company, the more, the easier it is to just like, uh, make partnerships. But I, I mean, I do see the world as like the future where the. The data, the, the data producers, the content creators will make partnerships with the entities that find that data.
+
+Alessio [00:27:53]: Any other fun use case that maybe people are not thinking about? Yeah.
+
+Will [00:27:58]: Oh, I mean, uh, there are so many customers. Yeah. What are people doing on AXA? Well, I think dating is a really interesting, uh, application of search that is completely underserved because there's a lot of profiles on the web and a lot of people who want to find love and that I'll use it. They give me. Like, you know, age boundaries, you know, education level location. Yeah. I mean, you want to, what, what do you want to do with data? You want to find like a partner who matches this education level, who like, you know, maybe has written about these types of topics before. Like if you could get a list of all the people like that, like, I think you will unblock a lot of people. I mean, there, I mean, I think this is a very Silicon Valley view of dating for sure. And I'm, I'm well aware of that, but it's just an interesting application of like, you know, I would love to meet like an intellectual partner, um, who like shares a lot of ideas. Yeah. Like if you could do that through better search and yeah.
+
+Swyx [00:28:48]: But what is it with Jeff? Jeff has already set me up with a few people. So like Jeff, I think it's my personal exit.
+
+Will [00:28:55]: my mom's actually a matchmaker and has got a lot of married. Yeah. No kidding. Yeah. Yeah. Search is built into the book. It's in your jeans. Yeah. Yeah.
+
+Swyx [00:29:02]: Yeah. Other than dating, like I know you're having quite some success in colleges. I would just love to map out some more use cases so that our listeners can just use those examples to think about use cases for XR, right? Because it's such a general technology that it's hard to. Uh, really pin down, like, what should I use it for and what kind of products can I build with it?
+
+Will [00:29:20]: Yeah, sure. So, I mean, there are so many applications of XR and we have, you know, many, many companies using us for very diverse range of use cases, but I'll just highlight some interesting ones. Like one customer, a big customer is using us to, um, basically build like a, a writing assistant for students who want to write, uh, research papers. And basically like XR will search for, uh, like a list of research papers related to what the student is writing. And then this product has. Has like an LLM that like summarizes the papers to basically it's like a next word prediction, but in, uh, you know, prompted by like, you know, 20 research papers that X has returned. It's like literally just doing their homework for them. Yeah. Yeah. the key point is like, it's, it's, uh, you know, it's, it's, you know, research is, is a really hard thing to do and you need like high quality content as input.
+
+Swyx [00:30:08]: Oh, so we've had illicit on the podcast. I think it's pretty similar. Uh, they, they do focus pretty much on just, just research papers and, and that research. Basically, I think dating, uh, research, like I just wanted to like spell out more things, like just the big verticals.
+
+Will [00:30:23]: Yeah, yeah, no, I mean, there, there are so many use cases. So finance we talked about, yeah. I mean, one big vertical is just finding a list of companies, uh, so it's useful for VCs, like you said, who want to find like a list of competitors to a specific company they're investigating or just a list of companies in some field. Like, uh, there was one VC that told me that him and his team, like we're using XR for like eight hours straight. Like, like that. For many days on end, just like, like, uh, doing like lots of different queries of different types, like, oh, like all the companies in AI for law or, uh, all the companies for AI for, uh, construction and just like getting lists of things because you just can't find this information with, with traditional search engines. And then, you know, finding companies is also useful for, for selling. If you want to find, you know, like if we want to find a list of, uh, writing assistants to sell to, then we can just, we just use XR ourselves to find that is actually how we found a lot of our customers. Ooh, you can find your own customers using XR. Oh my God. I, in the spirit of. Uh, using XR to bolster XR, like recruiting is really helpful. It is really great use case of XR, um, because we can just get like a list of, you know, people who thought about search and just get like a long list and then, you know, reach out to those people.
+
+Swyx [00:31:29]: When you say thought about, are you, are you thinking LinkedIn, Twitter, or are you thinking just blogs?
+
+Will [00:31:33]: Or they've written, I mean, it's pretty general. So in that case, like ideally XR would return like the, the really blogs written by people who have just. So if I don't blog, I don't show up to XR, right? Like I have to blog. well, I mean, you could show up. That's like an incentive for people to blog.
+
+Swyx [00:31:47]: Well, if you've written about, uh, search in on Twitter and we, we do, we do index a bunch of tweets and then we, we should be able to service that. Yeah. Um, I mean, this is something I tell people, like you have to make yourself discoverable to the web, uh, you know, it's called learning in public, but like, it's even more imperative now because otherwise you don't exist at all.
+
+Will [00:32:07]: Yeah, no, no, this is a huge, uh, thing, which is like search engines completely influence. They have downstream effects. They influence the internet itself. They influence what people. Choose to create. And so Google, because they're a keyword based search engine, people like kind of like keyword stuff. Yeah. They're, they're, they're incentivized to create things that just match a lot of keywords, which is not very high quality. Uh, whereas XR is a search algorithm that, uh, optimizes for like high quality and actually like matching what you mean. And so people are incentivized to create content that is high quality, that like the create content that they know will be found by the right person. So like, you know, if I am a search researcher and I want to be found. By XR, I should blog about search and all the things I'm building because, because now we have a search engine like XR that's powerful enough to find them. And so the search engine will influence like the downstream internet in all sorts of amazing ways. Yeah. Uh, whatever the search engine optimizes for is what the internet looks like. Yeah.
+
+Swyx [00:33:01]: Are you familiar with the term? McLuhanism? No, it's not. Uh, it's this concept that, uh, like first we shape tools and then the tools shape us. Okay. Yeah. Uh, so there's like this reflexive connection between the things we search for and the things that get searched. Yes. So like once you change the tool. The tool that searches the, the, the things that get searched also change. Yes.
+
+Will [00:33:18]: I mean, there was a clear example of that with 30 years of Google. Yeah, exactly. Google has basically trained us to think of search and Google has Google is search like in people's heads. Right. It's one, uh, hard part about XR is like, uh, ripping people away from that notion of search and expanding their sense of what search could be. Because like when people think search, they think like a few keywords, or at least they used to, they think of a few keywords and that's it. They don't think to make these like really complex paragraph long requests for information and get a perfect list. ChatGPT was an interesting like thing that expanded people's understanding of search because you start using ChatGPT for a few hours and you go back to Google and you like paste in your code and Google just doesn't work and you're like, oh, wait, it, Google doesn't do work that way. So like ChatGPT expanded our understanding of what search can be. And I think XR is, uh, is part of that. We want to expand people's notion, like, Hey, you could actually get whatever you want. Yeah.
+
+Alessio [00:34:06]: I search on XR right now, people writing about learning in public. I was like, is it gonna come out with Alessio? Am I, am I there? You're not because. Bro. It's. So, no, it's, it's so about, because it thinks about learning, like in public, like public schools and like focuses more on that. You know, it's like how, when there are like these highly overlapping things, like this is like a good result based on the query, you know, but like, how do I get to Alessio? Right. So if you're like in these subcultures, I don't think this would work in Google well either, you know, but I, I don't know if you have any learnings.
+
+Swyx [00:34:40]: No, I'm the first result on Google.
+
+Alessio [00:34:42]: People writing about learning. In public, you're not first result anymore, I guess.
+
+Swyx [00:34:48]: Just type learning public in Google.
+
+Alessio [00:34:49]: Well, yeah, yeah, yeah, yeah. But this is also like, this is in Google, it doesn't work either. That's what I'm saying. It's like how, when you have like a movement.
+
+Will [00:34:56]: There's confusion about the, like what you mean, like your intention is a little, uh. Yeah.
+
+Alessio [00:35:00]: It's like, yeah, I'm using, I'm using a term that like I didn't invent, but I'm kind of taking over, but like, they're just so much about that term already that it's hard to overcome. If that makes sense, because public schools is like, well, it's, it's hard to overcome.
+
+Will [00:35:14]: Public schools, you know, so there's the right solution to this, which is to specify more clearly what you mean. And I'm not expecting you to do that, but so the, the right interface to search is actually an LLM.
+
+Swyx [00:35:25]: Like you should be talking to an LLM about what you want and the LLM translates its knowledge of you or knowledge of what people usually mean into a query that excellent uses, which you have called auto prompts, right?
+
+Will [00:35:35]: Or, yeah, but it's like a very light version of that. And really it's just basically the right answer is it's the wrong interface and like very soon interface to search and really to everything will be LLM. And the LLM just has a full knowledge of you, right? So we're kind of building for that world. We're skating to where the puck is going to be. And so since we're moving to a world where like LLMs are interfaced to everything, you should build a search engine that can handle complex LLM queries, queries that come from LLMs. Because you're probably too lazy, I'm too lazy too, to write like a whole paragraph explaining, okay, this is what I mean by this word. But an LLM is not lazy. And so like the LLM will spit out like a paragraph or more explaining exactly what it wants. You need a search engine that can handle that. Traditional search engines like Google or Bing, they're actually... Designed for humans typing keywords. If you give a paragraph to Google or Bing, they just completely fail. And so Exa can handle paragraphs and we want to be able to handle it more and more until it's like perfect.
+
+Alessio [00:36:24]: What about opinions? Do you have lists? When you think about the list product, do you think about just finding entries? Do you think about ranking entries? I'll give you a dumb example. So on Lindy, I've been building the spot that every week gives me like the top fantasy football waiver pickups. But every website is like different opinions. I'm like, you should pick up. These five players, these five players. When you're making lists, do you want to be kind of like also ranking and like telling people what's best? Or like, are you mostly focused on just surfacing information?
+
+Will [00:36:56]: There's a really good distinction between filtering to like things that match your query and then ranking based on like what is like your preferences. And ranking is like filtering is objective. It's like, does this document match what you asked for? Whereas ranking is more subjective. It's like, what is the best? Well, it depends what you mean by best, right? So first, first table stakes is let's get the filtering into a perfect place where you actually like every document matches what you asked for. No surgeon can do that today. And then ranking, you know, there are all sorts of interesting ways to do that where like you've maybe for, you know, have the user like specify more clearly what they mean by best. You could do it. And if the user doesn't specify, you do your best, you do your best based on what people typically mean by best. But ideally, like the user can specify, oh, when I mean best, I actually mean ranked by the, you know, the number of people who visited that site. Let's say is, is one example ranking or, oh, what I mean by best, let's say you're listing companies. What I mean by best is like the ones that have, uh, you know, have the most employees or something like that. Like there are all sorts of ways to rank a list of results that are not captured by something as subjective as best. Yeah. Yeah.
+
+Alessio [00:38:00]: I mean, it's like, who are the best NBA players in the history? It's like everybody has their own. Right.
+
+Will [00:38:06]: Right. But I mean, the, the, the search engine should definitely like, even if you don't specify it, it should do as good of a job as possible. Yeah. Yeah. No, no, totally. Yeah. Yeah. Yeah. Yeah. It's a new topic to people because we're not used to a search engine that can handle like a very complex ranking system. Like you think to type in best basketball players and not something more specific because you know, that's the only thing Google could handle. But if Google could handle like, oh, basketball players ranked by like number of shots scored on average per game, then you would do that. But you know, they can't do that. So.
+
+Swyx [00:38:32]: Yeah. That's fascinating. So you haven't used the word agents, but you're kind of building a search agent. Do you believe that that is agentic in feature? Do you think that term is distracting?
+
+Will [00:38:42]: I think it's a good term. I do think everything will eventually become agentic. And so then the term will lose power, but yes, like what we're building is agentic it in a sense that it takes actions. It decides when to go deeper into something, it has a loop, right? It feels different from traditional search, which is like an algorithm, not an agent. Ours is a combination of an algorithm and an agent.
+
+Swyx [00:39:05]: I think my reflection from seeing this in the coding space where there's basically sort of classic. Framework for thinking about this stuff is the self-driving levels of autonomy, right? Level one to five, typically the level five ones all failed because there's full autonomy and we're not, we're not there yet. And people like control. People like to be in the loop. So the, the, the level ones was co-pilot first and now it's like cursor and whatever. So I feel like if it's too agentic, it's too magical, like, like a, like a one shot, I stick a, stick a paragraph into the text box and then it spits it back to me. It might feel like I'm too disconnected from the process and I don't trust it. As opposed to something where I'm more intimately involved with the research product. I see. So like, uh, wait, so the earlier versions are, so if trying to stick to the example of the basketball thing, like best basketball player, but instead of best, you, you actually get to customize it with like, whatever the metric is that you, you guys care about. Yeah. I'm still not a basketballer, but, uh, but, but, you know, like, like B people like to be in my, my thesis is that agents level five agents failed because people like to. To kind of have drive assist rather than full self-driving.
+
+Will [00:40:15]: I mean, a lot of this has to do with how good agents are. Like at some point, if agents for coding are better than humans at all tests and then humans block, yeah, we're not there yet.
+
+Swyx [00:40:25]: So like in a world where we're not there yet, what you're pitching us is like, you're, you're kind of saying you're going all the way there. Like I kind of, I think all one is also very full, full self-driving. You don't get to see the plan. You don't get to affect the plan yet. You just fire off a query and then it goes away for a couple of minutes and comes back. Right. Which is effectively what you're saying you're going to do too. And you think there's.
+
+Will [00:40:42]: There's a, there's an in-between. I saw. Okay. So in building this product, we're exploring new interfaces because what does it mean to kick off a search that goes and takes 10 minutes? Like, is that a good interface? Because what if the search is actually wrong or it's not exactly, exactly specified to what you mean, which is why you get previews. Yeah. You get previews. So it is iterative, but ultimately once you've specified exactly what you mean, then you kind of do just want to kick off a batch job. Right. So perhaps what you're getting at is like, uh, there's this barrier with agents where you have to like explain the full context of what you mean, and a lot of failure modes happen when you have, when you don't. Yeah. There's failure modes from the agent, just not being smart enough. And then there's failure modes from the agent, not understanding exactly what you mean. And there's a lot of context that is shared between humans that is like lost between like humans and, and this like new creature.
+
+Alessio [00:41:32]: Yeah. Yeah. Because people don't know what's going on. I mean, to me, the best example of like system prompts is like, why are you writing? You're a helpful assistant. Like. Of course you should be an awful, but people don't yet know, like, can I assume that, you know, that, you know, it's like, why did the, and now people write, oh, you're a very smart software engineer, but like, you never made, you never make mistakes. Like, were you going to try and make mistakes before? So I think people don't yet have an understanding, like with, with driving people know what good driving is. It's like, don't crash, stay within kind of like a certain speed range. It's like, follow the directions. It's like, I don't really have to explain all of those things. I hope. But with. AI and like models and like search, people are like, okay, what do you actually know? What are like your assumptions about how search, how you're going to do search? And like, can I trust it? You know, can I influence it? So I think that's kind of the, the middle ground, like before you go ahead and like do all the search, it's like, can I see how you're doing it? And then maybe help show your work kind of like, yeah, steer you. Yeah. Yeah.
+
+Will [00:42:32]: No, I mean, yeah. Sure. Saying, even if you've crafted a great system prompt, you want to be part of the process itself. Uh, because the system prompt doesn't, it doesn't capture everything. Right. So yeah. A system prompt is like, you get to choose the person you work with. It's like, oh, like I want, I want a software engineer who thinks this way about code. But then even once you've chosen that person, you can't just give them a high level command and they go do it perfectly. You have to be part of that process. So yeah, I agree.
+
+Swyx [00:42:58]: Just a side note for my system, my favorite system, prompt programming anecdote now is the Apple intelligence system prompt that someone, someone's a prompt injected it and seen it. And like the Apple. Intelligence has the words, like, please don't, don't hallucinate. And it's like, of course we don't want you to hallucinate. Right. Like, so it's exactly that, that what you're talking about, like we should train this behavior into the model, but somehow we still feel the need to inject into the prompt. And I still don't even think that we are very scientific about it. Like it, I think it's almost like cargo culting. Like we have this like magical, like turn around three times, throw salt over your shoulder before you do something. And like, it worked the last time. So let's just do it the same time now. And like, we do, there's no science to this.
+
+Will [00:43:35]: I do think a lot of these problems might be ironed out in future versions. Right. So, and like, they might, they might hide the details from you. So it's like, they actually, all of them have a system prompt. That's like, you are a helpful assistant. You don't actually have to include it, even though it might actually be the way they've implemented in the backend. It should be done in RLE AF.
+
+Swyx [00:43:52]: Okay. Uh, one question I was just kind of curious about this episode is I'm going to try to frame this in terms of this, the general AI search wars, you know, you're, you're one player in that, um, there's perplexity, chat, GPT, search, and Google, but there's also like the B2B side, uh, we had. Drew Houston from Dropbox on, and he's competing with Glean, who've, uh, we've also had DD from, from Glean on, is there an appetite for Exa for my company's documents?
+
+Will [00:44:19]: There is appetite, but I think we have to be disciplined, focused, disciplined. I mean, we're already taking on like perfect web search, which is a lot. Um, but I mean, ultimately we want to build a perfect search engine, which definitely for a lot of queries involves your, your personal information, your company's information. And so, yeah, I mean, the grandest vision of Exa is perfect search really over everything, every domain, you know, we're going to have an Exa satellite, uh, because, because satellites can gather information that, uh, is not available publicly. Uh, gotcha. Yeah.
+
+Alessio [00:44:51]: Can we talk about AGI? We never, we never talk about AGI, but you had, uh, this whole tweet about, oh, one being the biggest kind of like AI step function towards it. Why does it feel so important to you? I know there's kind of like always criticism and saying, Hey, it's not the smartest son is better. It's like, blah, blah, blah. What? You choose C. So you say, this is what Ilias see or Sam see what they will see.
+
+Will [00:45:13]: I've just, I've just, you know, been connecting the dots. I mean, this was the key thing that a bunch of labs were working on, which is like, can you create a reward signal? Can you teach yourself based on a reward signal? Whether you're, if you're trying to learn coding or math, if you could have one model say, uh, be a grading system that says like you have successfully solved this programming assessment and then one model, like be the generative system. That's like, here are a bunch of programming assessments. You could train on that. It's basically whenever you could create a reward signal for some task, you could just generate a bunch of tasks for yourself. See that like, oh, on two of these thousand, you did well. And then you just train on that data. It's basically like, I mean, creating your own data for yourself and like, you know, all the labs working on that opening, I built the most impressive product doing that. And it's just very, it's very easy now to see how that could like scale to just solving, like, like solving programming or solving mathematics, which sounds crazy, but everything about our world right now is crazy.
+
+Alessio [00:46:07]: Um, and so I think if you remove that whole, like, oh, that's impossible, and you just think really clearly about like, what's now possible with like what, what they've done with O1, it's easy to see how that scales. How do you think about older GPT models then? Should people still work on them? You know, if like, obviously they just had the new Haiku, like, is it even worth spending time, like making these models better versus just, you know, Sam talked about O2 at that day. So obviously they're, they're spending a lot of time in it, but then you have maybe. The GPU poor, which are still working on making Lama good. Uh, and then you have the follower labs that do not have an O1 like model out yet. Yeah.
+
+Will [00:46:47]: This kind of gets into like, uh, what will the ecosystem of, of models be like in the future? And is there room is, is everything just gonna be O1 like models? I think, well, I mean, there's definitely a question of like inference speed and if certain things like O1 takes a long time, because that's the thing. Well, I mean, O1 is, is two things. It's like one it's it's use it's bootstrapping itself. It's teaching itself. And so the base model is smarter. But then it also has this like inference time compute where it could like spend like many minutes or many hours thinking. And so even the base model, which is also fast, it doesn't have to take minutes. It could take is, is better, smarter. I believe all models will be trained with this paradigm. Like you'll want to train on the best data, but there will be many different size models from different, very many different like companies, I believe. Yeah. Because like, I don't, yeah, I mean, it's hard, hard to predict, but I don't think opening eye is going to dominate like every possible LLM for every possible. Use case. I think for a lot of things, like you just want the fastest model and that might not involve O1 methods at all.
+
+Swyx [00:47:42]: I would say if you were to take the exit being O1 for search, literally, you really need to prioritize search trajectories, like almost maybe paying a bunch of grad students to go research things. And then you kind of track what they search and what the sequence of searching is, because it seems like that is the gold mine here, like the chain of thought or the thinking trajectory. Yeah.
+
+Will [00:48:05]: When it comes to search, I've always been skeptical. I've always been skeptical of human labeled data. Okay. Yeah, please. We tried something at our company at Exa recently where me and a bunch of engineers on the team like labeled a bunch of queries and it was really hard. Like, you know, you have all these niche queries and you're looking at a bunch of results and you're trying to identify which is matched to query. It's talking about, you know, the intricacies of like some biological experiment or something. I have no idea. Like, I don't know what matches and what, what labelers like me tend to do is just match by keyword. I'm like, oh, I don't know. Oh, like this document matches a bunch of keywords, so it must be good. But then you're actually completely missing the meaning of the document. Whereas an LLM like GB4 is really good at labeling. And so I actually think like you just we get by, which we are right now doing using like LLMs as the labelers specifically for search. I think it's interesting. It's different between like search and like GB5 are different because GB5 might benefit from training on a lot of PhD notes because like GB5 might have to do like very, very complex, like, uh, problem-solving in after when it was given an input, but with search, it's actually a very different problem. You're, you're asking simple questions about billions of things. So like, whereas like GB5 is asking a really hard, it's like solving a really hard question, but it's one, it's like one question, a PhD level question with search. You're asking like simple questions about billions of things. Like, is this a startup? Did this person write a blog post about search? You know, those are actually simple questions. You don't need like PhD level training data. Does that make sense? Yeah.
+
+Alessio [00:49:33]: What else we got here? Uh, nap pods. Oh, yeah.
+
+Swyx [00:49:38]: What's the, yeah. So like just generally, I think, uh, EXA has a very interesting company building vibe. Like you, you have a meme Lord CTO, um, I guess, I don't know. Like, and, and you, you have, you just generally, um, are counter consensus in a bunch of things. What is the culture at EXA?
+
+Will [00:49:59]: Like, yeah, I, me and Jeff are, I mean, we've been best friends. It's like, like we met, like met like first day of college. I've been best friends ever since. And we have a really good vibe. I think that's like intense, but also really fun. And like, like funny, honestly, we have a ton of like, we just laugh a lot, a ton at EXA. And I think that's just like, you see that in every part of our culture. We don't really care about how the world sees anything. Like me and Jeff are just like that. Like, we're just thinking really just like, like, what should we do here? Like, what do we need? And so in the nap pod case, it was like, people get tired a lot when they're coding or doing anything really. And like, why can't we just sleep here or, or like nap? And, uh, okay, if we need a nap, then we should get a nap pod. It's crazy to me that there aren't nap pods in lots of companies because like I get tired all the time. I take a nap like every other day, probably for like 20 minutes. I'm actually never actually napping. I'm just thinking about a problem, but closing my eyes really like, um, first of all, it makes me come up with more creative solutions. And then also actually it gives me some rest. So, which is awesome.
+
+Swyx [00:50:54]: Google was the original company that had the nap pods at work, right? Oh, okay.
+
+Will [00:50:56]: Well, then at one point Google was thinking for first principles and everything too. Um, and that was reflected in their nap pods.
+
+Swyx [00:51:02]: So you, you like, you like didn't just get a nap pod for your office. You like found something from China and you're like, who wants to get in on this? Let's get a container full of them. Yeah.
+
+Will [00:51:11]: Well, we're trying, we try to be frugal. So like we were, we were looking at like different nap pods. And then, uh, at some point we were like, wait, China probably has solved this problem. And so then we ordered it from China and then it was actually so heavy. Like when it came off the truck, it was like 500 pounds. And I like the truck was like having trouble, like putting it on the ground. And so like me and the delivery guy were like trying to hold it. And then we couldn't, we were struggling. So someone came out from on the street and like heart started helping us hurt yourself. I know it was really dangerous, but we did it. And then it was awesome.
+
+Alessio [00:51:37]: And it's funny. I was reading the tech crunch article about it. It was a tech crunch article on the nap pods. Yeah. And then Jeff explained, well, they quote Jeff and this paragraph says, so the nap pods maintain employees ability to stop work and sleep rather than the idea that in quotes, employees are slaves. Close quote, I don't know what I'm. I'm like, I'm sure there's not what event, you know, but I'm curious, like, just like how people there's always like this, I think for a little bit, it went away about like startups and kind of like hustle culture and like all of that.
+
+Swyx [00:52:10]: And I think now with AI, people are like, have all these feelings towards AI that are kind of like, I think it's a pro hustle culture, right? Yeah.
+
+Will [00:52:17]: But I mean, I mean, ideally the hustle is like people are just having fun, which is people, people are just having fun.
+
+Alessio [00:52:23]: Yeah. But I would say from the outside, it's like, people don't like it, you know, I'm saying people not in, in AI and kind of like intact. They're kind of like. Oh, these guys are at it again. These are like the same people that gave us underpaid drivers, like whatever it's like. So it was just funny to see somehow they wanted to make it sound like Jeff was saying employees are slaves, but like, oh, yeah, I don't know. That doesn't make sense.
+
+Will [00:52:45]: But yeah, I mean, okay. I can't imagine a more exciting experience than like building something from scratch. That's like a huge deal with a bunch of your friends. Our team is going to look back in 10 years and think this was like the most beautiful experience that you could have in life. And like. That's how I think about it. And yeah, that's just so it's not, it's not a hustle or not. It's like, is this like, like, does this satisfy your core desire to like build things in the world? And it does. Yeah.
+
+Alessio [00:53:10]: Anything else we didn't cover any parting thoughts? Are you hiring?
+
+Will [00:53:16]: Are you, obviously you're looking for more people to use it, but yeah, yeah, we're definitely hiring. We're, we're growing quite fast and we have a really smart team of engineers and researchers. And we now have a, we just purchased a $5 million H 200 cluster. So we have a lot more compute to play with. Do you run all your own inference? We do a mix of our cluster and like AWS inference that we, we use these are, so we have our current cluster, which is like a one hundreds and now we've updated the new one. We use it for training and research.
+
+Swyx [00:53:43]: What's the training versus inference budget? Like, is it like a, is it 50, 50? Is it?
+
+Will [00:53:48]: Yeah, we, there will be more inference for search for sure.
+
+Swyx [00:53:51]: The other thing I mentioned, so by the way, I'm like sidetracking, but I'm just kind of throwing this in there because I always think about the economics of AI search, like for those, I think, I think if you look up, there's the upper limit is going to be whatever you can monetize off of ads, right? So for Google, let's say it's like a one cent per thousand views, something like that. I don't know the exact number, the exact numbers floating around out there. That means that's your revenue, right? Then your cost has to be lower than that. And so at some point, like for an LLM inference call to be made for every page view, you need to get it lower than. The money that you would take in for, for that. And like, one of the things that I was very surprised, surprised for perplexity and character as well was that they couldn't get it so low that it would be reasonable. I think for you guys, it is a mix of front loading it by indexing. So you only run that compute like once a month, once a, once a quarter, whatever you do re-indexing. And then it's just a little bit more when you, when you do inference, when this search actually gets done, right? Like, so I think when people work out like the economics of such a business, they have to kind of think about where do you put the. The costs. Yes.
+
+Will [00:54:52]: Yes. I mean, uh, definitely you have to, you cannot run LLMs over the whole index, you know, billions of things at query time. So you have to pre-process things usually with LLMs, but then you, you can do a re-rank over like, you know, 10, 30, a hundred, depending on a thousand, depending on how. You know, you could, you could play with different sizes of L of transformers to get the cost to work out. I mean, one really interesting thing is like, we're building a search engine at a time where LLM costs are going down like crazy when some very useful. Tool goes down in cost by 200 X in like the space of, I don't know, a couple of years, there are going to be new opportunities in search, right? So like to, to not integrate this and build off, to not like rethink search from scratch, the search algorithm itself, given the fact that things are going down 200 X is crazy.
+
+Alessio [00:55:37]: Thank you so much for coming on, man. It was fun.
+
+Will [00:55:39]: Thank you. This was so fun. Really fun.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

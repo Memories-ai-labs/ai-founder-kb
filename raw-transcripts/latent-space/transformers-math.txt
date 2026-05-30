@@ -1,0 +1,475 @@
+# The Mathematics of Training LLMs — with Quentin Anthony of Eleuther AI
+# URL: https://www.latent.space/p/transformers-math
+# Date: 2023-08-16
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+The Mathematics of Training LLMs — with Quentin Anthony of Eleuther AI
+
+41
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -50:38
+
+-50:38
+
+Audio playback is not supported on your browser. Please upgrade.
+
+The Mathematics of Training LLMs — with Quentin Anthony of Eleuther AI
+
+Breaking down the viral Transformers Math 101 article and high performance distributed training for Transformers-based architectures (or "How I Learned to Stop Handwaving and Make the GPU go brrrrrr")
+
+Quentin Anthony
+
+Aug 16, 2023
+
+41
+
+1
+
+Share
+
+Invites are going out for AI Engineer Summit! In the meantime, we have just announced our first Actually Open AI event with Brev.dev and Langchain, Aug 26 in our SF HQ (we’ll record talks for those remote). See you soon (and join the Discord)!
+
+Special thanks to @nearcyan for helping us arrange this with the Eleuther team.
+
+This post was on the HN frontpage for 15 hours.
+
+As startups and even VCs hoard GPUs to attract talent, the one thing more valuable than GPUs is knowing how to use them (aka, make GPUs go brrrr).
+
+There is an incredible amount of tacit knowledge in the NLP community around training1, and until Eleuther.ai came along you pretty much had to work at Google or Meta to gain that knowledge. This makes it hard for non-insiders to even do simple estimations around costing out projects - it is well known how to trade $ for GPU hours2, but trading “$ for size of model” or “$ for quality of model” is less known and more valuable and full of opaque “it depends”. This is why rules of thumb for training are incredibly useful, because they cut through the noise and give you the simple 20% of knowledge that determines 80% of the outcome derived from hard earned experience.
+
+Today’s guest, Quentin Anthony from EleutherAI, is one of the top researchers in high-performance deep learning. He’s one of the co-authors of Transformers Math 101, which was one of the clearest articulations of training rules of thumb. We can think of no better way to dive into training math than to have Quentin run us through a masterclass on model weights, optimizer states, gradients, activations, and how they all impact memory requirements.
+
+The core equation you will need to know is the following:
+
+Where C is the compute requirements to train a model, P is the number of parameters, and D is the size of the training dataset in tokens. This is also equal to τ, the throughput of your machine measured in FLOPs (Actual FLOPs/GPU * # of GPUs), multiplied by T, the amount of time spent training the model.
+
+Taking Chinchilla scaling at face value, you can simplify this equation to be `C = 120(P^2)`.These laws are only true when 1000 GPUs for 1 hour costs the same as 1 GPU for 1000 hours, so it’s not always that easy to make these assumptions especially when it comes to communication overhead. 
+
+There’s a lot more math to dive into here between training and inference, which you can listen to in the episode or read in the articles. 
+
+The other interesting concept we covered is distributed training and strategies such as ZeRO and 3D parallelism. As these models have scaled, it’s become impossible to fit everything in a single GPU for training and inference. We leave these advanced concepts to the end, but there’s a lot of innovation happening around sharding of params, gradients, and optimizer states that you must know is happening in modern LLM training. 
+
+If you have questions, you can join the Eleuther AI Discord or follow Quentin on Twitter. 
+
+Show Notes
+
+Transformers Math 101 Article
+
+Eleuther.ai
+
+GPT-NeoX 20B
+
+BLOOM
+
+Turing NLG
+
+Mosaic
+
+Oak Ridge & Frontier Supercomputer
+
+Summit Supercomputer 
+
+Lawrence Livermore Lab
+
+RWKV
+
+Flash Attention 
+
+Stas Bekman
+
+Timestamps
+
+[00:00:00] Quentin's background and work at Eleuther.ai
+
+[00:03:14] Motivation behind writing the Transformers Math 101 article
+
+[00:05:58] Key equation for calculating compute requirements (tau x T = 6 x P x D)
+
+[00:10:00] Difference between theoretical and actual FLOPs
+
+[00:12:42] Applying the equation to estimate compute for GPT-3 training
+
+[00:14:08] Expecting 115+ teraflops/sec per A100 GPU as a baseline
+
+[00:15:10] Tradeoffs between Nvidia and AMD GPUs for training
+
+[00:18:50] Model precision (FP32, FP16, BF16 etc.) and impact on memory
+
+[00:22:00] Benefits of model quantization even with unlimited memory
+
+[00:23:44] KV cache memory overhead during inference
+
+[00:26:08] How optimizer memory usage is calculated
+
+[00:32:03] Components of total training memory (model, optimizer, gradients, activations)
+
+[00:33:47] Activation recomputation to reduce memory overhead
+
+[00:38:25] Sharded optimizers like ZeRO to distribute across GPUs
+
+[00:40:23] Communication operations like scatter and gather in ZeRO
+
+[00:41:33] Advanced 3D parallelism techniques (data, tensor, pipeline)
+
+[00:43:55] Combining 3D parallelism and sharded optimizers
+
+[00:45:43] Challenges with heterogeneous clusters for distribution
+
+[00:47:58] Lightning Round
+
+Transcription
+
+Alessio: Hey everyone, welcome to the Latent Space podcast. This is Alessio, partner and CTO in Residence at Decibel Partners, and I'm joined by my co-host Swyx, writer and editor of Latent Space. [00:00:20]
+
+Swyx: Hey, today we have a very special guest, Quentin Anthony from Eleuther.ai. The context for this episode is that we've been looking to cover Transformers math for a long time. And then one day in April, there's this blog post that comes out that literally is called Transformers Math 101 from Eleuther. And this is one of the most authoritative posts that I've ever seen. And I think basically on this podcast, we're trying to give people an intuition around what are the rules of thumb that are important in thinking about AI and reasoning by AI. And I don't think there's anyone more credible than the people at Eleuther or the people training actual large language models, especially on limited resources. So welcome, Quentin. [00:00:59]
+
+Quentin: Thank you. A little bit about myself is that I'm a PhD student at Ohio State University, starting my fifth year now, almost done. I started with Eleuther during the GPT-NeoX20B model. So they were getting started training that, they were having some problems scaling it. As we'll talk about, I'm sure today a lot, is that communication costs and synchronization and how do you scale up a model to hundreds of GPUs and make sure that things progress quickly is really difficult. That was really similar to my PhD work. So I jumped in and helped them on the 20B, getting that running smoothly. And then ever since then, just as new systems challenges arise, and as they move to high performance computing systems and distributed systems, I just sort of kept finding myself falling into projects and helping out there. So I've been at Eleuther for a little bit now, head engineer there now, and then finishing up my PhD and then, well, who knows where I'll go next. [00:01:48]
+
+Alessio: Awesome. What was the inspiration behind writing the article? Was it taking some of those learnings? Obviously Eleuther is one of the most open research places out there. Is it just part of the DNA there or any fun stories there? [00:02:00]
+
+Quentin: For the motivation for writing, you very frequently see in like the DL training space, like these Twitter posts by like, for example, like Stas Bekman at Hugging Face, you'll see like a Twitter post that's like, oh, we just found this magic number and everything is like 20% faster. He’s super excited, but doesn't really understand what's going on. And the same thing for us, we very frequently find that a lot of people understand the theory or maybe the fundamentals of why like AI training or inference works, but no one knows like the nitty gritty details of like, how do you get inference to actually run correctly on your machine split across two GPUs or something like that. So we sort of had all of these notes that we had accumulated and we're sort of sharing among engineers within Eleuther and we thought, well, this would really help a lot of other people. It's not really maybe appropriate for like a paper, but for something like a blog post or technical report, this would actually maybe squeeze a lot of performance out of people's hardware they're already running on. So I guess there are a lot of projects in Eleuther that we're sort of trying to share notes with people in a way that typical institutions don't. They sort of live within that institution and then you go to a different institution and they do something very similar, but without the lessons of the previous. And it's because everyone's trying to do their own special sauce with their own stack. Whereas Eleuther, we don't really have that constraint and we can just share everything to everybody. [00:03:14]
+
+Swyx: Yeah, this is a level of openness that basically very few people actually embrace. One, it's an extra effort to write things down, of course, but two, it is secret sauce and so that not many people do it. And therefore, oftentimes the only way to learn this stuff is to actually work in one of the large model labs. And so you guys are doing a lot. The only other instance where I can think of where people actually open sourced their process was Facebook's OPT. What else is similar, like sort of trade knowledge, but not formal research knowledge? [00:03:45]
+
+Quentin: I would say Bloom. So the Hugging Face Bloom project in big science and all of that, that was very open. I'd say it's the same caliber, if not more detailed than OPT. Other than that, I think there was like a doc from Microsoft on like their Turing NLG. Their paper is pretty relaxed in that it did talk about some of those challenges. Other than like OPT and Bloom and us, I can't think of any. It's a new thing. [00:04:10]
+
+Swyx: It matters that you are going for the sort of good enough rules of thumb, because I think a lot of people try to go for precision and being overly precise actually is not helpful. Right. Yes. [00:04:20]
+
+Quentin: You'll see some like statements in the blog posts that are just like, we think this is about 1.2 in our experience. And, you know, we don't go any further into detail and it would take maybe an extra month for us to chase down every single little piece of memory. But instead, like getting good enough is still helpful to people. [00:04:36]
+
+Alessio: Let's jump into it. The first part of the article, and we'll put this in the show notes so people will be following along with the post. So we don't need to read every single equation and every footnote for it. [00:04:46]
+
+Swyx: Okay. [00:04:46]
+
+Alessio: But the core equation here is that not the cost of compute, but the compute required to turn a transformer model is roughly equal to tau times T, where like T is the, where tau is the hardware setup throughput that you have. So number of GPUs times the actual flops per GPU. And then T is the time spent. I think people can visualize that pretty easily. It's basically like how many GPUs do you have and how much do you let them run for? And the things that come to it that people have read before in the Chinchilla paper in a way, and the OpenAI scaling law is that you can then equal this to 6PD, where P is the number of parameters in the model and D is the size of the, of the dataset in tokens. So talk a little bit about how people should think about the two. I think a lot of times the focus is on tokens parameter ratio in the training dataset and people don't think as much about the actual flops per GPU, which you're going to mention later in the blog post too, in terms of how much you can get out. So how should people think about this when they're building a model and where should they go to this equation as they're starting to think about training their own transformer-based [00:05:58]
+
+Swyx: model? [00:05:58]
+
+Quentin: You touched a little bit on the fact that people usually start with the dataset. So you have some dataset that you want to train a model on. And then from there, from the 6PD, you should see, okay, I should have about six tokens per parameter. So that determines my model size thereabouts for Chinchilla Optimal. So since then we've seen that need more something like 20 or more than that to get a good quality model. But the next question that should be on your mind in terms of a systems perspective is how long is it going to take for this model to train and what kind of budget should I expect? So let's say I want some cloud instance for some amount of time and each of them will have some price attached to it. So that's where the throughput comes in. So now that you have this model, this number of parameters, you should map that to a transformer architecture and you should benchmark what throughput you get on your software stack for that type of model. So now you have your flops per second on a single GPU. And then given whatever parallelism scheme, which I'm sure we'll get into, like data parallelism or tensor parallelism or whatever else, how is that flops number going to scale to whatever number of GPUs? And then from there, you're going to get a time. And if you have a time, you have a cost. Those are like the business answers that you'll be able to get using this formula. That's why we sort of split it into the T and the throughput terms so that you can solve for one of them, which is usually get throughput, need time, and from time you get cost. In a nutshell, that's the answer. [00:07:19]
+
+Alessio: One thing that I noticed, you mentioned some of these laws are only true when a thousand GPUs for one hour cost the same as one GPU for a thousand hours, given that we have a shortage of the biggest GPUs out there. Any thoughts there on how people should prioritize this? [00:07:36]
+
+Quentin: Yeah, so I would say you should find what the minimum number of GPUs is to just fit your model first. The memory bottleneck is your biggest problem if you have a sizable model. If it's a small model, nobody cares. But most models that people care about will need to be split across multiple GPUs. So find the minimum number of GPUs to just fit your one instance of your model and then calculate how long that's going to take. If it's a reasonable amount of time, then you're done. If it takes too long, then you need to start worrying about having multiple instances of that model. I always feel like you should go with the minimum number of GPUs because the more number of GPUs that you have, the more likely it is for things to break. So I would say just find out what time is reasonable for you and then fit the number of GPUs to that and no more. Because people get greedy and they say, if I have twice the GPUs, I can get this done in half the time. And then you end up taking three times the time because everything is breaking every day. And that's when I am up at midnight trying to fix your model that's broken. [00:08:34]
+
+Swyx: We had a previous guest which has invested a lot in their framework for training these things. Would there not be an equivalent open source framework you guys would have made that would help with scaling up GPUs linearly like that? Or is this an oversimplification? [00:08:50]
+
+Quentin: Okay, yeah. So maybe I should step back. Both Mosaic and us have our own sort of software stack recipe that scales well, theoretically. But I'll get to that in a minute. Mosaic is all based off optimizer sharding. So it's based off ZeRO. So you basically perfectly split your model optimizer and your parameters and your gradients across all of the different GPUs. So your aggregate memory is number of parameters divided by number of GPUs. Same thing for optimizer and so on. Whereas we at Eleuther use a Megatron deep speed based library. And for that, it's a bit more complex. So the efficiency can be a little higher, but it's more prone to failure at the same [00:09:30]
+
+Swyx: time. [00:09:30]
+
+Quentin: So you kind of have to tune it. In both cases, getting back to like the practical case, you should be able to get linear speed up by adding more GPUs. The problem is that there are hardware failures. You tend to have problems with like maybe loss will overflow if you have too many GPUs or maybe one GPU will hang. You might have software issues. You might have synchronization issues. And that's why I'm saying practically that you should take the minimum number of GPUs that you have because those are the easier cases to debug. That make sense? [00:10:00]
+
+Swyx: Yeah. [00:10:00]
+
+Quentin: Any more detail on any specific point? [00:10:02]
+
+Swyx: Not particularly, just because we haven't actually had to debug those things. But I imagine basically there's a lot of return towards encoding these knowledge into software and not repeating it again. So it makes a ton of sense. I think Alessio had more questions before we move too far into high level, more questions on just the equation itself. I think we want to spend time on essentially, this is the central equation of figuring out compute requirements. Yeah. [00:10:25]
+
+Alessio: Another thing in it is that the computer is like the forward pass and like the backwards pass and forward is 2PD, backward is 4PD. Why it's to the ratio between the two? Can you explain that? Why is it two and four? [00:10:39]
+
+Quentin: Yeah. [00:10:40]
+
+Alessio: Why is it twice the amount? [00:10:42]
+
+Quentin: Oh, okay. Intuitively for forward pass, you're just moving, you're propagating forward the inputs through the layer. And then in the backward pass, you're doing something a little more complex than that. You're doing back propagation. And I don't think I can explain it intuitively enough to go into more detail on the exact [00:10:58]
+
+Swyx: numbers. Yeah. [00:10:58]
+
+Quentin: That's okay. [00:10:59]
+
+Swyx: I feel like you want to get out a whiteboard and start drawing like, you know. [00:11:02]
+
+Quentin: That's what I would normally do. [00:11:03]
+
+Swyx: Tangents and gradients. It's actually surprisingly low to do the back propagation. Honestly, that's one of the fundamental things I love about the math of deep learning so far that as I've explored it, which is, it's surprisingly efficient as compared to other, I guess, numerical methods you might be exposed to and, you know, college calculus. Yeah. [00:11:22]
+
+Alessio: And I think the other thing is that things sound simple, you know, when people go on Twitter and say, Oh, 20 is like the optimal ratio. And it's like, then it's like, well, why is that the number? And the answer is usually much, much harder, like what we're seeing right now. So I think it's a, it's a good reminder that the numbers are simple, like all the best and most popular, like math equations are like, so elegant. Obviously the proof behind that is, it's not that easy. That's always a good reminder. [00:11:52]
+
+Swyx: I want to put this equation to the test a little bit. We can do this from either GPT-3's perspective or GPT-NeoX, whatever you're more comfortable with. You have this distinction of actual flops versus theoretical flops. And a lot of times when people report the flops it took to train a model, like we just saw one in Lama 2 where the estimate is something that the amount of flops and that's, that's what we go with. So GPT-3 took a 3.14 times 10 to the power 23 flops. That is the theoretical flops. I want to get to a point where I can sort of work out if a number passes the smell test. And I wonder how to do that because I should be able to plug in this equation, right? I know that GPT-3 was trained on 300 billion tokens. I know the parameter size of 175. Is it, is it just like a 6 times 175 times 300? Like I haven't done the math, but what are the nuances here that you might want to call out? [00:12:42]
+
+Quentin: Theoretical flops is usually given from, you have a given set of hardware and this is what you expect your hardware to get. The problem is that in practice, full utilization, that's the key word, right? Because in practice, there are a lot of cases where like you're spending time waiting on data movement from like the GPU to CPU. Or for example, you might be waiting to synchronize across the different GPUs. So there's a lot of idle time basically that you're going to be spending during training. [00:13:05]
+
+Swyx: Smell tests. [00:13:06]
+
+Quentin: I don't know if I have a smell test myself, to be honest, like maybe I'll look at like what sort of flops, what you would expect on like an A100. There's sort of just an expected flops for a given GPU that everyone sort of knows what you should expect. So like for an A100, that number is somewhere between 100 and 180. T flops is what you would expect to see on an A100. For a V100, like an older GPU, it's something more like 40 to 30. So people sort of know, given the kernels that we're running for a deep learning, what sort of flops you expect. And then you sort of compare that to the theory, to the theoretical flops that people are reporting and see if that matches your expectations. [00:13:47]
+
+Swyx: Yeah. [00:13:47]
+
+Alessio: And in the article you mentioned for the A100, like if you're seeing below 115 teraflops a second, there's something wrong with your model or hardware. How did you get to 115? Is it just, you know, production observability and like you've seen over months and months and months that like that's the baseline or how do you come up with the numbers like that? Yeah. [00:14:08]
+
+Quentin: For a number like that, we basically, we compared a lot of different frameworks. So like I mentioned before, Mosaic has their own framework and we have our own framework. They all have their own flop counters too, right? And we saw across a bunch of different hardware configurations that if you tune things correctly, you should be getting above 115 in pretty much all cases. So like there are some cases where things are tuned poorly or your system is a little weird, but we've never been able to get a new system and not been able to get above [00:14:35]
+
+Swyx: 115. [00:14:35]
+
+Quentin: If something is below 115, you have something really wrong in your software. But that's really all it is, is just comparing across software stacks and hardware systems. [00:14:44]
+
+Alessio: What about different GPUs? We had George Hotz on the podcast and he talked about AMD cards and how in theory their flops should be much better than some Nvidia cards, but the reality is like the CUDA runtime makes up for it. How should people think about improving that? You know, like do you see, okay, the A100 is like 115 teraflops. I'd rather just stick with this than try and figure out all the kinks of like a better AMD card or any thoughts there? [00:15:10]
+
+Swyx: Right. [00:15:10]
+
+Quentin: Well, that's sort of touching on developer time, right? And which ends up being more expensive because at the end of the day, the AMD and Rockham software stack has a long way to go. I would say most things run there, not particularly efficiently, but you're going to have weird bugs that no one has encountered before. One of the big pluses of going with the Nvidia and PyTorch stack is that there are thousands of GitHub issues with everyone facing the same problem as you and resolving them quickly and in an open source way is probably the biggest benefit of going with the Nvidia software stack right now. AMD has about the same hardware, software, not so much. And they haven't quite got the momentum in the open source realm, for example, to get close. Like something, for example, like Flash Attention, it's spread to more Nvidia GPU types than it has like to AMD at all. And waiting on those latest and greatest features to reach AMD is something that's prohibitive to a lot of people, but it's getting there. I'm running a lot of experiments on AMD right now because it's sort of reached the government lab supercomputers now. And so a lot of experiments are going there and it will catch up, I'd say within a few [00:16:14]
+
+Swyx: years. [00:16:14]
+
+Quentin: Awesome. [00:16:15]
+
+Swyx: Maybe just talk about what's available from the government labs and I heard the original, the origin of Eluther started with a grant for TPUs. Is that right? [00:16:24]
+
+Quentin: Yes, that was a little before me, but there was a lot of just like getting a grabbing a Google Cloud or TPU pod or something like that is a lot of the original TPU work on Mesh TensorFlow, which is like now like an ancient distributed deep learning library. [00:16:36]
+
+Quentin: Eluther got a grant, an insight grant with Oak Ridge last year, and we got quite a bit of Summit Compute. So Summit is a V100 based supercomputer. It's got some weirdness to it. So there's six V100 GPUs per node. And we did a lot of experiments there. It's a challenging system to scale to because your interconnect across nodes is kind of slow in comparison to within a node, which I think we'll get to later. But now Oak Ridge has moved to AMD. So the next grant that we're trying to work towards is on Frontier, which has four AMD GPUs per node and again has a slower interconnect across nodes. So we get all of those new challenges again to try and overlap things. But that's just like you have Oak Ridge, you have Lawrence Livermore. There's a lot of government supercomputers that you can apply for compute towards like open researchers too. It's sort of a new thing. I think we're one of the first like us and like Lion, for example, is another organization that's getting compute from government providers and such. They're all moving to AMD as well. And we look forward to exploring that with them. [00:17:42]
+
+Swyx: Yeah. [00:17:43]
+
+Alessio: The computing is definitely, it used to be easy to find the GPU. Now, not as much. So you got to find them anywhere. [00:17:49]
+
+Swyx: Yes. [00:17:49]
+
+Alessio: Let's talk about memory requirements a little bit. So you touched on this a little bit before and just before this, we had a trade out on the pockets from FlashAttention and memory speed was one of our main focuses, but this time we're being bound by actually memory size, like the VRAM itself, when it comes to model weights and parameters and optimizer states and all that fun stuff. Let's go through this and Sean, we can, we can take turns. There's a lot to cover here, but maybe we can start from model weights. So one topic we covered a lot in the past is precision and quantization. That's one of the obviously main driver of memory. You mentioned most of, in the article, most transformers are mixed precision, like FP16 plus FP32 or BF16 FP32, and they can be cast down. And you mentioned up to like INT8 without a lot of performance hit. So let's start there and maybe run people through some of the maths and like the byte per parameter ratio and different precision. [00:18:50]
+
+Swyx: Sure. [00:18:51]
+
+Quentin: So when I started deep learning, it was all FP32. You have 32 bits, four bytes per parameter. Things were pretty simple. You didn't have to do any loss scaling at all. But the problem was that you didn't get a whole lot of flops once NVIDIA moved to V100s and introduced Tensor cores. So Tensor cores do all of their computation at FP16 precision. So you're kind of throwing all of those away if you're doing things in FP32. So once the hardware moved to V100, the software moved to like mixed precision and APEX and AMP and such. And one counterintuitive part of mixed precision is that you actually require more memory when you're trained because you need an FP16 copy of the weights and an FP32 copy of the weights. The FP16 copy is where you're doing like your actual computation on the Tensor cores. So you get maybe it's not uncommon to get double the throughput that you would see before in FP32. And then you at each step update that FP32 copy with the FP16 update. So both need to be stored in memory. The problem with that is that FP16 is very precise but doesn't have a whole lot of range, [00:19:55]
+
+Swyx: dynamic range. [00:19:55]
+
+Quentin: So you have a really big mantissa if you're thinking in terms of like floating point representations, not a whole lot of exponent. So BF16 puts more of the bits from the mantissa back to the exponent. So you have a much higher range and a lower precision. And that gets rid of all of this instability problem and loss scaling and such that anyone familiar with debugging knows how unstable it can be, especially for large scale training. And BF16 does away with a lot of that, but it's only supported on A100s. So you see the back and forth between hardware and software. So every time NVIDIA introduces some new Tensor cores or BF16 support or something like that, the software adapts to support it and then training adapts. And then now you mentioned like Ind8 and such. Now we're seeing that you have some model that's been trained in FP16, FP32, whatever else. And then now you want to, with minimal loss and accuracy, quantize that model into a smaller representation like Ind8 and now like Ind4 and things like that and see what you can get away with. And then since deep learning is such like a stochastic problem that a lot of those last bits of precision don't really matter is what we're finding. And I expect that to continue. [00:21:06]
+
+Alessio: And so just to put some numbers to it, when you have a FP32, you need four bytes per parameter at inference time to load it in memory. If you have a eight bits model quantized down, you need one byte per parameter. So for example, in an H100, which is 80 gigabyte of memory, you could fit a 70 billion parameters in eight, you cannot fit a FP32 because you will need like 280 gigabytes of memory. So how much does that play into it? Like you mentioned it was all FP32 when you first started. Is it just like a development complexity thing, like going down to FP16 and then Ind8? Or if they could get a GPU with like a terabyte of VRAM, will people just load this memory as like FP32 weights or would they still want to quantize them to make them more efficient? Right. [00:22:00]
+
+Quentin: I would say even if you had infinite VRAM, you would still want a quantized model, just a bigger model that's quantized is what I would say. And that's because like I was mentioning there at the end, how like deep learning is very stochastic and a lot, you could have all the precision in the world, but ultimately it's meaningless when you still depend so much like on what the input is. And you depend so much on little variations and maybe a few more samples of training data would matter more. A lot of that precision in a nutshell doesn't really matter in deep learning. All that matters is the big picture. What is that neuron actually saying? And not the tiny details of what it might be thinking. Oh, I also wanted to mention that even if you have an A100, the actual model size is quite a bit smaller that you could load than what you mentioned. That's because of the KV cache. So the KV cache intuitively during inference, it only matters during inference and think intuitively if you're writing a paragraph, you want to remember every single previous word that you've written before you write the next word. So like what is autoregressive language modeling? It's filling in the next word, the next token. So if I say like the dog went to the, and I need to write the next word, I would say park or something. Before I write the next word, my memory is wiped and I have to read the whole thing again. That is life without a KV cache. And a KV cache says, remember everything that I've generated before, as well as all the context before what I've generated. But the memory overhead for a KV cache commonly is either comparable or larger than the model in some cases, if you have a really long context. And I think the exact equation is something like, oh, it's like two times the number of layers, times the number of heads, times the dimension of each head. And then there's two of those. You have one for K, one for V. But that was just a quick aside. Yeah. [00:23:44]
+
+Alessio: I know this is Transformers math, but do you think one of the interesting things about RNNs too, it's like moving away from this, like KV cache, the scales with the sequence length and having like a fixed sequence pass. I know those are some of the things that people are working on. [00:24:00]
+
+Swyx: Yeah. [00:24:00]
+
+Quentin: So there's a paper that I was involved with called RWKV that I would recommend people read. It is answering this exact question. So how do you get Transformers quality without this quadratic attention overhead that Transformers requires? So it is interesting. I don't know if I can really dive too deep into the technical details there. I'd recommend people read the paper. But yeah. [00:24:23]
+
+Swyx: Yeah. [00:24:23]
+
+Alessio: It's interesting to see if attention is all you need, or maybe attention is all we need, but we need better ways to make it infer in a good way. [00:24:33]
+
+Swyx: We've actually done an unreleased episode with one of the RWKV core members and they call it soft attention or light attention. I forget what they call it, but yeah, just ways to approximate it such that it's linear and not quadratic. That's great. Yeah. [00:24:47]
+
+Quentin: I didn't know that you were involved. [00:24:48]
+
+Swyx: That's great. How did you get involved? Is it just because like everyone just hangs out in Discord and talks about the future of Transformers? Oh yeah. [00:24:55]
+
+Quentin: I mean, the RWKV people specifically are in Eleuther all the time. Like they're very close collaboration with us. And my contribution was we have all of these experiments done by all of these people on RNNs and how they relate to Transformers and how do we turn that into a paper and disseminate that digestibly so that people don't have to read through like a Discord log from a year ago to understand what's going on. [00:25:16]
+
+Swyx: Oh my God. [00:25:16]
+
+Quentin: Just read this paper. So that took some work, but I wasn't a core contributor. So that's why I don't want to go into like the technical details. But yeah, that's how I did. [00:25:24]
+
+Swyx: We'll try to get that RWKV episode out. It seems like there's increasing mentions of it and they are doing pretty important work as far as scaling these models are concerned. Okay. So we discussed inference type quantization and memory requirements. And then you also had a section on training with a lot of stuff I think mentioned. I think we probably want to spend the most of our time on optimizer states and the Atom optimizer. Yeah. What are your takes on it and what should people keep in mind when they deal with these optimizers? Okay. [00:25:57]
+
+Quentin: I would say the Atom optimizer is good at what it does. It's sort of a broad question. So let me think. You have the copy of the weights and then you have your momentum and your variance that [00:26:08]
+
+Swyx: you store. [00:26:08]
+
+Quentin: And like, okay, maybe an intuitive explanation for momentum is that like, let's say you have a canyon and you're trying to get to the bottom. And if you're just doing basic SGD, then every step is going to be an equal size. Whereas if you're using something like Atom with the momentum term, then your steps should be progressively larger because you can see, oh, the general trend is we're heading downwards very quickly. But stepping back from that, since you have all of these extra terms in Atom, you require a lot more memory to store it. Like three times as much memory as SGD. And if you have all of this memory being spent on your optimizer states, then how do you distribute it across GPUs? Because you'll find that what ends up being your bottleneck more than just raw compute, raw flops on a given GPU is your parallelism. And that falls back onto how much model you can fit on a single GPU before you need to split it up across a bunch of GPUs. And then you end up spending time, more time with them talking to each other than actually making progress. So that's why all of this time in the blog post is spent on how do you distribute your model? What are all those different distributed strategies look like? Which ones are more efficient? And given that a lot of your memory is being spent optimizers, how do you distribute that optimizer specifically? Because a lot of people, when they talk about parallelism, they talk about model parallelism, the parameters themselves. In actuality, when you're training, a good portion of your memory is actually spent on optimizer states. So what specific part of that would you like to go into? Would you like to go into like zero or sharded optimizers? [00:27:36]
+
+Swyx: I think the sharded optimizer stuff is really interesting, but I think we're kind of leaving that towards the end, right? Because that's the maybe more advanced distributed sections. Here, I think we're just going for rough intuition for people who've maybe are familiar with the ideas of these optimizers, but haven't actually had to implement them yet. They read your code, but they don't really understand the intuition behind the code. I see. [00:28:00]
+
+Alessio: And Quentin, when you say in the blog post, it says, Adam is magic. How much of it is like actual magic, even to like people like you that are pretty close to the metal, so to speak? Are some of these things just come as gospel? It's like, I know this works, like I'm not touching it. I'm just leveraging it. How much of it are you actually thinking about improving on in your day-to-day work? I see. [00:28:22]
+
+Quentin: So I'm a systems guy. I'm an engineer. And a lot of these things come to me as magic. Adam comes to me as magic. I see it from the gods. I say, this is how a deep learning model is trained. And this is how the next step is calculated. And then I say, okay, how do I make that fast? I would say I do look at ways to improve upon it using things like second order optimizers. So there's a lot of research on there because they're hard to distribute. But the core contribution for me always comes down to someone else has done like some deep learning optimization and I need to make it run fast. So I can't really speak to the motivation of why Adam came about other than like simple, intuitive things like I mentioned with like the momentum. But what matters to me is that Adam takes more memory than SGD, specifically three times. And all of that memory needs to go somewhere and it needs to be split efficiently. [00:29:14]
+
+Swyx: Yeah. [00:29:14]
+
+Alessio: So when you add them all up, you got 12 bytes per parameter with vanilla Adam. [00:29:20]
+
+Swyx: Yeah. [00:29:20]
+
+Alessio: And then you still get the model parameters and memory too. So as you mentioned, you need to keep a copy of both for like a FB32, FB16 mixed, a copy of both quantization levels. So there's precision levels. So it's six bytes per parameter. Right. [00:29:36]
+
+Quentin: Taking a step back again, is that like, okay, most people think of your model getting big. So you need to split with model parallelism purely, something like tensor parallelism. But we can see that the model only takes like two bytes per parameter if we're doing FB16. Whereas the optimizer itself requires four bytes per parameter for the model states, four bytes for momentum, four bytes for variance. So what matters more is how do you split your optimizer efficiently and how do you store it efficiently? And something like bits and bytes, where the optimizer, you got like eight bit Adam, where those optimizer states is only one byte per parameter instead of four or something like that. That is going to give you a much better return on your model training and on your memory overhead required than if you were to, for example, quantize your pure like FB16 model weights down to int8 or something. So for training specifically, your optimizer memory matters a lot. The most in most cases. [00:30:31]
+
+Swyx: Well, yeah. [00:30:31]
+
+Alessio: And before we dive into zero, just to wrap up the items that you're going to shard later. So you have the parameters, you have the optimizer states, and then you have the gradients. Just maybe touch a little bit on that. And then we can talk about how to efficiently load them in GPUs. [00:30:48]
+
+Quentin: So the parameters are the FP32 copies of the parameters. We include them in the optimizer discussion. Some people don't, but just for clarity, it's 12 bytes per param for the optimizer states and four of them are for that FP32 copy of the weights. Four of them are for the momentum. I already went into why it's important to store momentum, but that's also per parameter. You need to store where that parameter is going and where it's been going in the past. You also need to know, okay, we know where it's going, but there's going to be bumps on this canyon that we're going down. So we need to store its variance. How often are those bumps? Should we be focusing more on the momentum? Or is this parameter just kind of jumping around everywhere? Those are all important answers that we need the optimizer to store, and it's per parameter. So that's where all three of those terms come from. And we also include some competing bits and bytes, for example, an SGD to show that depending on your optimizer, you may store all or none of these and in different representations. [00:31:50]
+
+Alessio: I'm looking at the total training memory. You essentially have model memory, optimizer memory, gradient memory, and activation memory. I think that's one of the last discussed things. So maybe just give people a little bit of a view. [00:32:03]
+
+Swyx: Yeah, this is completely new to me. [00:32:05]
+
+Alessio: Active, you know, recomputation, checkpointing, and all of that. [00:32:08]
+
+Swyx: Right. [00:32:09]
+
+Quentin: So, okay. So to summarize before activation checkpointing, which will be complicated, you have your model params, like I mentioned before, they used to be FP32. Now they're probably BF16, maybe FP16 if it's an older GPU. Then you have your optimizer. That's where a lot of the memory is going. And it's your high precision, usually FP32, copy of the weights. So that's four bytes per param. And then you have, optionally, a couple more terms like we just discussed, like momentum or variance or whatever else, depending on what your optimizer is. Then you have your gradients. So your gradients is what is the gradient update that we get after running the forward pass on the model. And that's going to be whatever your low precision copy of the weights is. So like two bytes per param, if you're using FP16 or BF16. And all of those are sort of set in stone. And that overhead is not going to go away for the duration of training. Your gradients might get cleared after you back propagate them, but your optimizer states and your model states aren't going away. That memory overhead will be there. Activation recomputation and activation memory is dynamic. So some people will come and have this problem where the model loads fine for training. But then when you actually run your first iteration, or you run some future iteration or something like that, you run out of memory, seemingly at random. And it's because of these activations that you're computing on the fly. Good summary, or do you want to get into activation recomputation now, or do you want me to touch on anything else? [00:33:35]
+
+Alessio: Yeah, I was going to say, when is the recomputation happening? How does it decide between recomputing versus storing? And talk a bit more about that, maybe. [00:33:47]
+
+Quentin: Yeah, okay. So there's a lot of different ways to do this, but I would say there are a few main ones. First is a very simple scheme. You recompute everything. Every single activation that you calculate is just going to be either used or thrown away until the end. So in that case, you care very much about memory. You care very little about compute. Maybe this would be a case where you have to distribute across a lot of different GPUs, for example. And your communication speed is really low. Then that might be a good case for you to just recompute everything. It happens rarely, but it happens. Next up would be something like selective recomputation. So in selective recomputation, which Megatron has a good paper on, and I believe the figure that we have in our blog post is from, in that case, you sort of do a weighted decision for each activation. So for really big activation tensors, you decide, is this going to be more expensive to save in terms of memory or to recompute in terms of compute? So that's sort of the smart scheme that Megatron implements. And there's a lot of different heuristics they use. It's probably not worth mentioning off this super long equation on a pod, but you should go and read that paper if you're interested on selective recomputation. And then a really stupid scheme that most people go with, including NeoX, would be something like, instead of doing all of these heuristics, you just say, if my tensor is bigger than X, I throw it away. And you set X to some static number, and that's it. And that is good enough for a lot of cases. [00:35:18]
+
+Swyx: Why is it good enough? [00:35:20]
+
+Quentin: You don't want to store more than, you know, X-sized tensor. And some fall above that, some fall below it. And you're not trying to squeeze. You care more about getting something close enough to what the actual heuristic should be without actually computing the heuristic because you don't want to spend the time writing that heuristic code. [00:35:37]
+
+Swyx: Cool. I think that does take us on a grand tour of the memory math. Is there any sort of high-level takeaway before we go into the distributed stuff? Zero and all that. Perhaps more detail than most people have ever encountered. And so I'll repeat the equation that Alessio mentioned again, which is total training memory now has all these components that you've mapped out for the first time as far as we're concerned. Model memory, optimizer memory, activation memory, gradient memory. We covered quite a few algorithms as to the choices you can make there. Anything else that you want to mention about just memory math? I don't think so. [00:36:11]
+
+Quentin: I think that about covers it. I will say that it's a very different scheme for training and inference. It's common for people to say, oh, BF16 is the best. Done. Whereas a more correct take is that during training, precision matters a bit more. So BF16 will be around longer for training than it will for inference, in which case your model is sort of already baked. And it definitely doesn't need some of those last bits of precision so you can get away much easier with going to int8 for inference rather than training. So everything that you learn for training has to be relearned for inference and vice versa. [00:36:44]
+
+Swyx: There's a third category. You're talking about training versus inference. This third category is emerging with regards to fine-tuning and perhaps parameter-efficient methods of fine-tuning. The naive way to implement fine-tuning is just to do more training. But I don't know if you've developed any intuitions over fine-tuning that's worth inserting here. Any intuitions? If you were to write fine-tuning math, what would go in there? That might be an interesting diff to training math. [00:37:10]
+
+Quentin: I think there's a lot of questions that are unanswered for fine-tuning. For example, we know scaling laws for training. And some people have done scaling laws for fine-tuning. But how does a model that's already been trained on one domain transfer to another in terms of fine-tuning size? How many tokens per parameter should you have for your fine-tuning dataset? Maybe I'm ignorant, but I feel like a lot of those sort of practical questions on how a model can transfer and how a model can learn or grok some new ability that wasn't in its original training dataset is something that I would definitely put inside a fine-tuning blog post. [00:37:45]
+
+Swyx: Something related to perplexity and, I guess, diversity of the tokens that you get. [00:37:49]
+
+Quentin: Yeah, sort of dataset transfer is something that I would be curious in. Learning rate transfer is another one. So your model has some decayed learning rate over the course of training. How does that change for fine-tuning? Things like that. [00:38:00]
+
+Swyx: All right, cool. Thanks for indulging that stuff. Sure. Yeah. [00:38:03]
+
+Alessio: I think after all of this, you can quickly do the math and see that training needs to be distributed to actually work because we just don't have hardware that can easily run this. So let's talk a bit about that. So zero is one of the first things that you mentioned here, which is focused on sharded optimizers. Maybe run people through that and how to think about it. [00:38:25]
+
+Swyx: Sure. [00:38:25]
+
+Quentin: So zero is centered around two communication operations. And the first is scatter. And people should be looking at the zero figure that I think we have. [00:38:35]
+
+Swyx: Yeah. [00:38:36]
+
+Quentin: So there's a figure in the paper with parameters, gradients, and optimizer states that people should be looking at when I'm talking about this. Every GPU is going to get its own equal portion of the slice. And if we're doing... There are different stages of zero, but let's just start off with assuming that it's an equal slice of the optimizer states, gradients, and parameters. That would be zero three, stage three in that case. And we do that with a scatter. And the scatter takes, say, one over end GPUs, plus this offset of that slice goes to that GPU. Now all of the GPUs have an equal slice that's in its rank order. And then during each training step, that GPU is going to wait for all of the other slices to communicate so that we now have a whole pie on that GPU, that single GPU. Once we have that whole pie, we do the forward pass on it. And then we distribute that forward pass to all of the others using a gather. So it's a scatter, reduced scatter specifically, and then a gather back to all the others. And you do that each step. So the point of it is that you're sharding these states across GPUs. And with the different stages, you'll see in that figure that the optimizer state is taking the most proportion, which is because of what I mentioned before. We're including the FP32 copy and we're doing atom. So we need those four bytes per param for momentum and for variance. And then zero stage one, which is the most common one, is just optimizer. Zero stage two is optimizer plus gradients. And zero stage three is optimizer gradients and model parameters. But it all comes back to this splitting up and then gathering together back and forth over and over. So you get a lot of communication overhead from zero. But the plus part of that is that you can overlap a lot of that movement with computation. [00:40:23]
+
+Alessio: How do you get the optimal number of GPUs to do this on? Is there a way to shard too much as well and put too much overhead? [00:40:31]
+
+Quentin: It depends more on what your interconnect is. Taking a step back, there is synchronization that's required, a lot of it, across all of these GPUs. And those tend to be cumulative. So if you go to too many GPUs on an interconnect that's too slow, then you're going to end up spending more time synchronizing. And that magic number where you spend more time synchronizing is going to be different depending on what your fabric is and what your GPU memory is specifically. Just how small of a slice is each GPU getting? I can't, for example, for Summit, that number comes out to be about 20 billion parameters. Now you have 20 billion parameters, and then your magic number of GPUs for that is going to be something like 100 to 200 scale. Beyond that, you're just going to end up spending more time communicating. And the actual flops dipping below some predetermined number by you is going to be whatever your sweet spot ends up being. [00:41:24]
+
+Alessio: And then, so this one was like hard for me to go through, so I'm excited to have you run through it, which is a 3D parallelism. [00:41:33]
+
+Swyx: It's fancy, it's cutting edge. [00:41:35]
+
+Alessio: Yeah, let's talk a bit more about that and some of the work. [00:41:38]
+
+Quentin: Okay, 3D parallelism. So what is each dimension? First is the really basic one. That's data parallelism. And data parallelism is you have a copy of the model. Let's say for simplicity, one copy fits on one GPU perfectly. Data parallelism is that now you have two GPUs, so you have one copy on GPU one, one copy on GPU two. Both of them do the forward and backward pass and then synchronize and average the gradients. And then that's a step. Data parallelism for 3D parallelism is actually zero. So it's, you're sharding the optimizer states across all of your different GPUs. Next up is tensor parallelism. Tensor parallelism is you split your model. Like say, if you have two GPUs, you split your model down the middle and each GPU on its tensor specifically is going to do its forward or backward operation on its tensor. And then only when necessary, it'll synchronize that tensor operation with the other GPU. It's a bit more complex than something like pipeline parallelism, which is the third dimension. In pipeline parallelism, let's say you have four layers in your model. And you have four GPUs. You put one layer on each GPU and then GPU one does the forward pass and then sends the output of its activations to GPU two. It does the forward pass, sends activations to three, and you're just moving down a line. That is a naive scheme in that all of the other GPUs are doing nothing while a single GPU is doing its forward or backward pass. So the reason it's called pipeline parallelism is because you're splitting your mini batch into micro batches. So GPU one will do the forward pass on micro batch one and then send to GPU two. And then while GPU two is running on that first micro batch, GPU one is working on the next micro batch. And so you're sort of pipelining the movement and computation of each micro batch. The problem with that is that you need a really big batch size in order to split it up into both mini batches and micro batches. So combining all three of those together, you get a 3D mesh of where each parameter and optimizer state and so on maps to each GPU. And that's 3D parallelism. So let's start diving into details on what have that made sense, what should I jump into more on? [00:43:55]
+
+Alessio: I think the main question is, do you need all of the GPUs to be the same to do this? Or can you have mismatching GPUs as well? [00:44:03]
+
+Quentin: Okay, two things matter. If there's a difference in VRAM for the two different kinds of GPUs, then you're going to be bottlenecked by whichever GPU has the lower amount of VRAM because it's going to run out of memory. And then you can't like whatever's left on the larger GPUs is going to be empty. As far as I'm aware, there's no like GPU single GPU aware memory overhead scheme that would account for that. The second problem is that let's say all of your GPUs have the same amount of VRAM, but half of them are really slow. And the problem with that is that those synchronizations that I mentioned earlier are going to kill you. So you're going to move as quickly as your slowest GPU in that case. So in both cases, you end up regressing to your slowest or smallest GPU. So you might as well have the same GPUs for all of them. Otherwise, you're wasting the nicer ones. And that also goes to your CPUs and your interconnect. So going back to the 20 billion parameter model that Eleuther was training, that was on a cluster that was sort of Frankenstein made during COVID when there was all of that shortage of network switches and such like that. So every node had a different network switch. And so you ended up moving at the speed of the slowest switch and getting everything tuned properly so that it's not worse than the slowest switch was challenging and is like a real world problem that sometimes comes up. [00:45:28]
+
+Alessio: Is this work widely accepted? Like I hadn't learned about this before studying for this episode. Is this something that people are still trying and researching? Or is everybody just aware of this and running this in production? [00:45:43]
+
+Quentin: What is this specifically? [00:45:44]
+
+Alessio: Like the sharded optimizers plus the 3D parallelism, bringing the two things together and having this kind of mesh strategy. [00:45:51]
+
+Quentin: I would say that a lot of major GPT-based models use this scheme. A lot of them now are sort of going with just a pure zero scheme. So just a pure sharded. You just shard everything. And then since that's so easy, everyone gets an equal slice. There's no such thing as a pipeline stage. There's no such thing as what tensor should go on which GPU. Instead, we shard everything equally and treat everything equally. It's a much easier problem to debug, to checkpoint, to run training on than it is with this 3D parallel scheme. I say 3D parallel gives you the most control and also the most ways to go wrong. And depending on whether you have more engineers or whether you have more GPUs, that should decide which of these you go with. [00:46:35]
+
+Swyx: It's also not too hard, right? You've basically outlined the five or six different numbers that you need to keep in your head. And it doesn't feel impossible that if you need to achieve that level of control, you've given everybody the main levers to do it with. And that's wonderful. Definitely. [00:46:51]
+
+Quentin: The problem that comes up is like, say, like, okay, GPT-4 came out. Now we have VLLMs. [00:46:57]
+
+Swyx: Whoa, what are VLLMs? Oh, okay. Virtual LLMs, like the Metro of Expert things? No, like visual. [00:47:03]
+
+Quentin: So now you have like multimodal models and such. How do you distribute that? Do you distribute it in a pipeline stage? And do you just shard it? Do you split the tensor and make a tensor parallel? It's sort of hard to change your model and add new features and such when you have this 3D parallel scheme. That's when I say hard. I mean, it's hard to sort of adapt and modify it to new features. [00:47:26]
+
+Alessio: I know we're at the hour mark, and I think we put our listeners through a very intense class today. So this was great, Quentin. And we're going to definitely link the article so that people can read it and follow along. Any other research that you're working on in this space that you want to shout out? I know one of our usual, I mean, wrong question is, what's the most interesting unsolved question in AI? So curious to hear if you think it's still on the training inference, math optimization, or are there more areas that people should pay attention to? [00:47:58]
+
+Quentin: I think in my area of research, there are two things that I think people should really care about. And the first is multimodal parallelism and RLHF. You were seeing more and more reinforcement learning and coming into the training loop. And so how do you split that some model or some GPUs are working on inference and some GPUs are working on training? And like I mentioned before, you have to relearn everything and they have very unique challenges. How do you split up a KV cache during training, for example? Those are challenges that are not well studied, I don't think. And then multimodal, you have like maybe a vision transformer and a text transformer. How do you split those up? Do you split them up equally? Do you put them on separate GPUs or do you just shard everything? And just maybe one GPU will have some vision, some text parameters. And then the second case I would say is that communication is very often a bottleneck. So we talk about 3D parallelism, but a lot of those like, for example, tensor parallelism, you can't go across nodes with. You'll just get killed in communication. So what I'm getting to is how should you compress your communication before it happens? So on the fly compression, you have some buffer that needs to be communicated. You compress it with a GPU kernel, then you send it across the network and then you decompress it, something like that. Making people spend less money on communication fabrics and more on GPUs as intended is sort of a thing that people need to explore. I think those are my two. [00:49:26]
+
+Alessio: Sean, you went over the other half of the lightning round before we wrap it up. [00:49:30]
+
+Swyx: That's a good brain dump. Cool. Yeah, I have so many more questions on the multimodal stuff, but that should be for another time. Acceleration, what has already happened in AI that you thought would take much longer? [00:49:42]
+
+Quentin: I would say flash attention. Guys, just talk to Tree. And flash attention is just sort of a really great set of kernels that I thought would take a while to get to us. [00:49:51]
+
+Alessio: Well, Quentin, thank you very much, man. This was super informative and I think hopefully helps demystify a little bit the blog post. I think people open it and it's like a lot of math on it. And I think you walking them through it was super helpful. So thank you so much for coming on. [00:50:07]
+
+Swyx: Of course. [00:50:08]
+
+Quentin: And I'm happy to answer any questions that people have offline if they have them. I do read my email. [00:50:13]
+
+Swyx: Email and Discord. Of course, yeah. [00:50:15]
+
+Quentin: Discord I'm even faster on. [00:50:16]
+
+Alessio: Thank you, everyone. [00:50:18]
+
+Swyx: Thanks, Quentin. [00:50:19]
+
+1
+
+As evidenced by the Meta OPT logbook, which makes the “empty logbooks” of MosaicML that much more remarkable.
+
+2
+
+It’s between $4-8/hr retail, and $1-2/hr wholesale, as far as rules of thumb go.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Quentin Anthony
+
+Writes Quentin Anthony Subscribe
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

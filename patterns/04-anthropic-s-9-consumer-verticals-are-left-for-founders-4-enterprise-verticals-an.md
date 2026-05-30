@@ -8,10 +8,6 @@ First time officially documented: Health 27% / Careers 26% / Relationships 12% /
 
 Anthropic Founder Playbook 2026-05-14 / "How People Ask Claude" companion research 2026-04-30 / Cal AI ($50M ARR) as the lean benchmark
 
-## Action Implication for Memories.ai
-
-Lucy hits 4 of the 9: health / careers / relationships / parenting. **Avoid at all costs**: B2B legal / healthcare / financial services / life sciences (where Anthropic will compete head-on). Consider repositioning Lucy as "personal memory for health & career".
-
 ---
 
 ← [Patterns index](./README.md) · [→ KB home](../README.md)

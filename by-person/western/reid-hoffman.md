@@ -18,8 +18,6 @@ Core of his five 2026 predictions: coding agents are the must-win battlefield fo
 
 Orchestration expertise is critical: prioritize hires who can manage complex systems / workflows over pure model researchers.
 
-**Memories.ai implication**: Memories.ai implication: agent platform teams need systems engineers, not just ML researchers. The hiring profile needs to be adjusted.
-
 ---
 
 ← [Person index](../README.md) · [→ KB home](../../README.md)

@@ -18,8 +18,6 @@ Distribution strategy: micro-influencers (1000+ creators), not celebrities. The 
 
 50 people, $100M ARR (~2 years), profitable most of the time, very little outside money. Investors initially dismissed the category. Pricing built around profitability, not growth-at-all-costs.
 
-**Memories.ai implication**: Memories.ai implication: an AI company can be 50 people / $100M ARR / profitable — Memories.ai doesn't have to be on the raise-and-burn path.
-
 ---
 
 ← [Person index](../README.md) · [→ KB home](../../README.md)

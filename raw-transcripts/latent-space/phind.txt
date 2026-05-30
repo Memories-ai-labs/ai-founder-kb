@@ -1,0 +1,589 @@
+# Beating GPT-4 with Open Source LLMs — with Michael Royzen of Phind
+# URL: https://www.latent.space/p/phind
+# Date: 2023-11-03
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+Beating GPT-4 with Open Source LLMs — with Michael Royzen of Phind
+
+25
+
+1
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:07:21
+
+-1:07:21
+
+Audio playback is not supported on your browser. Please upgrade.
+
+Beating GPT-4 with Open Source LLMs — with Michael Royzen of Phind
+
+Finetuning CodeLlama-34B with 70B+ tokens of high quality data, and building the ultimate system for the full developer lifecycle. Plus: What it's like when Paul Graham and Ron Conway invest in you!
+
+Michael Royzen
+
+Nov 03, 2023
+
+25
+
+1
+
+Share
+
+Transcript
+
+At the AI Pioneers Summit we announced Latent Space Launchpad, an AI-focused accelerator in partnership with Decibel. If you’re an AI founder of enterprise early adopter, fill out this form and we’ll be in touch with more details. 
+
+We also have a lot of events coming up as we wrap up the year, so make sure to check out our community events page and come say hi!
+
+We previously interviewed the founders of many developer productivity startups embedded in the IDE, like Codium AI, Cursor, and Codeium. We also covered Replit’s (former) SOTA model, replit-code-v1-3b and most recently had Amjad and Michele announce replit-code-v1_5-3b at the AI Engineer Summit.
+
+Much has been speculated about the StackOverflow traffic drop since ChatGPT release, but the experience is still not perfect. There’s now a new player in the “search for developers” arena: Phind.
+
+Phind’s goal is to help you find answers to your technical questions, and then help you implement them. For example “What should I use to create a frontend for a Python script?” returns a list of frameworks as well as links to the sources. You can then ask follow up questions on specific implementation details, having it write some code for you, etc. They have both a web version and a VS Code integration
+
+They recently were top of Hacker News with the announcement of their latest model, which is now the #1 rated model on the BigCode Leaderboard, beating their previous version:
+
+TLDR Cheat Sheet:
+
+Based on CodeLlama-34B, which is trained on 500B tokens
+
+Further fine-tuned on 70B+ high quality code and reasoning tokens
+
+Expanded context window to 16k tokens
+
+5x faster than GPT-4 (100 tok/s vs 20 tok/s on single stream)
+
+74.7% HumanEval vs 45% for the base model
+
+We’ve talked before about HumanEval being limited in a lot of cases and how it needs to be complemented with “vibe based” evals. Phind thinks of evals alongside two axis: 
+
+Context quality: when asking the model to generate code, was the context high quality? Did we put outdated examples in it? Did we retrieve the wrong files?
+
+Result quality: was the code generated correct? Did it follow the instructions I gave it or did it misunderstand some of it?
+
+If you have bad results with bad context, you might get to a good result by working on better RAG. If you have good context and bad result you might either need to work on your prompting or you have hit the limits of the model, which leads you to fine tuning (like they did). 
+
+Michael was really early to this space and started working on CommonCrawl filtering and indexing back in 2020, which led to a lot of the insights that now power Phind. We talked about that evolution, his experience at YC, how he got Paul Graham to invest in Phind and invite him to dinner at his house, and how Ron Conway connected him with Jensen Huang to get access to more GPUs!
+
+Show Notes
+
+Phind
+
+BigScience T0
+
+InstructGPT Paper
+
+Inception-V3
+
+LMQL
+
+Marginalia Nu
+
+Mistral AI
+
+People:
+
+Paul Graham (pg)
+
+Ron Conway
+
+Yacine Jernite from HuggingFace
+
+Jeff Delaney
+
+Timestamps
+
+[00:00:00] Intros & Michael's early interest in computer vision
+
+[00:03:14] Pivoting to NLP and natural language question answering models
+
+[00:07:20] Building a search engine index of Common Crawl and web pages
+
+[00:11:26] Releasing the first version of Hello based on the search index and BigScience T0 model
+
+[00:14:02] Deciding to focus the search engine specifically for programmers
+
+[00:17:39] Overview of Phind's current product and focus on code reasoning
+
+[00:21:51] The future vision for Phind to go from idea to complete code
+
+[00:24:03] Transitioning to using the GPT-4 model and the impact it had
+
+[00:29:43] Developing the Phind model based on CodeLlama and additional training
+
+[00:32:28] Plans to continue improving the Phind model with open source technologies
+
+[00:43:59] The story of meeting Paul Graham and Ron Conway and how that impacted the company
+
+[00:53:02] How Ron Conway helped them get GPUs from Nvidia
+
+[00:57:12] Tips on how Michael learns complex AI topics
+
+[01:01:12] Lightning Round
+
+Transcript
+
+Alessio: Hey everyone, welcome to the Latent Space Podcast. This is Alessio, partner and CTO of Residence and Decibel Partners, and I'm joined by my co-host Swyx, founder of Smol AI. [00:00:19]
+
+Swyx: Hey, and today we have in the studio Michael Royzen from Phind. Welcome. [00:00:23]
+
+Michael: Thank you so much. [00:00:24]
+
+Alessio: It's great to be here. [00:00:25]
+
+Swyx: Yeah, we are recording this in a surprisingly hot October in San Francisco. And sometimes the studio works, but the blue angels are flying by right now, so sorry about the noise. So welcome. I've seen Phind blow up this year, mostly, I think since your launch in Feb and V2 and then your Hacker News posts. We tend to like to introduce our guests, but then obviously you can fill in the blanks with the origin story. You actually were a high school entrepreneur. You started SmartLens, which is a computer vision startup in 2017. [00:00:59]
+
+Michael: That's right. I remember when like TensorFlow came out and people started talking about, obviously at the time after AlexNet, the deep learning revolution was already in flow. Good computer vision models were a thing. And what really made me interested in deep learning was I got invited to go to Apple's WWDC conference as a student scholar because I was really into making iOS apps at the time. So I go there and I go to this talk where they added an API that let people run computer vision models on the device using far more efficient GPU primitives. After seeing that, I was like, oh, this is cool. This is going to have a big explosion of different computer vision models running locally on the iPhone. And so I had this crazy idea where it was like, what if I could just make this model that could recognize just about anything and have it run on the device? And that was the genesis for what eventually became SmartLens. I took this data set called ImageNet 22K. So most people, when they think of ImageNet, think of ImageNet 1K. But the full ImageNet actually has, I think, 22,000 different categories. So I took that, filtered it, pre-processed it, and then did a massive fine tune on Inception V3, which was, I think, the state of the art deep convolutional computer vision model at the time. And to my surprise, it actually worked insanely well. I had no idea what would happen if I give a single model. I think it ended up being 17,000 categories approximately that I collapsed them into. It worked so well that it actually worked better than Google Lens, which released its V1 around the same time. And on top of this, the model ran on the device. So it didn't need an internet connection. A big part of the issue with Google Lens at the time was that connections were slower. 4G was around, but it wasn't nearly as fast. So there was a noticeable lag having to upload an image to a server and get it back. But just processing it locally, even on the iPhones of the day in 2017, much faster. It was a cool little project. It got some traction. TechCrunch wrote about it. There was kind of like one big spike in usage, and then over time it tapered off. But people still pay for it, which is wild. [00:03:14]
+
+Swyx: That's awesome. Oh, it's like a monthly or annual subscription? [00:03:16]
+
+Michael: Yeah, it's like a monthly subscription. [00:03:18]
+
+Swyx: Even though you don't actually have any servers? [00:03:19]
+
+Michael: Even though we don't have any servers. That's right. I was in high school. I had a little bit of money. I was like, yeah. [00:03:25]
+
+Swyx: That's awesome. I always wonder what the modern equivalents kind of "Be my eyes". And it would be actually disclosed in the GPT-4 Vision system card recently that the usage was surprisingly not that frequent. The extent to which all three of us have our sense of sight. I would think that if I lost my sense of sight, I would use Be My Eyes all the time. The average usage of Be My Eyes per day is 1.5 times. [00:03:49]
+
+Michael: Exactly. I was thinking about this as well, where I was also looking into image captioning, where you give a model an image and then it tells you what's in the image. But it turns out that what people want is the exact opposite. People want to give a description of an image and then have the AI generate the image. [00:04:04]
+
+Alessio: Oh, the other way. [00:04:06]
+
+Michael: Exactly. And so at the time, I think there were some GANs, NVIDIA was working on this back in 2019, 2020. They had some impressive, I think, face GANs where they had this model that would produce these really high quality portraits, but it wasn't able to take a natural language description the way Midjourney or DALL-E 3 can and just generate you an image with exactly what you described in it. [00:04:32]
+
+Swyx: And how did that get into NLP? [00:04:35]
+
+Michael: Yeah, I released the SmartLens app and that was around the time I was a senior in high school. I was applying to college. College rolls around. I'm still sort of working on updating the app in college. But I start thinking like, hey, what if I make an enterprise version of this as well? At the time, there was Clarify that provided some computer vision APIs, but I thought this massive classification model works so well and it's so small and so fast, might as well build an enterprise product. And I didn't even talk to users or do any of those things that you're supposed to do. I was just mainly interested in building a type of backend I've never built before. So I was mainly just doing it for myself just to learn. I built this enterprise classification product and as part of it, I'm also building an invoice processing product where using some of the aspects that I built previously, although obviously it's very different from classification, I wanted to be able to just extract a bunch of structured data from an unstructured invoice through our API. And that's what led me to Hugnyface for the first time because that involves some natural language components. And so I go to Hugnyface and with various encoder models that were around at the time, I used the standard BERT and also Longformer, which came out around the same time. And Longformer was interesting because it had a much bigger context window than those models at the time, like BERT, all of the first gen encoder only models, they only had a context window of 512 tokens and it's fixed. There's none of this alibi or ROPE that we have now where we can basically massage it to be longer. They're fixed, 512 absolute encodings. Longformer at the time was the only way that you can fit, say, like a sequence length or ask a question about like 4,000 tokens worth of text. Implemented Longformer, it worked super well, but like nobody really kind of used the enterprise product and that's kind of what I expected because at the end of the day, it was COVID. I was building this kind of mostly for me, mostly just kind of to learn. And so nobody really used it and my heart wasn't in it and I kind of just shelved it. But a little later, I went back to HugMeFace and I saw this demo that they had, and this is in the summer of 2020. They had this demo made by this researcher, Yacine Jernite, and he called it long form question answering. And basically, it was this self-contained notebook demo where you can ask a question the way that we do now with ChatGPT. It would do a lookup into some database and it would give you an answer. And it absolutely blew my mind. The demo itself, it used, I think, BART as the model and in the notebook, it had support for both an Elasticsearch index of Wikipedia, as well as a dense index powered by Facebook's FAISS. I think that's how you pronounce it. It was very iffy, but when it worked, I think the question in the demo was, why are all boats white? When it worked, it blew my mind that instead of doing this few shot thing, like people were doing with GPT-3 at the time, which is all the rage, you could just ask a model a question, provide no extra context, and it would know what to do and just give you the answer. It blew my mind to such an extent that I couldn't stop thinking about that. When I started thinking about ways to make it better, I tried training, doing the fine tune with a larger BART model. And this BART model, yeah, it was fine tuned on this Reddit data set called Eli5. So basically... [00:08:02]
+
+Alessio: Subreddit. [00:08:03]
+
+Swyx: Yeah, subreddit. [00:08:04]
+
+Alessio: Yeah. [00:08:05]
+
+Michael: And put it into like a well-formatted, relatively clean data set of like human questions and human answers. And that was a really great bootstrap for that model to be able to answer these types of questions. And so Eli5 actually turned out to be a good data set for training these types of question answering models, because the question is written by a human, the answer is written by a human, and at least helps the model get the format right, even if the model is still very small and it can't really think super well, at least it gets the format right. And so it ends up acting as kind of a glorified summarization model, where if it's fed in high quality context from the retrieval system, it's able to have a reasonably high quality output. And so once I made the model as big as I can, just fine tuning on BART large, I started looking for ways to improve the index. So in the demo, in the notebook, there were instructions for how to make an Elasticsearch index just for Wikipedia. And I was like, why not do all of Common Crawl? So I downloaded Common Crawl, and thankfully, I had like 10 or $15,000 worth of AWS credits left over from the SmartLens project. And that's what really allowed me to do this, because there's no other funding. I was still in college, not a lot of money, and so I was able to spin up a bunch of instances and just process all of Common Crawl, which is massive. So it's roughly like, it's terabytes of text. I went to Alexa to get the top 1,000 websites or 10,000 websites in the world, then filtered only by those websites, and then indexed those websites, because the web pages were already included in Dump. [00:09:38]
+
+Swyx: You mean to supplement Common Crawl or to filter Common Crawl? [00:09:41]
+
+Michael: Filter Common Crawl. [00:09:42]
+
+Alessio: Oh, okay. [00:09:43]
+
+Michael: Yeah, sorry. So we filtered Common Crawl just by the top, I think, 10,000, just to limit this, because obviously there's this massive long tail of small sites that are really cool, actually. There's other projects like, shout out to Marginalia Nu, which is a search engine specialized on the long tail. I think they actually exclude the top 10,000. [00:10:03]
+
+Swyx: That's what they do. [00:10:04]
+
+Alessio: Yeah. [00:10:05]
+
+Swyx: I've seen them around, I just don't really know what their pitch is. Okay, that makes sense. [00:10:08]
+
+Michael: So they exclude all the top stuff. So the long tail is cool, but for this, that was kind of out of the question, and that was most of the data anyway. So we've removed that. And then I indexed the remaining approximately 350 million webpages through Elasticsearch. So I built this index running on AWS with these webpages, and it actually worked quite well. You can ask it general common knowledge, history, politics, current events, questions, and it would be able to do a fast lookup in the index, feed it into the model, and it would give a surprisingly good result. And so when I saw that, I thought that this is definitely doable. And it kind of shocked me that no one else was doing this. And so this was now the fall of 2020. And yeah, I was kind of shocked no one was doing this, but it costs a lot of money to keep it up. I was still in college. There are things going on. I got bogged down by classes. And so I ended up shelving this for almost a full year, actually. When I returned to it in fall of 2021, when BigScience released T0, when BigScience released the T0 models, that was a massive jump in the reasoning ability of the model. And it was better at reasoning, it was better at summarization, it was still a glorified summarizer basically. [00:11:26]
+
+Swyx: Was this a precursor to Bloom? Because Bloom's the one that I know. [00:11:29]
+
+Alessio: Yeah. [00:11:30]
+
+Michael: Actually coming out in 2022. But Bloom had other problems where for whatever reason, the Bloom models just were never really that good, which is so sad because I really wanted to use them. But I think they didn't turn on that much data. I think they used like the original, they were trying to replicate GPT-3. So they just use those numbers, which we now know are like far below Chinchilla Optimal and even Chinchilla Optimal, which we can like talk about later, like what we're currently doing with MIMO goes, yeah, it goes way beyond that. But they weren't trying enough data. I'm not sure how that data was clean, but it probably wasn't super clean. And then they didn't really do any fine tuning until much later. So T0 worked well because they took the T5 models, which were closer to Chinchilla Optimal because I think they were trained on also like 300 something billion tokens, similar to GPT-3, but the models were much smaller. I think T0 is the first model that did large scale instruction tuning from diverse data sources in the fall of 2021. This is before Instruct GPT. This is before Flan T5, which came out in 2022. This is the very, very first, at least well-known example of that. And so it came out and then I did, on top of T0, I also did the Reddit Eli5 fine tune. And that was the first model and system that actually worked well enough to where I didn't get discouraged like I did previously, because the failure cases of the BART based system was so egregious. Sometimes it would just miss a question so horribly that it was just extremely discouraging. But for the first time, it was working reasonably well. Also using a much bigger model. I think the BART model is like 800 million parameters, but T0, we were using 3B. So it was T0, 3B, bigger model. And that was the very first iteration of Hello. So I ended up doing a show HN on Hacker News in January 2022 of that system. Our fine tune T0 model connected to our Elasticsearch index of those 350 million top 10,000 common crawl websites. And to the best of my knowledge, I think that's the first example that I'm aware of a LLM search engine model that's effectively connected to like a large enough index that I consider like an internet scale. So I think we were the first to release like an internet scale LLM powered rag search system In January 2022, around the time me and my future co-founder, Justin, we were like, this seems like the future. [00:14:02]
+
+Alessio: This is really cool. [00:14:03]
+
+Michael: I couldn't really sleep even like I was going to bed and I was like, I was thinking about it. Like I would say up until like 2.30 AM, like reading papers on my phone in bed, go to sleep, wake up the next morning at like eight and just be super excited to keep working. And I was also doing my thesis at the same time, my senior honors thesis at UT Austin about something very similar. We were researching factuality in abstractive question answering systems. So a lot of overlap with this project and the conclusions of my research actually kind of helped guide the development path of Hello. In the research, we found that LLMs, they don't know what they don't know. So the conclusion was, is that you always have to do a search to ensure that the model actually knows what it's talking about. And my favorite example of this even today is kind of with chat GPT browsing, where you can ask chat GPT browsing, how do I run llama.cpp? And chat GPT browsing will think that llama.cpp is some file on your computer that you can just compile with GCC and you're all good. It won't even bother doing a lookup, even though I'm sure somewhere in their internal prompts they have something like, if you're not sure, do a lookup. [00:15:13]
+
+Alessio: That's not good enough. So models don't know what they don't know. [00:15:15]
+
+Michael: You always have to do a search. And so we approached LLM powered question answering from the search angle. We pivoted to make this for programmers in June of 2022, around the time that we were getting into YC. We realized that what we're really interested in is the case where the models actually have to think. Because up until then, the models were kind of more glorified summarization models. We really thought of them like the Google featured snippets, but on steroids. And so we saw a future where the simpler questions would get commoditized. And I still think that's going to happen with like Google SGE and like it's nowadays, it's really not that hard to answer the more basic kind of like summarization, like current events questions with lightweight models that'll only continue to get cheaper over time. And so we kind of started thinking about this trade off where LLM models are going to get both better and cheaper over time. And that's going to force people who run them to make a choice. Either you can run a model of the same intelligence that you could previously for cheaper, or you can run a better model for the same price. So someone like Google, once the price kind of falls low enough, they're going to deploy and they're already doing this with SGE, they're going to deploy a relatively basic glorified summarizer model that can answer very basic questions about like current events, who won the Super Bowl, like, you know, what's going on on Capitol Hill, like those types of things. The flip side of that is like more complex questions where like you have to reason and you have to solve problems and like debug code. And we realized like we're much more interested in kind of going along the bleeding edge of that frontier case. And so we've optimized everything that we do for that. And that's a big reason of why we've built Phind specifically for programmers, as opposed to saying like, you know, we're kind of a search engine for everyone because as these models get more capable, we're very interested in seeing kind of what the emergent properties are in terms of reasoning, in terms of being able to solve complex multi-step problems. And I think that some of those emerging capabilities like we're starting to see, but we don't even fully understand. So I think there's always an opportunity for us to become more general if we wanted, but we've been along this path of like, what is the best, most advanced reasoning engine that's connected to your code base, that's connected to the internet that we can just provide. [00:17:39]
+
+Alessio: What is Phind today, pragmatically, from a product perspective, how do people interact with it? Yeah. Or does it plug into your workflow? [00:17:46]
+
+Michael: Yeah. [00:17:47]
+
+Alessio: So Phind is really a system. [00:17:48]
+
+Michael: Phind is a system for programmers when they have a question or when they're frustrated or when something's not working. [00:17:54]
+
+Swyx: When they're frustrated. [00:17:55]
+
+Alessio: Yeah. [00:17:56]
+
+Michael: For them to get on block. I think like the single, the most abstract page for Phind is like, if you're experiencing really any kind of issue as a programmer, we'll solve that issue for you in 15 seconds as opposed to 15 minutes or longer. Phind has an interface on the web. It has an interface in VS code and more IDEs to come, but ultimately it's just a system where a developer can paste in a question or paste in code that's not working and Phind will do a search on the internet or they will find other code in your code base perhaps that's relevant. And then we'll find the context that it needs to answer your question and then feed it to a reasoning engine powerful enough to actually answer it. So that's really the philosophy behind Phind. It's a system for getting developers the answers that they're looking for. And so right now from a product perspective, this means that we're really all about getting the right context. So the VS code extension that we launched recently is a big part of this because you can just ask a question and it knows where to find the right code context in your code. It can do an internet search as well. So it's up to date and it's not just reliant on what the model knows and it's able to figure out what it needs by itself and answer your question based on that. If it needs some help, you can also get yourself kind of just, there's opportunities for you yourself to put in all that context in. But the issue is also like not everyone wants these VS code. Some people like are real Neovim sticklers or they're using like PyCharm or other IDEs, JetBrains. And so for those people, they're actually like okay with switching tabs, at least for now, if it means them getting their answer. Because really like there's been an explosion of all these like startups doing code, doing search, etc. But really who everyone's competing with is ChatGPT, which only has like that one web interface. Like ChatGPT is really the bar. And so that's what we're up against. [00:19:50]
+
+Alessio: And so your idea, you know, we have Amman from Cursor on the podcast and they've gone through the we need to own the IDE thing. Yours is more like in order to get the right answer, people are happy to like go somewhere else basically. They're happy to get out of their IDE. [00:20:05]
+
+Michael: That was a great podcast, by the way. But yeah, so part of it is that people sometimes perhaps aren't even in an IDE. So like the whole task of software engineering goes way beyond just running code, right? There's also like a design stage. There's a planning stage. A lot of this happens like on whiteboards. It happens in notebooks. And so the web part also exists for that where you're not even coding it and you're just trying to get like a more conceptual understanding of what you're trying to build first. The podcast with Amman was great, but somewhere where I disagree with him is that you need to own the IDE. I think like he made some good points about not having platform risk in the long term. But some of the features that were mentioned like suggesting diffs, for example, those are all doable with an extension. We haven't yet seen with VS Code in particular any functionality that we'd like to do yet in the IDE that we can't either do through directly supported VS Code functionality or something that we kind of hack into there, which we've also done a fair bit of. And so I think it remains to be seen where that goes. But I think what we're looking to be is like we're not trying to just be in an IDE or be an IDE. Like Phind is a system that goes beyond the IDE and like is really meant to cover the entire lifecycle of a developer's thought process in going about like, hey, like I have this idea and I want to get from that idea to a working product. And so then that's what the long term vision of Phind is really about is starting with that. In the future, I think programming is just going to be really just the problem solving. Like you come up with an idea, you come up with like the basic design for the algorithm in your head, and you just tell the AI, hey, just like just do it, just make it work. And that's what we're building towards. [00:21:51]
+
+Swyx: I think we might want to give people an impression about like type of traffic that you have, because when you present it with a text box, you could type in anything. And I don't know if you have some mental categorization of like what are like the top three use cases that people tend to coalesce around. [00:22:08]
+
+Alessio: Yeah, that's a great question. [00:22:09]
+
+Michael: The two main types of searches that we see are how-to questions, like how to do X using Y tool. And this historically has been our bread and butter, because with our embeddings, like we're really, really good at just going over a bunch of developer documentation and figuring out exactly the part that's relevant and just telling you, OK, like you can use this method. But as LLMs have gotten better, and as we've really transitioned to using GPT-4 a lot in our product, people organically just started pasting in code that's not working and just said, fix it for me. [00:22:42]
+
+Swyx: Fix this. [00:22:43]
+
+Alessio: Yeah. [00:22:44]
+
+Michael: And what really shocks us is that a lot of the people who do that, they're coming from chat GPT. So they tried it in chat GPT with chat GPT-4. It didn't work. Maybe it required like some multi-step reasoning. Maybe it required some internet context or something found in either a Stack Overflow post or some documentation to solve it. And so then they paste it into find and then find works. So those are really those two different cases. Like, how can I build this conceptually or like remind me of this one detail that I need to build this thing? Or just like, here's this code. Fix it. And so that's what a big part of our VS Code extension is, is like enabling a much smoother here just like fix it for me type of workflow. That's really its main benefits. Like it's in your code base. It's in the IDE. It knows how to find the relevant context to answer that question. But at the end of the day, like I said previously, that's still a relatively, not to say it's a small part, but it's a limited part of the entire mental life cycle of a programmer. [00:23:47]
+
+Swyx: Yep. So you launched in Feb and then you launched V2 in August. You had a couple other pretty impactful posts slash feature launches. The web search one was massive. So you were mostly a GPT-4 wrapper. We were for a long time. [00:24:03]
+
+Michael: For a long time until recently. Yeah. [00:24:05]
+
+Alessio: Until recently. [00:24:06]
+
+Swyx: So like people coming over from ChatGPT were saying, we're going to say model with your version of web search. Would that be the primary value proposition? [00:24:13]
+
+Michael: Basically yeah. And so what we've seen is that any model plus web search is just significantly better than [00:24:18]
+
+Alessio: that model itself. Do you think that's what you got right in April? [00:24:21]
+
+Swyx: Like so you got 1500 points on Hacking News in April, which is like, if you live on Hacking News a lot, that is unheard of for someone so early on in your journey. [00:24:31]
+
+Alessio: Yeah. [00:24:32]
+
+Michael: We're super, super grateful for that. Definitely was not expecting it. So what we've done with Hacker News is we've just kept launching. [00:24:38]
+
+Alessio: Yeah. [00:24:39]
+
+Michael: Like what they don't tell you is that you can just keep launching. That's what we've been doing. So we launched the very first version of Find in its current incarnation after like the previous demo connected to our own index. Like once we got into YC, we scrapped our own index because it was too cumbersome at the time. So we moved over to using Bing as kind of just the raw source data. We launched as Hello Cognition. Over time, every time we like added some intelligence to the product, a better model, we just keep launching. And every additional time we launched, we got way more traffic. So we actually silently rebranded to Find in late December of last year. But like we didn't have that much traffic. Nobody really knew who we were. [00:25:18]
+
+Swyx: How'd you pick the name out of it? [00:25:19]
+
+Michael: Paul Graham actually picked it for us. [00:25:21]
+
+Swyx: All right. [00:25:22]
+
+Alessio: Tell the story. Yeah. So, oh boy. [00:25:25]
+
+Michael: So this is the biggest side. Should we go for like the full Paul Graham story or just the name? [00:25:29]
+
+Swyx: Do you want to do it now? Or do you want to do it later? I'll give you a choice. [00:25:32]
+
+Alessio: Hmm. [00:25:33]
+
+Michael: I think, okay, let's just start with the name for now and then we can do the full Paul Graham story later. But basically, Paul Graham, when we were lucky enough to meet him, he saw our name and our domain was at the time, sayhello.so and he's just like, guys, like, come on, like, what is this? You know? And we were like, yeah, but like when we bought it, you know, we just kind of broke college students. Like we didn't have that much money. And like, we really liked hello as a name because it was the first like conversational search engine. And that's kind of, that's the angle that we were approaching it from. And so we had sayhello.so and he's like, there's so many problems with that. Like, like, like the say hello, like, what does that even mean? And like .so, like, it's gotta be like a .com. And so we did some time just like with Paul Graham in the room. We just like looked at different domain names, like different things that like popped into our head. And one of the things that popped into like Paul Graham said was fine with the Phind spelling in particular. [00:26:33]
+
+Swyx: Yeah. Which is not typical naming advice, right? Yes. Because it's not when people hear it, they don't spell it that way. [00:26:38]
+
+Michael: Exactly. It's hard to spell. And also it's like very 90s. And so at first, like, we didn't like, I was like, like, ah, like, I don't know. But over time it kept growing on us. And eventually we're like, okay, we like the name. It's owned by this elderly Canadian gentleman who we got to know, and he was willing to sell it to us. [00:26:57]
+
+Michael: And so we bought it and we changed the name. Yeah. [00:27:01]
+
+Swyx: Anyways, where were you? [00:27:02]
+
+Alessio: I had to ask. [00:27:03]
+
+Swyx: I mean, you know, everyone who looks at you is wondering. [00:27:06]
+
+Michael: And a lot of people actually pronounce it Phind, which, you know, by now it's part of the game. But eventually we want to buy Phind.com and then just have that redirect to Phind. So Phind is like definitely the right spelling. But like, we'll just, yeah, we'll have all the cases addressed. [00:27:23]
+
+Swyx: Cool. So Bing web search, and then August you launched V2. Is V2 the Phind as a system pitch? Or have you moved, evolved since then? [00:27:31]
+
+Michael: Yeah, so I don't, like the V2 moniker, like, I don't really think of it that way in my mind. There's like, there's the version we launched during, last summer during YC, which was the Bing version directed towards programmers. And that's kind of like, that's why I call it like the first incarnation of what we currently are. Because it was already directed towards programmers. We had like a code snippet search built in as well, because at the time, you know, the models we were using weren't good enough to generate code snippets. Even GPT, like the text DaVinci 2 was available at the time, wasn't that good at generating code and it would generate like very, very short, very incomplete code snippets. And so we launched that last summer, got some traction, but really like we were only doing like, I don't know, maybe like 10,000 searches a day. [00:28:15]
+
+Alessio: Some people knew about it. [00:28:16]
+
+Michael: Some people used it, which is impressive because looking back, the product like was not that good. And every time we've like made an improvement to the way that we retrieve context through better embeddings, more intelligent, like HTML parsers, and importantly, like better underlying models. Every major version after that was when we introduced a better underlying answering model. Like in February, we had to swallow a bit of our pride when we were like, okay, our own models aren't good enough. We have to go to open AI. And actually that did lead to kind of like our first decent bump of traffic in February. And people kept using it, like our attention was way better too. But we were still kind of running into problems of like more advanced reasoning. Some people tried it, but people were leaving because even like GPT 3.5, both turbo and non-turbo, like still not that great at doing like code related reasoning beyond the how do you do X, like documentation search type of use case. And so it was really only when GPT 4 came around in April that we were like, okay, like this is like our first real opportunity to really make this thing like the way that it should have been all along. And having GPT 4 as the brain is what led to that Hacker News post. And so what we did was we just let anyone use GPT 4 on Fyne for free without a login, [00:29:43]
+
+Alessio: which I actually don't regret. [00:29:45]
+
+Michael: So it was very expensive, obviously. But like at that stage, all we needed to do was show like, we just needed to like show people here's what Fyne can do. That was the main thing. And so that worked. That worked. [00:29:58]
+
+Alessio: Like we got a lot of users. [00:29:59]
+
+Michael: Do you know Fireship? [00:30:01]
+
+Swyx: Yeah. YouTube, Jeff Delaney. [00:30:03]
+
+Michael: Yeah. He made a short about Fyne. [00:30:06]
+
+Alessio: Oh. [00:30:07]
+
+Michael: And that's on top of the Hacker News post. And that's what like really, really made it blow up. It got millions of views in days. And he's just funny. Like what I love about Fireship is like he like you guys, yeah, like humor goes a long a long way towards like really grabbing people's attention. And so that blew up. [00:30:25]
+
+Swyx: Something I would be anxious about as a founder during that period, so obviously we all remember that pretty closely. So there were a couple of people who had access to the GPT-4 API doing this, which is unrestricted access to GPT-4. And I have to imagine OpenAI wasn't that happy about that because it was like kind of de facto access to GPT-4 before they released it. [00:30:46]
+
+Alessio: No, no. [00:30:47]
+
+Michael: GPT-4 was in chat GPT from day one. I think. OpenAI actually came to our support because what happened was we had people building unofficial APIs around to try to get free access to it. And I think OpenAI actually has the right perspective on this where they're like, OK, people can do whatever they want with the API if they're paying for it, like they can do whatever they want, but it's like not OK if, you know, paying customers are being exploite by these other actors. They actually got in touch with us and they helped us like set up better Cloudflare bot monitoring controls to effectively like crack down on those unofficial APIs, which we're very happy about. But yeah, so we launched GPT-4. A lot of people come to the product and yeah, for a long time, we're just we're figuring out like what do we make of this, right? How do we a make it better, but also deal with like our costs, which have just like massively, massively ballooned. Over time, it's become more clear with the release of Llama 2 and Llama 3 on the horizon that we will once again see a return to vertical applications running their own models. As was true last year and before, I think that GPT-4, my hypothesis is that the jump from 4 to 4.5 or 4 to 5 will be smaller than the jump from 3 to 4. And the reason why is because there were a lot of different things. Like there was two plus, effectively two, two and a half years of research that went into going from 3 to 4. Like more data, bigger model, all of the instruction tuning techniques, RLHF, all of that is known. And like Meta, for example, and now there's all these other startups like Mistral too, like there's a bunch of very well-funded open source players that are now working on just like taking the recipe that's now known and scaling it up. So I think that even if a delta exists, the delta between in 2024, the delta between proprietary and open source won't be large enough that a startup like us with a lot of data that we've collected can take the data that we have, fine tune an open source model, and like be able to have it be better than whatever the proprietary model is at the time. That's my hypothesis.
+
+Michael: But we'll once again see a return to these verticalized models. And that's something that we're super excited about because, yeah, that brings us to kind of the fine model because the plan from kind of the start was to be able to return to that if that makes sense. And I think now we're definitely at a point where it does make sense because we have requests from users who like, they want longer context in the model, basically, like they want to be able to ask questions about their entire code base without, you know, context and retrieval and taking a chance of that. Like, I think it's generally been shown that if you have the space to just put the raw files inside of a big context window, that is still better than chunking and retrieval. So there's various things that we could do with longer context, faster speed, lower cost. Super excited about that. And that's the direction that we're going with the fine model. And our big hypothesis there is precisely that we can take a really good open source model and then just train it on absolutely all of the high quality data that we can find. And there's a lot of various, you know, interesting ideas for this. We have our own techniques that we're kind of playing with internally. One of the very interesting ideas that I've seen, I think it's called Octopack from BigCode. I don't think that it made that big waves when it came out, I think in August. But the idea is that they have this data set that maps GitHub commits to a change. So basically there's all this really high quality, like human made, human written diff data out there on every time someone makes a commit in some repo. And you can use that to train models. Take the file state before and like given a commit message, what should that code look like in the future? [00:34:52]
+
+Swyx: Got it. [00:34:53]
+
+Alessio: Do you think your HumanEval is any good?
+
+Michael: So we ran this experiment. We trained the Phind model. And if you go to the BigCode leaderboard, as of today, October 5th, all of our models are at the top of the BigCode leaderboard by far. It's not close, particularly in languages other than Python. We have a 10 point gap between us and the next best model on JavaScript. I think C sharp, multilingual. And what we kind of learned from that whole experience releasing those models is that human eval doesn't really matter. Not just that, but GPT-4 itself has been trained on human eval. And we know this because GPT-4 is able to predict the exact docstring in many of the problems. I've seen it predict like the specific example values in the docstring, which is extremely improbable. So I think there's a lot of dataset contamination and it only captures a very limited subset of what programmers are actually doing. What we do internally for evaluations are we have GPT-4 score answers. GPT-4 is a really good evaluator. I mean, obviously it's by really good, I mean, it's the best that we have. I'm sure that, you know, a couple of months from now, next year, we'll be like, oh, you know, like GPT-4.5, GPT-5, it's so much better. Like GPT-4 is terrible, but like right now it's the best that we have short of humans. And what we found is that when doing like temperature zero evals, it's actually mostly deterministic GPT-4 across runs in assigning scores to two different answers. So we found it to be a very useful tool in comparing our model to say, GPT-4, but yeah, on our like internal real world, here's what people will be asking this model dataset. And the other thing that we're running is just like releasing the model to our users and just seeing what they think. Because that's like the only thing that really matters is like releasing it for the application that it's intended for, and then seeing how people react. And for the most part, the incredible thing is, is that people don't notice a difference between our model and GPT-4 for the vast majority of searches. There's some reasoning problems that GPT-4 can still do better. We're working on addressing that. But in terms of like the types of questions that people are asking on find, there's not that much difference. And in fact, I've been running my own kind of side by side comparisons, shout out to GodMode, by the way. [00:37:16]
+
+Michael: And I've like myself, I've kind of confirmed this to be the case. And even sometimes it gives a better answer, perhaps like more concise or just like better implementation than GPT-4, which that's what surprises me. And by now we kind of have like this reasoning is all you need kind of hypothesis where we've seen emerging capabilities in the find model, whereby training it on high quality code, it can actually like reason better. It went from not being able to solve world problems, where riddles were like with like temporal placement of objects and moving and stuff like that, that GPT-4 can do pretty well. We went from not being able to do those at all to being able to do them just by training on more code, which is wild. So we're already like starting to see like these emerging capabilities. [00:37:59]
+
+Swyx: So I just wanted to make sure that we have the, I guess, like the model card in our heads. So you started from Code Llama? [00:38:07]
+
+Alessio: Yes. [00:38:08]
+
+Swyx: 65, 34? 34. [00:38:10]
+
+Michael: So unfortunately, there's no Code Llama 70b. If there was, that would be super cool. But there's not. [00:38:15]
+
+Swyx: 34. And then, which in itself was Llama 2, which is on 2 trillion tokens and the added 500 billion code tokens. Yes. [00:38:22]
+
+Michael: And you just added a bunch more. [00:38:23]
+
+Alessio: Yeah. [00:38:24]
+
+Michael: And they also did a couple of things. So they did, I think they did 500 billion, like general pre-training and then they did an extra 20 billion long context pre-training. So they actually increased the like max position tokens to 16k up from 8k. And then they changed the theta parameter for the ROPE embeddings as well to give it theoretically better long context support up to 100k tokens. But yeah, but otherwise it's like basically Llama 2. [00:38:50]
+
+Swyx: And so you just took that and just added data. [00:38:52]
+
+Michael: Exactly. [00:38:53]
+
+Swyx: You didn't do any other fundamental. [00:38:54]
+
+Michael: Yeah. So we didn't actually, we haven't yet done anything with the model architecture and we just trained it on like many, many more billions of tokens on our own infrastructure. And something else that we're taking a look at now is using reinforcement learning for correctness. One of the interesting pitfalls that we've noticed with the Phind model is that in cases where it gets stuff wrong, it sometimes is capable of getting the right answer. It's just, there's a big variance problem. It's wildly inconsistent. There are cases when it is able to get the right chain of thought and able to arrive [00:39:25]
+
+Alessio: at the right answer, but not always. [00:39:27]
+
+Michael: And so like one of our hypotheses is something that we're going to try is that like we can actually do reinforcement learning on, for a given problem, generate a bunch of completions and then like use the correct answer as like a loss basically to try to get it to be more correct. And I think there's a high chance I think of this working because it's very similar to the like RLHF method where you basically show pairs of completions for a given question except the criteria is like which one is like less harmful. But here we have a different criteria. But if the model is already capable of getting the right answer, which it is, we're just, we just need to cajole it into being more consistent. [00:40:06]
+
+Alessio: There were a couple of things that I noticed in the product that were not strange but unique. So first of all, the model can talk multiple times in a row, like most other applications is like human model, human model. And then you had outside of the thumbs up, thumbs down, you have things like have DLLM prioritize this message and its answers or then continue from this message to like go back. How does that change the flow of the user and like in terms of like prompting it, yeah, what are like some tricks or learnings you've had? [00:40:37]
+
+Michael: So yeah, that's specifically in our pair programmer mode, which is a more conversational mode that also like asks you clarifying questions back if it doesn't fully understand what you're doing and it kind of it holds your hand a bit more. And so from user feedback, we had requests to make more of an auto GPT where you can kind of give it this problem that might take multiple searches or multiple different steps like multiple reasoning steps to solve. And so that's the impetus behind building that product. Being able to do multiple steps and also be able to handle really long conversations. Like people are really trying to use the pair programmer to go from like sometimes really from like basic idea to like complete working code. And so we noticed was is that we were having like these very, very long threads, sometimes with like 60 messages, like 100 messages. And like those become really, really challenging to manage the appropriate context window of what should go inside of the context and how to preserve the context so that the model can continue or the product can continue giving good responses, even if you're like 60 messages deep in a conversation. So that's where the prioritized user messages like comes from. It's like people have asked us to just like let them pin messages that they want to be left in the conversation. And yeah, and then that seems to have like really gone a long way towards solving that problem, yeah. [00:41:54]
+
+Alessio: And then you have a run on Replit thing. Are you planning to build your own repl? Like learning some people trying to run the wrong code, unsafe code? [00:42:03]
+
+Michael: Yes. Yes. So I think like in the long term vision of like being a place where people can go from like idea to like fully working code, having a code sandbox, like a natively integrated code sandbox makes a lot of sense. And replit is great and people use that feature. But yeah, I think there's more we can do in terms of like having something a bit closer to code interpreter where it's able to run the code and then like recursively iterate on it. Exactly. [00:42:31]
+
+Swyx: So you're working on APIs to enable you to do that? Yep. So Amjad has specifically told me in person that he wants to enable that for people at the same time. He's also working on his own models, and Ghostwriter and you know, all the other stuff. So it's going to get interesting. Like he wants to power you, but also compete with you. Yeah. [00:42:47]
+
+Michael: And like, and we love replit. I think that a lot of the companies in our space, like we're all going to converge to solving a very similar problem, but from a different angle. So like replit approaches this problem from the IDE side. Like they started as like this IDE that you can run in the browser. And they started from that side, making coding just like more accessible. And we're approaching it from the side of like an LLM that's just like connected to everything that it needs to be connected to, which includes your code context. So that's why we're kind of making inroads into IDEs, but we're kind of, we're approaching this problem from different sides. And I think it'll be interesting to see where things end up. But I think that in the long, long term, we have an opportunity to also just have like this general technical reasoning engine product that's potentially also not just for, not just for programmers. It's also powered in this web interface, like where there's potential, I think other things that we will build that eventually might go beyond like our current scope. [00:43:49]
+
+Swyx: Exciting. We'll look forward to that. We're going to zoom out a little bit into sort of AI ecosystem stories, but first we got to get the Paul Graham, Ron Conway story. [00:43:59]
+
+Alessio: Yeah. [00:44:00]
+
+Michael: So flashback to last summer, we're in the YC batch. We're doing the summer batch, summer 22. So the summer batch runs from June to September, approximately. And so this was late July, early August, right around the time that many like YC startups start like going out, like during up, here's how we're going to pitch investors and everything. And at the same time, me and my co-founder, Justin, we were planning on moving to New York. So for a long time, actually, we were thinking about building this company in New York, mainly for personal reasons, actually, because like during the pandemic, pre-ChatGPT, pre last year, pre the AI boom, SF unfortunately really kind of, you know, like lost its luster. Yeah. Like no one was here. It was far from clear, like if there would be an AI boom, if like SF would be like... [00:44:49]
+
+Alessio: Back. [00:44:50]
+
+Michael: Yeah, exactly. Back. As everyone is saying these days, it was far from clear. And so, and all of our friends, we were graduating college because like we happened to just graduate college and immediately start YC, like we didn't even have, I think we had a week in between. [00:45:06]
+
+Swyx: You didn't bother looking for jobs. You were just like, this is what we want to do. [00:45:08]
+
+Michael: Well, actually both me and my co-founder, we had jobs that we secured in 2021 from previous internships, but we both, funny enough, when I spoke to my boss's boss at the company at where I reneged my offer, I told him we got into YC, they actually said, yeah, you should do YC. [00:45:27]
+
+Swyx: Wow. [00:45:28]
+
+Alessio: That's very selfless. [00:45:29]
+
+Swyx: That was really great that they did that. But in San Francisco, they would have offered to invest as well. [00:45:33]
+
+Michael: Yes, they would have. But yeah, but we were both planning to be in New York and all of our friends were there from college at this point, like we have this whole plan where like on August 1st, we're going to move to New York and we had like this Airbnb for the month of New York. We're going to stay there and we're going to work and like all of that. The day before we go to New York, I called Justin and I just, I tell him like, why are we doing this? Because in our batch, by the time August 1st rolled around, all of our mentors at YC were saying like, hey, like you should really consider staying in SF. [00:46:03]
+
+Swyx: It's the hybrid batch, right? [00:46:04]
+
+Michael: Yeah, it was the hybrid batch, but like there were already signs that like something was kind of like afoot in SF, even if like we didn't fully want to admit it yet. And so we were like, I don't know, I don't know. Something kind of clicked when the rubber met the road and it was time to go to New York. We're like, why are we doing this? And like, we didn't have any good reasons for staying in New York at that point beyond like our friends are there. So we still go to New York because like we have the Airbnb, like we don't have any other kind of place to go for the next few weeks. We're in New York and New York is just unfortunately too much fun. Like all of my other friends from college who are just, you know, basically starting their jobs, starting their lives as adults. They just stepped into these jobs, they're making all this money and they're like partying and like all these things are happening. And like, yeah, it's just a very distracting place to be. And so we were just like sitting in this like small, you know, like cramped apartment, terrible posture, trying to get as much work done as we can, too many distractions. And then we get this email from YC saying that Paul Graham is in town in SF and he is doing office hours with a certain number of startups in the current batch. And whoever signs up first gets it. And I happen to be super lucky. I was about to go for a run, but I just, I saw the email notification come across the street. I immediately clicked on the link and like immediately, like half the spots were gone, but somehow the very last spot was still available. And so I picked the very, very last time slot at 7 p.m. semi-strategically, you know, so we would have like time to go over. And also because I didn't really know how we're going to get to SF yet. And so we made a plan that we're going to fly from New York to SF and back to New York in one day and do like the full round trip. And we're going to meet with PG at the YC Mountain View office. And so we go there, we do that, we meet PG, we tell him about the startup. And one thing I love about PG is that he gets like, he gets so excited. Like when he gets excited about something, like you can see his eyes like really light up. And he'll just start asking you questions. In fact, it's a little challenging sometimes to like finish kind of like the rest of like the description of your pitch because like, he'll just like asking all these questions about how it works. And I'm like, you know, what's going on? [00:48:19]
+
+Swyx: What was the most challenging question that he asked you? [00:48:21]
+
+Michael: I think that like really how it worked. Because like as soon as like we told him like, hey, like we think that the future of search is answers, not links. Like we could really see like the gears turning in his head. I think we were like the first demo of that. [00:48:35]
+
+Swyx: And you're like 10 minutes with him, right? [00:48:37]
+
+Michael: We had like 45, yeah, we had a decent chunk of time. And so we tell him how it works. Like he's very excited about it. And I just like, I just blurted out, I just like asked him to invest and he hasn't even seen the product yet. We just asked him to invest and he says, yeah. And like, we're super excited about that. [00:48:55]
+
+Swyx: You haven't started your batch. [00:48:56]
+
+Michael: No, no, no. This is about halfway through the batch or two, two, no, two thirds of the batch. [00:49:02]
+
+Swyx: And you're like not technically fundraising yet. We're about to start fundraising. Yeah. [00:49:06]
+
+Michael: So we have like this demo and like we showed him and like there was still a lot of issues with the product, but I think like it must have like still kind of like blown his mind in some way. So like we're having fun. He's having fun. We have this dinner planned with this other friend that we had in SF because we were only there for that one day. So we thought, okay, you know, after an hour we'll be done, you know, we'll grab dinner with our friend and we'll fly back to New York. But PG was like, like, I'm having so much fun. Do you want to have dinner? Yeah. Come to my house. Or he's like, I gotta go have dinner with my wife, Jessica, who's also awesome, by the way. [00:49:40]
+
+Swyx: She's like the heart of YC. Yeah. [00:49:42]
+
+Michael: Jessica does not get enough credit as an aside for her role. [00:49:46]
+
+Swyx: He tries. [00:49:47]
+
+Michael: He understands like the technical side and she understands people and together they're just like a phenomenal team. But he's like, yeah, I got to go see Jessica, but you guys are welcome to come with. Do you want to come with? And we're like, we have this friend who's like right now outside of like literally outside the door who like we also promised to get dinner with. It's like, we'd love to, but like, I don't know if we can. He's like, oh, he's welcome to come too. So all of us just like hop in his car and we go to his house and we just like have this like we have dinner and we have this just chat about the future of search. Like I remember him telling Jessica distinctly, like our kids as kids are not going to know what like a search result is. Like they're just going to like have answers. That was really like a mind blowing, like inflection point moment for sure. [00:50:34]
+
+Swyx: Wow, that email changed your life. [00:50:35]
+
+Michael: Absolutely. [00:50:36]
+
+Swyx: And you also just spoiled the booking system for PG because now everyone's just going to go after the last slot. Oh man. [00:50:42]
+
+Michael: Yeah. But like, I don't know if he even does that anymore. [00:50:46]
+
+Swyx: He does. He does. Yeah. I've met other founders that he did it this year. [00:50:49]
+
+Michael: This year. Gotcha. But when we told him about how we did it, he was like, I am like frankly shocked that YC just did like a random like scheduling system. [00:50:55]
+
+Alessio: They didn't like do anything else. But, um. [00:50:58]
+
+Swyx: Okay. And then he introduces Duron Conway. Yes. Who is one of the most legendary angels in Silicon Valley. [00:51:04]
+
+Michael: Yes.So after PG invested, the rest of our round came together pretty quickly. [00:51:10]
+
+Swyx: I'm, by the way, I'm surprised. Like it's, it might feel like playing favorites right within the current batch to be like, yo, PG invested in this one. Right. [00:51:17]
+
+Alessio: Too bad for the others. [00:51:18]
+
+Swyx: Too bad for the others, I guess. [00:51:19]
+
+Michael: I think this is a bigger point about YC and like these accelerators in general is like YC gets like a lot of criticism from founders who feel like they didn't get value out of it. But like, in my view, YC is what you make of it. And YC tells you this. They're like, you really got to grab this opportunity, like buy the balls and make the most of it. And if you do, then it could be the best thing in the world. And if you don't, and if you're just kind of like a passive, even like an average founder in YC, you're still going to fail. And they tell you that. They're like, if you're average in your batch, you're going to fail. Like you have to just be exceptional in every way. With that in mind, perhaps that's even part of the reason why we asked PG to invest. And so yeah, after PG invested, the rest of our round came together pretty quickly, which I'm very fortunate for. And yeah, he introduced us to Ron. And after he did, I get a call from Ron. And then Ron says like, hey, like PG tells me what you're working on. I'd love to come meet you guys. And I'm like, wait, no way. And then we're just holed up in this like little house in San Mateo, which is a little small, but you know, it had a nice patio. In fact, we had like a monitor set up outside on the deck out there. And so Ron Conway comes over, we go over to the patio where like our workstation is. And Ron Conway, he's known for having like this notebook that he goes around with where he like sits down with the notebook and like takes very, very detailed notes. So he never like forgets anything. So he sits down with his notebook and he asks us like, hey guys, like, what do you need? And we're like, oh, we need GPUs. Back then, the GPU shortage wasn't even nearly as bad as it is now. But like even then, it was still challenging to get like the quota that we needed. And he's like, okay, no problem. And then like he leaves a couple hours later, we get an email and we're CC'd on an email that Ron wrote to Jensen, the CEO of Nvidia, saying like, hey, these guys need GPUs. [00:53:02]
+
+Swyx: You didn't say how much? It was just like, just give them GPUs. [00:53:04]
+
+Alessio: Basically, yeah. [00:53:05]
+
+Michael: Ron is known for writing these like one-liner emails that are like very short, but very to the point. And I think that's why like everyone responds to Ron. Everyone loves Ron. And so Jensen responds. He responds quickly, like tagging this VP of AI at Nvidia. And we start working with Nvidia, which is great. And something that I love about Nvidia, by the way, is that after that intro, we got matched with like a dedicated team. And at Nvidia, they know that they're going to win regardless. So they don't care where you get the GPUs from. They're like, they're truly neutral, unlike various sales reps that you might encounter at various like clouds and, you know, hardware companies, et cetera. They actually just want to help you because they know they don't care. Like regardless, they know that if you're getting Nvidia GPUs, they're still winning. So I guess that's a tip is that like if you're looking for GPUs like Nvidia, they'll help you do it. [00:53:54]
+
+Swyx: So just to tie up this thing, because so first of all, that's a fantastic story. And I just wanted to let you tell that because it's special. That is a strategic shift, right? That you already decided to make by the time you met Ron, which is we are going to have our own hardware. We're going to rack him in a data center somewhere. [00:54:11]
+
+Michael: Well, not even that we need our own hardware because actually we don't. Right. But we just we just need GPUs, period. And like every cloud loves like they have their own sales tactics and like they want to make you commit to long terms and like very non-flexible terms. And like there's a web of different things that you kind of have to navigate. Nvidia will kind of be to the point like, OK, you can do this on this cloud, this on this cloud. Like this is your budget. Maybe you want to consider buying as well. Like they'll help you walk through what the options are. And the reason why they're helpful is because like they look at the full picture. So they'll help you with the hardware. And in terms of software, they actually implemented a custom feature for us in Faster Transformer, which is one of their libraries.
+
+Swyx: For you? [00:54:53]
+
+Michael: For us. Yeah. Which is wild. I don't think they would have done it otherwise. They implemented streaming generation for T5 based models, which we were running at the time up until we switched to GPT in February, March of this year. So they implemented that just for us, actually, in Faster Transformer. And so like they'll help you like look at the complete picture and then just help you get done what you need to get done. I know one of your interests is also local models, open source models and hardware kind of goes hand in hand.
+
+Alessio: Any fun projects, explorations in the space that you want to share with local llamas and stuff? [00:55:27]
+
+Michael: Yeah, it's something that we're very interested in because something that kind of we're hearing a lot about is like people want something like find, especially companies, but they want to have it like within like their own sandbox. They want to have it like on hardware that they control. And so I'm super, super interested in how we can get big models to run efficiently on local hardware. And so like Ollama is great. Llama CPP is great. Very interested in like where the quantization thing is going. Because like obviously there are all these like great quantization libraries now that go to 4-bit, 8-bit, but specifically int8 and int4. [00:56:04]
+
+Alessio: Which is the lowest it can go, right? [00:56:05]
+
+Swyx: Yeah. [00:56:06]
+
+Michael: So we have these great quantization libraries that for the most part are able to get the size down with not that much quality loss. But there is some like the quantized models currently are actually worse than the non-quantized ones. And so I'm very curious if the future is something like what NVIDIA is doing with their implementation of FP8, which they're implementing in their transformer engine library. Where basically once FP8 support is kind of more widespread and hardware can support it efficiently, you can kind of switch between the two different FP8 formats. One with greater precision, one with greater range. And then combine that with only not doing FP8 on every layer and doing like a mixed precision with like FP32 on some layers. And like NVIDIA claims that this strategy that they're kind of demoing with the H100 has no degradation. And so it remains to be seen whether that is really true in practice. But that's something that we're excited about and whether that can be applied to Macs and other hardware once they get FP8 support as well. [00:57:05]
+
+Alessio: Cool. [00:57:06]
+
+Swyx: One thing I wanted to do before we go into lightning round. Oh, we should also talk about hiring. How do you get your info? You seem self-taught. Yeah. [00:57:12]
+
+Michael: I've always just, well, I'm fortunate to have like a decent systems background from UT Austin. And somewhat of a research background, even though like I didn't publish any papers, but like I went through all the motions. Like I didn't publish the thesis that I wrote, mainly out of time because I was doing both of that and the startup at the same time. And then I graduated and then it was YC and then everything was kind of one after another. But like I'm very fortunate to kind of have like the systems and like a bit of like a research background. But for the most part, outside of that foundation, like I've always just, whenever I've been interested in something, I just like. [00:57:43]
+
+Swyx: Like give people tips, right? Like where do you, what fire hose do you drink from? Yeah, exactly. [00:57:48]
+
+Michael: So like whenever I see something that blows my mind, the way that that initial hugging face demo did, that was like the start of everything. I'll start from the beginning. If I don't know anything, I'll start by just trying to get a mental model of what is happening. Like first I need to understand what, so I can understand like the why, the how and the why. And once I can understand that, then I can make my own hypotheses about like, okay, here are the assumptions that the authors of this made. I mean, here's why maybe they're correct. Maybe they're wrong. And here's how like I can improve on it and iterate on it. And I guess that's the mindset that I approach it from is like, once I understand something, like how can it be better? How can it be faster? How can it be like more accurate? And so I guess for anyone starting now, like I would have used find if I was starting now. Cause like I would have loved to just have been able to say like, Hey, like I have no idea what I'm doing. Can you just like be this like technical research assistant and kind of hold my hand and like ask me clarifying questions and like help me like formalize my assumptions like along the way. I would have loved that. But yeah, I just kind of did that myself. [00:58:50]
+
+Swyx: Recording Looms of yourself using Phind actually would be pretty interesting. Yeah. Because I think you, you would use find differently than people would by themselves. [00:58:57]
+
+Michael: I think so. Yeah. I generally use Phind for everything, which is definitely, yeah, it's like, no, no, even like non-technical questions as well. Cause that's just something I'm curious about, but that's less of a usage pattern nowadays. Like most people generally for the most part do technical questions on find. And that is completely understandable because of very deliberate decisions that we've made in how we've optimized the product. Like we've optimized the product very much in a quality first manner as opposed to a like speed first or like some balance of the two matters. So we're like, we have to run GPT-4 or some GPT-4 equivalent by default. And like, and it has to give like a good answer to like a very demanding technical audience where people will leave. So that's just the trade off. So like sometimes it's, it's slower for like simple questions, but like we did that on purpose. [00:59:46]
+
+Alessio: So before we do a lightning round, call for hiring any roles you're looking for. What should people know about what can I find? Yeah. [00:59:55]
+
+Michael: So we really straddled the line between product and research I find. For the past little while, a lot of the work that we've done has been solely product. But we also do, especially now with the find model, a very particular kind of applied research in trying to apply the very latest techniques and techniques that might not, that have not even been proven yet to training the very, very best model for our vertical. And the two go hand in hand because the product, the UI, the UX is kind of model agnostic. But when it has a better kernel, as Andrej Karpathy put it, plugged into it, it gets so much better. So we're doing really kind of both at the same time. And so someone who enjoys seeing both of those sides, like doing something very tangible that affects the user, high quality, reliable code that runs in production, but also having that chance to experiment with building these models. Yeah, we'd love to talk to you. [01:00:50]
+
+Swyx: And the title is Applied AI Engineer. [01:00:52]
+
+Michael: I don't know what the title is. Like that is one title, but I don't know if this really exists because I feel like we're too rigid about like bucketing people into categories. [01:01:02]
+
+Swyx: Yeah, Founding Engineer is fine. [01:01:03]
+
+Michael: Yeah, well, we already have a Founding Engineer technically. [01:01:06]
+
+Swyx: Well, for what it's worth, OpenAI is adopting Applied AI Engineer. Really? So it's becoming a thing. We'll see. [01:01:12]
+
+Alessio: We'll see. Lightning round. Yeah, we have three questions, acceleration, exploration, and then a takeaway. So the acceleration one is what's something that already happened in AI that you thought would take much longer? [01:01:24]
+
+Michael: Yeah, the jump from these like models being glorified summarization models to actual powerful reasoning engines happened much faster than we thought because like our product itself transitioned from being kind of this glorified summarization product to now like mostly a reasoning heavy product. And we had no idea that this would happen this fast. Like we thought that there'd be a lot more time and like many more things that needed to happen before we could do some level of like intelligent reasoning on a low level about people's code. But it's already happened and it happened much faster than we could have thought. But I think that leads into your next point. [01:02:02]
+
+Alessio: Which is exploration. [01:02:04]
+
+Swyx: What do you think is the most interesting unsolved question in AI? [01:02:07]
+
+Michael: I think solving hallucinations, being able to guarantee that the answer will be correct is I think super interesting. And it's particularly relevant to us because like we operate in a space where like everything needs to be correct. Like the code, like not just the logic, but like the implementation, everything has to be completely correct. And there's a lot of very interesting work that's going on in this space. Some of it is approaching it from the angle of formal grammars. There's a very interesting paper that came out recently. I forget where it came out of, but the paper is basically you can define a grammar that restricts and modifies the model's log probs, like decoding strategy to only conform to that grammar. And that helps it... [01:02:53]
+
+Swyx: Is this LMQL? Because I feel like LMQL is a little bit too structured for... If the goal is avoiding hallucination, that's such a vague goal. Yeah. [01:03:02]
+
+Michael: This is only something we've begun to take a look at. I haven't fully read the paper yet. Like I've only kind of skimmed the abstract, but it's something that like we're definitely interested in exploring further. But something that we are like a bit further along on is also like exploring reinforcement learning for correctness, as opposed to only harmfulness the way it has typically been used in my college. [01:03:23]
+
+Swyx: I'm interested to see your paper on that. Just a quick follow-up. Do you have internal evals for what hallucination rate is on stock GPC4 and then maybe what yours is after fine-tuning? [01:03:34]
+
+Michael: We don't measure hallucination directly in our internal benchmarks. We more measure like was the answer right or was it wrong? We measure hallucination indirectly by evaluating the context, like the RAG context fed into the model as well. So basically, if the context was bad and the answer was bad, then chances are like it's the context. But if the context was good and it just like misinterpreted that or had the wrong conclusion, then like we can take different steps there. Harrison from LangChain has been talking about this sort of two-by-two matrix with the RAG people. It's a pretty simple concept. [01:04:08]
+
+Swyx: What's the source of error? [01:04:11]
+
+Michael: Exactly. I've been talking to Harrison actually about like a more structured way perhaps within Linkchain to like do evals. Because I think that's a massive problem. Like every single eval is different for these big, large language models and doing them in a quantitative way is really hard. But it's possible with like a platform that I think harnesses GPT-4 in the right way. That and also perhaps a stricter prompting language like a prompting markup language for prompting models is something I'm also very interested in. Because we've written some very, very complex prompts particularly for a VS Code extension to like very fancy things with people's code. And like I wish there was a way that you could have like a more formal way like a Python for LLM prompting that you could activate desired things within like the model's execution flow through some other abstraction above language that has been like tested to do that some of the time. Perhaps like combined with like formal grammar limitations and stuff like that. Interesting. I have no idea what that looks like. These are all things these are all things that have kind of emerged directly from the issues we're facing ourselves internally. But yeah, definitely very abstract so far.
+
+Alessio: And yeah, just to wrap what's one message idea you want people to remember and think about? [01:05:32]
+
+Michael: I think pay attention to those moments that like really jump out at you. Like when you see like a crazy demo that you can't forget about like something that you just think is really, really cool. Because I see a lot of people trying to start startups from the angle of like, hey, I just want to start a startup or I'm just bored at my job or like I'm like generally interested in the space. And I personally disagree with that. My take is that it's much easier having been on both sides of that coin now, it's much easier to stay obsessed every single day when the genesis of your startup is something that really spoke to you in an incredibly meaningful way beyond just being some insight that you've noticed. And I guess that's what we're discovering now is that in the long, long term what you're really building is like you're building a group of people that believe this thing, that believe that the future of solving problems and making things will be just like focused more on the human thought process as opposed to the implementation part. And it's that belief that I think is what really gets you through the tough times and hopefully gets you to the other side someday. [01:06:47]
+
+Swyx: Awesome. I kind of want to play Lose Yourself as the outro music. [01:06:52]
+
+Alessio: Then we'll get DMCA strike. Thank you so much for coming on.
+
+Michael: Yeah, thank you so much for having me. This was really fun. [01:06:59]
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Michael Royzen
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22

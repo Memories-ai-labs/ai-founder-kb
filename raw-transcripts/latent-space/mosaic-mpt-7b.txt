@@ -1,0 +1,951 @@
+# MPT-7B and The Beginning of Context=Infinity — with Jonathan Frankle and Abhinav Venigalla of MosaicML
+# URL: https://www.latent.space/p/mosaic-mpt-7b
+# Date: 2023-05-20
+# source: Latent Space
+
+Latent Space: The AI Engineer Podcast
+
+MPT-7B and The Beginning of Context=Infinity — with Jonathan Frankle and Abhinav Venigalla of MosaicML
+
+36
+
+6
+
+1×
+
+0:00
+
+Current time: 0:00 / Total time: -1:06:43
+
+-1:06:43
+
+Audio playback is not supported on your browser. Please upgrade.
+
+MPT-7B and The Beginning of Context=Infinity — with Jonathan Frankle and Abhinav Venigalla of MosaicML
+
+Ep 13: Training Mosaic's "llongboi" MPT-7B in 9 days for $200k with an empty logbook, how to prep good data for your training, and the future of open models
+
+Alessio Fanelli and Latent.Space
+
+May 20, 2023
+
+36
+
+6
+
+Share
+
+We are excited to be the first podcast in the world to release an in-depth interview on the new SOTA in commercially licensed open source models - MosiacML MPT-7B!
+
+The Latent Space crew will be at the NYC Lux AI Summit next week, and have two meetups in June. As usual, all events are on the Community page! We are also inviting beta testers for the upcoming AI for Engineers course. See you soon!
+
+One of GPT3’s biggest limitations is context length - you can only send it up to 4000 tokens (3k words, 6 pages) before it throws a hard error, requiring you to bring in LangChain and other retrieval techniques to process long documents and prompts. But MosaicML recently open sourced MPT-7B, the newest addition to their Foundation Series, with context length going up to 84,000 tokens (63k words, 126 pages):
+
+This transformer model, trained from scratch on 1 trillion tokens of text and code (compared to 300B for Pythia and OpenLLaMA, and 800B for StableLM), matches the quality of LLaMA-7B. It was trained on the MosaicML platform in 9.5 days on 440 GPUs with no human intervention, costing approximately $200,000. Unlike many open models, MPT-7B is licensed for commercial use and it’s optimized for fast training and inference through FlashAttention and FasterTransformer.
+
+MPT-7B performance on zero-shot academic tasks
+
+They also released 3 finetuned models starting from the base MPT-7B: 
+
+MPT-7B-Instruct: finetuned on dolly_hhrlhf, a dataset built on top of dolly-5k (see our Dolly episode for more details). 
+
+MPT-7B-Chat: finetuned on the ShareGPT-Vicuna, HC3, Alpaca, Helpful and Harmless, and Evol-Instruct datasets.
+
+MPT-7B-StoryWriter-65k+: it was finetuned with a context length of 65k tokens on a filtered fiction subset of the books3 dataset. While 65k is the advertised size, the team has gotten up to 84k tokens in response when running on a single node A100-80GB GPUs. ALiBi is the dark magic that makes this possible. Turns out The Great Gatsby is only about 68k tokens, so the team used the model to create new epilogues for it!
+
+On top of the model checkpoints, the team also open-sourced the entire codebase for pretraining, finetuning, and evaluating MPT via their new MosaicML LLM Foundry. The table we showed above was created using LLM Foundry in-context-learning eval framework itself!
+
+In this episode, we chatted with the leads of MPT-7B at Mosaic: Jonathan Frankle, Chief Scientist, and Abhinav Venigalla, Research Scientist who spearheaded the MPT-7B training run. We talked about some of the innovations they’ve brought into the training process to remove the need for 2am on-call PagerDutys, why the LLM dataset mix is such an important yet dark art, and why some of the traditional multiple-choice benchmarks might not be very helpful for the type of technology we are building.
+
+Show Notes
+
+Introducing MPT-7B
+
+Cerebras
+
+Lottery Ticket Hypothesis
+
+Hazy Research
+
+ALiBi
+
+Flash Attention
+
+FasterTransformer
+
+List of naughty words for C4 
+
+https://twitter.com/code_star/status/1661386844250963972
+
+What is Sparsity?
+
+Hungry Hungry Hippos
+
+BF16 FP
+
+p.s. yes, MPT-7B really is codenamed LLongboi!
+
+Timestamps
+
+Introductions [00:00:00]
+
+Intro to Mosaic [00:03:20]
+
+Training and Creating the Models [00:05:45]
+
+Data Choices and the Importance of Repetition [00:08:45]
+
+The Central Question: What Mix of Data Sets Should You Use? [00:10:00]
+
+Evaluation Challenges of LLMs [0:13:00]
+
+Flash Attention [00:16:00]
+
+Fine-tuning for Creativity [00:19:50]
+
+Open Source Licenses and Ethical Considerations [00:23:00]
+
+Training Stability Enhancement [00:25:15]
+
+Data Readiness & Training Preparation [00:30:00]
+
+Dynamic Real-time Model Evaluation [00:34:00]
+
+Open Science for Affordable AI Research [00:36:00]
+
+The Open Approach [00:40:15]
+
+The Future of Mosaic [00:44:11]
+
+Speed and Efficiency [00:48:01]
+
+Trends and Transformers [00:54:00]
+
+Lightning Round and Closing [1:00:55]
+
+Transcript
+
+Alessio: [00:00:00] Hey everyone. Welcome to the Latent Space podcast. This is Alessio partner and CTO-in-Residence at Decibel Partners. I'm joined by my co-host, Swyx, writer and editor of Latent Space.
+
+Swyx: Hey, and today we have Jonathan and Abhi from Mosaic ML. Welcome to our studio.
+
+Jonathan: Guys thank you so much for having us. Thanks so much.
+
+Swyx: How's it feel?
+
+Jonathan: Honestly, I've been doing a lot of podcasts during the pandemic, and it has not been the same.
+
+Swyx: No, not the same actually. So you have on your bio that you're primarily based in Boston,
+
+Jonathan: New York. New York, yeah. My Twitter bio was a probability distribution over locations.
+
+Swyx: Exactly, exactly. So I DMd you because I was obviously very interested in MPT-7B and DMd you, I was like, for the 0.2% of the time that you're in San Francisco, can you come please come to a podcast studio and you're like, I'm there next week.
+
+Jonathan: Yeah, it worked out perfectly. 
+
+Swyx: We're really lucky to have you, I'll read off a few intros that people should know about you and then you can fill in the blanks.
+
+So Jonathan, you did your BS and MS at Princeton in programming languages and then found your way into ML for your PhD at MiT where you made a real splash with the lottery ticket hypothesis in 2018, which people can check up on. I think you've done a few podcasts about it over the years, which has been highly influential, and we'll talk about sparse models at Mosaic. You have also had some side [00:01:30] quest. You taught programming for lawyers and you did some law and privacy stuff in, in DC and also did some cryptography stuff. Um, and you've been an assistant professor at Harvard before earning your PhD.
+
+Jonathan:  I've yet to start.
+
+Swyx: You, you yet to start. Okay. But you just got your PhD.
+
+Jonathan:. I technically just got my PhD. I was at Mosaic which delayed my defense by about two years. It was, I was at 99% done for two years. Got the job at Harvard, Mosaic started, and I had better things to do than write my dissertation for two years. 
+
+Swyx: You know, you know, this is very out of order.
+
+Jonathan: Like, oh, completely out of order, completely backwards. Go talk to my advisor about that. He's also an advisor at Mosaic and has been from the beginning. And, you know, go talk to him about finishing on time.
+
+Swyx: Great, great, great. And just to fill it out, Abhi, you did your BS and MS and MIT, you were a researcher at Cerebras, and you're now a research scientist at Mosaic. Just before we go into Mosaic stuff, I'm actually very curious about Cereus and, uh, just that, that space in general. Um, what are they doing that people should know about?
+
+Abhinav: Yeah, absolutely. Um, I think the biggest thing about CEREUS is that they're really building, you know, kind of the NextGen computing platform beyond, like GPUs.
+
+Um, they're trying to build a system that uses an entire wafer, you know, rather than cutting up a wafer into smaller chips and trying to train a model on that entire system, or actually more recently on many such wafers. Um, so it's, and it's really extraordinary. I think it's like the first time ever that kind of wafer scale computing has ever really worked. And so it's a really exciting time to be there, trying to figure out how we can map ML workloads to work, um, on a much, much bigger chip.
+
+Swyx: And do you use like [00:03:00] a different programming language or framework to do that? Or is that like..
+
+Abhinav: Yeah, so I mean, things have changed a bit since I was there.
+
+I think, um, you can actually run just normal tensor flow and pie torch on there. Um, so they've built a kind of software stack that compiles it down. So it actually just kind of works naturally. But yeah.
+
+Jonathan : Compiled versions of Python is a hot topic at the moment with Mojo as well. 
+
+Swyx: And then Mosaic, you, you spearheaded the MPT-7B effort.
+
+INTRO TO MOSAIC [00:03:20]
+
+Abhinav: Uh, yeah. Yeah, so it's kind of like, it's been maybe six months, 12 months in the making. We kind of started working on LMs sort of back in the summer of last year. Um, and then we came with this blog post where we kind of profiled a lot of LMs and saw, hey, the cost of training is actually a lot lower than what people might think.
+
+Um, and then since then, you know, being inspired by kind of, you know, meta’s release, so the LLaMA models and lots of other open source work, we kind of started working towards, well, what if we were to release a really good kind of 7 billion parameter model? And that's what MPT is. 
+
+Alessio:You know, we mentioned some of the podcasts you had done, Jonathan, I think in one of them you mentioned Mosaic was not planning on building a  model and releasing and obviously you eventually did. So what are some of the things that got you there that maybe obviously LLaMA you mentioned was an inspiration. You now have both the training and like inference products that you offer. Was this more of a research challenge in a way, uh, that you wanted to do?
+
+Or how did the idea come to be?
+
+Jonathan: I think there were a couple of things. So we still don't have a first class model. We're not an open AI where, you know, our businesses come to use our one great model. Our business is built around customers creating their own models. But at the end of the day, if customers are gonna create their own models, we have to have the tools to help them do that, and to have the tools to help them do that and know that they work we have to create our own models to start. 
+
+We have to know that we can do something great if customers are gonna do something great. And one too many people may have challenged me on Twitter about the fact that, you know, mosaic claims all these amazing numbers, but, you know, I believe not to, you know, call out Ross Whiteman here, but, you know, I believe he said at some point, you know, show us the pudding.
+
+Um, and so Ross, you know, please let me know how the pudding tastes. But in all seriousness, like I think there is something, this is a demo in some sense. This is to say we did this in 9.5 days for a really reasonable cost, straight through 200, an intervention. 200 K. Yep. Um, you can do this too.
+
+Swyx: Uh, and just to reference the numbers that you're putting out, this is the, the last year you were making a lot of noise for trading GPT 3 under 450 K, which is your, your initial estimate.
+
+Um, and then it went down to a 100 K and stable diffusion 160 k going down to less than 50 K as well.
+
+Jonathan: So I will be careful about that 100 K number. That's certainly the challenge I've given Abhi to hit. Oh, I wouldn't make the promise that we’ve hit yet, but you know, it's certainly a target that we have.
+
+And I, you know, Abhi may kill me for saying this. I don't think it's crazy. 
+
+TRAINING AND CREATING THE MODELS [00:05:45] 
+
+Swyx: So we definitely want to get into like estimation math, right? Like what, what needs to happen for those big order magnitude changes to in, in infrastructure costs. But, uh, let's kind of stick to the MPT-7B story. Yeah. Tell us everything.
+
+Like you have, uh, three different models. One of them. State of the art essentially on context length. Let's talk about the process of training them, the, uh, the decisions that you made. Um, I can go into, you know, individual details, but I just wanna let you let you rip.
+
+Abhinav: Yeah, so I mean, I think, uh, we started off with the base model, which is kind of for all practical purposes, a recreation of LLaMA 7B.
+
+Um, so it's a 7 billion perimeter model trained on the trillion tokens. Um, and our goal was like, you know, we should do it efficiently. We should be able to do it like, kind of hands free so we don't have to babysit the runs as they're doing them. And it could be kind of a, a launching point for these fine tune models and those fine tune models, you know, on, on the one hand they're kind of really fun for the community, like the story writer model, which has like a 65,000 length context window and you can even kind of extrapolate beyond that. Um, but they're, they're also kind of just tr inspirations really. So you could kind of start with an MPT-7B base and then build your own custom, you know, downstream. If you want a long context code model, you could do that with our platform. If you wanted one that was for a particular language, you could do that too.
+
+But yeah, so we picked kind of the three variance chat and instruct and story writer just kind of like inspirations looking at what people were doing in the community today. Yeah. 
+
+Alessio: And what's the beginning of the math to come up with? You know, how many tokens you wanna turn it on? How many parameters do you want in a bottle? 7 billion and 30 billion seem to be kind of like two of the magic numbers going around right now. 
+
+Abhinav: Yeah, definitely. Definitely. Yeah, I think like there's sort of these scaling laws which kind of tell you how to best spend your training compute if that's all you cared about. So if you wanna spend $200,000 exactly in the most efficient way, there'd be a recipe for doing that.
+
+Um, and that we usually go by the Chinchilla laws. Now for these models, we actually didn't quite do that because we wanted to make sure that people could actually run these at home and that they [00:07:30] were good for inference. So we trained them kind of beyond those chinchilla points so that we're almost over-training them.
+
+I think there's like a joke going on online that they're like long boy and that that came up internally because we were training them for really, really long durations. So that 7B model, the chinchilla point might be 140 billion tokens. Instead, we trained a trillion, so almost seven times longer than you normally would.
+
+Swyx: So longboi was the code name. So is it, is it the trading method? Is it the scaling law that you're trying to coin or is it the code name for the 64 billion?
+
+Jonathan: Uh, 64. It was just an internal joke for the, for training on way more tokens than you would via chinchilla. Okay. Um, we can coin it long boy and it, it really stuck, but just to, you know, long boys filled with two ELs at the beginning.
+
+Yeah. Cause you know, we wanted the lLLaMA thing in there as well. 
+
+Jonathan: Yeah, yeah, yeah. Our darn CEO we have to rein him in that guy, you know, you can't, yeah. I'm gonna take away his Twitter password at some point. Um, but you know, he had to let that one out publicly. And then I believe there was a YouTube video where someone happened to see it mentioned before the model came out and called it the Long G boy or something like that.
+
+Like, so you know, now it's out there in the world. It's out there. It's like Sydnee can't put it back in
+
+Swyx: There's a beautiful picture which I think Naveen tweeted out, which, um, shows a long boy on a whiteboard.
+
+Jonathan: That was the origin of Long Boy. In fact, the legs of the lLLaMA were the two Ls and the long boy.
+
+DATA CHOICES AND THE IMPORTANCE OF REPETITION [00:08:45]
+
+Swyx: Well, talk to me about your data choices, right? Like this is your passion project. Like what can you tell us about it?
+
+Jonathan: Yeah, I think Abhi wanted to kill me by the end for trying to use all the GPUs on data and none of them on actually training the model. 
+
+Um, at the end of the day, We know that you need to train these models and [00:09:00] lots of data, but there are a bunch of things we don't know.
+
+Number one is what kinds of different data sources matter. The other is how much does repetition really matter? And really kind of repetition can be broken down into how much does quality versus quantity matter. Suppose I had the world's best 10 billion tokens of data. Would it be better to train on that a hundred times or better to train on a trillion tokens of low quality, fresh data?
+
+And obviously there's, there's a middle point in between. That's probably the sweet spot. But how do you even know what good quality data is? And. So, yeah, this is, nobody knows, and I think the more time I spent, we have a whole data team, so me and several other people, the more time that we spent on this, you know, I came away thinking, gosh, we know nothing.
+
+Gosh, if I were back in academia right now, I would definitely go and, you know, write a paper about this because I have no idea what's going on.
+
+Swyx: You would write a paper about it. I'm interested in such a paper. I haven't come across any that exists. Could you frame the central question of such a paper?
+
+THE CENTRAL QUESTION: WHAT MIX OF DATA SETS SHOULD YOU USE? [00:10:00]
+
+Jonathan: Yeah. The central question is what mix of data sets should you use? Okay. Actually I've, you know, you had mentioned my law school stuff. I went back to Georgetown Law where I used to teach, um, in the midst of creating this model, and I actually sat down with a class of law students and asked them, I gave them our exact data sets, our data mixes, um, like how many tokens we had, and I said, Create the best data set for your model.
+
+Knowing they knew nothing about large language models, they just know that data goes in and it's going to affect the behavior. Um, and I was like, create a mix and they basically covered all the different trade-offs. Um, you probably want a lot of English language [00:10:30] text to start with. You get that from the web, but do you want it to be multilingual?
+
+If so, you're gonna have a lot less English text. Maybe it'll be worse. Do you wanna have code in there? There are all these beliefs that code leads to models being better at logical reasoning, of which I've seen zero evidence. Rep. It's not, um, I mean, really made a great code model, but code models leading to better chain of thought reasoning on the part of language or code being in the training set leading to better chain of thought reasoning.
+
+People claim this all the time, but I've still never seen any real evidence beyond that. You know, one of the generations of the GPT three model started supposedly from Code Da Vinci. Yes. And so there's a belief that, you know, maybe that helped. But again, no evidence. You know, there's a belief that spending a lot of time on good sources like Wikipedia is good for the model.
+
+Again, no evidence. At the end of the day, we tried a bunch of different data mixes and the answer was that there are some that are better or worse than others. We did find that the pile, for example, was a really solid data mix, but you know, there were stronger data mixes by our evaluation metrics. And I'll get back to the evaluation question in a minute cuz that's a really important one.
+
+This data set called c4, which is what the original T five model was trained on, is weirdly good. And everybody, when I posted on this on Twitter, like Stella Beaterman from Luther mentioned this, I think someone else mentioned this as well. C4 does really well in the metrics and we have no idea why we de-duplicated it against our evaluation set.
+
+So it's not like it memorized the data, it is just one web scrape from 2019. If you actually look at the T five paper and see how it was pre-processed, it looks very silly. Mm-hmm. They removed anything that had the word JavaScript in it because they didn't want to get like no JavaScript [00:12:00] warnings. They removed anything with curly braces cuz they didn't wanna get JavaScript in it.
+
+They looked at this list of bad words, um, and removed anything that had those bad words. If you actually look at the list of bad words, words like gay are on that list. And so there's, you know, it is a very problematic, you know, list of words, but that was the cleaning that leads to a data set that seems to be unbeatable.
+
+So that to me says that we know nothing about data. We, in fact used a data set called mc four as well, which is they supposedly did the same pre-processing of C4 just on more web calls. The English portion is much worse than C4 for reasons that completely escape us. So in the midst of all that, Basically I set two criteria.
+
+One was I wanted to be at least as good as mc four English, like make sure that we're not making things actively worse. And mc four English is a nice step up over other stuff that's out there. And two was to go all in on diversity after that, making sure that we had some code, we had some scientific papers, we had Wikipedia, because people are gonna use this model for all sorts of different purposes.
+
+But I think the most important thing, and I'm guessing abhi had a million opinions on this, is you're only as good as your evaluation. And we don't know how to evaluate models for the kind of generation we ask them to do. So past a certain point, you have to kinda shrug and say, well, my evaluation's not even measuring what I care about.
+
+Mm-hmm. So let me just make reasonable choices. 
+
+EVALUATION CHALLENGES OF LLMs [0:13:00]
+
+Swyx: So you're saying MMLU, big bench, that kind of stuff is not. Convincing for you
+
+Jonathan: A lot of this stuff is you've got two kinds of tasks. Some of these are more of multiple choice style tasks where there is a right answer. Um, either you ask the model to spit out A, B, C, or D or you know, and if you're more [00:13:30] sophisticated, you look at the perplexity of each possible answer and pick the one that the model is most likely to generate.
+
+But we don't ask these models to do multiple choice questions. We ask them to do open-ended generation. There are also open-ended generation tasks like summarization. You compare using things like a blue score or a rouge score, which are known to be very bad ways of comparing text. At the end of the day, there are a lot of great summaries of a paper.
+
+There are a lot of great ways to do open form generation, and so humans are, to some extent, the gold standard. Humans are very expensive. It turns out we can't put them into our eval pipeline and just have the humans look at our model every, you know, 10 minutes? Not yet. Not yet. Maybe soon. Um, are you volunteering Abhi?
+
+Abhinav: I, I, I just know we have a great eval team who's, uh, who's helping us build new metrics. So if they're listening,
+
+Jonathan:  But it's, you know, evaluation of large language models is incredibly hard and I don't think any of these metrics really truly capture. What we expect from the models in practice.
+
+Swyx: Yeah. And we might draw wrong conclusions.
+
+There's been a debate recently about the emergence phenomenon, whether or not it's a mirage, right? I don't know if you guys have opinions about that process. 
+
+Abhinav: Yeah, I think I've seen like this paper and all and all, even just kind of plots from different people where like, well maybe it's just a artifact of power, like log scaling or metrics or, you know, we're meshing accuracy, which is this a very like harsh zero one thing.
+
+Yeah. Rather than kind of something more continuous. But yeah, similar to what Jonathan was saying about evals. Like there there's one issue of like you just like our diversity of eval metrics, like when we put these models up, even like the chat ones, the instruct ones, people are using 'em for such a variety of tasks.
+
+There's just almost no way we get ahead of time, like measuring individual dimensions. And then also particularly like, you know, at the 7B scale, [00:15:00] um, these models still are not super great yet at the really hard tasks, like some of the hardest tasks in MMLU and stuff. So sometimes they're barely scoring like the above kind of random chance, you know, like on really, really hard tasks.
+
+So potentially as we. You know, aim for higher and higher quality models. Some of these things will be more useful to us. But we kind of had to develop MPT 7B kind of flying a little bit blind on, on what we knew it was coming out and just going off of like, you know, a small set of common sensor reasoning tasks.
+
+And of course, you know, just comparing, you know, those metrics versus other open source models. 
+
+Alessio: I think fast training in inference was like one of the goals, right? So there's always the trade off between doing the hardest thing and like. Doing all the other things quickly.
+
+Abhinav: Yeah, absolutely. Yeah, I mean, I think like, you know, even at the 7B scale, you know, uh, people are trying to run these things on CPUs at home.
+
+You know, people are trying to port these to their phones, basically prioritizing the fact that the small scale would lead to our adoption. That was like a big, um, big thing going on. 
+
+Alessio: Yeah. and you mentioned, um, flash attention and faster transformer as like two of the core things. Can you maybe explain some of the benefits and maybe why other models don't use it?
+
+FLASH ATTENTION [00:16:00]
+
+Abhinav: Yeah, absolutely. So flash attention is this basically faster implementation of full attention. Um, it's like a mathematical equivalent developed by like actually some of our collaborators, uh, at Stanford. Uh, the hazy research. Hazy research, yeah, exactly.
+
+Jonathan: What is, what, what, what's the name hazy research mean?
+
+Abhinav: I actually have no idea.
+
+Swyx: I have no clue. All these labs have fun names. I always like the stories behind them.
+
+Abhinav: Yeah, absolutely. We really, really liked flash attention. We, I think, had to integrate into repo even as [00:16:30] as early as September of last year. And it really just helps, you know, with training speed and also inference speed and we kind of bake that into model architecture.
+
+And this is kind of unique amongst all the other hugging face models you see out there. So ours actually, you can toggle between normal torch attention, which will work anywhere and flash attention, which will work on GPUs right out of the box. And that way I think you get almost like a 2x speed up at training time and somewhere between like 50% to a hundred percent speed up at inference time as well.
+
+So again, this is just like, we really, really wanted people to use these and like, feel like an improvement and we, we have the team to, to help deliver that. 
+
+Swyx: Another part, um, of your choices was alibi position, encodings, which people are very interested in, maybe a lot of people just, uh, to sort of take in, in coatings as, as a given.
+
+But there's actually a lot of active research and honestly, it's a lot of, um, it's very opaque as well. Like people don't know how to evaluate encodings, including position encodings, but may, may, could you explain, um, alibi and, um, your choice?
+
+Abhinav: Yeah, for sure. The alibi and uh, kind of flash attention thing all kind of goes together in interesting ways.
+
+And even with training stability too. What alibi does really is that it eliminates the need to have positional embeddings in your model. Where previously, if you're a token position one, you have a particular embedding that you add, and you can't really go beyond your max position, which usually is like about 2000.
+
+With alibies, they get rid of that. Instead, just add a bias to the attention map itself. That's kind of like this slope. And if at inference time you wanna go much, much larger, they just kind of stretch that slope out to a longer, longer number of positions. And because the slope is kind of continuous and you can interpret it, it all works out now.
+
+Now one of [00:18:00] the, the funny things we found is like with flash attention, it saved so much memory and like improved performance so much that even as early as I kind of last year, like we were profiling models with, with very long context lines up to like, you know, the 65 k that you seen in release, we just never really got around to using it cuz we didn't really know what we might use it for.
+
+And also it's very hard to train stably. So we started experimenting with alibi integration, then we suddenly found that, oh wow, stability improves dramatically and now we can actually work together with alibi in a long context lens. That's how we got to like our story writer model where we can stably train these models out to very, very long context lenses and, and use them performantly.
+
+Jonathan: Yeah.
+
+Swyx: And it's also why you don't have a firm number. Most people now have a firm number on the context line. Now you're just like, eh, 65 to 85
+
+Abhinav: Oh yeah, there's, there's a, there's a big age to be 64 K or 65 k. 65 k plus.
+
+Swyx: Just do powers of twos. So 64 isn't, you know. 
+
+Jonathan: Right, right. Yeah. Yeah. But we could, I mean, technically the context length is infinite.
+
+If you give me enough memory, um, you know, we can just keep going forever. We had a debate over what number to say is the longest that we could handle. We picked 84 cakes. It's the longest I expect people to see easily in practice. But, you know, we played around for even longer than that and I don't see why we couldn't go longer.
+
+Swyx: Yeah. Um, and so for those who haven't read the blog posts, you put the Great Gatsby in there and, uh, asked it to write an epilogue, which seemed pretty impressive.
+
+Jonathan: Yeah. There are a bunch of epilogues floating around internally at Mosaic. Yeah. That wasn't my favorite. I think we all have our own favorites.
+
+Yeah. But there are a bunch of really, really good ones. There was one where, you know, it's Gatsby's funeral and then Nick starts talking to Gatsby's Ghost, and Gatsby's father shows up and, you know, then he's [00:19:30] at the police station with Tom. It was very plot heavy, like this is what comes next. And a bunch of that were just very Fitzgerald-esque, like, you know, beautiful writing.
+
+Um, but it was cool to just see that Wow, the model seemed to actually be working with. You know, all this input. Yeah, yeah. Like it's, it's exciting. You can think of a lot of things you could do with that kind of context length.
+
+FINE-TUNING FOR CREATIVITY [00:19:50]
+
+Swyx: Is there a trick to fine tuning for a creative task rather than, um, factual task?
+
+Jonathan: I don't know what that is, but probably, yeah, I think, you know, the person, um, Alex who did this, he did fine tune the model explicitly on books. The goal was to try to get a model that was really a story writer. But, you know, beyond that, I'm not entirely sure. Actually, it's a great question. Well, no, I'll ask you back.
+
+How would you measure that? 
+
+Swyx: Uh, God, human feedback is the solve to all things. Um, I think there is a labeling question, right? Uh, in computer vision, we had a really, really good episode with Robo Flow on the segment. Anything model where you, you actually start human feedback on like very, I think it's something like 0.5% of the, the overall, uh, final, uh, uh, labels that you had.
+
+But then you sort augment them and then you, you fully automate them, um, which I think could be applied to text. It seems intuitive and probably people like snorkel have already raised ahead on this stuff, but I just haven't seen this applied in the language domain yet.
+
+Jonathan: It, I mean there are a lot of things that seem like they make a lot of sense in machine learning that never work and a lot of things that make zero sense that seem to work.
+
+So, you know, I've given up trying to even predict. Yeah, yeah. Until I see the data or try it, I just kind shg my shoulders and you know, you hope for the best. Bring data or else, right? Yeah, [00:21:00] exactly. Yeah, yeah, yeah.
+
+Alessio: The fine tuning of books. Books three is like one of the big data sets and there was the whole.
+
+Twitter thing about trade comments and like, you know, you know, I used to be a community [email protected] and we've run into a lot of things is, well, if you're explaining lyrics, do you have the right to redistribute the lyrics? I know you ended up changing the license on the model from a commercial use Permitted.
+
+Swyx: Yeah let's let them. I'm not sure they did. 
+
+Jonathan: So we flipped it for about a couple hours. 
+
+Swyx: Um, okay. Can we, can we introduce the story from the start Just for people who are under the loop. 
+
+Jonathan: Yeah. So I can tell the story very simply. So, you know, the book three data set does contain a lot of books. And it is, you know, as I discovered, um, it is a data set that provokes very strong feelings from a lot of folks.
+
+Um, that was one, one guy from one person in particular, in fact. Um, and that's about it. But it turns out one person who wants a lot of attention can, you know, get enough attention that we're talking about it now. And so we had a, we had a discussion internally after that conversation and we talked about flipping the license and, you know, very late at night I thought, you know, maybe it's a good thing to do.
+
+And decided, you know, actually probably better to just, you know, Stan Pat's license is still Apache too. And one of the conversations we had was kind of, we hadn't thought about this cuz we had our heads down, but the Hollywood writer Strike took place basically the moment we released the model. Mm-hmm.
+
+Um, we were releasing a model that could do AI generated creative content. And that is one of the big sticking points during the strike. Oh, the optics are not good. So the optics aren't good and that's not what we want to convey. This is really, this is a demo of the ability to do really long sequence lengths and.
+
+Boy, you know, [00:22:30] that's, that's not timing that we appreciated. And so we talked a lot internally that night about like, oh, we've had time to read the news. We've had time to take a breath. We don't really love this. Came to the conclusion that it's better to just leave it as it is now and learn the lesson for the future.
+
+But certainly that was one of my takeaways is this stuff, you know, there's a societal context around this that it's easy to forget when you're in the trenches just trying to get the model to train. And you know, in hindsight, you know, I might've gone with a different thing than a story writer. I might've gone with, you know, coder because we seem to have no problem putting programmers out of work with these models.
+
+Swyx: Oh yeah. Please, please, you know, take away this stuff from me.
+
+OPEN SOURCE LICENSES AND ETHICAL CONSIDERATIONS [00:23:00]
+
+Jonathan: Right. You know, so it's, I think, you know, really. The copyright concerns I leave to the lawyers. Um, that's really, if I learned one thing teaching at a law school, it was that I'm not a lawyer and all this stuff is a little complicated, especially open source licenses were not designed for this kind of world.
+
+They were designed for a world of forcing people to be more open, not forcing people to be more closed. And I think, you know, that was part of the impetus here, was to try to use licenses to make things more closed. Um, which is, I think, against the grain of the open source ethos. So that struck me as a little bit strange, but I think the most important part is, you know, we wanna be thoughtful and we wanna do the right thing.
+
+And in that case, you know, I hope with all that interesting licensing fund you saw, we're trying to be really thoughtful about this and it's hard. I learned a lot from that experience. 
+
+Swyx: There’s also, I think, an open question of fair use, right? Is training on words of fair use because you don't have a monopoly on words, but some certain arrangements of words you do.
+
+And who is to say how much is memorization by a model versus actually learning and internalizing and then. Sometimes happening to land at the right, the [00:24:00] same result.
+
+Jonathan: And if I've learned one lesson, I'm not gonna be the person to answer that question. Right, exactly. And so my position is, you know, we will try to make this stuff open and available.
+
+Yeah. And, you know, let the community make decisions about what they are or aren't comfortable using. Um, and at the end of the day, you know, it still strikes me as a little bit weird that someone is trying to use these open source licenses to, you know, to close the ecosystem and not to make things more open.
+
+That's very much against the ethos of why these licenses were created.
+
+Swyx: So the official mosaic position, I guess is like, before you use TC MPC 7B for anything commercial, check your own lawyers now trust our lawyers, not mosaic’s lawyers.
+
+Jonathan: Yeah, okay. Yeah. I'm, you know, our lawyers are not your lawyers.
+
+Exactly. And, you know, make the best decision for yourself. We've tried to be respectful of the content creators and, you know, at the end of the day, This is complicated. And this is something that is a new law. It's a new law. It's a new law that hasn't been established yet. Um, but it's a place where we're gonna continue to try to do the right thing.
+
+Um, and it's, I think, one of the commenters, you know, I really appreciated this said, you know, well, they're trying to do the right thing, but nobody knows what the right thing is to even do, you know, the, I guess the, the most right thing would've been to literally not release a model at all. But I don't think that would've been the best thing for the community either.
+
+Swyx: Cool.Well, thanks. Well handled. Uh, we had to cover it, just cause
+
+Jonathan:  Oh, yes, no worries. A big piece of news. It's been on my mind a lot.
+
+TRAINING STABILITY ENHANCEMENT [00:25:15]
+
+Swyx: Yeah. Yeah. Well, you've been very thoughtful about it. Okay. So a lot of these other ideas in terms of architecture, flash, attention, alibi, and the other data sets were contributions from the rest of the let's just call it open community of, of machine learning advancements. Uh, but Mosaic in [00:25:30] particular had some stability improvements to mitigate loss spikes, quote unquote, uh, which, uh, I, I took to mean, uh, your existing set of tools, uh, maybe we just co kind of covered that. I don't wanna sort of put words in your mouth, but when you say things like, uh, please enjoy my empty logbook.
+
+How much of an oversell is that? How much, you know, how much is that marketing versus how much is that reality?
+
+Abhinav: Oh yeah. That, that one's real. Yeah. It's like fully end-to-end. Um, and I think.
+
+Swyx: So maybe like what, what specific features of Mosaic malibu?
+
+Abhinav: Totally, totally. Yeah. I think I'll break it into two parts.
+
+One is like training stability, right? Knowing that your model's gonna basically get to the end of the training without loss spikes. Um, and I think, you know, at the 7B scale, you know, for some models like it ha it's not that big of a deal. As you train for longer and longer durations, we found that it's trickier and trickier to avoid these lost spikes.
+
+And so we actually spent a long time figuring out, you know, what can we do about our initialization, about our optimizers, about the architecture that basically prevents these lost spikes. And you know, even in our training run, if you zoom in, you'll see small intermittent spikes, but they recover within a few hundred steps.
+
+And so that's kind of the magical bit. Our line is one of defenses we recover from Las Vegas, like just naturally, right? Mm-hmm. Our line two defense was that we used determinism and basically really smart resumption strategies so that if something catastrophic happened, we can resume very quickly, like a few batches before.
+
+And apply some of these like, uh, interventions. So we had these kinds of preparations, like a plan B, but we didn't have to use them at all for MPT 7B training. So, that was kind of like a lucky break. And the third part of like basically getting all the way to the empty law book is having the right training infrastructure.[00:27:00]
+
+So this is basically what, like is, one of the big selling points of the platform is that when you try to train these models on hundreds of GPUs, not many people outside, you know, like deep industry research owners, but the GPUs fail like a lot. Um, I would say like almost once every thousand a 100 days.
+
+So for us on like a big 512 cluster every two days, basically the run will fail. Um, and this is either due to GPUs, like falling off the bus, like that's, that's a real error we see, or kind of networking failures or something like that. And so in those situations, what people have normally done is they'll have an on-call team that's just sitting round the clock, 24-7 on slack, once something goes wrong.
+
+And if then they'll basically like to try to inspect the cluster, take nodes out that are broken, restart it, and it's a huge pain. Like we ourselves did this for a few months. And as a result of that, because we're building such a platform, we basically step by step automated every single one of those processes.
+
+So now when a run fails, we have this automatic kind of watch talk that's watching. It'll basically stop the job. Test the nodes cord in anyone's that are broken and relaunch it. And because our software's all deterministic has fast resumption stuff, it just continues on gracefully. So within that log you can see sometimes I think maybe at like 2:00 AM or something, the run failed and within a few minutes it's back up and running and all of us are just sleeping peacefully.
+
+Jonathan: I do wanna say that was hard one. Mm-hmm. Um, certainly this is not how things were going, you know, many months ago, hardware failures we had on calls who were, you know, getting up at two in the morning to, you know, figure out which node had died for what reason, restart the job, have to cord the node. [00:28:30] Um, we were seeing catastrophic loss spikes really frequently, even at the 7B scale that we're just completely derailing runs.
+
+And so this was step by step just ratcheting our way there. As Abhi said, to the point where, Many models are training at the moment and I'm sitting here in the studio and not worrying one bit about whether the runs are gonna continue. Yeah. 
+
+Swyx: I'm, I'm not so much of a data center hardware kind of guy, but isn't there existing software to do this for CPUs and like, what's different about this domain? Does this question make sense at all?
+
+Jonathan: Yeah, so when I think about, like, I think back to all the Google fault tolerance papers I read, you know, as an undergrad or grad student mm-hmm. About, you know, building distributed systems. A lot of it is that, you know, Each CPU is doing, say, an individual unit of work.
+
+You've got a database that's distributed across your cluster. You wanna make sure that one CPU failing can't, or one machine failing can't, you know, delete data. So you, you replicate it. You know, you have protocols like Paxos where you're literally, you've got state machines that are replicated with, you know, with leaders and backups and things like that.
+
+And in this case, you were performing one giant computation where you cannot afford to lose any node. If you lose a node, you lose model state. If you lose a node, you can't continue. It may be that, that in the future we actually, you know, create new versions of a lot of our distributed training libraries that do have backups and where data is replicated so that if you lose a node, you can detect what node you've lost and just continue training without having to stop the run, you know?
+
+Pull from a checkpoint. Yeah. Restart again on different hardware. But for now, we're certainly in a world where if anything dies, that's the end of the run and you have to go back and recover from it. [00:30:00]
+
+DATA READINESS & TRAINING PREPARATION [00:30:00]
+
+Abhinav: Yeah. Like I think a big part, a big word there is like synchronous data pluralism, right? So like, we're basically saying that on every step, every GP is gonna do some work.
+
+They're gonna stay in sync with each other and average their, their gradients and continue. Now that there are algorithmic techniques to get around this, like you could say, oh, if a GP dies, just forget about it. All the data that's gonna see, we'll just forget about it. We're not gonna train on it.
+
+But, we don't like to do that currently because, um, it makes us give up determinism, stuff like that. Maybe in the future, as you go to extreme scales, we'll start looking at some of those methods. But at the current time it's like, we want determinism. We wanted to have a run that we could perfectly replicate if we needed to.
+
+And it was, the goal is figure out how to run it on a big cluster without humans having to babysit it. Babysit it. 
+
+Alessio: So as you mentioned, these models are kind of the starting point for a lot of your customers To start, you have a. Inference product. You have a training product. You previously had a composer product that is now kind of not rolled into, but you have like a super set of it, which is like the LLM foundry.
+
+How are you seeing that change, you know, like from the usual LOP stack and like how people train things before versus now they're starting from, you know, one of these MPT models and coming from there. Like worship teams think about as they come to you and start their journey.
+
+Jonathan: So I think there's a key distinction to make here, which is, you know, when you say starting from MPT models, you can mean two things.
+
+One is actually starting from one of our checkpoints, which I think very few of our customers are actually going to do, and one is starting from our configuration. You can look at our friends at Rep for that, where, you know, MPT was in progress when Refl [00:31:30] came to us and said, Hey, we need a 3 billion parameter model by next week on all of our data.
+
+We're like, well, here you go. This is what we're doing, and if it's good enough for us, um, hopefully it's good enough for you. And that's basically the message we wanna send to our customers. MPT is basically clearing a path all the way through where they know that they can come bring their data, they can use our training infrastructure, they can use all of our amazing orchestration and other tools that abhi just mentioned, for fault tolerance.
+
+They can use Composer, which is, you know, still at the heart of our stack. And then the l l M Foundry is really the specific model configuration. They can come in and they know that thing is gonna train well because we've already done it multiple times. 
+
+Swyx: Let's dig in a little bit more on what should people have ready before they come talk to you? So data architecture, eval that they're looking, etc.
+
+Abhinav: Yeah, I, I mean, I think we'll accept customers at any kind of stage in their pipeline. You know, like I'd say science, there's archetypes of people who have built products around like some of these API companies and reach a stage or maturity level where it's like we want our own custom models now, either for the purpose of reducing cost, right?
+
+Like our inference services. Quite a bit cheaper than using APIs or because they want some kind of customization that you can't really get from the other API providers. I'd say the most important things to have before training a big model. You know, you wanna have good eval metrics, you know, some kind of score that you can track as you're training your models and scaling up, they can tell you you're progressing.
+
+And it's really funny, like a lot of times customers will be really excited about training the models, right? It's really fun to like launch shelves on hundreds of gfs, just all around. It's super fun. But then they'll be like, but wait, what are we gonna measure? Not just the training loss, right? I mean, it's gotta be more than that.[00:33:00]
+
+So eval metrics is like a, it's a good pre-req also, you know, your data, you know, either coming with your own pre-training or fine-tune data and having like a strategy to clean it or we can help clean it too. I think we're, we're building a lot of tooling around that. And I think once you have those two kinds of inputs and sort of the budget that you want, we can pretty much walk you through the rest of it, right?
+
+Like that's kind of what we do. Recently we helped build CR FM's model for biomedical language a while back. 
+
+Jonathan: Um, we can. That's the center of research for foundation models. 
+
+Abhi: Exactly, exactly.
+
+Jonathan: Spelling it out for people. Of course.
+
+Abhinav: No, absolutely. Yeah, yeah. No, you've done more of these than I have.
+
+Um, I think, uh, basically it's sort of, we can help you figure out what model I should train to scale up so that when I go for my big run company, your here run, it's, uh, it's predictable. You can feel confident that it's gonna work, and you'll kind of know what quality you're gonna get out before you have to spend like a few hundred thousand dollars.
+
+DYNAMIC REAL-TIME MODEL EVALUATION [00:34:00]
+
+Alessio: The rap Reza from rap was on the podcast last week and, uh, they had human eval and then that, uh, I'm Jon Eval, which is like vibe based. 
+
+Jonathan: And I, I do think the vibe based eval cannot be, you know, underrated really at the, I mean, at the end of the day we, we did stop our models and do vibe checks and we did, as we monitor our models, one of our evals was we just had a bunch of prompts and we would watch the answers as the model trained and see if they changed cuz honestly, You know, I don't really believe in any of these eval metrics to capture what we care about.
+
+Mm-hmm. But when you ask it, uh, you know, I don't know. I think one of our prompts was to suggest games for a three-year-old and a seven-year-old. That would be fun to play. Like that was a lot more [00:34:30] valuable to me personally, to see how that answer evolved and changed over the course of training. So, you know, and human eval, just to clarify for folks, human human eval is an automated evaluation metric.
+
+There's no humans in it at all. There's no humans in it at all. It's really badly named. I got so confused the first time that someone brought that to me and I was like, no, we're not bringing humans in. It's like, no, it's, it's automated. They just called it a bad name and there's only a hundred cents on it or something.
+
+Abhinav: Yeah. Yeah. And, and it's for code specifically, right?
+
+Jonathan: Yeah. Yeah. It's very weird. It's a, it's a weird, confusing name that I hate, but you know, when other metrics are called hella swag, like, you know, you do it, just gotta roll with it at this point. 
+
+Swyx: You're doing live evals now. So one, one of the tweets that I saw from you was that it is, uh, important that you do it paralyzed.
+
+Uh, maybe you kind of wanna explain, uh, what, what you guys did.
+
+Abhinav: Yeah, for sure. So with LLM Foundry, there's many pieces to it. There's obviously the core training piece, but there's also, you know, tools for evaluation of models. And we've kind of had one of the, I think it's like the, the fastest like evaluation framework.
+
+Um, basically it's multi GPU compatible. It runs with Composer, it can support really, really big models. So basically our framework runs so fast that even Azure models are training. We can run these metrics live during the training. So like if you have a dashboard like weights and biases, you kind of watch all these evil metrics.
+
+We have, like, 15 or 20 of them honestly, that we track during the run and add negligible overhead. So we can actually watch as our models go and feel confident. Like, it's not like we wait until the very last day to, to test if the models good or not
+
+Jonathan: That's amazing. Yeah. I love that we've gotten this far into the conversation.
+
+We still haven't talked about efficiency and speed. Those are usually our two watch words at Mosaic, which is, you know, that's great. That says that we're [00:36:00] doing a lot of other cool stuff, but at the end of the day, um, you know, Cost comes first. If you can't afford it, it doesn't matter. And so, you know, getting things down cheap enough that, you know, we can monitor in real time, getting things down cheap enough that we can even do it in the first place.
+
+That's the basis for everything we do.
+
+OPEN SCIENCE FOR AFFORDABLE AI RESEARCH [00:36:00]
+
+Alessio: Do you think a lot of the questions that we have around, you know, what data sets we should use and things like that are just because training was so expensive before that, we just haven't run enough experiments to figure that out. And is that one of your goals is trying to make it cheaper so that we can actually get the answers?
+
+Jonathan: Yeah, that's a big part of my personal conviction for being here. I think I'm, I'm still in my heart, the second year grad student who was jealous of all his friends who had GPUs and he didn't, and I couldn't train any models except in my laptop. And that, I mean, the lottery ticket experiments began on my laptop that I had to beg for one K 80 so that I could run amist.
+
+And I'm still that person deep down in my heart. And I'm a believer that, you know, if we wanna do science and really understand these systems and understand how to make them work well, understand how they behave, understand what makes them safe and reliable. We need to make it cheap enough that we can actually do science, and science involves running dozens of experiments.
+
+When I finally, you know, cleaned out my g c s bucket from my PhD, I deleted a million model checkpoints. I'm not kidding. There were over a million model checkpoints. That is the kind of science we need, you know, that's just what it takes. In the same way that if you're in a biology lab, you don't just grow one cell and say like, eh, the drug seems to work on that cell.
+
+Like, there's a lot more science you have to do before you really know.
+
+Abhinav: Yeah. And I think one of the special things about Mosaic's kind of [00:37:30] position as well is that we have such, so many customers all trying to train models that basically we have the incentive to like to devote all these resources and time to do this science.
+
+Because when we learn which pieces actually work, which ones don't, we get to help many, many people, right? And so that kind of aggregation process I think is really important for us. I remember way back there was a paper about Google that basically would investigate batch sizes or something like that.
+
+And it was this paper that must have cost a few million dollars during all the experience. And it was just like, wow, what a, what a benefit to the whole community. Now, like now we all get to learn from that and we get, we get to save. We don't have to spend those millions of dollars anymore. So I think, um, kind of mosaical science, like the insights we get on, on data, on pre-screening architecture, on all these different things, um, that's why customers come to us.
+
+Swyx: Yeah, you guys did some really good stuff on PubMed, G B T as well. That's the first time I heard of you. Of you. And that's also published to the community.
+
+Abhinav: Yeah, that one was really fun. We were like, well, no one's really trained, like fully from scratch domain specific models before. Like, what if we just did a biomed one?
+
+Would it still work? And, uh, yeah, I'd be really excited. That did, um, we'll probably have some follow up soon, I think, later this summer.
+
+Jonathan: Yeah. Yes. Stay tuned on that. Um, but I, I will say just in general, it's a really important value for us to be open in some sense. We have no incentive not to be open. You know, we make our money off of helping people train better.
+
+There's no cost to us in sharing what we learn with the community. Cuz really at the end of the day, we make our money off of those custom models and great infrastructure and, and putting all the pieces together. That's honestly where the Mosaic name came from. Not off of like, oh, we've got, you know, this one cool secret trick [00:39:00] that we won't tell you, or, you know, closing up.
+
+I sometimes, you know, in the past couple weeks I've talked to my friends at places like Brain or, you know, what used to be Brain Now Google DeepMind. Oh, I R I P Brain. Yeah. R i p Brian. I spent a lot of time there and it was really a formative time for me. Um, so I miss it, but. You know, I kind of feel like we're one of the biggest open research labs left in industry, which is a very sad state of affairs because we're not very big.
+
+Um, but at least can you say how big the team is actually? Yeah. We were about 15 researchers, so we're, we're tiny compared to, you know, the huge army of researchers I remember at Brain or at fair, at Deep Mind back, you know, when I was there during their heydays. Um, you know, but everybody else is kind of, you know, closed up and isn't saying very much anymore.
+
+Yeah. And we're gonna keep talking and we're gonna keep sharing and, you know, we will try to be that vanguard to the best of our ability. We're very small and I, I can't promise we're gonna do what those labs used to do in terms of scale or quantity of research, but we will share what we learn and we will try to create resources for the community.
+
+Um, I, I dunno, I just, I believe in openness fundamentally. I'm an academic at heart and it's sad to me to watch that go away from a lot of the big labs. 
+
+THE OPEN APPROACH [00:40:15]
+
+Alessio: We just had a live pod about the, you know, open AI snow mode, uh, post that came out and it was one of the first time I really dove into Laura and some of the this new technologies, like how are you thinking about what it's gonna take for like the open approach to really work?
+
+Obviously today, GPT four is still, you know, part of like that state-of-the-art model for a [00:40:30] lot of tasks. Do you think some of the innovation and kind of returning methods that we have today are enough if enough people like you guys are like running these, these research groups that are open? Or do you think we still need a step function improvement there?
+
+Jonathan: I think one important point here is the idea of coexistence. I think when you look at, I don't know who won Linux or Windows, the answer is yes. Microsoft bought GitHub and has a Windows subsystem for Linux. Linux runs a huge number of our servers and Microsoft is still a wildly profitable company.
+
+Probably the most successful tech company right now. So who won open source or closed source? Yes. Um, and I think that's a similar world that we're gonna be in here where, you know, it's gonna be different things for different purposes. I would not run Linux on my laptop personally cuz I like connecting to wifi and printing things.
+
+But I wouldn't run Windows on one of my surfers. And so I do think what we're seeing with a lot of our customers is, do they choose opening IR mosaic? Yes. There's a purpose for each of these. You have to send your data off to somebody else with open eyes models. That's a risk. GPT four is amazing and I would never promise someone that if they come to Mosaic, they're gonna get a GPT four quality model.
+
+That's way beyond our means and not what we're trying to do anyway. But there's also a whole world for, you know, domain specific models, context specific models that are really specialized, proprietary, trained on your own data that can do things that you could never do with one of these big models. You can customize in crazy ways like G B T four is not gonna hit 65 K context length for a very long time, cuz they've already trained that [00:42:00] model and you know, they haven't even released the 32 K version yet.
+
+So we can, you know, we can do things differently, you know, by being flexible. So I think the answer to all this is yes. But we can't see the open source ecosystem disappear. And that's the scariest thing for me. I hear a lot of talk in academia about, you know, whatever happened to that academic research on this field called information retrieval?
+
+Well, in 1999 it disappeared. Why? Because Google came along and who cares about information retrieval research when you know you have a Google Scale, you know, Web Scale database. So you know, there's a balance here. We need to have both. 
+
+Swyx: I wanna applaud you, Elaine. We'll maybe edit it a little like crowd applause, uh, line.
+
+Cuz I, I think that, um, that is something that as a research community, as people interested in progress, we need to see these things instead of just, uh, seeing marketing papers from the advertising GPT 4.
+
+Jonathan: Yeah. I, I think I, you know, to get on my soapbox for 10 more seconds. Go ahead. When I talk to policymakers about, you know, the AI ecosystem, the usual fear that I bring up is, Innovation will slow because of lack of openness.
+
+I've been complaining about this for years and it's finally happened. Hmm. Why is Google sharing, you know, these papers? Why is Open AI sharing these papers? There are a lot of reasons. You know, I have my own beliefs, but it's not something we should take for granted that everybody's sharing the work that they do and it turns out well, I think we took it for granted for a while and now it's gone.
+
+I think it's gonna slow down the pace of progress. In a lot of cases, each of these labs has a bit of a monoculture and being able to pass ideas [00:43:30] back and forth was a lot of what kept, you know, scientific progress moving. So it's imperative not just, you know, for the open source community and for academia, but for the progress of technology.
+
+That we have a vibrant open source research community.
+
+THE FUTURE OF MOSAIC [00:44:11]
+
+Swyx: There’s a preview of the ecosystem and commentary that we're, we're gonna do. But I wanna close out some stuff on Mosaic. You launched a bunch of stuff this month. A lot of stuff, uh, actually was, I was listening to you on Gradient descent, uh, and other podcasts we know and love.
+
+Uh, and you said you also said you were not gonna do inference and, and, and last week you were like, here's Mosaic ML inference. Oops. So maybe just a, at a high level, what was Mosaic ml and like, what is it growing into? Like how do you conceptualize this? 
+
+Jonathan: Yeah, and I will say gradient, when graded dissent was recorded, we weren't doing inference and had no plans to do it.
+
+It took a little while for the podcast to get out. Um, in the meantime, basically, you know, one thing I've learned at a startup, and I'm sure abhi can comment on this as well, focus is the most important thing. We have done our best work when we've been focused on doing one thing really well and our worst work when we've tried to do lots of things.
+
+Yeah. So, We don't want to do inference, we don't want to have had to do inference. Um, and at the end of the day, our customers were begging us to do it because they wanted a good way to serve the models and they liked our ecosystem. And so in some sense, we got dragged into it kicking and screaming. We're very excited to have a product.
+
+We're going to put our best foot forward and make something really truly amazing. But there is, you know, that's something that we were reluctant to do. You know, our customers convinced us it would be good for our business. It's been wonderful for business and we are gonna put everything into this, but you know, back when grading dissent came out, I [00:45:00] was thinking like, or when we recorded it or focused, oh God, like focus is the most important thing.
+
+I've learned that the hard way multiple times that Mosaic, abhi can tell you like, you know, I've made a lot of mistakes on not focusing enough. Um, boy inference, that's a whole second thing, and a whole different animal from training. And at the end of the day, when we founded the company, our belief was that inference was relatively well served at that time.
+
+There were a lot of great inference companies out there. Um, training was not well served, especially efficient training. And we had something to add there. I think we've discovered that as the nature of the models have changed, the nature of what we had to add to inference changed a lot and there became an opportunity for us to contribute something.
+
+But that was not the plan. But now we do wanna be the place that people come when they wanna train these big, complex, difficult models and know that it's gonna go right the first time and they're gonna have something they can servee right away. Um, you know, really the rep example of, you know, with 10 days to go saying, Hey, can you please train that model?
+
+And, you know, three or four days later the model was trained and we were just having fun doing interesting, fine tuning work in it for the rest of the 10 days, you know. That also requires good inference. 
+
+Swyx: That’s true, that's true. Like, so running evals and, and fine tuning. I'm just putting my business hat on and you know, and Alessio as well, like, uh, I've actually had fights with potential co-founders about this on the primary business.
+
+Almost like being training, right? Like essentially a one-time cost.
+
+Jonathan: Who told you it was a one time cost? What, who, who told you that?
+
+Swyx: No, no, no, no. Correct me. 
+
+Jonathan: Yeah. Yeah. Let me correct you in two ways. Um, as our CEO Navine would say, if he were here, when you create version 1.0 of your software, do you then fire all the engineers?
+
+Of [00:46:30] course not. You never, like, MPT has a thousand different things we wanted to do that we never got to. So, you know, there will be future models.
+
+Abhinav: And, and the data that's been trained on is also changing over time too, right? If you wanna ask anything about, I guess like May of 2023, we'll have to retrain it further and so on.
+
+Right? And I think this is especially true for customers who run like the kind of things that need to be up to date on world knowledge. So I, I think like, you know, the other thing I would say too is that, The malls we have today are certainly not the best malls we'll ever produce. Right. They're gonna get smaller, they're gonna get faster, they're gonna get cheaper, they're gonna get lower latency, they're gonna get higher quality.
+
+Right? And so you always want the next gen version of MPT and the one after that and one after that. There's a reason that even the GPT series goes three, four, and we know there's gonna be a five. Right? Um, so I I I also don't see as a, as a one-time cost.
+
+Jonathan: Yeah. Yeah. And I, if you wanna cite a stat on this, there are very, very few stats floating around on training versus inference cost.
+
+Mm-hmm. One is this blog post from I think David Patterson at Google, um, on the energy usage of ML at Google. And they break down and say three fifths of energy over the previous three years. I think this 2022 article was for inference, and two fifths were for training. And so actually that, you know, this is Google, which is serving models to billions of users.
+
+They're probably the most inference heavy place in the world. It's only a two fifth, three fifth breakdown, and that's energy training. Hardware is probably more expensive because it has fancier networking. That could be a 50 50 cost breakdown. And that's Google for a lot of other folks. It's gonna be weighed even more heavily, in favor of training.
+
+SPEED AND EFFICIENCY [00:48:01]
+
+Swyx: Amazing answer. Well, thanks. Uh, we can, we can touch on a little bit [00:48:00] on, uh, efficiency and speed because we, we, uh, didn't mention about that. So right now people spend between three to 10 days. You, you spend 10 days on, on mpc, seven rep spend three days. What's feasible? What's what Do you wanna get it down to?
+
+Abhinav: Oh, for, for these original models? Yeah. Yeah. So I think, um, this is probably one of the most exciting years, I think for training efficiency, just generally speaking, because we have the, the combination of a couple things, like one is like this next generation of hardware, like the H 100 s coming out from Nvidia, which on their own should be like, at least like a two x improvement or they 100 s on top of that, there's also a new floating point format f P eight, um, which could also deliver that alone.
+
+Does it? Yes. Yeah. Yeah. How, what, why? Oh, the f p thing? Yeah. Yeah. So basically what's happening is that, you know, when we do all of our math, like in the models matrix, multiplication, math, we do it in a particular precision. We started off in 32 bit precision a few years ago, and then in video came with 16 bit, and over the course of several years, we've all figured out how to do 16 bit training and that basically, you know, due to the harder requirements like.
+
+Increase the throughput by two x, reduce the cost by two x. That's about to happen again with FBA eight, like starting this year. And with Mosaic, you know, we've already started profiling L L M training with f p eight on H 100 s. We're seeing really, really good improvements there. And so you're gonna see a huge cost reduction this year just from this hardware fact alone.
+
+On top of that, you know, there's a lot of architectural applications. We're looking at ways to introduce some forms of sparsity, not necessarily like the, the, the super unstructured sparsity like lottery ticket. Um, which not that I'm sure I'm really happy to talk about. Um, but, but, um, are there ways of doing, like you [00:49:30] gating or like, kind of like m moe style architectures?
+
+So, you know, I think originally, you know, what was like 500 k. I think to try and train a Jeep, the equality model, if at the end of the year we could get that down to a hundred k, that would be fantastic.
+
+Swyx: That is this year's type of thing. 
+
+Jonathan: Not, not, like, that's not a pie in the sky thing. Okay. It is not, it's not a place we are now, but I think it is a, you know, I don't think more than a year in the future these days, cuz it's impossible.
+
+I think that is very much a 2023 thing. Yeah. Yeah. Okay. And hold me to that later this year.
+
+Swyx: G PT three for a hundred K, let's go. Um, and then also stable diffusion originally reported to be 600 K. Uh, you guys can get it done for under 50. Anything different about image models that we should image, to text?
+
+Jonathan: Um, I mean I think the, the most important part in all this is, you know, it took us a while to get 50 down by almost seven x. That was our original kind of proof of concept project for Mosaic. You know, just at the beginning to show like, you know, we can even do this and our investors should give us more money.
+
+But what I love about newer models that come out is they're always really slow. We haven't figured out how to optimize them yet. And so there's so much work to be done. So getting, you know, in that case, I guess from the cost you mentioned like a 12 x cost reduction in stable diffusion. Mm-hmm. Honestly it was a lot easier than getting a seven X for RESNET 50 an image net or a three X for Burt, cuz the architecture was much newer and there were a lot of inefficiencies to improve.
+
+Um, you know, I'm guessing that's gonna continue to be the case as we lean toward the bleeding edge and try to, you know, push the bleeding edge. I hope that, you know, in some sense you'll see smaller speed ups from us because the new models will come from us and they'll already be fast.
+
+Alessio: So that's making existing [00:51:00] things better with the, the long boy, the 60 5K context window, uh, you've doubled instead of the r.
+
+There was the R M T a couple weeks ago that had a possible 1 million. Uh, that's the unlimited former thing that came out last week, which is theoretically limitless context. What should people think about trade offs? Implications? You mentioned memories kind of start to become one of the bounds.
+
+Yeah. What's the right number? Like is it based on the customer's needs? Like how would you advise customers and startups who might be building their own models?
+
+Jonathan: It's all contextual. You know, there's a lot of buzz coming for long contexts lately with a lot of these papers. None of them are exact. In terms of the way that they're doing attention.
+
+And so there's, you know, to some extent there's an approximation or a trade off between doing some kind of inexact or approximate or hierarchical or, you know, non quadratic attention versus doing it explicitly correctly the quadratic way. I'm a big fan of approximation, so I'm eager to dig into these papers.
+
+If I've learned one thing from writing and reading papers, it's to believe nothing until I've implemented it myself. And we've certainly been let down many, many, many times at Mosaic by papers that look very promising until we implement them and realize, you know, here's how they cook the books on their data.
+
+Here's, you know, the one big caveat that didn't show up in the paper. So I look at a lot of this with skepticism until, you know, I believe nothing until I re-implement it. And in general, I'm rewarded for doing that because, you know, a lot of this stuff doesn't end up working quite as well in practice.
+
+This is promised in a paper, the [00:52:30] incentives just aren't there, which is part of the reason we went with just pure quadratic attention here. Like it's known to work. We didn't have to make an approximation. There's no asterisk or caveat. This was in some sense a sheer force of will by our amazing engineers.
+
+Alessio: So people want super long context because, you know, they wanna feed more documents and right now people do it with embeddings and feed them into the context window. How do you kind of see that changing? Are we gonna get to a point where like, you know, maybe it's 60 4k, maybe it's 120 k, where it's like, okay.
+
+You know, semantic search and embeddings are gonna work better than just running a million parameters, like a million token context window.
+
+Jonathan: Do, do you wanna say the famous thing about 64 K? Does somebody wanna say that, that statement, the, you know, the 64 K is all you'll ever need? The Bill Gates statement about Rams.
+
+Swyx: Andre Kaparthi actually made that comparison before that, uh, context is essentially Ram,
+
+Jonathan: if I get quoted here saying 60 4K is all you need, I will be wrong. We have no idea. People are gonna get ambitious. Yes. Um, GPT four has probably taken an image and turning it into a bunch of tokens and plugging it in.
+
+I'm guessing each image is worth a hell of a lot of tokens. Um, maybe that's not a thousand words. Not a thousand words, but, you know, probably a thousand words worth of tokens, if not even more so. Maybe that's the reason they did 32 k. Maybe, you know, who knows? Maybe we'll wanna put videos in these models.
+
+Like every time that we say, ah, that isn't that model big enough, somebody just gets more ambitious. Who knows? 
+
+TRENDS AND TRANSFORMERS [00:54:00]
+
+Swyx: Right? Um, you've famously made one. [00:54:00] Countertrend, uh, bet, which is, uh, you, you're actually betting that, uh, transformers will stick around for a long time. 
+
+Jonathan: How is that counter trend? 
+
+Swyx: Counter trend is in, you just said, a lot of things won't last.
+
+Right. A lot of things will get replaced, uh, really easily, but
+
+Jonathan: transformers will stick around. I mean, look at the history here. How long did the Convolutional neural network stick around for? Oh wait. They're still here and vision Transformers still haven't replaced them. Mm-hmm. How long did r and n stick around for?
+
+Decades. And, you know, they're still alive and kicking in a bunch of different places, so, you know. The fundamental architecture improvements are really hard to come by. I can't wait to collect from Sasha on that bet.
+
+Abhinav: I, I think a lot of your bet hinges on what counts as attention, right.
+
+Swyx: Wait, what do you mean?
+
+Well, how, how can that change? Oh, because it'll be approximated.
+
+Abhinav: Well, I suppose if, if we ever replace like the Qk multiplication, something that looks sort of like it, I, I wonder who, who, who comes out on top here.
+
+Jonathan: Yeah. I mean at the end of the day is a feed forward network, you know, that's fully connected, just a transformer with very simple attention.
+
+Mm-hmm. Um, so Sasha better be very generous to me cause it's possible that could change, but at the end of the day, we're still doing Transformers the way, you know, Vaswani had all intended back six years ago now, so, I don't know, things. Six years is a pretty long time. What's another four years at this point?
+
+Alessio: Yeah. What do you think will replace it if you lose Ben? What do you think? You would've lost  it time?
+
+Jonathan: If I knew that I'd be working on it.
+
+Abhinav:  I think it's gonna be just like MLPs, you know, that's the only, that's the only way we can go, I think at this point, because Thelp, I, I dunno. Oh, just basically down to, to um, to linear layers.[00:55:30]
+
+Oh, mostly the percepts. Exactly. Got, yeah. Yeah. Yeah. Cuz the architecture's been stripped, simplified so much at this point. I think, uh, there's very little left other than like some linear layers, some like residual connections and, and of course the attention, um, dot product.
+
+Jonathan: But you're assuming things will get simpler, maybe things will get more complicated.
+
+Swyx: Yeah, there's some buzz about like, the hippo models. Hungry, hungry hippos.
+
+Jonathan: I, I mean there's always buzz about something, um, you know, that's not to dismiss this work or any other work, but there's always buzz about something. I tend to wait a little bit to see if things stand the test of time for like two weeks.
+
+Um, at this point, it used to be, you know, a year, but now it's down to two weeks. Oh. But you know, I'm. I don't know. I don't like to follow the hype. I like to see what sticks around, what people actually manage to build off of. 
+
+Swyx: I have a follow up question actually on that. Uh, what's a, what's an egregiously overrated paper that once you actually looked into it fell apart completely?
+
+Jonathan: I'm not going down that path. Okay. I, you know, I even, even though I think there are papers that, you know, did not hold up under scrutiny, I don't think any of this was out of malice. And so I don't wanna go down that path. 
+
+Alessio: Yeah. I know you already talked about your focus on open research. Are you mostly gonna focus on open models or are there also, are you working on configurations that are more just for your customers and private, like, what percentage of your time are you focusing on, on open work?
+
+Jonathan: It's a little fuzzy. I mean, I think at the end of the day you have to ask what is the point of our business? Our business is not just to train a bunch of open models and give them to the world. That would, our VCs probably wouldn't be very happy if that were the case. The open [00:57:00] models serve our business because they're demos.
+
+A demo does not mean we give away everything. Um, a demo does not mean every single thing we do is shared with the world, but. We do have a business imperative to share with the world, which I kind of like. That was part of the design of the company, was making sure we had an imperative to do science and an imperative to share.
+
+But we are still a company and we do have to make money, but it would be a disaster for our business if we didn't share. And that's by design from the start. So, you know, there's certainly going to be some work that we do that is for our customers only, but by and large for anything that we wanna advertise to customers, there has to be something that is meaningful and useful that's out there in the world.
+
+Otherwise we can't convince people that we have it. 
+
+Abhinav: Yeah, I think like this, our recent inference product also makes the decision easier for us, right? So even since these open malls like we've developed so far, um, you can actually like, you know, uh, query them on our inference api, like our starter tier, and we basically charge like a, a per token fee.
+
+Very, very similar to the other API fighters. So there are pathways by which, you know, like even the open mall we provide for free still end up like helping our business out, right? You can customize them, deploy them on our, on our platform, and that way we, we still make money off of them.
+
+Alessio: Do you wanna jump into the landing ground?
+
+Anything else that you guys wanna cover that we didn't get to?
+
+Jonathan: This has been great. These are great questions. 
+
+Swyx: Do you want to dish on why Sparsity is not a focus for Mosaic?
+
+Jonathan: Um, I can just say that, you know, sparsity is not a focus for Mosaic and I am definitely over lottery tickets when I give my mosaic talk.
+
+The first slide is a, you know, a circle with a slash through it over a lottery ticket. [00:58:30] Um, and anyone who mentions lottery tickets, I ask to leave the room. Um, cuz you know there's other work out there. But Abhi, please feel free to dish on sparsity.
+
+Abhinav: Yeah, I, I think it really comes down to the fact that we don't have hardware yet that can accelerate it.
+
+Right? Or at least it's been mostly true for a long period of time. So the kinds of sparsity that the lottery check was working on was like if you put random zeros in the, in the weights, you know, and basically we found basically the fast year is that yes, you can turn most of the weights to zeros and the model still does kind of work, but there's no hardware out there that can take a matrix with a bunch of zeros and one without and make it go fast.
+
+Now, the one caveat for this, and this is gonna sound like a bit of advertisement, is, is Cereus actually, and they've been, since the beginning, they've built that architecture for Sparsity and they've actually published some research papers just earlier this year showing that yes, they really can train with Sparsity and get, this is, uh, sparse.
+
+U P T. Exactly. Yeah, exactly right. So, the final missing piece is really like, okay, we have the science to show you can train with sparse models, you know, from initialization even, or, or close initialization. Um, the last piece is just, is there a piece of hardware that actually speeds it up and gives you a cost savings?
+
+In which case, like the, the field is wide open. 
+
+Jonathan: The other big challenge here is that if you want to make sparsity go fast in general right now on standard hardware, you do need it to be structured in various ways. And any incremental amount of structure that you force on the sparsity dramatically reduces the quality of the resulting model that you get up to the point where if you remove just, you know, entire neurons from the model, you're just making the layers smaller and that really hurts the quality of the model.
+
+So these models, steel is all you need. These models love unstructured [01:00:00] sparsity. Um, and yeah, if there were a chip and a software package that made it really, really easy to accelerate it, I bet we would be doing it at Mosaic right now. 
+
+Alessio: This is like Sarah Hooker's point with the hardware lottery post, talking about lotteries.
+
+Absolutely. Where you know, if you don't have the right hardware, some models, architectures just can't emerge quickly enough.
+
+Abhinav: This there, there's like an invariance to think of, which is that today's popular models always run fast on today's hardware. Like this, this has to be true. Mm-hmm. Right? Like there's no such thing as a popular model that runs slow cuz no one would've developed it.
+
+Yeah. Um, so it's kind of like with the new architectures, right? If there's new hardware that can do sparsity, you have to co-evolve like a new architecture that works with it. And then those two pair together really well. Transformers and GPUs are like a match made in heaven. 
+
+Jonathan: How would say transformers and GPUs are a match made in heaven.
+
+Yeah. And we're lucky that they work on GPUs, but the folks at Google D designed them for TPUs cuz TPUs and R and Ns were not a match made in heaven.
+
+LIGHTNING ROUND AND CLOSING [1:00:55]
+
+Alessio: All right, we have three questions. One is on acceleration, one on exploration, and then just a takeaway for the audience. And you can, you know, either of you can start and the other can finish.
+
+So the first one is, what has already happened in AI That thought would take much longer than it has?
+
+Abhinav: Do you have an answer, Jon? 
+
+Jonathan: Yeah, I have answer everything. Um, you know, I, I remember when GPT two came out and I looked at that and went, eh, you know, that doesn't seem very exciting. And gosh, it's already 1.5 billion parameters.
+
+You know, they can't possibly keep getting better as they make it bigger. And then GPT three came out and I was like, eh, it's slightly better at [01:01:30] generating text. Yeah, who cares? And you know, I've been wrong again and again and again. That. Next token prediction, making things big can produce useful models.
+
+To be fair, pretty much all of us were wrong about that. So I can't take that precisely on myself. Otherwise, Google, Facebook and Microsoft Research would all have had killer large language models way before opening I ever got the chance to do it. Um, opening I made a very strange bet and it happened to work out very well.
+
+But yeah, diffusion models, like they're pretty stupid at the end of the day and they produce beautiful images, it’s astounding.
+
+Abhinav: Yeah, I think my, my answer is gonna be like the, the chatbots at scale, like idea, like basically I thought it would be quite a while before, you know, like hundreds of millions of people will be talking to AI models for a large portion of the data, but now there's many startups and companies not, not just open with chat pt, but, but you know, like character and others where, um, it, it's really astounding, like how many people are actually developing like emotional connections to these, to these AI models.
+
+And I don't think I was. Would've predicted that like September, October of last year. But you know, the inflection point of the last six months has been really surprising.
+
+Swyx: I haven't actually tried any of these models, but I, I don't know. It seems like a very educational thing. It's like, oh, talk to Genius can, but like that's a very educational use case.
+
+Right? Right. Like what, what do you think they're using for, I guess, emotional support?
+
+Abhinav: Well, yes. I mean, I think some of them are sort of like, yeah, like either for emotional support or honestly just friends and stuff. Right. I mean, I think like, you know, loneliness mental health is a really a big problem everywhere.
+
+And so the most interesting I think I've found is that if you go to the subreddits, you know, for those communities and you see like how they [01:03:00] talk about and think about their like AI friends and like these characters, it's, it's, it's like out of a science fiction book, like I would never expect this to be like reality.
+
+Swyx: Yeah. What do you think are the most interesting unsolved questions in ai?
+
+Abhinav: I'm really interested in seeing how far down we can go in terms of precision and, and stuff like that. Particularly similar to the BF16 FP thing. 
+
+Swyx: Okay. Um, there's also like just quantizing until like it's two bits.
+
+Abhinav: Yeah, exactly. Like, or even like down to analog or something like that. Because our brains obviously are not running on digital logic and stuff and so, you know, how many orders of magnitude do we have remaining in kind of like just these um, things and I wonder if some of these problems just get easier with scale.
+
+Like there have been sort of hints in some papers that, you know, it becomes easier to quantize or easier to prune as it gets bigger and bigger. So maybe as we, almost as a natural consequence of a scaling up over the next few years, will we just naturally become easier and easier to just start going to like four bits or two that are even binary leg weights.
+
+Jonathan: I want to know how small we can go in a different way. I just want to know how efficient we can make it to get models that are this good. That was my research question for my entire PhD lottery tickets were one way to get at that. That's now kind of the research question I'm chasing at Mosaic in a sense.
+
+I, you know, open ai has shown us that there is one path to getting these incredible capabilities that is scale. I hope that's not the only path. I hope there are lots of ways of getting there. There's better modeling, there are better algorithms. I hate the neuroscience metaphors, but in some sense, our existence and our brains are, you know, evidence that there is at least one other way to get to these kinds of incredible capabilities that doesn't require, you know, [01:04:30] a trillion parameters and megawatts and megawatts and gazillions of dollars.
+
+So, you know, I do wonder how small we can go? Is there another path to get to these capabilities without having to do it this way? If it's there, I hope we find it at Mosaic.
+
+Swyx: Yeah my, my favorite fact is something on the order of the human brain runs on 30 watts of energy, and so we are, we're doing like dozens of orders of magnitude off on that one.
+
+Abhinav: I, I don't think you can get like one gpu, one different. Yeah.
+
+Alessio: If there’s one message you want everyone. To remember when thinking about this thing. There's a lot of, you know, fear mongering. There's a lot of messaging being spread around, like, what should people think about in ai? What should be top of mind for them?
+
+Jonathan: I'll go for it. Which is, you know, stay balanced. They're the people who really feed into the hype or who, you know, eat up the hype. They're the people who are, you know, big pessimists or react very strongly against the hype, or to some extent are in denial. Stay balanced, embrace the fact that we've built extraordinarily useful tools.
+
+Um, but we haven't built a g I and you know, personally, I don't think we're anywhere close to that. You know, so stay balanced and follow the science. I think that's really, that's what we try to do around Mosaic. We try to focus on what's useful to people, what will, you know, hopefully make the world a better place.
+
+We try our best on that, but especially, you know, how we can follow the science and use data to be our guide, not just, you know, talk a lot, you know, try to talk through our work instead.
+
+Abhinav: And I would also say just kinda like research done in the open. I think like, you know, there's no computing with the, the open community, [01:06:00] right?
+
+Just in volume, the number of like, kind of eyeballs you basically have, like looking at your models at the, even at the problems with the models, at ways we improve them. Um, I just think, you know, yeah, research done in the open. It will, it will be the way forward, both to keep our models safe and to bely, like examine the consequences of these AI models like in the world.
+
+Alessio: Awesome. Thank you so much guys for coming on.
+
+Swyx: and thanks for keeping AI open. 
+
+Abhinav: Thank you for having us. 
+
+Jonathan: Yeah. Thank you so much for having us.
+
+Discussion about this episode
+
+CommentsRestacks
+
+Latent Space: The AI Engineer Podcast
+
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+The podcast by and for AI Engineers! In 2025, over 10 million readers and listeners came to Latent Space to hear about news, papers and interviews in Software 3.0.
+
+We cover Foundation Models changing every domain in Code Generation, Multimodality, AI Agents, GPU Infra and more, directly from the founders, builders, and thinkers involved in pushing the cutting edge. Striving to give you both the definitive take on the Current Thing down to the first introduction to the tech you'll be using in the next 3 months! We break news and exclusive interviews from OpenAI, Anthropic, Gemini, Meta (Soumith Chintala), Sierra (Bret Taylor), tiny (George Hotz), Databricks/MosaicML (Jon Frankle), Modular (Chris Lattner), Answer.ai (Jeremy Howard), et al. 
+
+Full show notes always on https://latent.space
+
+Subscribe
+
+Listen on
+
+Substack App
+
+Apple Podcasts
+
+Spotify
+
+RSS Feed
+
+Appears in episode
+
+Latent.Space
+
+Alessio Fanelli
+
+Recent Episodes
+
+Giving Agents Computers — Ivan Burazin, Daytona
+
+May 21
+
+Railway: The Agent-Native Cloud — Jake Cooper
+
+May 20
+
+The Autonomous Drone Tech Stack & Economics of Drones — Yaroslav Azhnyuk, The Fourth Law & Guest Host Noah Smith, Noahpinion
+
+May 18 • Latent.Space, Brandon Anderson, and Noah Smith
+
+AI-Native Healthcare: 100M Doctor Visits, 10–20 Hours Saved, Prior Auth in Minutes — Janie Lee & Chai Asawa, Abridge
+
+May 14
+
+🔬Doing Vibe Physics — Alex Lupsasca, OpenAI
+
+May 5
+
+Physical AI that Moves the World — Qasar Younis & Peter Ludwig, Applied Intuition
+
+Apr 27
+
+AIE Europe Debrief + Agent Labs Thesis: Unsupervised Learning x Latent Space Crossover Special (2026)
+
+Apr 23
+
+Shopify’s AI Phase Transition: 2026 Usage Explosion, Unlimited Opus-4.6 Token Budget, Tangle, Tangent, SimGym — with Mikhail Parakhin…
+
+Apr 22
