@@ -9,7 +9,7 @@
 
 ### ★★ [Strategy] · BG2 Pod (2025-10)
 
-$3T AI buildout, OpenAI–MS unlocking Azure scale — no public transcript available; recommend Memories.ai pull the YouTube video.
+$3T AI buildout, OpenAI–MS unlocking Azure scale.
 
 [Source](https://creators.spotify.com/pod/profile/bg2pod/episodes/Satya-Nadella--BG2-w-Bill-Gurley--Brad-Gerstner-e2s7pnc)
 

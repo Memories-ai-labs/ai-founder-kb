@@ -24,8 +24,6 @@
 
 **★★★** [Product]: "The real product is the model itself — traditional products are just distribution channels"; DAU is a vanity metric.
 
-**Memories.ai implication**: Memories.ai implication: the public API is the product; Lucy products are just distribution channels for it.
-
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 
 ---
@@ -33,8 +31,6 @@
 ## Yan Junjie (MiniMax) — 2025-12-10
 
 **★★★** [Engineering & Management]: Wobbled for six months early on — "we thought AI talent + internet talent was enough; it just didn't work." The two logics can't coexist.
-
-**Memories.ai implication**: Memories.ai implication: don't mix "big-tech veterans" with "AI people" in hiring — the culture will tear apart.
 
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 

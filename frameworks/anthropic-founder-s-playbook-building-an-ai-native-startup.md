@@ -9,7 +9,7 @@
 
 ## Description
 
-【最新最重要】Anthropic 2026-05 官方发布。4 阶段框架（Idea/MVP/Launch/Scale）；配套 9 大消费 AI 垂直研究（明确 Anthropic 不下沉做这些 → 留给 founders）。同时是 playbook 也是销售文案，但框架本身扎实。Case studies: Ambral, Anything, Carta Healthcare, HumanLayer, Vulcan Technologies. 对 Memories.ai 直接相关：里面隐含描述了 Memories.ai 的潜在客户画像。
+【最新最重要】Anthropic 2026-05 官方发布。4 阶段框架（Idea/MVP/Launch/Scale）；配套 9 大消费 AI 垂直研究（明确 Anthropic 不下沉做这些 → 留给 founders）。同时是 playbook 也是销售文案，但框架本身扎实。Case studies: Ambral, Anything, Carta Healthcare, HumanLayer, Vulcan Technologies.
 
 ## Recommended Entry Point
 

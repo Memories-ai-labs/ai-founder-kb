@@ -8,10 +8,6 @@ He Xiaopeng: "The chairman has to charge to the front lines as CEO." Wang Xingxi
 
 He Xiaopeng on Luo Yonghao EP2 / Wang Xingxing in China Newsweek / Brian Chesky on Invest Like the Best / Anthropic Founder Playbook / Keith Rabois on Lenny's ("barrels vs ammunition")
 
-## Action Implication for Memories.ai
-
-Shawn should personally review the DX of every Memories.ai public API endpoint (don't delegate to an "API committee"). Run Brad Jacobs's "A-player test" on every core IC: would you panic if they quit?
-
 ---
 
 ← [Patterns index](./README.md) · [→ KB home](../README.md)

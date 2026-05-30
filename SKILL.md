@@ -17,7 +17,6 @@ by-company/           ~110 company files
 by-source/            ~106 podcast/publication summaries
 frameworks/           20 canonical playbooks (Anthropic Founder Playbook + others)
 sources-catalog/      101 subscriptions
-memories-ai-actions/  26 P0/P1/P2 actions specific to Memories.ai
 
 raw-transcripts/      THE BIG STORAGE — full transcripts
   sequoia/            66 Sequoia YouTube transcripts
@@ -70,5 +69,5 @@ When answering, cite file paths (e.g., `by-person/western/dario-amodei.md`) and 
 ## Don't
 
 - Don't paste full transcripts into chat output — reference by path.
-- Don't write to `by-topic/`, `by-person/`, `by-company/`, `by-source/`, `patterns/`, or `memories-ai-actions/` unless explicitly asked — those are hand-curated.
+- Don't write to `by-topic/`, `by-person/`, `by-company/`, `by-source/`, or `patterns/` unless explicitly asked — those are hand-curated.
 - Don't translate KB content to non-English — the curated layer is English-only by convention. Raw transcripts stay in whatever language they were captured.

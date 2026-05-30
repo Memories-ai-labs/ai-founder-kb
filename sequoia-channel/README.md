@@ -3,7 +3,7 @@
 **Captured**: 2026-05-24
 **Source**: https://www.youtube.com/@sequoiacapital
 
-**Transcript status**: 33 videos have transcripts (in `/Users/junxiaoshen/Desktop/sequoia_transcripts/text/`). 126 were IP-blocked by YouTube (see list below; can be re-fetched via Memories.ai API).
+**Transcript status**: 66 videos have full transcripts in [`raw-transcripts/sequoia/`](../raw-transcripts/sequoia/). 93 are still pending or were IP-blocked by YouTube during initial scrape (see list below).
 
 ## By Category
 
@@ -186,7 +186,7 @@
 ## Transcript Acquisition Summary
 
 - **Transcripts acquired**: 33 videos
-- **Not acquired (IP-blocked; can be re-fetched via Memories.ai API)**: 126 videos
+- **Not acquired (IP-blocked during initial scrape)**: 93 videos
 
 Not-acquired list:
 

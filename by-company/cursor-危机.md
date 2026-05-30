@@ -11,8 +11,6 @@
 
 Cursor has $2B ARR but is being abandoned by customers — Claude Code + Codex are squeezing out the "code-editor middle layer."
 
-**Memories.ai implication**: Memories.ai implication: Memories.ai can't stay at the "memory middle layer." Either go deeper into applications (Lucy) or down to primitives (vector / portrait schema). The middle layer will get squeezed by OpenAI Memory / Anthropic memory features.
-
 [Source](https://news.qq.com/rain/a/20260407A03DV400)
 
 ---

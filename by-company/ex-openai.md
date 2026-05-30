@@ -11,8 +11,6 @@
 
 "It's the decade of agents, not the year of agents." Pattern-matching against 15 years of AI experience — industry hype timelines are consistently too short.
 
-**Memories.ai implication**: Memories.ai implication: Don't let the 2025 agent hype dictate short-term decisions. Design the API for a 5-10 year horizon.
-
 [Source](https://www.dwarkesh.com/p/andrej-karpathy)
 
 ### ★★★ [Strategy] · Dwarkesh Podcast (2025-10-17)
@@ -30,8 +28,6 @@ Model collapse is the fundamental obstacle to self-improvement — ask ChatGPT t
 ### ★★★ [Product] · Dwarkesh Podcast (2025-10-17)
 
 Why coding dominates AI revenue: text-based + existing infrastructure (diff/IDE/VCS) + LLMs are strong at text. Tasks of equivalent surface simplicity (spaced repetition / slides / transcription editing) are still unsolved — pre-built infrastructure determines whether AI can actually land.
-
-**Memories.ai implication**: Memories.ai implication: before building a video-memory product, ask: is there pre-built infrastructure? If not, you have to build it yourself (this is the essential work of Lucy).
 
 [Source](https://www.dwarkesh.com/p/andrej-karpathy)
 

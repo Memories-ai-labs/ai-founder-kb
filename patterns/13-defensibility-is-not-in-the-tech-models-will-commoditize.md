@@ -8,10 +8,6 @@ Zhu Xiaohu: "Any technical moat is a lie." Aravind: "Models will get increasingl
 
 Zhu Xiaohu on Zhang Xiaojun EP122 / Aravind at Stanford GSB / Clem Delangue in TechCrunch / Bret Taylor on Sequoia / Dario Amodei on Dwarkesh ("frontier labs won't be winner-take-all")
 
-## Action Implication for Memories.ai
-
-Don't be tempted to train a frontier model (would require $10B+). Focus on the video-memory application layer's brand + packaging + personalized data compounding. Use the cheapest inference provider for the model layer.
-
 ---
 
 ← [Patterns index](./README.md) · [→ KB home](../README.md)

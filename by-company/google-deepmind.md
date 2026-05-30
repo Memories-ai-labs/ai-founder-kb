@@ -23,8 +23,6 @@ Selective openness: list Anthropic models on Cloud Marketplace and use Exa for s
 
 "The model eats the scaffolding. Every crank of the model flywheel, the model eats a bunch of scaffolding." DeepMind now ships a complete agent harness instead of a bare model — and simultaneously trains for "harness diversity" so the model generalizes outside Google.
 
-**Memories.ai implication**: Memories.ai implication: the scaffolding application-layer startups are building today may get eaten by the model next year. Lucy Desktop's BFF proxy and pHash dedup are exactly this kind of soon-to-be-eaten scaffolding.
-
 [Source](https://www.cognitiverevolution.ai/the-model-eats-the-scaffolding-deepmind-s-logan-kilpatrick-tulsee-doshi-on-3-5-flash-omni-more/)
 
 ## Demis Hassabis

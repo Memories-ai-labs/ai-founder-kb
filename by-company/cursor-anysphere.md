@@ -11,8 +11,6 @@
 
 Cursor today "pays retail to access models that Anthropic gets wholesale" — a structural cost disadvantage. Once Anthropic launched Claude Code, Cursor couldn't match the pricing power.
 
-**Memories.ai implication**: Memories.ai implication: A pure wrapper strategy is extremely fragile. Memories.ai has its own infra and absolutely cannot let Lucy go the wrapper route — this is the strongest argument for the Memories.ai platform strategy.
-
 [Source](https://fortune.com/2026/03/21/cursor-ceo-michael-truell-ai-coding-claude-anthropic-venture-capital/)
 
 ### ★★★ [Strategy] · Fortune (2026-03-21)

@@ -1,8 +1,7 @@
 # AI Founder Knowledge Base
 
 **Compiled**: 2026-05-24
-**Author**: Shawn Shen (Memories.ai exec) + Claude
-**Goal**: A queryable, indexable knowledge base of founder-tier content for AI startup builders — especially those in personal memory / video AI.
+**Goal**: A queryable, indexable knowledge base of founder-tier content for AI startup builders.
 
 ## Scale
 
@@ -12,8 +11,8 @@
 - **Cross-cutting patterns**: 15 recurring insights
 - **Framework documents**: 19 canonical playbooks (including the Anthropic Founder Playbook)
 - **Source subscriptions**: 101 podcasts/newsletters/blogs that consistently produce founder-tier content
-- **Memories.ai action checklist**: 26 items prioritized P0/P1/P2
-- **Sequoia YouTube channel**: 159 video metadata records (33 with transcripts)
+- **Sequoia YouTube channel**: 159 video metadata records (66 with full transcripts)
+- **Raw transcripts**: 1,600+ full episode transcripts across 20VC, Dwarkesh, Latent Space, Acquired, Cheeky Pint, Cognitive Revolution, Lenny's, and Sequoia.
 
 ---
 
@@ -44,10 +43,9 @@ See [HOW-TO-USE.md](./HOW-TO-USE.md) for details.
 
 ### 🌟 If you have limited time
 
-Start with these two folders:
+Start here:
 
 - **[Patterns (patterns/)](./patterns/)** — 15 cross-cutting insights that recur across many sources; the highest-density content
-- **[Memories.ai action checklist (memories-ai-actions/)](./memories-ai-actions/)** — 26 P0/P1/P2 actions specific to Memories.ai
 
 ### 📚 Deep read by topic
 
@@ -119,12 +117,6 @@ Start with these two folders:
   - 879 per-episode summary JSONs (`summaries/*.json`)
   - `guests.json` + `index.json` with guest / company / topics / key_insights metadata
   - Categories: SaaS (172), Enterprise (130), AI/ML (117), Consumer (96), Fintech (68), and more
-
-## Related Files (Outside This Folder)
-
-- `/Users/junxiaoshen/Desktop/memories-ai-api-gaps-2026-05-24.md` — Memories.ai public API gap report (12 empirically tested gaps; standalone Markdown, for the engineering team)
-- `/Users/junxiaoshen/Desktop/sequoia_transcripts/text/` — 33 raw Sequoia video transcripts (.txt)
-- `/Users/junxiaoshen/Desktop/AI创始人访谈学习_2026-05-24.xlsx` — earlier Excel version (kept as backup; this Markdown KB is the current source of truth)
 
 ---
 

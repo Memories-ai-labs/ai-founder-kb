@@ -12,7 +12,7 @@ Date: 2025-10 · [Source](https://creators.spotify.com/pod/profile/bg2pod/episod
 
 ### ★★ [Strategy]
 
-$3T AI buildout, OpenAI–MS unlocking Azure scale — no public transcript available; recommend Memories.ai pull the YouTube video.
+$3T AI buildout, OpenAI–MS unlocking Azure scale.
 
 ---
 

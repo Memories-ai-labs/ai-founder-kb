@@ -8,8 +8,6 @@
 
 **★★** [Product]: Carta Healthcare / Anything are listed as featured cases in the playbook, but third-party coverage hasn't produced details.
 
-**Memories.ai implication**: Memories.ai implication: honest annotation — these two cases require reading the PDF directly to fill in.
-
 [Source](https://claude.com/blog/the-founders-playbook)
 
 ---

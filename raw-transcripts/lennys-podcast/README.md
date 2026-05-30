@@ -4,16 +4,13 @@
 
 ## Sources
 
-- **3 full audio-transcribed episodes** (`SPEAKER_0`/`SPEAKER_1` format) from Memories.ai pipeline — the highest-quality dialog transcripts.
+- **3 full audio-transcribed episodes** (`SPEAKER_0`/`SPEAKER_1` format) from an audio-to-text pipeline — the highest-quality dialog transcripts.
 - **49 substantive newsletter posts** (>10KB) scraped from Substack — these are Lenny's written essays/guides, not literal podcast dialog.
 - Empty episode-description files were removed because Lenny's Substack does NOT include podcast transcripts in the public HTML — those live behind the audio player.
 
 ## How to extend
 
-To get full audio transcripts for the remaining ~400 episodes:
-1. Pull MP3 URLs from `https://api.substack.com/feed/podcast/10845.rss`.
-2. Submit each to Memories.ai `/upload_videos_by_url` (or similar) with `unique_id=lennys-podcast`.
-3. The hourly cron in `CLAUDE.md` §3a can be adapted to pull transcripts as they finish parsing.
+To get full audio transcripts for the remaining ~400 episodes, you'd need an audio-to-text pipeline. The MP3 URLs are in `https://api.substack.com/feed/podcast/10845.rss`.
 
 ## Files
 

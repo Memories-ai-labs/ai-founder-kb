@@ -8,8 +8,6 @@
 
 **★★★** [Strategy]: "The AI industry is not an extension of the internet industry" — it requires entirely new organizational forms, product philosophy, and definitions of talent.
 
-**Memories.ai implication**: Memories.ai implication: Memories.ai is an AI-native company. Don't graft on the internet playbook of building DAU first and selling ads later.
-
 [Source](https://m.thepaper.cn/newsDetail_forward_32148957)
 
 ---

@@ -8,10 +8,6 @@ fal: "Video models are compute-bound (LLM is memory-bound) — the optimization 
 
 fal on Sequoia / Daytona on Latent Space / Dylan Patel on Dwarkesh / Sundar Pichai ($180B CapEx + memory crunch) / Sora 2 (diffusion transformer)
 
-## Action Implication for Memories.ai
-
-Redesign the Memories.ai video pipeline (do not copy LLM-serving optimization): (1) compute-saturating architecture, (2) hot-swappable backbones (models turn over every 30 days), (3) billing by burst budget, not req/s, (4) lock multi-year GPU contracts to hedge.
-
 ---
 
 ← [Patterns index](./README.md) · [→ KB home](../README.md)

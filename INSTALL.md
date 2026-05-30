@@ -31,7 +31,7 @@ Or just ask in plain English — the `ai-founder-kb` skill description triggers 
 
 - **One skill** (`ai-founder-kb`) — the navigation guide in `SKILL.md`. Claude auto-loads it when relevant questions come up.
 - **Three slash commands** — `/kb`, `/kb-person`, `/kb-source` (see `commands/`).
-- **The full KB content** — `patterns/`, `by-topic/`, `by-person/`, `by-company/`, `by-source/`, `frameworks/`, `sources-catalog/`, `memories-ai-actions/`, `raw-transcripts/`. Claude lazy-loads files only when needed.
+- **The full KB content** — `patterns/`, `by-topic/`, `by-person/`, `by-company/`, `by-source/`, `frameworks/`, `sources-catalog/`, `raw-transcripts/`. Claude lazy-loads files only when needed.
 
 ## Alternative: local clone (for development)
 
