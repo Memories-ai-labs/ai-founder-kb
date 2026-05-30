@@ -1,40 +1,23 @@
 # Cheeky Pint — Transcripts
 
-32 episodes from https://cheekypint.substack.com
+Archive of Cheeky Pint episodes (John Collison interviews). Target: ALL ~30+ episodes.
 
-Host: John Collison (Stripe co-founder)
+Source: https://cheekypint.transistor.fm/episodes
 
-## Episodes
+## Episodes Saved
 
-- [A Cheeky Pint with Anthropic CEO Dario Amodei](https://cheekypint.substack.com/p/a-cheeky-pint-with-anthropic-ceo) (2025-08-06) — [`a-cheeky-pint-with-anthropic-ceo.txt`](./a-cheeky-pint-with-anthropic-ceo.txt)
-- [A Cheeky Pint with Kyle Vogt, cofounder of Twitch, Cruise, and The Bot Company](https://cheekypint.substack.com/p/a-cheeky-pint-with-kyle-vogt-cofounder) (2025-07-25) — [`a-cheeky-pint-with-kyle-vogt-cofounder.txt`](./a-cheeky-pint-with-kyle-vogt-cofounder.txt)
-- [A Cheeky Pint with Meta CFO Susan Li](https://cheekypint.substack.com/p/a-cheeky-pint-with-meta-cfo-susan) (2025-07-25) — [`a-cheeky-pint-with-meta-cfo-susan.txt`](./a-cheeky-pint-with-meta-cfo-susan.txt)
-- [A Cheeky Pint with OpenAI cofounder Greg Brockman](https://cheekypint.substack.com/p/a-cheeky-pint-with-openai-cofounder) (2025-07-25) — [`a-cheeky-pint-with-openai-cofounder.txt`](./a-cheeky-pint-with-openai-cofounder.txt)
-- [A Cheeky Pint with serial entrepreneur Pieter Levels @levelsio)](https://cheekypint.substack.com/p/a-cheeky-pint-with-serial-entrepreneur) (2025-07-25) — [`a-cheeky-pint-with-serial-entrepreneur.txt`](./a-cheeky-pint-with-serial-entrepreneur.txt)
-- [Ambrook CEO Mackenzie Burnett on American agriculture, rural resilience, and carrying 50lbs of fresh pork on Amtrak](https://cheekypint.substack.com/p/ambrook-ceo-mackenzie-burnett-on) (2025-09-17) — [`ambrook-ceo-mackenzie-burnett-on.txt`](./ambrook-ceo-mackenzie-burnett-on.txt)
-- [Ben Thompson from Stratechery on AI ads, the end of SaaS, and the future of media](https://cheekypint.substack.com/p/ben-thompson-from-stratechery-on) (2026-02-12) — [`ben-thompson-from-stratechery-on.txt`](./ben-thompson-from-stratechery-on.txt)
-- [Bret Taylor of Sierra on AI agents, outcome-based pricing, and the OpenAI board](https://cheekypint.substack.com/p/bret-taylor-of-sierra-on-ai-agents) (2026-03-10) — [`bret-taylor-of-sierra-on-ai-agents.txt`](./bret-taylor-of-sierra-on-ai-agents.txt)
-- [Casey Handmer of Terraform Industries on solar maximalism, hard tech, and reclaiming the Salton Sea](https://cheekypint.substack.com/p/casey-handmer-of-terraform-industries) (2025-10-28) — [`casey-handmer-of-terraform-industries.txt`](./casey-handmer-of-terraform-industries.txt)
-- [Cognition CEO Scott Wu on acquiring Windsurf, AI replacing engineers, and the Moneyball-ification of everything](https://cheekypint.substack.com/p/cognition-ceo-scott-wu-on-acquiring) (2025-08-27) — [`cognition-ceo-scott-wu-on-acquiring.txt`](./cognition-ceo-scott-wu-on-acquiring.txt)
-- [Coinbase CEO Brian Armstrong on bitcoin going to $1 million, electing a pro-crypto Congress, and Jamie Dimon](https://cheekypint.substack.com/p/coinbase-ceo-brian-armstrong-on-bitcoin) (2025-08-20) — [`coinbase-ceo-brian-armstrong-on-bitcoin.txt`](./coinbase-ceo-brian-armstrong-on-bitcoin.txt)
-- [Compliance at scale and why TAM is a distraction with Christina Cacioppo of Vanta](https://cheekypint.substack.com/p/compliance-at-scale-and-why-tam-is) (2026-03-31) — [`compliance-at-scale-and-why-tam-is.txt`](./compliance-at-scale-and-why-tam-is.txt)
-- [Creating prediction markets (and suing the CFTC) with Tarek Mansour and Luana Lopes Lara](https://cheekypint.substack.com/p/creating-prediction-markets-and-suing) (2026-03-17) — [`creating-prediction-markets-and-suing.txt`](./creating-prediction-markets-and-suing.txt)
-- [Dan Sundheim of D1 Capital on the art of public market investing](https://cheekypint.substack.com/p/dan-sundheim-of-d1-capital-on-the) (2025-10-22) — [`dan-sundheim-of-d1-capital-on-the.txt`](./dan-sundheim-of-d1-capital-on-the.txt)
-- [Dave Ricks, CEO of Eli Lilly, on GLP-1s and the business of pharma](https://cheekypint.substack.com/p/dave-ricks-ceo-of-eli-lilly-on-glp) (2025-11-11) — [`dave-ricks-ceo-of-eli-lilly-on-glp.txt`](./dave-ricks-ceo-of-eli-lilly-on-glp.txt)
-- [Des Traynor on reinventing Intercom twice and how to avoid force-feeding users "foie gras" features](https://cheekypint.substack.com/p/des-traynor-on-reinventing-intercom) (2025-09-24) — [`des-traynor-on-reinventing-intercom.txt`](./des-traynor-on-reinventing-intercom.txt)
-- [Elon Musk on Space GPUs, AI, Optimus, and his manufacturing method](https://cheekypint.substack.com/p/elon-musk-on-space-gpus-ai-optimus) (2026-02-05) — [`elon-musk-on-space-gpus-ai-optimus.txt`](./elon-musk-on-space-gpus-ai-optimus.txt)
-- [Garrett Langley of Flock Safety on building technology to solve crime](https://cheekypint.substack.com/p/garrett-langley-of-flock-safety-on) (2026-03-05) — [`garrett-langley-of-flock-safety-on.txt`](./garrett-langley-of-flock-safety-on.txt)
-- [How to build a $16B car company with RJ Scaringe, founder of Rivian](https://cheekypint.substack.com/p/how-to-build-a-16b-car-company-with) (2025-10-14) — [`how-to-build-a-16b-car-company-with.txt`](./how-to-build-a-16b-car-company-with.txt)
-- [Julia DeWahl of Antares on building nuclear reactors for the US military](https://cheekypint.substack.com/p/julia-dewahl-of-antares-on-building) (2025-11-25) — [`julia-dewahl-of-antares-on-building.txt`](./julia-dewahl-of-antares-on-building.txt)
-- [Ramp founder Eric Glyman on the many ways AI is changing corporate spending](https://cheekypint.substack.com/p/ramp-founder-eric-glyman-on-the-many) (2026-02-17) — [`ramp-founder-eric-glyman-on-the-many.txt`](./ramp-founder-eric-glyman-on-the-many.txt)
-- [Reiner Pope of MatX on accelerating AI with transformer-optimized chips](https://cheekypint.substack.com/p/reiner-pope-of-matx-on-accelerating) (2026-02-26) — [`reiner-pope-of-matx-on-accelerating.txt`](./reiner-pope-of-matx-on-accelerating.txt)
-- [Robinhood CEO Vlad Tenev on tokenizing private companies, changing the SEC, and Frank Slootman](https://cheekypint.substack.com/p/robinhood-ceo-vlad-tenev-makes-his) (2025-08-13) — [`robinhood-ceo-vlad-tenev-makes-his.txt`](./robinhood-ceo-vlad-tenev-makes-his.txt)
-- [Stablecoin special: Zach Abrams (Bridge) and Henri Stern (Privy)](https://cheekypint.substack.com/p/stablecoin-special-zach-abrams-bridge) (2025-11-04) — [`stablecoin-special-zach-abrams-bridge.txt`](./stablecoin-special-zach-abrams-bridge.txt)
-- [Stripe’s 2025 annual letter](https://cheekypint.substack.com/p/stripes-2025-annual-letter) (2026-02-24) — [`stripes-2025-annual-letter.txt`](./stripes-2025-annual-letter.txt)
-- [The 20-year journey to fully autonomous cars with Dmitri Dolgov of Waymo](https://cheekypint.substack.com/p/the-20-year-journey-to-fully-autonomous) (2026-03-24) — [`the-20-year-journey-to-fully-autonomous.txt`](./the-20-year-journey-to-fully-autonomous.txt)
-- [The economics and trends of the restaurant industry, with Tony Xu of DoorDash](https://cheekypint.substack.com/p/the-economics-and-trends-of-the-restaurant) (2026-04-21) — [`the-economics-and-trends-of-the-restaurant.txt`](./the-economics-and-trends-of-the-restaurant.txt)
-- [The history and future of AI at Google, with Sundar Pichai](https://cheekypint.substack.com/p/the-history-and-future-of-ai-at-google) (2026-04-07) — [`the-history-and-future-of-ai-at-google.txt`](./the-history-and-future-of-ai-at-google.txt)
-- [The world of voice AI, with Mati Staniszewski of ElevenLabs](https://cheekypint.substack.com/p/the-world-of-voice-ai-with-mati-staniszewski) (2026-04-14) — [`the-world-of-voice-ai-with-mati-staniszewski.txt`](./the-world-of-voice-ai-with-mati-staniszewski.txt)
-- [Tobi Lütke is still captivated by internet commerce, 20 years later](https://cheekypint.substack.com/p/tobi-lutke-is-still-captivated-by) (2025-10-06) — [`tobi-lutke-is-still-captivated-by.txt`](./tobi-lutke-is-still-captivated-by.txt)
-- [Why the smartphone era is ending, with Evan Spiegel of Snap](https://cheekypint.substack.com/p/what-comes-after-smartphones-with) (2026-04-27) — [`what-comes-after-smartphones-with.txt`](./what-comes-after-smartphones-with.txt)
-- [Zipline CEO Keller Cliffton on air-dropping blood to Rwandan hospitals and getting to 50,000 aircraft per year](https://cheekypint.substack.com/p/zipline-ceo-keller-cliffton-on-air) (2025-09-10) — [`zipline-ceo-keller-cliffton-on-air.txt`](./zipline-ceo-keller-cliffton-on-air.txt)
+| File | Title | Guest | Date |
+|------|-------|-------|------|
+| what-comes-after-smartphones-evan-spiegel-snap.txt | What comes after smartphones | Evan Spiegel, CEO Snap | 2026-04-27 |
+| tony-xu-doordash-restaurant-economics.txt | The economics and trends of the restaurant industry | Tony Xu, CEO DoorDash | 2026-04-21 |
+
+## Upcoming (not yet fetched)
+- Episode 32: Mati Staniszewski, ElevenLabs — 2026-04-14
+- Episode 31: Sundar Pichai, Google — 2026-04-07
+- Episode 30: Christina Cacioppo, Vanta — 2026-03-31
+- Episode 29: Dmitri Dolgov, Waymo — 2026-03-24
+- Episode 28: Tarek Mansour + Luana Lopes Lara, Kalshi — 2026-03-17
+- Episode 27: Bret Taylor, Sierra — 2026-03-10
+
+## Notes
+- Full transcripts not available on episode pages; show notes captured
