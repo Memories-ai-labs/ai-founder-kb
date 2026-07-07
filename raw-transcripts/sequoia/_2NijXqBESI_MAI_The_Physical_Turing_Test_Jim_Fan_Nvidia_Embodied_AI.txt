@@ -1,0 +1,320 @@
+# The Physical Turing Test: Jim Fan on Nvidia's Roadmap for Embodied AI
+# Guest: Jim Fan (Director of AI & Distinguished Research Scientist, NVIDIA)
+# URL: https://www.youtube.com/watch?v=_2NijXqBESI
+# video_no: VI713774004447739904
+# Date: 2024
+# source: Memories.ai / Sequoia Capital
+
+
+[00:00:02] Next up, we have Jim Fan. You all know him. Come on up, Jim. Jensen was talking about him just this
+[00:00:08] morning. He is not only director of AI at NVIDIA, but also distinguished research scientist. And
+[00:00:16] he'll talk to us about physical AI. So a couple of days ago, I saw a blog post that caught my
+[00:00:23] attention. It says we passed the Turing test and nobody noticed. Well, Turing test used to be
+[00:00:30] secret, right? It's the holy grail of computer science, right? The idea that you can't tell the
+[00:00:35] difference between a conversation from a human or from a machine. And then it just so happens that
+[00:00:41] we got there. We just got there. And, you know, like people are upset when O3 Mini took a few
+[00:00:50] more seconds to think. Or that cloud is not able to debug your nasty, nasty code, right? And then
+[00:00:57] we shrug off every LOM breakthrough as just yet another two seconds.
+[00:01:00] On Tuesday, you guys in the room are the hardest crowd to impress. So I would like to propose
+[00:01:08] something very simple called the physical Turing test. And the idea is like this, right? You host a
+[00:01:16] hackathon party on a Sunday night. And this is what you end up with. Your partner is yelling at
+[00:01:22] you. And you're like, ah, damn. On Monday morning, I want to tell someone to clean up this mess and
+[00:01:29] make me a very nice candlelit dinner.
+[00:01:31] So I'm going to tell them to clean up this mess and make me a very nice candlelit dinner. So I'm
+[00:01:31] so my partner can be happy. And then you come home to this. And you cannot tell if this was from
+[00:01:39] a human or from a machine's work, right? Simple enough. The physical Turing test. But where are we
+[00:01:46] now? Are we getting close? Well, look at this humanoid robot getting ready for work. It didn't
+[00:01:53] make it, right? And how about our dogs and the banana peel? Yeah. And the robot instructs, you
+[00:02:03] know, breakfast cereal. Well, it correctly identifies the milk. I will give that an A minus, right? It's
+[00:02:09] well-intentioned. Oh, it's spoon physio. It's a VIP experience, right? Look at that. I'm jealous. I got
+[00:02:16] no one to spoon feed me. Yeah. This is where we're at. So why is it so damn hard to solve the physical
+[00:02:25] Turing test? You guys know that LLM researchers complain a lot, right? They complain a lot. And
+[00:02:32] recently, some guy named Ilya.
+[00:02:34] He complained. He said the LLM pre-training is running out of data. And he even called the
+[00:02:41] internet the fossil fuel of AI. And he said we're running out of data to train LLM. Well, just spend
+[00:02:48] one day with roboticists, and you'll know that how spoiled the LLM researchers are. We don't even get
+[00:02:55] the fossil fuel. So this is our data collection session at NVIDIA headquarters. There's a cafe in
+[00:03:01] NVIDIA. And we have these humanoid robots set up.
+[00:03:05] Well,
+[00:03:05] we operate them and collect the data. And this is what the data look like, right? The robot
+[00:03:11] joined control signals. And these are continuous values over time. And you cannot scrape this
+[00:03:17] from the internet. You can't find it on Wikipedia, on YouTube, on Reddit, anywhere. So you have to
+[00:03:23] collect it yourself. And how do we collect it? We have a very sophisticated way, but also very
+[00:03:30] expensive way called teleoperation. Well, you can have a human wear something of a VR headset,
+[00:03:36] that recognizes your hand pose and streams to the robot. And in this way, you can teach a robot
+[00:03:42] what to do, like pick up a bread out of a toaster and then pour honey over it. But you can imagine
+[00:03:47] this is a very slow and painful process, right? So if you put it on the scaling plot,
+[00:03:53] basically, it doesn't scale at all. The real robot data is the human fuel. It's worse than
+[00:03:59] the fossil fuel. You're burning human fuel. And what's worse, it's at most 24 hours per robot per
+[00:04:05] day. And, in fact, you'll get much less than that because the human gets tired and the robots get
+[00:04:10] tired even more than the humans. So this is what you get. And what to do, right? How to break this
+[00:04:18] barrier? Where is the nuclear energy for robotics? We've got to have clean energy. Can't live on
+[00:04:24] fossil fuel forever. Well, enter simulation. We're going to leave the physical world,
+[00:04:31] and then do something in simulation. So we trained this robot hand to do superhuman dexterous tests,
+[00:04:37] that I spin in a pen in a simulation.
+[00:04:40] And well, it's superhuman with respect to me
+[00:04:43] because I couldn't spin pen,
+[00:04:44] and I just gave up a long time ago in childhood.
+[00:04:47] And I'm glad that my robot, at least in simulation,
+[00:04:50] can do it better than I do.
+[00:04:51] So how do we train the hand
+[00:04:52] to do a sophisticated task like this?
+[00:04:55] There are two ideas.
+[00:04:57] One is you've got to simulate
+[00:04:58] at 10,000 times faster than real time,
+[00:05:01] meaning that you should have 10,000 environments
+[00:05:04] running in parallel on a single GPU
+[00:05:05] doing physics simulation.
+[00:05:07] That's number one.
+[00:05:08] And number two, the 10,000 copies of the environment
+[00:05:11] cannot all be identical.
+[00:05:13] You've got to vary some parameters
+[00:05:14] like gravity, friction, and weight,
+[00:05:16] and we call that domain randomization.
+[00:05:19] And that gives us the simulation principle, right?
+[00:05:21] Why does it work?
+[00:05:23] So imagine if a neural net is able to control the robot
+[00:05:26] to solve a million different worlds,
+[00:05:29] then it may very well solve the million and first world,
+[00:05:32] which is our physical reality.
+[00:05:34] So in other words, our physical world
+[00:05:36] is in distribution of this tree.
+[00:05:38] It's in distribution of our training.
+[00:05:42] And then how we apply this, you can build a digital twin, right?
+[00:05:46] A one-to-one copy of the robot and the world.
+[00:05:49] And then your training simulation,
+[00:05:51] you test it on the real world, directly transfers, right?
+[00:05:54] Zero-shot.
+[00:05:55] And you can do a hand.
+[00:05:57] And this is the most impressive task that we could do.
+[00:06:00] So basically, you have a robot dog on a ball,
+[00:06:02] and then we transfer that to real world.
+[00:06:06] This is at Penn, at UPenn.
+[00:06:09] And basically, some work.
+[00:06:10] This is the one walking the robot dog.
+[00:06:12] Our researcher, super weird, looks
+[00:06:14] like a Black Mirror episode.
+[00:06:16] And this is Dr. Eureka.
+[00:06:18] Actually, one of our researchers tried his dog on a yoga ball.
+[00:06:22] At least we're super dog dexterity right now.
+[00:06:24] Yeah, the dog cannot do it.
+[00:06:28] And next, we can also apply that to much more complicated robots
+[00:06:31] like the humanoid.
+[00:06:32] And these humanoid robots, they went through 10 years worth
+[00:06:36] of training in only two hours of simulation time
+[00:06:39] to learn walking.
+[00:06:42] And then you can transfer that.
+[00:06:43] And it doesn't matter what the embodiment is.
+[00:06:45] As long as you have the robot model, you simulate it,
+[00:06:47] and you can do the walking.
+[00:06:50] And can we do more than walking, right?
+[00:06:52] So as we are controlling our body,
+[00:06:55] you can track any pose that you want, track any key point,
+[00:06:58] follow any velocity vector that you want.
+[00:07:01] And this is called the whole body control problem
+[00:07:03] of humanoid.
+[00:07:04] And it's really difficult.
+[00:07:05] But we can train that on 10,000 simulations running parallel.
+[00:07:11] And we can transfer that zero-shot,
+[00:07:12] without any fine-tuning, to the real robot.
+[00:07:15] So this is at the NVIDIA lab.
+[00:07:18] We actually need to slow down the video.
+[00:07:19] So the first video is in real time.
+[00:07:21] And the next video is slowed down.
+[00:07:23] So you can see the sophistication of the motion
+[00:07:26] that it does.
+[00:07:27] It imitates the human, all these agile motions,
+[00:07:30] while standing balanced.
+[00:07:31] And guess how big of the neural network
+[00:07:35] it is required to do this?
+[00:07:36] It is 1.5 million parameters.
+[00:07:38] Not billion.
+[00:07:39] 1.5 million parameters is enough to capture,
+[00:07:42] the subconscious processing of the human body,
+[00:07:45] the system-wide reasoning.
+[00:07:47] 1.5 million parameters.
+[00:07:50] So if we put this on this diagram,
+[00:07:52] where you have the speed versus the diversity of the simulation,
+[00:07:56] I think we'll call this simulation 1.0,
+[00:07:59] the digital twin paradigm, where it
+[00:08:01] is a classical vectorized physics engine.
+[00:08:04] And then you can run that to 10,000 up
+[00:08:06] to a million frames per second.
+[00:08:08] But the issue is, you've got to build a digital twin.
+[00:08:11] You need someone to build a robot, to build the environment,
+[00:08:13] and everything.
+[00:08:14] That's very tedious and manual.
+[00:08:16] So can we start generating parts of the simulation?
+[00:08:20] All of these 3D assets are generated by a 3D generation
+[00:08:23] model.
+[00:08:24] All of these textures from stable diffusion,
+[00:08:27] or any diffusion you would like, all of these layouts
+[00:08:30] generated by prompting an LOM to write XML.
+[00:08:34] And putting all of these together,
+[00:08:35] we built a framework called Robocasa,
+[00:08:37] which is a large-scale simulation,
+[00:08:39] a compositional simulation of everyday tasks.
+[00:08:43] And everything here, except the robot, everything is generated.
+[00:08:46] You can compose different scenes.
+[00:08:48] But it still relies on this classical engine to run.
+[00:08:51] But you can already get a lot of tasks from it.
+[00:08:54] So now what we can do is we can have a human, again,
+[00:08:57] do the teleop.
+[00:08:58] But this time, you teleop in simulation.
+[00:09:00] You don't teleop a real robot.
+[00:09:02] You teleop in simulation.
+[00:09:04] You replay that trajectory in simulation.
+[00:09:06] And you add all the great hardware accelerator ray
+[00:09:08] tracing to make these beautiful scenes with lighting.
+[00:09:12] And you can even vary them.
+[00:09:13] You can even change the motion, right?
+[00:09:15] If you teleoperate and then move the cup from here to here,
+[00:09:19] you don't have to demonstrate moving cup from here to here
+[00:09:21] or from here to here again.
+[00:09:24] And then putting all of these, you
+[00:09:26] have one human demonstration in the simulation.
+[00:09:28] So environment generation, you can multiply that to n.
+[00:09:31] And so motion generation, m times n.
+[00:09:34] And I promise you, this is the only math
+[00:09:36] that you're going to do today.
+[00:09:37] That's how we multiply the data.
+[00:09:41] And then you put it together.
+[00:09:43] And then you awesome the formula.
+[00:09:47] And then you can quickly, if you can do it,
+[00:09:49] you can quickly, basically, imagine
+[00:09:51] how they would have looked like if you had like aba.
+[00:09:54] Yeah, they're very close enough.
+[00:09:57] And you see kind of, the way they're
+[00:09:58] looking is very close to each other.
+[00:10:00] So how long it they're going to go on this picture,
+[00:10:01] It's not a digital twang, but it kind of captures the file, right, so a digital custom.
+[00:10:06] And these simulations run slower, but there are this kind of hybrid generative physics engine
+[00:10:11] where we generate parts of it and then delegate the rest to the classical graphics pipeline.
+[00:10:16] Now simulate this scene, right?
+[00:10:21] You've got soft body, you've got fluid, you've got everything.
+[00:10:24] It's going to take a very long time for artists or a graphics engineer to simulate this scene properly.
+[00:10:30] So if we look at how graphics evolved, it took 30 years to go from the left to the right,
+[00:10:37] and it just took video generative models one year to go from left to the right,
+[00:10:46] simulating all the deformable noodles, right?
+[00:10:50] It lost some sense of humor here, but that's a price I'm willing to pay for latest Sora, Vio, right,
+[00:10:56] all these generative models.
+[00:10:58] Only one year, and that's the power of scaling and data-driven process.
+[00:11:02] Do you recall this video I showed at the beginning?
+[00:11:06] I tricked you guys. There's not a real pixel in this video.
+[00:11:11] It is fully generated by a custom model.
+[00:11:14] So what we do is we take a general-purpose, open-source, right, state-of-the-art video generation model,
+[00:11:23] and we fine-tune it on domain data collected in our real robot lab, and all of these are generated.
+[00:11:28] And now you can prompt the model to imagine different futures, right, to simulate the counterfactuals.
+[00:11:35] So you see these two frames are the exact same, but given different language,
+[00:11:39] the generated video is actually going to follow language and do the right thing,
+[00:11:42] even though this motion never happened in the real world.
+[00:11:45] And then you can do this. The video diffusion model doesn't care how complex the scene is, right?
+[00:11:51] It doesn't care if there is, like, fluid or soft body.
+[00:11:54] And the same scene, you can ask it to pick up different things.
+[00:11:57] It will actually use the right hand to grab the object and put it in the basket.
+[00:12:02] And these are all generated. All of these are generated.
+[00:12:05] One of the pixels is real. It gets all these kind of reflections correct, right,
+[00:12:10] all of those interactions correct.
+[00:12:13] And one of my favorites is the robot playing ukulele over there.
+[00:12:18] So basically, the video model probably has seen millions of humans, like, lots of humans playing ukulele.
+[00:12:25] And then it just simulates the robot finger to do that.
+[00:12:28] Even though the hardware doesn't actually support it, the video generation model can do it.
+[00:12:34] So if we put this in perspective, right,
+[00:12:36] this is simulation 2.0, where it's got a lot of diversity,
+[00:12:41] but it could run pretty slow these days.
+[00:12:44] And nobody calls it, but I'm calling it the digital nomad, right,
+[00:12:48] which is wandering into the dream space of a video diffusion model.
+[00:12:52] And what is a video diffusion model?
+[00:12:54] Right, it is a compression of hundreds of millions of Internet videos
+[00:12:58] into this kind of simulation of the multiverse.
+[00:13:01] So just like Doctor Strange, right, you instantiate the robot in the dream space,
+[00:13:05] and basically the robot can now interact with objects everywhere,
+[00:13:09] everything everywhere, all at once.
+[00:13:12] So you have this embodied scaling law.
+[00:13:16] Okay, so Jensen left, but I think he's going to like this a lot, right?
+[00:13:21] So you need a lot of compute to scale up the classical simulation,
+[00:13:26] and that's the same 1.x series.
+[00:13:29] The issue is, as you scale this up, it's going to hit a wall
+[00:13:32] because the diversity is limited in this handcrafted system.
+[00:13:35] And then this is the newer world models, the same 2.0,
+[00:13:39] that's going to scale exponentially with compute,
+[00:13:42] and that's a point where the neural network outperforms a classical graphics engineer.
+[00:13:48] And together, these two adding up, that will be our nuclear power
+[00:13:53] to scale up the next generation of robotics systems.
+[00:13:57] The more you buy, the more you save.
+[00:14:00] So at the beginning, whoever says that the compute situation is going to improve, not worse,
+[00:14:06] burn this figure into a retina and think again.
+[00:14:09] And you put all those data into what we call vision language action model.
+[00:14:14] That takes in pixels and instruction and output motor control,
+[00:14:18] and you get what we open sourced at March GTC, Jensen's keynote,
+[00:14:24] called the GRUDE-N1 model.
+[00:14:26] And we run on the robot, you know, it could be romantic sometimes.
+[00:14:31] Yeah, you can't imagine how much cleaning we did during training.
+[00:14:35] So, yeah.
+[00:14:36] It's able to grasp the champagne.
+[00:14:38] In this one, it did it perfectly.
+[00:14:40] Yeah.
+[00:14:41] Did it very well.
+[00:14:42] And then it can also do some industrial tasks, pick up some of the factory objects,
+[00:14:47] and it can also do multi-robot coordination.
+[00:14:50] So GRUDE-N1 is fully open source,
+[00:14:53] and actually the future series of the model will also be open source
+[00:14:56] because we're following Jensen's paradigm of open source and democratizing physical AI.
+[00:15:04] Great, so what's next?
+[00:15:06] Where do we go after we solve physical AI?
+[00:15:08] I will say the next thing is the physical API.
+[00:15:12] You know, throughout human history, right, 5,000 years,
+[00:15:15] we have much better tools, right, much better society in general,
+[00:15:19] but the way we make dinner and do a lot of hand labor
+[00:15:22] are still more or less the same, right, from the Egyptian times.
+[00:15:25] And maybe for 99% of the human history,
+[00:15:30] we have this structure where you go from raw materials through human labor
+[00:15:35] and you build civilization.
+[00:15:37] And maybe in the last 1% or like 50 years,
+[00:15:39] we have human labor shrinking,
+[00:15:41] and we have these highly specialized, highly sophisticated robot systems
+[00:15:46] that can do one thing at a time,
+[00:15:48] and it's very expensive to program,
+[00:15:50] but they still live in our society.
+[00:15:52] And that's what we have right now.
+[00:15:54] And this is the future,
+[00:15:55] is to push that blue bar all over the place,
+[00:15:57] all over there,
+[00:15:58] and have the physical API, right,
+[00:16:00] just like LLM API,
+[00:16:02] moving around chunks of digits, of bits.
+[00:16:06] The physical API moves around chunks of atoms.
+[00:16:09] You basically give your software a physical actuator
+[00:16:13] to change, right, the physical world.
+[00:16:15] And on top of this physical API,
+[00:16:17] there's going to be a new economy,
+[00:16:20] a new paradigm,
+[00:16:21] where you have physical prompting, right?
+[00:16:23] How do we instruct these robots?
+[00:16:24] How do we teach them?
+[00:16:25] Language sometimes not enough.
+[00:16:27] You can have physical app store and skill economy.
+[00:16:30] So let's say Michelin chef
+[00:16:32] doesn't need to just go to the kitchen every day.
+[00:16:34] He can teach,
+[00:16:35] he can teach a robot
+[00:16:37] and then basically deliver a Michelin dinner as a service.
+[00:16:41] And I should quote Jensen here again,
+[00:16:45] that future,
+[00:16:46] everything that moves will be autonomous.
+[00:16:49] And one day you'll come home, right,
+[00:16:53] to a clean sofa and a candlelit dinner,
+[00:16:56] and your partner's smiling at you
+[00:16:59] instead of yelling at you
+[00:17:00] for not doing the dirty laundry.
+[00:17:02] That still motivates me every day, right?
+[00:17:04] And you bought two humanoid robots last month.
+[00:17:07] It's running Groot N7.
+[00:17:09] And those robots just fade into the background, right?
+[00:17:12] Kind of like an ambient intelligence.
+[00:17:14] It fades into the background.
+[00:17:16] And you wouldn't even notice the moment
+[00:17:18] that we pass the physical Turing test.
+[00:17:21] And that day will simply be remembered
+[00:17:24] as another Tuesday.
+[00:17:26] Thanks.
