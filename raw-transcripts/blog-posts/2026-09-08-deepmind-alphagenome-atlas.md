@@ -36,3 +36,5 @@ Available free for academic research via:
 ## Relevance for AI Founders
 
 AlphaGenome Atlas signals DeepMind's continued push into scientific AI infrastructure. The combination of petabyte-scale precomputed predictions + API access + agentic platform integration represents the "foundation model + inference API" playbook applied to genomics. AI founders in biotech/healthtech should note this as the model for how scientific AI infrastructure will be commoditized — free academic access to capture researchers, then monetize enterprise/pharma via API and platform.
+
+HN reception: 582 points — strong signal for AI+bio/science community.
