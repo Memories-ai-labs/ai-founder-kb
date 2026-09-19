@@ -18,12 +18,10 @@ The combined company plans dual headquarters in Berlin and Toronto, with Heidelb
 - Samuel Weinbach (Aleph Alpha Co-Chief Research Officer) becomes Chief Research Officer
 
 **Strategic Focus:**
-The partnership emphasizes sovereignty and data control. As CEO Aidan Gomez stated, organizations shouldn't have to "choose between capable AI and control over their technology." The combined entity will operate within legal frameworks of both jurisdictions with integrated safeguards.
+The partnership emphasizes sovereignty and data control. As CEO Aidan Gomez stated, organizations shouldn't have to "choose between capable AI and control over their technology."
 
 **Notable Partnership:**
 Cohere will advance its collaboration with Schwarz Group to deliver sovereign AI solutions on STACKIT, Europe's sovereign cloud service.
-
-**Status:** Transaction remains subject to regulatory approvals, expected closure later in 2026.
 
 ## Significance for AI Founders
 

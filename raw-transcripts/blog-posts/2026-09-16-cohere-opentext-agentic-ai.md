@@ -10,7 +10,7 @@ Cohere and OpenText announced a strategic collaboration designed to assist gover
 
 ## Partnership Details
 
-The collaboration combines OpenText's enterprise data management capabilities with Cohere's North platform, which is described as a "secure agentic AI platform." Together, these companies aim to equip AI agents with the necessary context and intelligence to "reason over enterprise data and act across systems while maintaining control over security, deployment, and data location."
+The collaboration combines OpenText's enterprise data management capabilities with Cohere's North platform, described as a "secure agentic AI platform." Together, these companies aim to equip AI agents with the necessary context and intelligence to "reason over enterprise data and act across systems while maintaining control over security, deployment, and data location."
 
 ## Key Integration
 

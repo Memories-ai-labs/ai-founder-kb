@@ -3,25 +3,12 @@
 # Date: 2026-09-17
 # Source: Anthropic News
 
-Anthropic launched the Life Sciences Verification Program (LSVP), providing life science professionals with access to Mythos, Opus, and Sonnet models under customized safeguards designed for biology-related research.
+Anthropic has launched the Life Sciences Verification Program (LSVP), offering life science professionals access to Claude models with refined safeguards suited for biology-related research. The company states the program "gives life science professionals access to our Mythos, Opus, and Sonnet models with a refined set of safeguards more permissive for biology-related work."
 
-## Access Types
+The program encompasses two grant types. Standard Use grants suit most life science work, covering basic research, R&D, manufacturing, clinical development, and regulatory affairs. High-risk Use grants, available for specific projects with additional vetting, remove safeguards blocking life sciences requests.
 
-Two grant categories:
+Anthropic designed the program around "shared responsibility by monitoring usage against the intended use-case for the model access." The company emphasizes this approach protects against access compromise, insider threats, and agent misuse.
 
-**Standard Use grants** suit most life science work and extend to entire teams with annual renewal. Access to three primary models with refined classifiers optimized for scientific tasks spanning basic research, R&D, supply chain activities, clinical development, quality assurance, regulatory work, and investment diligence.
+Rather than real-time blocking, the program employs offline monitoring to detect misuse patterns across sessions. This requires 30-day data retention for flagged activity. Anthropic notes that "this data is strictly compartmentalized and cannot be used for model training."
 
-**High-risk Use grants** represent an add-on for projects involving greater misuse potential. This grant type "removes all safeguards that block life sciences requests" and requires six-month renewal for specific projects rather than entire teams.
-
-## Security Framework
-
-The program addresses three threat models:
-- Access compromise (malware or account takeover)
-- Insider threats from rogue employees
-- Unintended agent misuse
-
-Rather than real-time blocking of individual requests, LSVP employs offline monitoring examining usage patterns against stated research objectives. The system retains flagged activity data for 30 days. Use for model training is prohibited.
-
-## Availability
-
-LSVP operates through Claude's console, API, and Enterprise/Team plans, with individual plan support coming later. Initial enrollment is expected to reach hundreds of organizations within the first week.
+The program is currently available through Claude's first-party console, API, and Enterprise/Team plans. Individual plan support is forthcoming. Organizations can apply through Anthropic's website, with the company expecting to onboard hundreds within the first week.

@@ -27,7 +27,7 @@ Custom routing proxy:
 
 ## Performance Results
 
-Five experimental iterations reduced runtime from 3h 27min to 53min for 500 training steps (3.9× speedup). Key optimizations:
+Five experimental iterations reduced runtime from 3h 27min to 53min for 500 training steps (3.9x speedup). Key optimizations:
 - Token-budget batching (dense sequence packing)
 - Disabling gradient checkpointing for memory efficiency
 - Increasing concurrent in-flight requests
