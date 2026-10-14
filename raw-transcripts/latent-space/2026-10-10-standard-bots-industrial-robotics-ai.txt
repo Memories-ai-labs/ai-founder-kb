@@ -1,0 +1,48 @@
+# Building AI for Reliable Execution: Lessons From Industrial Robotics
+# URL: https://www.latent.space/p/standard-bots
+# Date: 2026-10-10
+# Source: Latent Space (article by Richard MacManus)
+# Guests: Evan Beard (co-founder & CEO, Standard Bots), Leif Jentoft (Head of AI, Standard Bots)
+
+## Business context
+
+- Standard Bots builds industrial robot arms (not humanoids) for machine tending, welding, assembly.
+- Raised $200M Series C at $1B valuation. Customers: NASA, Amazon, Lockheed Martin.
+
+## Model strategy
+
+- Shared base model adapted per customer via demonstrations and fine-tuning.
+- Multiple models: includes a zero-shot perception system for machine tending.
+- Largest model has low-billions of parameters — far smaller than frontier models.
+- Prioritizes data quality and targeted data over raw dataset size. Real-world interventions fix edge cases with ~dozens of examples.
+
+## Division of labor
+
+- Learned models handle perception (locating/identifying parts); conventional programming handles motion and cell logic.
+- Focus on short-horizon tasks to meet cycle-time and reliability requirements.
+- Simulation used where possible, but liquids, suction, and flexible material cutting are hard to simulate accurately.
+
+## Full-stack co-optimization
+
+- Controls arm, end effector, control system, and AI → can co-optimize models and control policies.
+- Jentoft: no model is truly hardware-agnostic; tight coupling between low-level control and higher-level functions improves performance and iteration speed.
+
+## Deployment architecture
+
+- Training: cloud. Inference: on-premises on edge GPUs.
+- Sensor data flows over internal gigabit Ethernet; GPUs output "action chunks" to low-level control.
+- Local inference critical — many factories lack reliable internet; uptime drives customer acceptance.
+
+## Fleet learning
+
+- Captures failure signals and human corrections from deployments.
+- Air-gapped defense customers keep data local; others contribute data in exchange for performance gains.
+
+## Developer platform
+
+- StandardOS: APIs and SDKs so developers can use parts of the stack or bring their own models (e.g., NVIDIA Cosmos).
+- Plans to simplify data collection, training, and deployment.
+
+## Key takeaway
+
+- Keep the model's role narrow, use real-world corrections for edge cases, invest in targeted data. Applies to software agents too.

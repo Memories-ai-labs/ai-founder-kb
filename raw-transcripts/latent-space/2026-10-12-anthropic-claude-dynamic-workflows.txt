@@ -1,0 +1,30 @@
+# How Anthropic's Dynamic Workflows Coordinate Claude Agents
+# URL: https://www.latent.space/p/claude-dynamic-workflows
+# Date: 2026-10-12
+# Source: Latent Space (article by Richard MacManus)
+# Guests: CJ Avilla and Harrison Stall, Members of Technical Staff at Anthropic (AI Engineer NYC 2026)
+
+## What dynamic workflows ("flows") are
+
+- Anthropic's "flows" are a new type of multiagent orchestration built for ambitious workloads. Began in Claude Code and extend beyond a single agent or fixed roster.
+- The lead agent plans the work, then writes an orchestration program that launches agents, collects results, and manages information flow. Developers no longer need to configure coordinator/subagent rosters manually.
+
+## Architecture
+
+- Subagents share a filesystem to exchange information; cannot message each other directly through the API.
+- Developers can inspect each graph transition (payload the lead agent sent to each subagent) in Claude Console graph view.
+
+## Cost and control
+
+- Flows cost "much more" than single-agent runs but are more thorough.
+- Developers can set session budgets — model does not know its budget while running. Stall: "telling models their budget could make them anxious."
+- Over-spawning agents controlled via evals and lower defaults; explicit prompting needed for greater parallelization.
+
+## Improving over time
+
+- "Dreaming" (research preview): reorganizes memory stores using past session transcripts. Not built-in self-improvement, but hill-climbing and dreaming suggested as approaches.
+
+## Strategic direction
+
+- Framed as applying test-time compute to hard problems; Anthropic aims to make large-scale scientific work accessible to general developers.
+- Core motivation: bottleneck of humans reviewing large volumes of agent-generated PRs — flows are designed to ease this.
