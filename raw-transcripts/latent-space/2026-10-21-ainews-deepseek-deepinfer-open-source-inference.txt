@@ -1,0 +1,39 @@
+# [AINews] DeepSeek DeepInfer: Open Source SOTA Inference running 155T toks/day/cluster making $22m/day at ~80% margin for a 81 day payback
+# URL: https://www.latent.space/p/ainews-deepseek-deepinfer-open-source
+# Date: 2026-10-21
+# Source: Latent Space (AINews)
+
+## Summary
+
+DeepSeek open-sourced DeepInfer, the inference framework powering DeepSeek-V4.1-Flash. It is a customized version of vLLM crediting SGLang and TensorRT-LLM, supporting NVIDIA and Huawei Ascend hardware. The release comes with reported production figures suggesting extraordinary economics, but key production components were withheld.
+
+## Key Points
+
+- **What was released:** DeepInfer (customized vLLM fork), `deepseek-recipe` for API-compatible token encoding/decoding. Supports NVIDIA and Huawei Ascend.
+
+- **What was withheld:** KV-cache management, prefill/decode disaggregation, and load balancing. So the engine is open but the full production service is not reproducible from this release.
+
+- **Reported production figures (first-party, unaudited):**
+  - ~155 trillion tokens/day per cluster
+  - 96% input-cache hit rate
+  - ~$38 revenue per accelerator-hour at off-peak prices
+  - Estimated ~80% margin → ~81-day hardware payback
+
+- **Architecture:**
+  - Vision encoding, prefill, and decode are separated
+  - Prefill: 8-accelerator machines; Decode: 64–128-accelerator supernodes with wide expert parallelism
+  - Persistent KV blocks in 3FS cluster (~100 PiB)
+  - Cache retention: 3 days (agent traffic), 7 days (chatbot traffic)
+
+- **Technical innovations:**
+  - "SWA Bounded Replay" — reportedly nearly halves prefill computation
+  - DSpark adaptive speculative verification — adds ~6% throughput over fixed 5-token baseline
+
+- **Independent verification:** vLLM reported decode throughput within 6% of DeepInfer's published numbers on GB200 (decode only; doesn't cover DeepSeek's cache operations or routing).
+
+- **Context:** OpenAI announced 12-hour API prompt caching the same week. DeepSeek V4.1 Flash scored well on Arena and Vals.
+
+- **Market reaction:** Mixed. Some praised the engineering stack as comparable to OpenAI's. Others (e.g., Su Jin Yan) found the engineering write-up more valuable than the released code due to missing components.
+
+## Economics Significance
+If the reported margins are accurate, DeepSeek is demonstrating that inference can be a high-margin business at scale — reshaping assumptions about AI infrastructure unit economics and commoditization timelines.
