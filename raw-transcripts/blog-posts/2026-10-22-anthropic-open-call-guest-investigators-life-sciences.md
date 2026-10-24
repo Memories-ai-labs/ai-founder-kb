@@ -3,10 +3,21 @@
 # Date: 2026-10-22
 # Source: Anthropic News
 
-Anthropic is inviting principal investigators and research groups at academic institutions, nonprofits, or government labs to apply for special projects using Claude.
+Category: Announcements
+Topic: Life sciences
 
-Focus areas include causal human biology, structural and computational molecular biology, medicinal chemistry, drug discovery, and clinical science.
+## Summary
 
-Over 8–12 weeks, guest investigators work directly with Anthropic researchers to produce analyses, artifacts, and tools. Anthropic runs its models and harnesses at no cost to them. Outputs are to be published, with accompanying data and code open-sourced. Investigators keep the rights to their data and to any independent follow-on research.
+Anthropic is inviting life sciences researchers at academic institutions, nonprofits, and government labs to apply for special projects using Claude.
 
-The program is part of broader life sciences efforts, including the Life Sciences Verification Program and the AI for Science initiative. Applications are open for about 14 days, with selection notices expected about 14 days after close.
+## Key Details
+
+**Eligible focus areas:** Causal human biology, structural and computational molecular biology, medicinal chemistry, drug discovery, and clinical science.
+
+**Program structure:** Selected guest investigators work with Anthropic researchers for 8–12 weeks; Anthropic runs its models and harnesses at no cost.
+
+**IP:** Outputs are to be published and open-sourced; investigators keep the rights to their data and any follow-on research.
+
+**Timeline:** Applications open for ~14 days; selected applicants notified ~14 days after close.
+
+**Related programs:** Life Sciences Verification Program and the AI for Science initiative.
